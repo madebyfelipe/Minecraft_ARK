@@ -46,8 +46,18 @@ Regras:
 
 ## Fluxo de trabalho
 
-- Mudança de código em **worktree** isolado; commit na branch e push. **Nunca push na `main`**
-  nem force-push; a integração é por PR.
+- **Não criar worktree** a menos que o Felipe peça. Trabalhar no próprio checkout, numa branch
+  nova a partir da `main` (`git switch -c <nome>`). Se o ambiente da sessão obrigar a isolar
+  (job em segundo plano, que não pode escrever no checkout compartilhado), dizer no relatório
+  em que worktree e em que branch o trabalho ficou.
+
+  **Por quê:** worktrees paralelos espalham o trabalho em branches que não se enxergam. Duas
+  sessões acabam com metades que não conversam, o `tools/deploy-prism.sh` instala um jar com
+  só uma delas, e a integração vira um merge a mais. Uma branch por vez no mesmo checkout
+  mantém visível o que já existe.
+- Commit na branch e push. **Nunca push na `main`** nem force-push; a integração é por PR.
+- Antes de começar, `git fetch` e olhar as branches remotas: outra sessão pode já ter feito
+  parte do trabalho. Não afirmar que algo não existe sem ter buscado o remoto.
 - Verificar antes de dizer que terminou: `./gradlew build` (JUnit) e
   `./gradlew runGameTestServer` (servidor real). `runClient` e multiplayer são manuais.
 - Testar no jogo: `tools/deploy-prism.sh` copia o jar para a instância `IceAgeSurvival` do
