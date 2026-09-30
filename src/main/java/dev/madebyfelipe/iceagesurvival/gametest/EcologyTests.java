@@ -42,7 +42,6 @@ public class EcologyTests {
             LandCreature spawned = helper.spawnWithNoFreeWill(creature.get(), 1, 2, 1);
             helper.assertTrue(spawned.creatureLevel() >= 10, creature.getId() + " sem nível");
             helper.assertTrue(spawned.maxTorpor() > 0, creature.getId() + " sem torpor máximo");
-            helper.assertTrue(spawned.modelScale() > 0, creature.getId() + " com escala inválida");
             spawned.discard();
         }
         helper.succeed();

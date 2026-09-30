@@ -11,17 +11,20 @@ import software.bernie.geckolib.renderer.GeoEntityRenderer;
 
 /**
  * Renderer de qualquer {@link LandCreature}. Os assets vêm do id do tipo de entidade e o
- * tamanho vem de {@code body.model_scale} da espécie.
+ * tamanho vem de {@link CreatureModelSettings}.
  */
 public class CreatureRenderer extends GeoEntityRenderer<LandCreature> {
+    private final ResourceLocation typeId;
+
     public CreatureRenderer(EntityRendererProvider.Context context, ResourceLocation typeId) {
         super(context, new Model(typeId));
+        this.typeId = typeId;
     }
 
     @Override
     public void render(LandCreature entity, float entityYaw, float partialTick, PoseStack poseStack,
                        MultiBufferSource bufferSource, int packedLight) {
-        float scale = entity.modelScale();
+        float scale = CreatureModelSettings.INSTANCE.scale(typeId);
         scaleWidth = scale;
         scaleHeight = scale;
         shadowRadius = entity.getBbWidth() * 0.5F;

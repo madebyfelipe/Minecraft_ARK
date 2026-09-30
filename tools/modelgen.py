@@ -5,8 +5,8 @@ build(). Os arquivos saem direto em src/main/resources, nos caminhos que o Gecko
 Rodar um gerador de novo SOBRESCREVE edições feitas à mão no Blockbench.
 
 Convenções da geometria Bedrock: unidades de 1/16 de bloco, Y para cima, a criatura olha
-para -Z, origem no chão entre as patas. O tamanho final no jogo vem de body.model_scale
-no JSON da espécie.
+para -Z, origem no chão entre as patas. O tamanho final no jogo vem do parâmetro `scale`,
+gravado em creature_models/<especie>.json.
 """
 
 import json
@@ -185,7 +185,7 @@ def animations(species, gait):
     }
 
 
-def build(species, bones, palette, gait, tex_size, details=None, seed=1):
+def build(species, bones, palette, gait, tex_size, scale=1.0, details=None, seed=1):
     """Gera e grava geometria, textura e animações da espécie.
 
     `details(texture, cube_name, faces)` é chamado para cada cubo distinto depois da
@@ -210,11 +210,13 @@ def build(species, bones, palette, gait, tex_size, details=None, seed=1):
         "geo": ASSETS / "geo" / "entity" / f"{species}.geo.json",
         "texture": ASSETS / "textures" / "entity" / f"{species}.png",
         "animations": ASSETS / "animations" / "entity" / f"{species}.animation.json",
+        "settings": ASSETS / "creature_models" / f"{species}.json",
     }
     for path in paths.values():
         path.parent.mkdir(parents=True, exist_ok=True)
     paths["geo"].write_text(json.dumps(geometry(species, bones, uvs, tex_w, tex_h), indent=2) + "\n")
     texture.image.save(paths["texture"])
     paths["animations"].write_text(json.dumps(animations(species, gait), indent=2) + "\n")
+    paths["settings"].write_text(json.dumps({"scale": scale}, indent=2) + "\n")
     cubes = sum(len(b.cubes) for b in bones)
-    print(f"{species}: {len(bones)} ossos, {cubes} cubos, textura {tex_w}x{tex_h}")
+    print(f"{species}: {len(bones)} ossos, {cubes} cubos, textura {tex_w}x{tex_h}, escala {scale}")

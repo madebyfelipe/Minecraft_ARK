@@ -220,12 +220,11 @@ Formato atual do JSON de espécie (cresce a cada etapa):
 **Corpo:** bloco `body` na espécie, para o que é físico:
 
 ```json
-"body": { "knockback_resistance": 1.0, "step_height": 1.1, "breaks_leaves": true, "model_scale": 2.0 }
+"body": { "knockback_resistance": 1.0, "step_height": 1.1, "breaks_leaves": true }
 ```
 
 - `knockback_resistance` (0 a 1, padrão 0). Regra de design: toda espécie maior que o jogador usa 1 — um golpe não arremessa um animal desses.
 - `step_height` (padrão 0,6): altura que sobe sem pular. Animais grandes e rápidos usam 1,1; com o padrão eles travam em qualquer degrau de um bloco.
-- `model_scale` (padrão 1): fator aplicado ao modelo na renderização. A caixa de colisão é definida no registro do tipo de entidade e precisa acompanhar.
 - `breaks_leaves` (padrão falso): ao esbarrar numa copa, destrói as folhas e passa, como o ravager. Respeita a regra `mobGriefing`. Sem isso, um animal de mais de 2 blocos de altura fica preso em floresta.
 
 **Limites do vanilla:** `max_health` satura em 1024 e `armor` em 30. Valores acima são cortados pelo jogo. Espécies grandes e o boss precisam caber nisso ou usar outro mecanismo (ver [25](#25-riscos)).
@@ -281,7 +280,11 @@ As velocidades dos goals são calculadas por espécie para que o passeio ocioso 
 
 ### Workflow de assets
 
-Modelos são gerados por script em `tools/` (um `gen_<especie>.py` por espécie, sobre a biblioteca `modelgen.py`), que escreve geometria Bedrock, textura e animações direto em `src/main/resources/assets/iceagesurvival/{geo,textures,animations}/entity/`. Os arquivos abrem no Blockbench para conferência e ajuste. **Rodar o script de novo sobrescreve edições manuais** — ao editar um modelo à mão, aposentar o script daquela espécie.
+Modelos são gerados por script em `tools/` (um `gen_<especie>.py` por espécie, sobre a biblioteca `modelgen.py`), que escreve geometria Bedrock, textura e animações direto em `src/main/resources/assets/iceagesurvival/{geo,textures,animations}/entity/`. Os arquivos abrem no Blockbench para conferência e ajuste.
+
+O tamanho do modelo no jogo fica em `assets/iceagesurvival/creature_models/<especie>.json` (`{ "scale": 2.0 }`), junto do modelo e não nos dados da espécie: quem troca o modelo por resource pack também acerta a escala. A caixa de colisão é definida no registro do tipo de entidade e precisa acompanhar.
+
+**Placeholders locais do F&A Revival:** por decisão do Felipe, a instância de teste usa os modelos de mamute e smilodon do mod *Fossils and Archeology: Revival* enquanto não há modelos definitivos. A arte desse mod é *All Rights Reserved* e redistribuí-la exige permissão dos autores, então ela **não entra no repositório nem no jar**: `tools/install-revival-placeholders.py` baixa o Revival para um cache e monta um resource pack dentro da instância do Prism. O script não contém arte. Antes de qualquer distribuição do mod, os modelos precisam ser nossos ou licenciados. **Rodar o script de novo sobrescreve edições manuais** — ao editar um modelo à mão, aposentar o script daquela espécie.
 
 ### Spawn natural (implementado)
 
@@ -466,6 +469,7 @@ Ver a tabela em [4](#4-decisões). Registro de mudanças estruturais:
 - 2026-09-30 — Etapa 2: D12–D14. Criatura de teste antecipada para a Etapa 2.
 - 2026-09-30 — Assets: workflow de modelos gerados por script aprovado. `blockbench-mcp` (enfp-dev-studio) avaliado e descartado: é só um esqueleto que envia `hello_world`.
 - 2026-09-30 — Narcótico, árvore de fruta-negra e nova receita da flecha, a pedido do Felipe. Smilodon ampliado (escala 2,0, dorso a ~2,4 blocos) e imune a recuo.
+- 2026-09-30 — Escala do modelo saiu de `body.model_scale` (dados) para `creature_models/` (assets). Placeholders do F&A Revival como resource pack local, fora do repositório.
 - 2026-09-30 — Etapa 5: `LandCreature` genérica substitui a classe `Smilodon`; mamute e lobo-terrível; manada, defesa em grupo, caça e spawn natural por dados.
 - 2026-09-30 — Inventário de criatura (come sozinha; dono = quem derrubou), bloco `body` e correções de pathfinding do Smilodon (degrau 1,1, atravessa folhas, colisão 1,3 × 2,3).
 - 2026-09-30 — A instância de teste do Prism passou a receber uma cópia do jar (`tools/deploy-prism.sh`): o atalho para `build/libs` quebrava o jogo aberto a cada recompilação.

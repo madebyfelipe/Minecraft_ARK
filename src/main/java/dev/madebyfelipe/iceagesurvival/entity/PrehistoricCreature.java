@@ -169,11 +169,6 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         return species().flatMap(Species::behavior);
     }
 
-    /** Fator de escala do modelo; usado pelo renderer. */
-    public float modelScale() {
-        return species().flatMap(Species::body).map(BodyProfile::modelScale).orElse(BodyProfile.DEFAULT.modelScale());
-    }
-
     private Optional<TamingProfile> tamingProfile() {
         return species().flatMap(Species::taming);
     }

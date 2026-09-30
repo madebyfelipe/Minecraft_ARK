@@ -63,4 +63,4 @@ if __name__ == "__main__":
         Palette(fur=FUR, top=FUR_DARK, belly=BELLY, overrides={"tusk": IVORY, "tusk_base": IVORY}),
         Gait(legs_a=("leg_front_left", "leg_hind_right"), legs_b=("leg_front_right", "leg_hind_left"),
              head="head", tail="tail", leg_swing=18.0, walk_length=1.2, fallen_lift=7),
-        tex_size=(128, 128), details=details, seed=2)
+        scale=1.8, tex_size=(128, 128), details=details, seed=2)

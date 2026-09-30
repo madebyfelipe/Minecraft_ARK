@@ -65,4 +65,4 @@ if __name__ == "__main__":
         Palette(fur=FUR, top=FUR_DARK, belly=BELLY, overrides={"saber": (240, 234, 214)}),
         Gait(legs_a=("leg_front_left", "leg_hind_right"), legs_b=("leg_front_right", "leg_hind_left"),
              head="neck", tail="tail", jaw="jaw", fallen_lift=5),
-        tex_size=(128, 64), details=details)
+        scale=2.0, tex_size=(128, 64), details=details)

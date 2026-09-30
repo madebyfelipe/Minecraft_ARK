@@ -20,9 +20,6 @@
       "per_point": 0.03
     }
   },
-  "body": {
-    "model_scale": 1.2
-  },
   "taming": {
     "torpor_decay_per_second": 1.0,
     "required_food": 80,

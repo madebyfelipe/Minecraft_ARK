@@ -52,4 +52,4 @@ if __name__ == "__main__":
         Palette(fur=FUR, top=FUR_DARK, belly=BELLY),
         Gait(legs_a=("leg_front_left", "leg_hind_right"), legs_b=("leg_front_right", "leg_hind_left"),
              head="head", tail="tail", leg_swing=32.0, walk_length=0.6, fallen_lift=4),
-        tex_size=(64, 64), details=details, seed=3)
+        scale=1.2, tex_size=(64, 64), details=details, seed=3)

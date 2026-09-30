@@ -9,6 +9,7 @@ import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.gui.ConfigurationScreen;
@@ -24,6 +25,7 @@ public class IceAgeSurvivalClient {
         modEventBus.addListener(IceAgeSurvivalClient::registerRenderers);
         modEventBus.addListener(IceAgeSurvivalClient::registerItemColors);
         modEventBus.addListener(IceAgeSurvivalClient::registerGuiLayers);
+        modEventBus.addListener(IceAgeSurvivalClient::registerReloadListeners);
         modEventBus.addListener(CommandInput::registerKeys);
         NeoForge.EVENT_BUS.addListener(CommandInput::onClientTick);
     }
@@ -38,6 +40,10 @@ public class IceAgeSurvivalClient {
 
     private static void registerItemColors(RegisterColorHandlersEvent.Item event) {
         event.register((stack, tintIndex) -> tintIndex == 0 ? TRANQ_ARROW_TIP_COLOR : -1, ModItems.TRANQ_ARROW);
+    }
+
+    private static void registerReloadListeners(RegisterClientReloadListenersEvent event) {
+        event.registerReloadListener(CreatureModelSettings.INSTANCE);
     }
 
     private static void registerGuiLayers(RegisterGuiLayersEvent event) {
