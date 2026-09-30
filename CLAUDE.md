@@ -52,7 +52,10 @@ Regras:
   `./gradlew runGameTestServer` (servidor real). `runClient` e multiplayer são manuais.
 - Testar no jogo: `tools/deploy-prism.sh` copia o jar para a instância `IceAgeSurvival` do
   Prism (usa cópia, não atalho). Placeholders de modelo: `tools/install-revival-placeholders.py`.
-- **Licença:** a arte do F&A Revival é *All Rights Reserved*; fica só na máquina local, nunca
-  no repositório nem no jar.
+- **Licença:** a arte do F&A Revival é *All Rights Reserved* e **está no repositório** por
+  decisão do Felipe (2026-09-30), logo também vai no jar. Consequência: o jar não pode ser
+  distribuído a ninguém enquanto isso. Espécies afetadas em `tools/hand_authored.txt`;
+  detalhes e as três saídas em `src/main/resources/assets/iceagesurvival/ASSET_LICENSES.md`.
+  Não regerar essas espécies com `tools/gen_*.py` — o `modelgen` recusa de propósito.
 - Ao fechar uma etapa ou decisão estrutural: atualizar o roadmap (§23) e o registro de
   mudanças (§24) do CLOUD.md.

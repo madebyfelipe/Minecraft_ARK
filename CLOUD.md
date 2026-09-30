@@ -53,6 +53,10 @@ Fora de escopo: máquinas, árvores tecnológicas, dezenas de armaduras, arsenal
 | D15 | Ordem de ataque vale para **todas** as criaturas do jogador ao alcance | Exigir escolher uma criatura antes de apontar o alvo pediria um estado de "selecionada" escondido. Não é o sistema de grupos do brief (que continua fora). | Fechada |
 | D16 | O frio **é** o `ticksFrozen` do vanilla, não um valor paralelo sincronizado | Sincronização, persistência, vinheta de gelo e lentidão já existem e são de graça; um valor próprio pediria payload, HUD e NBT para o mesmo resultado. Custo: parar em 139/140 e assumir o dano (ver [15](#15-temperatura)). | Fechada |
 | D17 | Estado de frio do jogador em **attachment do NeoForge** | D8 dispensa attachments para *nossas* entidades; o jogador é de terceiros, e é exatamente o caso que os attachments existem para resolver. | Fechada |
+| D21 | Arte do F&A Revival **no repositório** (e portanto no jar), como placeholder | A pedido do Felipe: os modelos ficam abertos para edição no Blockbench sem depender de um resource pack local, e o jogo funciona logo depois de clonar. Custo aceito: a arte é *All Rights Reserved*, então **o jar deixa de ser distribuível** até ser substituída; o repositório é privado. | Provisória, por escolha — reverter ao substituir a arte |
+
+D18 a D20 estão reservadas para a branch da Etapa 7 (montaria e reposição de fauna), para o mesmo número não significar duas coisas depois do merge.
+
 
 ## 5. Mods avaliados
 
@@ -149,7 +153,13 @@ Por que não uma versão mais nova do Minecraft: GeckoLib, Tectonic e Lithostitc
 - **Nosso código:** licença ainda não definida (ver [26](#26-ainda-não-decidido)). Enquanto isso, `All Rights Reserved` no metadata e repositório privado.
 - **GeckoLib (MIT):** usado como dependência, não redistribuído dentro do nosso jar.
 - **Template MDK do NeoForge:** base do build; licença do template em `TEMPLATE_LICENSE.txt`.
-- **Assets:** todo modelo, textura, animação e som precisa ser original ou de licença compatível e registrada aqui. Nenhum asset de mod All Rights Reserved entra no repositório.
+- **Assets:** a regra de chegada é que todo modelo, textura, animação e som seja original ou de licença compatível — e é a regra para o mod ser distribuível. Hoje há uma exceção consciente e temporária, abaixo.
+
+**Assets de criatura.** A arte de mamute, smilodon e tyrannosaurus é do *Fossils and
+Archeology: Revival* e é **All Rights Reserved**. Desde 2026-09-30 ela fica no repositório
+(privado) e, por consequência, dentro do jar — ver [D21](#4-decisões) e
+`src/main/resources/assets/iceagesurvival/ASSET_LICENSES.md`. **O jar não pode ser
+distribuído** até essas espécies terem arte nossa ou licenciada.
 
 ## 10. Arquitetura
 
@@ -289,7 +299,23 @@ Modelos são gerados por script em `tools/` (um `gen_<especie>.py` por espécie,
 
 O tamanho do modelo no jogo fica em `assets/iceagesurvival/creature_models/<especie>.json` (`{ "scale": 2.0 }`), junto do modelo e não nos dados da espécie: quem troca o modelo por resource pack também acerta a escala. A caixa de colisão é definida no registro do tipo de entidade e precisa acompanhar.
 
-**Placeholders locais do F&A Revival:** por decisão do Felipe, a instância de teste usa os modelos de mamute, smilodon e tyrannosaurus do mod *Fossils and Archeology: Revival* enquanto não há modelos definitivos. A arte desse mod é *All Rights Reserved* e redistribuí-la exige permissão dos autores, então ela **não entra no repositório nem no jar**: `tools/install-revival-placeholders.py` baixa o Revival para um cache e monta um resource pack dentro da instância do Prism. O script não contém arte. Antes de qualquer distribuição do mod, os modelos precisam ser nossos ou licenciados. **Rodar o script de novo sobrescreve edições manuais** — ao editar um modelo à mão, aposentar o script daquela espécie.
+**Placeholders do F&A Revival (no repositório desde 2026-09-30):** por decisão do Felipe, a arte
+de mamute, smilodon e tyrannosaurus vem do mod *Fossils and Archeology: Revival* enquanto não há
+modelos definitivos. `tools/install-revival-placeholders.py` baixa o Revival para um cache fora do
+projeto e escreve geometria, textura, as quatro animações e a escala direto em
+`src/main/resources/assets/`. O script não contém arte.
+
+Antes essa arte ficava num resource pack dentro da instância do Prism, fora do git; [D21](#4-decisões)
+conta por que mudou. Duas consequências que valem ser lembradas:
+
+- A arte é **All Rights Reserved** e agora vai dentro do jar: **o jar não pode ser distribuído** até
+  ela ser substituída. Ver `ASSET_LICENSES.md` ao lado dos assets, com as três saídas possíveis.
+- As espécies com arte de fora ficam listadas em `tools/hand_authored.txt` e o `modelgen` **recusa**
+  regerá-las, para um `gen_<especie>.py` distraído não apagar o modelo em uso. Para voltar ao
+  placeholder de blocagem, que é nosso: `IAS_FORCE_GEN=1 python3 tools/gen_<especie>.py`.
+
+Rodar o instalador de novo sobrescreve edições manuais — ao começar a editar um modelo à mão, tirar
+a espécie de `SPECIES` no script.
 
 ### Spawn natural (implementado)
 
@@ -497,6 +523,9 @@ MVP = Etapas 1–4 + versão mínima de 6, 7 e 9 (mundo frio, temperatura básic
 
 Ver a tabela em [4](#4-decisões). Registro de mudanças estruturais:
 
+- 2026-09-30 — Arte do Revival passou do resource pack local para o repositório (D21), com guarda em
+  `modelgen` contra regeração e `ASSET_LICENSES.md` ao lado dos assets. O jar fica não distribuível
+  até a arte ser substituída.
 - 2026-09-30 — `CLAUDE.md` criado: Sonnet 5.5 para espécies e ajustes pela receita, Opus 5.5 para as etapas 7–10; trabalho grande dividido em subagentes, um por função.
 - 2026-09-30 — Primeiro dinossauro: `tyrannosaurus`, pela receita de espécie terrestre (sem classe nova). Bípede, sem montaria: o codec `Species` ainda não tem bloco de montaria, que nasce na Etapa 7. Spawn em biomas frios por ora (D6 ainda aberta).
 - 2026-09-30 — Etapa 6: temperatura. D5 fechada (sistema interno fica), D16 e D17. O frio reaproveita o congelamento do vanilla em vez de ter HUD próprio.
@@ -515,7 +544,7 @@ Ver a tabela em [4](#4-decisões). Registro de mudanças estruturais:
 
 | Risco | Impacto | Mitigação |
 |---|---|---|
-| **Assets de criaturas.** Não há artista no projeto e nenhum asset externo é reutilizável. | Médio — resolvido por ora com modelos gerados por script, aprovados pelo Felipe como workflow; a qualidade visual é de blocagem. | Iterar os modelos no Blockbench quando fizer diferença. |
+| **Assets de criaturas.** Não há artista no projeto e nenhum asset externo é reutilizável. | Médio — a arte em uso é do F&A Revival, que resolve o visual mas é *All Rights Reserved* e **trava a distribuição do jar** ([D21](#4-decisões)). Os geradores por script seguem como a alternativa nossa, de qualidade de blocagem. | Editar os modelos no Blockbench a partir daqui até serem nossos, ou licenciar. Enquanto isso, não entregar o jar a ninguém. |
 | Escopo: dez etapas, vários sistemas grandes. | Alto | MVP estreito; não avançar com etapa instável. |
 | Balanceamento de torpor/níveis/genética. | Médio | Tudo em dados e config; testes de lógica pura. |
 | O frio matar o jogador na primeira hora, antes de haver couro ou fogueira. | Médio | Curva e tempos todos em config; medir em jogo e afrouxar `coldSecondsToFreeze` ou a temperatura de conforto. |

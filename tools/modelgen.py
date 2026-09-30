@@ -2,7 +2,9 @@
 
 Cada espécie tem um script gen_<especie>.py que descreve ossos, cores e detalhes e chama
 build(). Os arquivos saem direto em src/main/resources, nos caminhos que o GeckoLib espera.
-Rodar um gerador de novo SOBRESCREVE edições feitas à mão no Blockbench.
+Rodar um gerador de novo SOBRESCREVE edições feitas à mão no Blockbench, então espécies
+cuja arte não vem daqui ficam listadas em tools/hand_authored.txt e são recusadas por
+build(). Para regerar mesmo assim (voltar ao placeholder de blocagem): IAS_FORCE_GEN=1.
 
 Convenções da geometria Bedrock: unidades de 1/16 de bloco, Y para cima, a criatura olha
 para -Z, origem no chão entre as patas. O tamanho final no jogo vem do parâmetro `scale`,
@@ -10,6 +12,7 @@ gravado em creature_models/<especie>.json.
 """
 
 import json
+import os
 import random
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -17,6 +20,15 @@ from pathlib import Path
 from PIL import Image
 
 ASSETS = Path(__file__).resolve().parent.parent / "src" / "main" / "resources" / "assets" / "iceagesurvival"
+HAND_AUTHORED = Path(__file__).resolve().parent / "hand_authored.txt"
+
+
+def hand_authored(species):
+    """Se a arte da espécie vem de fora dos geradores e não pode ser sobrescrita."""
+    if not HAND_AUTHORED.exists():
+        return False
+    names = {line.split("#")[0].strip() for line in HAND_AUTHORED.read_text().splitlines()}
+    return species in names
 
 
 @dataclass
@@ -191,6 +203,12 @@ def build(species, bones, palette, gait, tex_size, scale=1.0, details=None, seed
     `details(texture, cube_name, faces)` é chamado para cada cubo distinto depois da
     pintura base, para olhos, focinho, faixas etc.
     """
+    if hand_authored(species) and not os.environ.get("IAS_FORCE_GEN"):
+        raise SystemExit(
+            f"{species}: a arte atual não vem dos geradores (ver {HAND_AUTHORED.name} e "
+            "ASSET_LICENSES.md). Regerar apagaria o modelo em uso.\n"
+            f"Se é isso que você quer: IAS_FORCE_GEN=1 python3 tools/gen_{species}.py")
+
     tex_w, tex_h = tex_size
     uvs, sizes = pack_uvs(bones, tex_w, tex_h)
     texture = Texture(tex_w, tex_h, seed)

@@ -1,16 +1,17 @@
 #!/usr/bin/env python3
-"""Monta um resource pack LOCAL com modelos do mod Fossils and Archeology: Revival, para
-servirem de placeholder na instância de teste enquanto não temos modelos definitivos.
+"""Instala modelos do mod Fossils and Archeology: Revival como assets do mod, no repositório,
+para servirem de placeholder enquanto não temos modelos definitivos.
 
-ATENÇÃO — licença: o código do Revival é MIT, mas modelos e texturas são "All Rights
-Reserved" e a redistribuição exige permissão dos autores. Por isso este script:
+ATENÇÃO — licença: o código do Revival é MIT, mas **modelos e texturas são "All Rights
+Reserved"** e redistribuí-los exige permissão dos autores. Por decisão do Felipe
+(2026-09-30) eles passaram a ficar no repositório, que é privado, para poderem ser abertos
+e editados no Blockbench. Consequência que não dá para contornar: estando em
+`src/main/resources/assets/`, **eles também vão dentro de todo jar compilado**. Antes de
+qualquer distribuição do mod — tester, servidor de outra pessoa, release — os modelos das
+espécies listadas em `tools/hand_authored.txt` precisam ser nossos ou licenciados.
 
-  - baixa o Revival para um cache fora do projeto;
-  - escreve o pack dentro da instância do Prism, nunca no repositório;
-  - não deve ter a sua saída copiada para src/, para o git ou para o jar do mod.
-
-O pack sobrepõe só os assets de iceagesurvival (geometria, textura, animações e escala) das
-espécies listadas em SPECIES. Remover o pack volta aos modelos gerados por tools/gen_*.py.
+O script baixa o Revival para um cache fora do projeto e escreve, por espécie, geometria,
+textura, as quatro animações e a escala. Rodar de novo **sobrescreve** edições manuais.
 """
 
 import json
@@ -21,11 +22,10 @@ from pathlib import Path
 
 REVIVAL_REPO = "https://github.com/TeamFossilsArcheology/FossilsArcheologyRevival"
 CACHE = Path(os.environ.get("XDG_CACHE_HOME", Path.home() / ".cache")) / "iceagesurvival" / "revival"
-INSTANCE = Path(os.environ.get(
-    "PRISM_INSTANCE_DIR", Path.home() / ".local/share/PrismLauncher/instances/IceAgeSurvival/minecraft"))
-PACK_NAME = "revival_placeholders"
-# Formato de resource pack do Minecraft 1.21.1.
-PACK_FORMAT = 34
+PROJECT = Path(__file__).resolve().parent.parent
+ASSETS = PROJECT / "src" / "main" / "resources" / "assets" / "iceagesurvival"
+# Espécies cujos assets não devem ser regerados por tools/gen_<especie>.py.
+HAND_AUTHORED = PROJECT / "tools" / "hand_authored.txt"
 
 # espécie nossa -> (nome no Revival, textura, animações deles para as nossas quatro, altura desejada em blocos)
 SPECIES = {
@@ -95,33 +95,43 @@ def convert_animations(ours, theirs_name, mapping, source):
     return {"format_version": "1.8.0", "animations": out}
 
 
+def mark_hand_authored(species):
+    """Registra as espécies que o modelgen não deve sobrescrever."""
+    existing = set()
+    if HAND_AUTHORED.exists():
+        existing = {line.split("#")[0].strip() for line in HAND_AUTHORED.read_text().splitlines()}
+        existing.discard("")
+    names = sorted(existing | set(species))
+    HAND_AUTHORED.write_text(
+        "# Espécies cujos assets NÃO vêm de tools/gen_<especie>.py e não devem ser regerados.\n"
+        "# Preenchido por tools/install-revival-placeholders.py; o guarda está em tools/modelgen.py.\n"
+        "# Arte do F&A Revival, All Rights Reserved — ver ASSET_LICENSES.md.\n"
+        + "".join(f"{name}\n" for name in names))
+
+
 def main():
     fetch_revival()
     source = CACHE / "common" / "src" / "main" / "resources" / "assets" / "fossil"
-    pack = INSTANCE / "resourcepacks" / PACK_NAME
-    if pack.exists():
-        shutil.rmtree(pack)
-    assets = pack / "assets" / "iceagesurvival"
     for sub in ("geo/entity", "textures/entity", "animations/entity", "creature_models"):
-        (assets / sub).mkdir(parents=True)
-
-    (pack / "pack.mcmeta").write_text(json.dumps({"pack": {
-        "pack_format": PACK_FORMAT,
-        "description": "Placeholders locais do F&A Revival. Não redistribuir."}}, indent=2) + "\n")
+        (ASSETS / sub).mkdir(parents=True, exist_ok=True)
 
     for ours, (theirs, texture, mapping, height) in SPECIES.items():
         geometry = json.loads((source / "geo" / "entity" / f"{theirs}.geo.json").read_text())
-        (assets / "geo" / "entity" / f"{ours}.geo.json").write_text(json.dumps(geometry))
+        # Indentado, ao contrário do pack local que isto substituiu: agora estes arquivos
+        # vivem no git e são abertos à mão no Blockbench.
+        (ASSETS / "geo" / "entity" / f"{ours}.geo.json").write_text(json.dumps(geometry, indent=2) + "\n")
         shutil.copyfile(source / "textures" / "entity" / theirs / texture,
-                        assets / "textures" / "entity" / f"{ours}.png")
+                        ASSETS / "textures" / "entity" / f"{ours}.png")
         animations = convert_animations(ours, theirs, mapping, source / "animations" / f"{theirs}.animation.json")
-        (assets / "animations" / "entity" / f"{ours}.animation.json").write_text(json.dumps(animations))
+        (ASSETS / "animations" / "entity" / f"{ours}.animation.json").write_text(
+            json.dumps(animations, indent=2) + "\n")
         scale = round(height / model_height_blocks(geometry), 2)
-        (assets / "creature_models" / f"{ours}.json").write_text(json.dumps({"scale": scale}) + "\n")
+        (ASSETS / "creature_models" / f"{ours}.json").write_text(json.dumps({"scale": scale}, indent=2) + "\n")
         print(f"{ours}: modelo do Revival, escala {scale}")
 
-    print(f"Pack em {pack}")
-    print("Ative em Opções > Pacotes de Recursos dentro do jogo (ou reinicie se já estiver ativo).")
+    mark_hand_authored(SPECIES)
+    print(f"Assets em {ASSETS}")
+    print("Arte All Rights Reserved: substituir antes de distribuir o mod (ver ASSET_LICENSES.md).")
 
 
 if __name__ == "__main__":
