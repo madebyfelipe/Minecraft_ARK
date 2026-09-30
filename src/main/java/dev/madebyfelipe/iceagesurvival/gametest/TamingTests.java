@@ -1,14 +1,16 @@
 package dev.madebyfelipe.iceagesurvival.gametest;
 
 import dev.madebyfelipe.iceagesurvival.IceAgeSurvival;
+import dev.madebyfelipe.iceagesurvival.entity.Smilodon;
 import dev.madebyfelipe.iceagesurvival.entity.TestCreature;
 import dev.madebyfelipe.iceagesurvival.entity.TranqArrow;
 import dev.madebyfelipe.iceagesurvival.registry.ModEntities;
 import dev.madebyfelipe.iceagesurvival.registry.ModItems;
+import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -25,6 +27,15 @@ public class TamingTests {
     private static TestCreature spawn(GameTestHelper helper) {
         return helper.spawnWithNoFreeWill(ModEntities.TEST_CREATURE.get(), 1, 2, 1);
     }
+
+    /** Criatura derrubada pelo jogador, que passa a ser quem a domestica. */
+    private static TestCreature knockedOutBy(GameTestHelper helper, Player tamer) {
+        TestCreature creature = spawn(helper);
+        creature.addTorpor(creature.maxTorpor(), tamer);
+        return creature;
+    }
+
+    // ---- Torpor ----
 
     @GameTest(template = EMPTY)
     public static void torporBelowMaxDoesNotKnockOut(GameTestHelper helper) {
@@ -75,71 +86,6 @@ public class TamingTests {
     }
 
     @GameTest(template = EMPTY)
-    public static void awakeCreatureCannotBeFed(GameTestHelper helper) {
-        TestCreature creature = spawn(helper);
-        Player player = helper.makeMockPlayer(GameType.SURVIVAL);
-        player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.CARROT, 64));
-        creature.mobInteract(player, InteractionHand.MAIN_HAND);
-        helper.assertTrue(player.getMainHandItem().getCount() == 64, "criatura acordada comeu");
-        helper.assertTrue(creature.tamingProgress() == 0, "progresso sem estar inconsciente");
-        helper.succeed();
-    }
-
-    @GameTest(template = EMPTY)
-    public static void feedingRespectsTheInterval(GameTestHelper helper) {
-        TestCreature creature = spawn(helper);
-        creature.addTorpor(creature.maxTorpor());
-        Player player = helper.makeMockPlayer(GameType.SURVIVAL);
-        player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.BEETROOT, 64));
-        creature.mobInteract(player, InteractionHand.MAIN_HAND);
-        creature.mobInteract(player, InteractionHand.MAIN_HAND);
-        helper.assertTrue(player.getMainHandItem().getCount() == 63, "comeu duas vezes sem esperar");
-        helper.assertTrue(creature.tamingProgress() > 0, "sem progresso após comer");
-        helper.succeed();
-    }
-
-    @GameTest(template = EMPTY, timeoutTicks = 1600)
-    public static void feedingPreferredFoodTamesAndGrantsBonusLevels(GameTestHelper helper) {
-        TestCreature creature = spawn(helper);
-        int wildLevel = creature.creatureLevel();
-        creature.addTorpor(creature.maxTorpor());
-        Player player = helper.makeMockPlayer(GameType.SURVIVAL);
-        player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.CARROT, 64));
-
-        helper.succeedWhen(() -> {
-            if (!creature.isTame()) {
-                // Mantém a criatura derrubada enquanto come, como o jogador faria.
-                creature.setTorpor(creature.maxTorpor());
-                creature.mobInteract(player, InteractionHand.MAIN_HAND);
-            }
-            helper.assertTrue(creature.isTame(), "ainda não domesticada");
-            helper.assertTrue(player.getUUID().equals(creature.getOwnerUUID()), "dono errado");
-            helper.assertTrue(!creature.isUnconscious() && creature.torpor() == 0, "continua inconsciente");
-            helper.assertTrue(creature.creatureLevel() == wildLevel + wildLevel / 2,
-                    "nível " + creature.creatureLevel() + " a partir de " + wildLevel);
-            helper.assertTrue(creature.affinity() == 50.0F, "afinidade " + creature.affinity());
-        });
-    }
-
-    @GameTest(template = EMPTY)
-    public static void unconsciousStateAndProgressSurviveSaveAndLoad(GameTestHelper helper) {
-        TestCreature original = spawn(helper);
-        original.addTorpor(original.maxTorpor());
-        Player player = helper.makeMockPlayer(GameType.SURVIVAL);
-        player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.BEETROOT, 64));
-        original.mobInteract(player, InteractionHand.MAIN_HAND);
-
-        TestCreature loaded = ModEntities.TEST_CREATURE.get().create(helper.getLevel());
-        loaded.load(original.saveWithoutId(new CompoundTag()));
-
-        helper.assertTrue(loaded.isUnconscious(), "inconsciência não persistiu");
-        helper.assertTrue(loaded.torpor() == original.torpor(), "torpor não persistiu");
-        helper.assertTrue(loaded.tamingProgress() == original.tamingProgress() && loaded.tamingProgress() > 0,
-                "progresso não persistiu: " + loaded.tamingProgress());
-        helper.succeed();
-    }
-
-    @GameTest(template = EMPTY)
     public static void tranqArrowAppliesTorpor(GameTestHelper helper) {
         TestCreature creature = spawn(helper);
         // A área de teste tem teto de barreira logo acima; a flecha precisa nascer abaixo dele.
@@ -149,5 +95,141 @@ public class TamingTests {
         arrow.shoot(0, -1, 0, 1.5F, 0);
         helper.getLevel().addFreshEntity(arrow);
         helper.succeedWhen(() -> helper.assertTrue(creature.torpor() > 0, "flecha não aplicou torpor"));
+    }
+
+    // ---- Inventário e domesticação ----
+
+    @GameTest(template = EMPTY)
+    public static void wildInventoryOpensOnlyWhileUnconsciousAndOnlyForTheTamer(GameTestHelper helper) {
+        Player tamer = helper.makeMockPlayer(GameType.SURVIVAL);
+        Player other = helper.makeMockPlayer(GameType.SURVIVAL);
+        TestCreature creature = spawn(helper);
+        helper.assertTrue(!creature.canAccessInventory(tamer), "inventário de criatura acordada acessível");
+
+        creature.addTorpor(creature.maxTorpor(), tamer);
+        helper.assertTrue(creature.canAccessInventory(tamer), "quem derrubou não acessa o inventário");
+        helper.assertTrue(!creature.canAccessInventory(other), "outro jogador acessa o inventário");
+
+        creature.setTorpor(0);
+        helper.assertTrue(creature.tamerUUID() == null, "acordar não liberou a criatura");
+        helper.succeed();
+    }
+
+    @GameTest(template = EMPTY)
+    public static void tamedInventoryIsOwnerOnly(GameTestHelper helper) {
+        Player owner = helper.makeMockPlayer(GameType.SURVIVAL);
+        TestCreature creature = spawn(helper);
+        creature.tame(owner);
+        helper.assertTrue(creature.canAccessInventory(owner), "dono sem acesso");
+        helper.assertTrue(!creature.canAccessInventory(helper.makeMockPlayer(GameType.SURVIVAL)), "estranho com acesso");
+        helper.succeed();
+    }
+
+    @GameTest(template = EMPTY)
+    public static void awakeCreatureDoesNotEatFromInventory(GameTestHelper helper) {
+        TestCreature creature = spawn(helper);
+        creature.inventory().addItem(new ItemStack(Items.CARROT, 8));
+        helper.runAfterDelay(45, () -> {
+            helper.assertTrue(creature.inventory().countItem(Items.CARROT) == 8, "criatura acordada comeu");
+            helper.succeed();
+        });
+    }
+
+    @GameTest(template = EMPTY)
+    public static void eatsOneUnitPerInterval(GameTestHelper helper) {
+        TestCreature creature = knockedOutBy(helper, helper.makeMockPlayer(GameType.SURVIVAL));
+        creature.inventory().addItem(new ItemStack(Items.BEETROOT, 8));
+        // Intervalo da criatura de teste: 5 s. Em 3 s cabe exatamente uma refeição.
+        helper.runAfterDelay(60, () -> {
+            helper.assertTrue(creature.inventory().countItem(Items.BEETROOT) == 7,
+                    "sobraram " + creature.inventory().countItem(Items.BEETROOT));
+            helper.assertTrue(creature.tamingProgress() > 0, "sem progresso após comer");
+            helper.succeed();
+        });
+    }
+
+    @GameTest(template = EMPTY)
+    public static void eatsTheBestFoodFirst(GameTestHelper helper) {
+        TestCreature creature = knockedOutBy(helper, helper.makeMockPlayer(GameType.SURVIVAL));
+        creature.inventory().addItem(new ItemStack(Items.BEETROOT, 8));
+        creature.inventory().addItem(new ItemStack(Items.CARROT, 8));
+        helper.runAfterDelay(45, () -> {
+            helper.assertTrue(creature.inventory().countItem(Items.CARROT) == 7, "não comeu o alimento preferido");
+            helper.assertTrue(creature.inventory().countItem(Items.BEETROOT) == 8, "comeu o alimento pior primeiro");
+            helper.succeed();
+        });
+    }
+
+    @GameTest(template = EMPTY)
+    public static void ignoresItemsThatAreNotFood(GameTestHelper helper) {
+        TestCreature creature = knockedOutBy(helper, helper.makeMockPlayer(GameType.SURVIVAL));
+        creature.inventory().addItem(new ItemStack(Items.STONE, 8));
+        helper.runAfterDelay(45, () -> {
+            helper.assertTrue(creature.inventory().countItem(Items.STONE) == 8, "comeu pedra");
+            helper.assertTrue(creature.tamingProgress() == 0, "progresso sem alimento");
+            helper.succeed();
+        });
+    }
+
+    @GameTest(template = EMPTY, timeoutTicks = 1600)
+    public static void eatingPreferredFoodTamesForTheTamerWithBonusLevels(GameTestHelper helper) {
+        Player tamer = helper.makeMockPlayer(GameType.SURVIVAL);
+        TestCreature creature = knockedOutBy(helper, tamer);
+        int wildLevel = creature.creatureLevel();
+        creature.inventory().addItem(new ItemStack(Items.CARROT, 64));
+
+        helper.succeedWhen(() -> {
+            if (!creature.isTame()) {
+                // Mantém a criatura derrubada enquanto come, como o jogador faria.
+                creature.setTorpor(creature.maxTorpor());
+            }
+            helper.assertTrue(creature.isTame(), "ainda não domesticada");
+            helper.assertTrue(tamer.getUUID().equals(creature.getOwnerUUID()), "dono errado");
+            helper.assertTrue(!creature.isUnconscious() && creature.torpor() == 0, "continua inconsciente");
+            helper.assertTrue(creature.creatureLevel() == wildLevel + wildLevel / 2,
+                    "nível " + creature.creatureLevel() + " a partir de " + wildLevel);
+            helper.assertTrue(creature.affinity() == 50.0F, "afinidade " + creature.affinity());
+            helper.assertTrue(creature.inventory().countItem(Items.CARROT) > 0, "sobra de comida sumiu");
+        });
+    }
+
+    @GameTest(template = EMPTY)
+    public static void tamingStateAndInventorySurviveSaveAndLoad(GameTestHelper helper) {
+        Player tamer = helper.makeMockPlayer(GameType.SURVIVAL);
+        TestCreature original = knockedOutBy(helper, tamer);
+        original.inventory().addItem(new ItemStack(Items.BEETROOT, 8));
+
+        helper.runAfterDelay(45, () -> {
+            TestCreature loaded = ModEntities.TEST_CREATURE.get().create(helper.getLevel());
+            loaded.load(original.saveWithoutId(new CompoundTag()));
+
+            helper.assertTrue(loaded.isUnconscious(), "inconsciência não persistiu");
+            helper.assertTrue(loaded.torpor() == original.torpor(), "torpor não persistiu");
+            helper.assertTrue(loaded.tamingProgress() == original.tamingProgress() && loaded.tamingProgress() > 0,
+                    "progresso não persistiu: " + loaded.tamingProgress());
+            helper.assertTrue(loaded.inventory().countItem(Items.BEETROOT) == 7, "inventário não persistiu");
+            helper.assertTrue(tamer.getUUID().equals(loaded.tamerUUID()), "quem derrubou não persistiu");
+            helper.succeed();
+        });
+    }
+
+    @GameTest(template = EMPTY)
+    public static void inventoryDropsOnDeath(GameTestHelper helper) {
+        TestCreature creature = spawn(helper);
+        creature.inventory().addItem(new ItemStack(Items.CARROT, 5));
+        creature.kill();
+        helper.assertItemEntityPresent(Items.CARROT, new BlockPos(1, 2, 1), 3.0);
+        helper.succeed();
+    }
+
+    // ---- Corpo ----
+
+    @GameTest(template = EMPTY)
+    public static void largeSpeciesStepUpFullBlocks(GameTestHelper helper) {
+        Smilodon smilodon = helper.spawnWithNoFreeWill(ModEntities.SMILODON.get(), 1, 2, 1);
+        helper.assertTrue(smilodon.getAttributeValue(Attributes.STEP_HEIGHT) >= 1.0, "Smilodon não sobe um bloco");
+        TestCreature small = spawn(helper);
+        helper.assertTrue(small.getAttributeValue(Attributes.STEP_HEIGHT) == 0.6, "criatura pequena com degrau alterado");
+        helper.succeed();
     }
 }

@@ -33,5 +33,6 @@
   "block.iceagesurvival.black_fruit_leaves": "Folhas de Fruta-Negra",
   "item.iceagesurvival.black_fruit": "Fruta-Negra",
   "item.iceagesurvival.narcotic": "Narcótico",
-  "iceagesurvival.configuration.narcoticTorpor": "Torpor do narcótico"
+  "iceagesurvival.configuration.narcoticTorpor": "Torpor do narcótico",
+  "iceagesurvival.taming.not_yours": "Outra pessoa derrubou esta criatura"
 }

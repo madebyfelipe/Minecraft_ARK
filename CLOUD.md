@@ -217,7 +217,15 @@ Formato atual do JSON de espécie (cresce a cada etapa):
 
 **Velocidade de mobs:** a velocidade real cresce com o *quadrado* de `speed × modificador do goal`; o jogador anda a ~4,3 blocos/s e corre a ~5,6. Um produto de 0,5 dá ~11 blocos/s (o dobro da corrida do jogador); 0,2 dá ~1,8. O Smilodon tem `speed` 0,4 e persegue com modificador 1,25.
 
-**Recuo (knockback):** campo `knockback_resistance` na espécie, de 0 a 1 (padrão 0). Regra de design: toda espécie maior que o jogador usa 1 — um golpe não arremessa um animal desses. O Smilodon usa 1.
+**Corpo:** bloco `body` na espécie, para o que é físico:
+
+```json
+"body": { "knockback_resistance": 1.0, "step_height": 1.1, "breaks_leaves": true }
+```
+
+- `knockback_resistance` (0 a 1, padrão 0). Regra de design: toda espécie maior que o jogador usa 1 — um golpe não arremessa um animal desses.
+- `step_height` (padrão 0,6): altura que sobe sem pular. Animais grandes e rápidos usam 1,1; com o padrão eles travam em qualquer degrau de um bloco.
+- `breaks_leaves` (padrão falso): ao esbarrar numa copa, destrói as folhas e passa, como o ravager. Respeita a regra `mobGriefing`. Sem isso, um animal de mais de 2 blocos de altura fica preso em floresta.
 
 **Limites do vanilla:** `max_health` satura em 1024 e `armor` em 30. Valores acima são cortados pelo jogo. Espécies grandes e o boss precisam caber nisso ou usar outro mecanismo (ver [25](#25-riscos)).
 
@@ -274,10 +282,10 @@ Modelos são gerados por script em `tools/` (um por espécie), que escreve geome
 Implementado na criatura de teste.
 
 1. Flechas tranquilizantes acumulam torpor; ao atingir o máximo a criatura cai inconsciente.
-2. Inconsciente, ela aceita comida (clique direito com um alimento da espécie). Cada unidade soma o `value` do alimento ao progresso.
-3. Entre uma alimentação e outra há uma espera (`feed_interval_seconds`) — é o tempo em que o jogador precisa proteger a criatura.
+2. Inconsciente, clique direito abre o **inventário da criatura** (9 espaços). Ela come sozinha dali: uma unidade por vez, sempre o alimento de maior `quality` disponível. Cada unidade soma o `value` do alimento ao progresso.
+3. Entre uma refeição e outra há uma espera (`feed_interval_seconds`) — é o tempo em que o jogador precisa proteger a criatura.
 4. O torpor continua caindo. Se zerar antes do progresso completar, ela acorda e **o progresso é perdido**. Mais flechas mantêm o torpor, mas o dano delas reduz a eficiência.
-5. Progresso completo → domesticada; o dono é quem deu a última comida.
+5. Progresso completo → domesticada. **O dono é quem a derrubou** (o autor do torpor que a fez cair); só essa pessoa abre o inventário enquanto ela está caída. Se ninguém a derrubou (dispensador, por exemplo), vale quem abrir o inventário primeiro. Acordar libera a criatura de novo.
 
 **Alimento exigido** = `required_food × (1 + required_food_per_level × (nível − 1))`.
 
@@ -308,7 +316,9 @@ Bloco `taming` do JSON de espécie (ausente = espécie não acumula torpor):
 
 Feedback ao jogador: texto sob a mira ao olhar para a criatura — nome e nível, torpor %, domesticação %. Sem menu.
 
-Ainda não existe: regra de "tribo" no multiplayer (hoje qualquer jogador pode alimentar, e quem completa fica com a criatura).
+O inventário continua existindo depois de domesticada (o dono abre com agachar + clique direito), cai no chão se a criatura morrer e é salvo no NBT.
+
+Ainda não existe: tribo/time — a criatura é de um jogador só.
 
 ### 13.1 Comandos e afinidade
 
@@ -429,7 +439,9 @@ Ver a tabela em [4](#4-decisões). Registro de mudanças estruturais:
 - 2026-09-30 — Documento criado; D1–D11 registradas.
 - 2026-09-30 — Etapa 2: D12–D14. Criatura de teste antecipada para a Etapa 2.
 - 2026-09-30 — Assets: workflow de modelos gerados por script aprovado. `blockbench-mcp` (enfp-dev-studio) avaliado e descartado: é só um esqueleto que envia `hello_world`.
-- 2026-09-30 — Narcótico, árvore de fruta-negra e nova receita da flecha, a pedido do Felipe. Smilodon ampliado (escala 2,0; colisão 1,8 × 2,4, dorso a ~2,4 blocos) e imune a recuo.
+- 2026-09-30 — Narcótico, árvore de fruta-negra e nova receita da flecha, a pedido do Felipe. Smilodon ampliado (escala 2,0, dorso a ~2,4 blocos) e imune a recuo.
+- 2026-09-30 — Inventário de criatura (come sozinha; dono = quem derrubou), bloco `body` e correções de pathfinding do Smilodon (degrau 1,1, atravessa folhas, colisão 1,3 × 2,3).
+- 2026-09-30 — A instância de teste do Prism passou a receber uma cópia do jar (`tools/deploy-prism.sh`): o atalho para `build/libs` quebrava o jogo aberto a cada recompilação.
 - 2026-09-30 — Etapa 4: comandos, obediência por afinidade e D15.
 - 2026-09-30 — Etapa 3: torpor, domesticação e flecha tranquilizante; regras nas seções 13 e 14.
 
@@ -454,6 +466,5 @@ Ver a tabela em [4](#4-decisões). Registro de mudanças estruturais:
 6. Criaturas voadoras e de carga: quais espécies.
 7. Gestação vs. ovo por espécie.
 8. Nome final do mod (`Ice Age Survival` / id `iceagesurvival` são provisórios).
-9. Propriedade em multiplayer durante a domesticação (quem derrubou vs. quem alimentou).
 10. Muda da árvore de fruta-negra (plantar perto da base) — hoje só se colhe de árvores naturais.
 11. Mods de fauna só no CurseForge (ex.: Primal Era) — não verificados.

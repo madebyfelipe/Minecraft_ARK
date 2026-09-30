@@ -6,6 +6,7 @@ import dev.madebyfelipe.iceagesurvival.registry.ModItems;
 import javax.annotation.Nullable;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -44,7 +45,8 @@ public class TranqArrow extends AbstractArrow {
     protected void doPostHurtEffects(LivingEntity target) {
         super.doPostHurtEffects(target);
         if (target instanceof PrehistoricCreature creature) {
-            creature.addTorpor(ServerConfig.TRANQ_ARROW_TORPOR.get() * speedAtImpact / FULL_DRAW_SPEED);
+            creature.addTorpor(ServerConfig.TRANQ_ARROW_TORPOR.get() * speedAtImpact / FULL_DRAW_SPEED,
+                    getOwner() instanceof Player player ? player : null);
         }
     }
 

@@ -33,5 +33,6 @@
   "block.iceagesurvival.black_fruit_leaves": "Blackfruit Leaves",
   "item.iceagesurvival.black_fruit": "Blackfruit",
   "item.iceagesurvival.narcotic": "Narcotic",
-  "iceagesurvival.configuration.narcoticTorpor": "Narcotic torpor"
+  "iceagesurvival.configuration.narcoticTorpor": "Narcotic torpor",
+  "iceagesurvival.taming.not_yours": "Someone else knocked this creature out"
 }

@@ -20,7 +20,11 @@
       "per_point": 0.03
     }
   },
-  "knockback_resistance": 1.0,
+  "body": {
+    "knockback_resistance": 1.0,
+    "step_height": 1.1,
+    "breaks_leaves": true
+  },
   "taming": {
     "torpor_decay_per_second": 1.5,
     "required_food": 150,

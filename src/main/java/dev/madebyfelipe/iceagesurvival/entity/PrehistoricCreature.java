@@ -13,9 +13,11 @@ import dev.madebyfelipe.iceagesurvival.core.taming.TamingSession;
 import dev.madebyfelipe.iceagesurvival.entity.ai.OrderGoals;
 import dev.madebyfelipe.iceagesurvival.registry.ModItems;
 import dev.madebyfelipe.iceagesurvival.species.BehaviorProfile;
+import dev.madebyfelipe.iceagesurvival.species.BodyProfile;
 import dev.madebyfelipe.iceagesurvival.species.Species;
 import dev.madebyfelipe.iceagesurvival.species.TamingProfile;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.random.RandomGenerator;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
@@ -28,8 +30,11 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.EntityType;
@@ -41,8 +46,14 @@ import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.ChestMenu;
+import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.LeavesBlock;
+import net.minecraft.world.level.pathfinder.PathType;
+import net.minecraft.world.phys.AABB;
+import net.neoforged.neoforge.event.EventHooks;
 
 /**
  * Base de toda criatura do mod. Guarda os pontos de atributo do indivíduo e os
@@ -74,6 +85,8 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     private static final String TAG_AFFINITY = "Affinity";
     private static final String TAG_HOME = "Home";
     private static final String TAG_ORDER = "Order";
+    private static final String TAG_INVENTORY = "Inventory";
+    private static final String TAG_TAMER = "Tamer";
 
     private static final int TORPOR_UPDATE_INTERVAL_TICKS = 20;
     /** Afinidade inicial de uma domesticação com eficiência de 100%. */
@@ -87,6 +100,9 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     private static final float AFFINITY_PER_FEED = 5.0F;
     /** Uma criatura domesticada larga o alvo que se afastar mais que isto. */
     private static final double TAMED_TARGET_LEASH = 40.0;
+    /** Uma fileira de baú. */
+    public static final int INVENTORY_SIZE = 9;
+    private static final double INVENTORY_REACH = 8.0;
 
     private StatPoints statPoints = StatPoints.NONE;
     private boolean statsRolled;
@@ -98,6 +114,17 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     /** Centro do território: onde a criatura entrou no mundo pela primeira vez. */
     @Nullable
     private BlockPos homePos;
+    /** Quem derrubou a criatura: só essa pessoa mexe no inventário e é ela quem fica com a criatura. */
+    @Nullable
+    private UUID tamerUUID;
+    private boolean breaksLeaves;
+    private final SimpleContainer inventory = new SimpleContainer(INVENTORY_SIZE) {
+        @Override
+        public boolean stillValid(Player player) {
+            return canAccessInventory(player)
+                    && player.distanceToSqr(PrehistoricCreature.this) <= INVENTORY_REACH * INVENTORY_REACH;
+        }
+    };
 
     protected PrehistoricCreature(EntityType<? extends PrehistoricCreature> type, Level level) {
         super(type, level);
@@ -208,7 +235,15 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         setBase(Attributes.ATTACK_DAMAGE, profile.value(Stat.ATTACK, points));
         setBase(Attributes.MOVEMENT_SPEED, profile.value(Stat.SPEED, points));
         setBase(Attributes.ARMOR, profile.value(Stat.ARMOR, points));
-        setBase(Attributes.KNOCKBACK_RESISTANCE, species.knockbackResistance());
+
+        BodyProfile body = species.body().orElse(BodyProfile.DEFAULT);
+        setBase(Attributes.KNOCKBACK_RESISTANCE, body.knockbackResistance());
+        setBase(Attributes.STEP_HEIGHT, body.stepHeight());
+        breaksLeaves = body.breaksLeaves();
+        if (breaksLeaves) {
+            // Sem isto o pathfinder contorna copas que a criatura consegue atravessar.
+            setPathfindingMalus(PathType.LEAVES, 0.0F);
+        }
     }
 
     private void setBase(Holder<Attribute> attribute, double value) {
@@ -234,13 +269,25 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         return entityData.get(DATA_UNCONSCIOUS);
     }
 
-    /** Aplica torpor vindo de um tranquilizante. Criaturas domesticadas são imunes. */
     public void addTorpor(double amount) {
+        addTorpor(amount, null);
+    }
+
+    /**
+     * Aplica torpor vindo de um tranquilizante. Criaturas domesticadas são imunes.
+     *
+     * @param source quem aplicou; se este torpor derrubar a criatura, ela passa a ser dessa pessoa para domesticar
+     */
+    public void addTorpor(double amount, @Nullable Player source) {
         Optional<TamingProfile> profile = tamingProfile();
         if (level().isClientSide || amount <= 0 || isTame() || profile.isEmpty()) {
             return;
         }
+        boolean wasConscious = !isUnconscious();
         setTorpor(torpor + amount * profile.get().torporMultiplier());
+        if (wasConscious && isUnconscious() && source != null) {
+            tamerUUID = source.getUUID();
+        }
     }
 
     /** Define o torpor diretamente, derrubando ou acordando a criatura conforme o caso. */
@@ -266,6 +313,7 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         entityData.set(DATA_UNCONSCIOUS, false);
         tamingSession.reset();
         entityData.set(DATA_TAMING_PROGRESS, 0.0F);
+        tamerUUID = null;
     }
 
     @Override
@@ -296,11 +344,78 @@ public abstract class PrehistoricCreature extends TamableAnimal {
             double decayPerSecond = tamingProfile().map(TamingProfile::torporDecayPerSecond).orElse(0.0);
             setTorpor(torpor - decayPerSecond * TORPOR_UPDATE_INTERVAL_TICKS / 20.0);
         }
+        if (isUnconscious() && !isTame()) {
+            eatFromInventory();
+        }
         LivingEntity target = getTarget();
         if (isTame() && target != null
                 && (!target.isAlive() || distanceToSqr(target) > TAMED_TARGET_LEASH * TAMED_TARGET_LEASH)) {
             setTarget(null);
         }
+    }
+
+    @Override
+    public void aiStep() {
+        super.aiStep();
+        if (!level().isClientSide && breaksLeaves && horizontalCollision && !isUnconscious()
+                && EventHooks.canEntityGrief(level(), this)) {
+            breakLeavesInTheWay();
+        }
+    }
+
+    private void breakLeavesInTheWay() {
+        AABB box = getBoundingBox().inflate(0.2);
+        for (BlockPos pos : BlockPos.betweenClosed(
+                BlockPos.containing(box.minX, box.minY, box.minZ), BlockPos.containing(box.maxX, box.maxY, box.maxZ))) {
+            if (level().getBlockState(pos).getBlock() instanceof LeavesBlock) {
+                level().destroyBlock(pos, true, this);
+            }
+        }
+    }
+
+    // ---- Inventário ----
+
+    public SimpleContainer inventory() {
+        return inventory;
+    }
+
+    @Nullable
+    public UUID tamerUUID() {
+        return tamerUUID;
+    }
+
+    /**
+     * Domesticada: só o dono. Selvagem: só enquanto inconsciente, e só quem a derrubou
+     * (ou qualquer um, se ninguém a derrubou).
+     */
+    public boolean canAccessInventory(Player player) {
+        if (!isAlive()) {
+            return false;
+        }
+        if (isTame()) {
+            return isOwner(player);
+        }
+        return isUnconscious() && (tamerUUID == null || tamerUUID.equals(player.getUUID()));
+    }
+
+    private void openInventory(Player player) {
+        if (!canAccessInventory(player)) {
+            player.displayClientMessage(Component.translatable("iceagesurvival.taming.not_yours"), true);
+            return;
+        }
+        if (!isTame() && tamerUUID == null) {
+            tamerUUID = player.getUUID();
+        }
+        player.openMenu(new SimpleMenuProvider(
+                (containerId, playerInventory, opener) ->
+                        new ChestMenu(MenuType.GENERIC_9x1, containerId, playerInventory, inventory, 1),
+                getDisplayName()));
+    }
+
+    @Override
+    protected void dropEquipment() {
+        super.dropEquipment();
+        Containers.dropContents(level(), this, inventory);
     }
 
     // ---- Comandos ----
@@ -381,20 +496,23 @@ public abstract class PrehistoricCreature extends TamableAnimal {
             if (stack.is(ModItems.NARCOTIC)) {
                 if (!level().isClientSide) {
                     usePlayerItem(player, hand, stack);
-                    addTorpor(ServerConfig.NARCOTIC_TORPOR.get());
+                    addTorpor(ServerConfig.NARCOTIC_TORPOR.get(), player);
                 }
                 return InteractionResult.sidedSuccess(level().isClientSide);
             }
-            Optional<TamingProfile> profile = tamingProfile();
-            Optional<TamingProfile.Food> food = profile.flatMap(p -> p.foodFor(stack));
-            if (food.isPresent()) {
-                if (!level().isClientSide) {
-                    feedUnconscious(player, hand, stack, profile.get(), food.get());
-                }
-                return InteractionResult.sidedSuccess(level().isClientSide);
+            // A comida vai no inventário; a criatura come sozinha no ritmo dela.
+            if (!level().isClientSide) {
+                openInventory(player);
             }
+            return InteractionResult.sidedSuccess(level().isClientSide);
         }
         if (!isUnconscious() && isOwner(player)) {
+            if (player.isSecondaryUseActive()) {
+                if (!level().isClientSide) {
+                    openInventory(player);
+                }
+                return InteractionResult.sidedSuccess(level().isClientSide);
+            }
             ItemStack stack = player.getItemInHand(hand);
             Optional<TamingProfile.Food> food = tamingProfile().flatMap(p -> p.foodFor(stack));
             if (food.isPresent()) {
@@ -421,26 +539,38 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         level().broadcastEntityEvent(this, (byte) 7);
     }
 
-    private void feedUnconscious(Player player, InteractionHand hand, ItemStack stack,
-                                 TamingProfile profile, TamingProfile.Food food) {
+    /** Inconsciente, come uma unidade do melhor alimento que houver no inventário, respeitando o intervalo. */
+    private void eatFromInventory() {
+        Optional<TamingProfile> profile = tamingProfile();
         long now = level().getGameTime();
-        if (now < nextFeedTime) {
-            player.displayClientMessage(Component.translatable("iceagesurvival.taming.not_hungry"), true);
+        if (profile.isEmpty() || tamerUUID == null || now < nextFeedTime) {
             return;
         }
-        usePlayerItem(player, hand, stack);
-        tamingSession.feed(food.value(), food.quality());
-        nextFeedTime = now + profile.feedIntervalSeconds() * 20L;
+        int bestSlot = -1;
+        TamingProfile.Food best = null;
+        for (int slot = 0; slot < inventory.getContainerSize(); slot++) {
+            Optional<TamingProfile.Food> food = profile.get().foodFor(inventory.getItem(slot));
+            if (food.isPresent() && (best == null || food.get().quality() > best.quality())) {
+                bestSlot = slot;
+                best = food.get();
+            }
+        }
+        if (best == null) {
+            return;
+        }
+        inventory.removeItem(bestSlot, 1);
+        tamingSession.feed(best.value(), best.quality());
+        nextFeedTime = now + profile.get().feedIntervalSeconds() * 20L;
 
-        double required = requiredFood(profile);
+        double required = requiredFood(profile.get());
         if (tamingSession.isComplete(required)) {
-            completeTaming(player);
+            completeTaming(tamerUUID);
         } else {
             entityData.set(DATA_TAMING_PROGRESS, (float) tamingSession.progress(required));
         }
     }
 
-    private void completeTaming(Player player) {
+    private void completeTaming(UUID owner) {
         double effectiveness = tamingSession.effectiveness();
         int bonus = TamingRules.bonusPoints(
                 statPoints.level(), ServerConfig.TAMING_BONUS_LEVEL_FRACTION.get(), effectiveness);
@@ -448,7 +578,14 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         affinity = (float) (effectiveness * MAX_INITIAL_AFFINITY);
 
         setOrder(DEFAULT_ORDER);
-        tame(player);
+        Player player = level().getPlayerByUUID(owner);
+        if (player != null) {
+            tame(player);
+        } else {
+            // O dono pode ter saído do servidor enquanto a criatura comia.
+            setTame(true, true);
+            setOwnerUUID(owner);
+        }
         setTorpor(0);
         level().broadcastEntityEvent(this, (byte) 7); // corações de domesticação do TamableAnimal
     }
@@ -477,6 +614,10 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         compound.putString(TAG_ORDER, order().id());
         if (homePos != null) {
             compound.put(TAG_HOME, NbtUtils.writeBlockPos(homePos));
+        }
+        compound.put(TAG_INVENTORY, inventory.createTag(registryAccess()));
+        if (tamerUUID != null) {
+            compound.putUUID(TAG_TAMER, tamerUUID);
         }
     }
 
@@ -507,6 +648,8 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         nextFeedTime = compound.getLong(TAG_NEXT_FEED_TIME);
         affinity = Math.clamp(compound.getFloat(TAG_AFFINITY), 0.0F, MAX_AFFINITY);
         homePos = NbtUtils.readBlockPos(compound, TAG_HOME).orElse(null);
+        inventory.fromTag(compound.getList(TAG_INVENTORY, Tag.TAG_COMPOUND), registryAccess());
+        tamerUUID = compound.hasUUID(TAG_TAMER) ? compound.getUUID(TAG_TAMER) : null;
         entityData.set(DATA_ORDER, (byte) CreatureOrder.byId(compound.getString(TAG_ORDER), DEFAULT_ORDER).ordinal());
 
         double max = maxTorpor();

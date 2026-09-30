@@ -13,4 +13,7 @@ Requer JDK 21.
 ./gradlew runClient        # cliente de desenvolvimento
 ./gradlew runServer        # servidor dedicado de desenvolvimento
 ./gradlew runGameTestServer
+tools/deploy-prism.sh       # copia o jar para a instância de teste do Prism Launcher
 ```
+
+A instância do Prism usa uma cópia do jar. Depois de `./gradlew build`, rode `tools/deploy-prism.sh` e reinicie o jogo para testar a versão nova.

@@ -19,12 +19,10 @@ import net.neoforged.neoforge.registries.DataPackRegistryEvent;
  * {@code data/<namespace>/iceagesurvival/species/<nome>.json} e sincronizada para os clientes.
  *
  * <p>A espécie de uma entidade é a que tem o mesmo id do seu {@link EntityType}.
- *
- * @param knockbackResistance de 0 a 1; espécies maiores que o jogador usam 1 (não são arremessadas por golpes)
  */
 public record Species(
         StatProfile stats,
-        double knockbackResistance,
+        Optional<BodyProfile> body,
         Optional<TamingProfile> taming,
         Optional<BehaviorProfile> behavior) {
     public static final ResourceKey<Registry<Species>> REGISTRY_KEY =
@@ -48,7 +46,7 @@ public record Species(
 
     public static final Codec<Species> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             STATS_CODEC.fieldOf("stats").forGetter(Species::stats),
-            Codec.doubleRange(0, 1).optionalFieldOf("knockback_resistance", 0.0).forGetter(Species::knockbackResistance),
+            BodyProfile.CODEC.optionalFieldOf("body").forGetter(Species::body),
             TamingProfile.CODEC.optionalFieldOf("taming").forGetter(Species::taming),
             BehaviorProfile.CODEC.optionalFieldOf("behavior").forGetter(Species::behavior)
     ).apply(instance, Species::new));
