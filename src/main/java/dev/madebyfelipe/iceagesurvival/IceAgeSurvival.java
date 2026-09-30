@@ -3,15 +3,18 @@ package dev.madebyfelipe.iceagesurvival;
 import com.mojang.logging.LogUtils;
 import dev.madebyfelipe.iceagesurvival.config.ServerConfig;
 import dev.madebyfelipe.iceagesurvival.network.ModPayloads;
+import dev.madebyfelipe.iceagesurvival.registry.ModAttachments;
 import dev.madebyfelipe.iceagesurvival.registry.ModBlocks;
 import dev.madebyfelipe.iceagesurvival.registry.ModEntities;
 import dev.madebyfelipe.iceagesurvival.registry.ModItems;
 import dev.madebyfelipe.iceagesurvival.species.Species;
+import dev.madebyfelipe.iceagesurvival.temperature.ColdExposure;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
+import net.neoforged.neoforge.common.NeoForge;
 import org.slf4j.Logger;
 
 @Mod(IceAgeSurvival.MODID)
@@ -20,6 +23,7 @@ public class IceAgeSurvival {
     public static final Logger LOGGER = LogUtils.getLogger();
 
     public IceAgeSurvival(IEventBus modEventBus, ModContainer modContainer) {
+        ModAttachments.ATTACHMENT_TYPES.register(modEventBus);
         ModBlocks.BLOCKS.register(modEventBus);
         ModEntities.ENTITY_TYPES.register(modEventBus);
         ModItems.ITEMS.register(modEventBus);
@@ -29,6 +33,8 @@ public class IceAgeSurvival {
         modEventBus.addListener(ModEntities::registerSpawnPlacements);
         modEventBus.addListener(ModItems::addToCreativeTabs);
         modEventBus.addListener(ModPayloads::register);
+
+        NeoForge.EVENT_BUS.addListener(ColdExposure::onPlayerTick);
 
         modContainer.registerConfig(ModConfig.Type.SERVER, ServerConfig.SPEC);
     }

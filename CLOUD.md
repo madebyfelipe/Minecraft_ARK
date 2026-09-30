@@ -40,7 +40,7 @@ Fora de escopo: máquinas, árvores tecnológicas, dezenas de armaduras, arsenal
 | D2 | Loader **NeoForge 21.1.252** | Registries de datapack, data maps, payloads tipados e GameTest nativos; ver [8](#8-versões). Fabric só traria vantagem para Frostiful, que foi rejeitado como dependência. | Fechada |
 | D3 | **GeckoLib** como única dependência obrigatória | MIT, release estável para 1.21.1, padrão do ecossistema para criaturas animadas. | Fechada |
 | D4 | **Não** depender de nenhum mod de fauna | Todos os mods de fauna relevantes são All Rights Reserved ou licença custom; nenhum asset pode ser incorporado. Além disso o brief exige que progressão/domesticação sejam nossas. | Fechada |
-| D5 | Temperatura: **sistema interno leve**, atrás de uma interface | Frostiful no NeoForge é alpha e exige Forgified Fabric API; Cold Sweat é estável mas muito mais complexo do que o brief pede ("secundária, sem burocracia"). Ver [15](#15-temperatura). | Provisória — reavaliar na Etapa 6 |
+| D5 | Temperatura: **sistema interno leve**, atrás de uma interface | Frostiful no NeoForge é alpha e exige Forgified Fabric API; Cold Sweat é estável mas muito mais complexo do que o brief pede ("secundária, sem burocracia"). Ver [15](#15-temperatura). | Fechada na Etapa 6 — o sistema interno cabe em ~200 linhas e não precisou de HUD próprio; a costura `ColdSource` continua de pé |
 | D6 | Mundo glacial por **world preset próprio em datapack**, sem mod de worldgen obrigatório | Um preset com a fonte de biomas restrita a biomas frios resolve "mundo predominantemente congelado" sem dependência. Ver [18](#18-worldgen). | Provisória — reavaliar na Etapa 9 |
 | D7 | Espécies num **registry de datapack** sincronizado | Permite adicionar espécie por JSON, com validação por Codec e sync automático para o cliente. | Fechada |
 | D8 | Dados da criatura no **NBT da própria entidade**, serializados por Codec | As entidades são nossas; não precisamos de attachments para anexar dados a entidades alheias. | Fechada |
@@ -51,6 +51,8 @@ Fora de escopo: máquinas, árvores tecnológicas, dezenas de armaduras, arsenal
 | D13 | Dono e estado domesticado via **`TamableAnimal`** vanilla | Persistência, sync e regras de aliado já prontas e compatíveis com outros mods. | Fechada |
 | D14 | Sem pacote `network/` até existir o primeiro payload | O registry de espécies já sincroniza sozinho. O pacote nasceu na Etapa 4, com os comandos. | Cumprida |
 | D15 | Ordem de ataque vale para **todas** as criaturas do jogador ao alcance | Exigir escolher uma criatura antes de apontar o alvo pediria um estado de "selecionada" escondido. Não é o sistema de grupos do brief (que continua fora). | Fechada |
+| D16 | O frio **é** o `ticksFrozen` do vanilla, não um valor paralelo sincronizado | Sincronização, persistência, vinheta de gelo e lentidão já existem e são de graça; um valor próprio pediria payload, HUD e NBT para o mesmo resultado. Custo: parar em 139/140 e assumir o dano (ver [15](#15-temperatura)). | Fechada |
+| D17 | Estado de frio do jogador em **attachment do NeoForge** | D8 dispensa attachments para *nossas* entidades; o jogador é de terceiros, e é exatamente o caso que os attachments existem para resolver. | Fechada |
 
 ## 5. Mods avaliados
 
@@ -157,12 +159,14 @@ dev.madebyfelipe.iceagesurvival
 ├── core/                   lógica pura, sem classes do Minecraft (testável por JUnit)
 │   ├── stats/              atributos, escala por nível
 │   ├── genetics/           genoma, herança 50/50, mutações
-│   └── taming/             torpor, eficiência, afinidade
+│   ├── taming/             torpor, eficiência, afinidade
+│   └── temperature/        curva de frio, proteção, ritmo de congelamento
 ├── species/                definição de espécie (Codec) + registry de datapack
 ├── entity/                 classe base de criatura, goals, dados sincronizados
+├── temperature/            leitura do ambiente e congelamento do jogador
 ├── item/                   flechas tranquilizantes, rifle, implante, rastreador
 ├── network/                payloads (comandos, UI)
-├── registry/               DeferredRegisters
+├── registry/               DeferredRegisters, tags usadas em código, attachments
 ├── config/                 configuração comum e de servidor
 └── client/                 renderers, HUD, telas (só client)
 ```
@@ -390,11 +394,35 @@ Escala das ferramentas: arco < besta < rifle. Hoje a besta ganha só ~5% pela ve
 
 ## 15. Temperatura
 
-Mecânica secundária. A pergunta do jogador é *"tenho recursos para essa viagem?"*.
+Implementado. Mecânica secundária: a pergunta do jogador é *"tenho recursos para essa viagem?"*.
 
-Desenho provisório (D5): um único valor de exposição ao frio por jogador, no servidor. Sobe conforme bioma, altitude, tempestade e noite; desce perto de fonte de calor, em abrigo e com isolamento da roupa. Reaproveitar o congelamento vanilla (o efeito de powder snow: HUD, tremor, dano) como feedback, sem HUD novo nem menu.
+Um único valor por jogador, a **exposição** (0 a 1), no servidor. A cada tick ela anda conforme o **frio líquido** do lugar, relido do mundo uma vez por segundo:
 
-Isolada atrás de uma interface para que Cold Sweat possa substituí-la se o sistema interno se mostrar insuficiente.
+```
+temperatura sentida = temperatura do bioma − altitude × queda_por_bloco − (noite) − (tempestade a céu aberto)
+frio        = max(0, (0,5 − temperatura sentida) / 1,0)
+proteção    = fonte de calor (cai com a distância) + peças de armadura isolante + teto
+frio líquido = clamp(frio − proteção, −1, 1)
+```
+
+Positivo esfria, negativo aquece, na mesma velocidade: `coldSecondsToFreeze` (padrão 120) é o tempo para congelar no frio extremo *e* o tempo para se recuperar no calor. Noite, altitude e tempestade derrubam a **temperatura do lugar** em vez de somar frio direto — assim uma noite de chuva num bioma temperado continua confortável, e só esfria de verdade o que já era frio.
+
+Escala de referência (temperaturas base do vanilla): planície 0,8 → frio 0; taiga 0,25 → 0,25; planície nevada 0 → 0,5; taiga nevada −0,5 → 1,0. Armadura de couro completa dá 0,8 de proteção, um teto 0,25 e estar em cima de uma fogueira 0,8.
+
+**Feedback: o congelamento do vanilla, sem nada novo.** A exposição é escrita em `ticksFrozen`, que já é sincronizado, desenha a vinheta de gelo, freia o jogador e é salvo com ele. Não há HUD, payload nem menu. Duas consequências registradas:
+
+- A exposição cheia escreve **139 de 140** ticks, um abaixo do máximo, para que o vanilla nunca considere o jogador "totalmente congelado" e some o dano dele ao nosso. O dano é nosso (`coldDamage`, padrão 1 a cada 2 s, com o tipo de dano `freeze` do vanilla, para a mensagem de morte certa).
+- Esse teto tirava os corações azuis do HUD, que o vanilla liga em `isFullyFrozen()`. Devolvidos no cliente por `PlayerHeartTypeEvent`, olhando a fração de congelamento sincronizada.
+
+Dentro de powder snow o mod sai da frente: o congelamento ali é do vanilla, e disputar o mesmo contador não faria sentido. Criativo e espectador não acumulam frio, e morrer zera a exposição.
+
+**Dados:** `#iceagesurvival:heat_sources` (fogueiras, fogo, lava, magma, tochas, lanternas) e `#iceagesurvival:insulating_armor` (as quatro peças de couro). Todo o balanceamento está na config de servidor (`coldEnabled`, `coldNightDrop`, `coldHeatRadius`, …).
+
+**Persistência:** a exposição é um attachment do NeoForge no jogador — as criaturas do mod guardam estado no próprio NBT (D8), mas o jogador não é nossa entidade. Não acompanha a morte: renascer aquece.
+
+**Isolamento (D5):** a medida de frio vem de uma interface, `ColdSource`. Trocar o sistema interno por Cold Sweat é escrever outra implementação e apontar `ColdExposure` para ela; `coldEnabled = false` desliga o nosso sem desinstalar nada.
+
+Limites conhecidos: toda fonte de calor aquece igual (uma tocha vale uma fogueira — uma tag não carrega intensidade); "abrigo" é só não ver o céu, então uma caverna aberta protege tanto quanto uma casa; molhar-se não esfria. A sobrevivência da primeira hora a céu aberto, sem couro nem fogo, não foi medida em jogo ainda.
 
 ## 16. Reprodução
 
@@ -433,8 +461,10 @@ Pontos de atenção: validação de dono em todo payload, montaria (autoridade d
 ### Testes
 
 - **JUnit** (`./gradlew test`, roda no `build`): lógica pura de `core/`.
-- **GameTest** (`./gradlew runGameTestServer`): comportamento em servidor real — carregamento da espécie, sorteio e aplicação de atributos, persistência de atributos e dono.
+- **GameTest** (`./gradlew runGameTestServer`): comportamento em servidor real — carregamento da espécie, sorteio e aplicação de atributos, persistência de atributos e dono, tags e attachments.
 - **Manual:** `runClient` e sessão multiplayer de verdade (dois clientes) — não automatizados.
+
+O mundo do GameTest é plano e de bioma temperado, então o frio não chega a subir lá: a curva de temperatura é coberta por JUnit e o que o gametest confere é a tubulação (tags carregadas, attachment anexado e salvo, criativo imune).
 
 ## 22. Performance
 
@@ -442,6 +472,7 @@ Pontos de atenção: validação de dono em todo payload, montaria (autoridade d
 - Manada com líder e raio limitado, não N×N.
 - IA reduzida longe de jogadores.
 - Estado de domesticação seguro a descarregamento de chunk (baseado em game time, não em contadores por tick).
+- O frio roda a cada tick por jogador, mas só com aritmética: a leitura do mundo (que varre blocos procurando fonte de calor) acontece uma vez por segundo e fica em cache no attachment.
 
 ## 23. Roadmap
 
@@ -453,7 +484,7 @@ Pontos de atenção: validação de dono em todo payload, montaria (autoridade d
 | 3 | Domesticação com criatura de teste | ✅ 2026-09-30 (falta conferir no cliente) |
 | 4 | Smilodon | ✅ 2026-09-30, conferido em jogo pelo Felipe |
 | 5 | Mais criaturas, spawning | ✅ 2026-09-30 em testes automáticos (mamute, lobo-terrível, manada, caça, spawn); falta conferir em jogo |
-| 6 | Temperatura | — |
+| 6 | Temperatura | ✅ 2026-09-30 em testes automáticos; falta sentir o frio em jogo e balancear a primeira hora |
 | 7 | Montaria | — |
 | 8 | Reprodução e genética | — |
 | 9 | Worldgen | — |
@@ -465,6 +496,7 @@ MVP = Etapas 1–4 + versão mínima de 6, 7 e 9 (mundo frio, temperatura básic
 
 Ver a tabela em [4](#4-decisões). Registro de mudanças estruturais:
 
+- 2026-09-30 — Etapa 6: temperatura. D5 fechada (sistema interno fica), D16 e D17. O frio reaproveita o congelamento do vanilla em vez de ter HUD próprio.
 - 2026-09-30 — Documento criado; D1–D11 registradas.
 - 2026-09-30 — Etapa 2: D12–D14. Criatura de teste antecipada para a Etapa 2.
 - 2026-09-30 — Assets: workflow de modelos gerados por script aprovado. `blockbench-mcp` (enfp-dev-studio) avaliado e descartado: é só um esqueleto que envia `hello_world`.
@@ -483,6 +515,7 @@ Ver a tabela em [4](#4-decisões). Registro de mudanças estruturais:
 | **Assets de criaturas.** Não há artista no projeto e nenhum asset externo é reutilizável. | Médio — resolvido por ora com modelos gerados por script, aprovados pelo Felipe como workflow; a qualidade visual é de blocagem. | Iterar os modelos no Blockbench quando fizer diferença. |
 | Escopo: dez etapas, vários sistemas grandes. | Alto | MVP estreito; não avançar com etapa instável. |
 | Balanceamento de torpor/níveis/genética. | Médio | Tudo em dados e config; testes de lógica pura. |
+| O frio matar o jogador na primeira hora, antes de haver couro ou fogueira. | Médio | Curva e tempos todos em config; medir em jogo e afrouxar `coldSecondsToFreeze` ou a temperatura de conforto. |
 | Montaria em multiplayer (latência, dessincronização). | Médio | Reaproveitar o modelo de controle de veículo vanilla. |
 | Muitas entidades com IA em servidor. | Médio | Ver [22](#22-performance). Varreduras de entidade são espaçadas (manada ~5 s, caça ~30 s, defesa só ao ser ferida). Ainda não medido com fauna densa. |
 | Fauna finita: criaturas `CREATURE` só nascem com a geração do terreno. | Médio | Observar em jogo; se faltar fauna, adicionar reposição controlada. |
@@ -492,7 +525,6 @@ Ver a tabela em [4](#4-decisões). Registro de mudanças estruturais:
 ## 26. Ainda não decidido
 
 1. **Licença do nosso código** e se o repositório será público.
-3. Temperatura interna vs. Cold Sweat — decidir na Etapa 6 (D5).
 4. World preset próprio vs. conversão global no estilo Primal Winter — decidir na Etapa 9 (D6).
 5. Integração com criaturas de mods externos: possível em tese (registrar uma espécie apontando para um `EntityType` alheio), mas exigiria anexar nossos dados a entidades de terceiros. Não planejado.
 6. Criaturas voadoras e de carga: quais espécies.
