@@ -2,6 +2,9 @@ package dev.madebyfelipe.iceagesurvival;
 
 import com.mojang.logging.LogUtils;
 import dev.madebyfelipe.iceagesurvival.config.ServerConfig;
+import dev.madebyfelipe.iceagesurvival.registry.ModEntities;
+import dev.madebyfelipe.iceagesurvival.registry.ModItems;
+import dev.madebyfelipe.iceagesurvival.species.Species;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
@@ -15,6 +18,13 @@ public class IceAgeSurvival {
     public static final Logger LOGGER = LogUtils.getLogger();
 
     public IceAgeSurvival(IEventBus modEventBus, ModContainer modContainer) {
+        ModEntities.ENTITY_TYPES.register(modEventBus);
+        ModItems.ITEMS.register(modEventBus);
+
+        modEventBus.addListener(Species::registerRegistry);
+        modEventBus.addListener(ModEntities::registerAttributes);
+        modEventBus.addListener(ModItems::addToCreativeTabs);
+
         modContainer.registerConfig(ModConfig.Type.SERVER, ServerConfig.SPEC);
     }
 

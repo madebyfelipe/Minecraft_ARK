@@ -47,6 +47,9 @@ Fora de escopo: máquinas, árvores tecnológicas, dezenas de armaduras, arsenal
 | D9 | IA com **Goals vanilla** | Suficiente para território e manada; SmartBrainLib fica como opção se os Goals virarem gargalo. | Provisória |
 | D10 | Lógica pura (stats, genética, torpor) **sem dependência de classes do Minecraft** | Permite testes JUnit rápidos, sem subir o jogo. | Fechada |
 | D11 | Repositório GitHub **privado** | Pode ser aberto depois; publicar é irreversível. | Fechada até o Felipe decidir o contrário |
+| D12 | Indivíduo = **pontos por atributo**; nível = 1 + total de pontos | Dois animais do mesmo nível ficam diferentes ("esse tem ataque melhor"), e é exatamente o que a reprodução vai herdar atributo a atributo. Evita "mob com HP multiplicado". Ver [11](#11-criaturas). | Fechada |
+| D13 | Dono e estado domesticado via **`TamableAnimal`** vanilla | Persistência, sync e regras de aliado já prontas e compatíveis com outros mods. | Fechada |
+| D14 | Sem pacote `network/` até existir o primeiro payload | O registry de espécies já sincroniza sozinho; comandos (primeiro payload real) chegam com a domesticação. | Fechada |
 
 ## 5. Mods avaliados
 
@@ -188,9 +191,38 @@ Payloads tipados (`CustomPacketPayload` + `StreamCodec`) registrados em `Registe
 
 ## 11. Criaturas
 
-Nenhuma implementada. Ordem planejada:
+### Níveis e atributos (implementado)
 
-1. **Criatura de teste** (Etapa 3) — valida torpor e domesticação.
+Atributos: `health`, `attack`, `speed`, `torpor` (torpor máximo), `armor` (resistência).
+
+- Uma criatura selvagem nasce com nível sorteado em múltiplos de `wildLevelStep` até `maxWildLevel` (config de servidor; padrão 10 e 100 → 10, 20, …, 100). Baixar o step para 1 habilita níveis intermediários.
+- O nível vira `nível − 1` pontos distribuídos ao acaso entre os atributos escaláveis (todos menos `speed`).
+- Valor final = `base × (1 + per_point × pontos)`, com `base` e `per_point` vindos do JSON da espécie.
+- Os pontos são salvos no NBT da entidade (`StatPoints`); o nível é sincronizado para o cliente.
+
+Formato atual do JSON de espécie (cresce a cada etapa):
+
+```json
+{
+  "stats": {
+    "health": { "base": 20, "per_point": 0.2 },
+    "attack": { "base": 3, "per_point": 0.05 },
+    "speed":  { "base": 0.25 },
+    "torpor": { "base": 50, "per_point": 0.06 },
+    "armor":  { "base": 2, "per_point": 0.04 }
+  }
+}
+```
+
+**Limites do vanilla:** `max_health` satura em 1024 e `armor` em 30. Valores acima são cortados pelo jogo. Espécies grandes e o boss precisam caber nisso ou usar outro mecanismo (ver [25](#25-riscos)).
+
+### Espécies
+
+Implementada: **criatura de teste** (`test_creature`) — provisória, usa o modelo do porco vanilla, existe só para validar o framework. Foi antecipada da Etapa 3 para a 2 porque sem uma entidade concreta não há como testar persistência em jogo.
+
+Ordem planejada:
+
+1. Criatura de teste — agora valida níveis e persistência; na Etapa 3, torpor e domesticação.
 2. **Smilodon** (Etapa 4) — predador territorial, montável.
 3. Lote seguinte (Etapa 5), a definir: um herbívoro de manada (Mamute), um pequeno de início de jogo, um dinossauro.
 
@@ -265,6 +297,12 @@ Checklist por feature, antes de considerá-la pronta: single-player, servidor de
 
 Pontos de atenção: validação de dono em todo payload, montaria (autoridade de movimento), criatura inconsciente quando o chunk descarrega, implantes (duplicação).
 
+### Testes
+
+- **JUnit** (`./gradlew test`, roda no `build`): lógica pura de `core/`.
+- **GameTest** (`./gradlew runGameTestServer`): comportamento em servidor real — carregamento da espécie, sorteio e aplicação de atributos, persistência de atributos e dono.
+- **Manual:** `runClient` e sessão multiplayer de verdade (dois clientes) — não automatizados.
+
 ## 22. Performance
 
 - Nada de varredura de entidades a cada tick; usar intervalos e resultados em cache.
@@ -277,8 +315,8 @@ Pontos de atenção: validação de dono em todo payload, montaria (autoridade d
 | Etapa | Conteúdo | Estado |
 |---|---|---|
 | 0 | Pesquisa e este documento | ✅ 2026-09-30 |
-| 1 | Workspace, Gradle, build, runClient/runServer | em andamento |
-| 2 | Core: níveis, atributos, ownership, persistência, registry de espécies, networking | — |
+| 1 | Workspace, Gradle, build, runServer | ✅ 2026-09-30 (`runClient` ainda não verificado) |
+| 2 | Core: níveis, atributos, ownership, persistência, registry de espécies | ✅ 2026-09-30 |
 | 3 | Domesticação com criatura de teste | — |
 | 4 | Smilodon | — |
 | 5 | Mais criaturas, spawning | — |
@@ -295,6 +333,7 @@ MVP = Etapas 1–4 + versão mínima de 6, 7 e 9 (mundo frio, temperatura básic
 Ver a tabela em [4](#4-decisões). Registro de mudanças estruturais:
 
 - 2026-09-30 — Documento criado; D1–D11 registradas.
+- 2026-09-30 — Etapa 2: D12–D14. Criatura de teste antecipada para a Etapa 2.
 
 ## 25. Riscos
 
@@ -305,6 +344,7 @@ Ver a tabela em [4](#4-decisões). Registro de mudanças estruturais:
 | Balanceamento de torpor/níveis/genética. | Médio | Tudo em dados e config; testes de lógica pura. |
 | Montaria em multiplayer (latência, dessincronização). | Médio | Reaproveitar o modelo de controle de veículo vanilla. |
 | Muitas entidades com IA em servidor. | Médio | Ver [22](#22-performance); medir na Etapa 5. |
+| Teto de 1024 de vida do vanilla limita criaturas gigantes e o boss. | Médio | Decidir na Etapa 10: redução de dano por fase, ou atributo de vida próprio. |
 | 1.21.1 envelhecer. | Baixo | `core/` independente do Minecraft facilita port. |
 
 ## 26. Ainda não decidido

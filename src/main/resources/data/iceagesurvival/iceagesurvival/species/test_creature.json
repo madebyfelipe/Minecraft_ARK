@@ -1,0 +1,9 @@
+{
+  "stats": {
+    "health": { "base": 20, "per_point": 0.2 },
+    "attack": { "base": 3, "per_point": 0.05 },
+    "speed": { "base": 0.25 },
+    "torpor": { "base": 50, "per_point": 0.06 },
+    "armor": { "base": 2, "per_point": 0.04 }
+  }
+}
