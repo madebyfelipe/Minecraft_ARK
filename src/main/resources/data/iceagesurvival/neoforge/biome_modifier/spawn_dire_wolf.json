@@ -1,0 +1,12 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": "#iceagesurvival:spawns_dire_wolf",
+  "spawners": [
+    {
+      "type": "iceagesurvival:dire_wolf",
+      "weight": 4,
+      "minCount": 2,
+      "maxCount": 4
+    }
+  ]
+}

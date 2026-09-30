@@ -4,7 +4,7 @@ import dev.madebyfelipe.iceagesurvival.IceAgeSurvival;
 import dev.madebyfelipe.iceagesurvival.command.CreatureCommands;
 import dev.madebyfelipe.iceagesurvival.core.command.CreatureOrder;
 import dev.madebyfelipe.iceagesurvival.entity.PrehistoricCreature;
-import dev.madebyfelipe.iceagesurvival.entity.Smilodon;
+import dev.madebyfelipe.iceagesurvival.entity.LandCreature;
 import dev.madebyfelipe.iceagesurvival.registry.ModEntities;
 import java.util.UUID;
 import net.minecraft.gametest.framework.GameTest;
@@ -26,15 +26,15 @@ public class CommandTests {
     private static final String EMPTY = "empty";
 
     /** Jogador posicionado na área de teste, para as checagens de distância valerem. */
-    private static Player playerAt(GameTestHelper helper, Smilodon near) {
+    private static Player playerAt(GameTestHelper helper, LandCreature near) {
         Player player = helper.makeMockPlayer(GameType.SURVIVAL);
         player.setPos(near.position());
         return player;
     }
 
     /** Smilodon domesticado que sempre obedece. */
-    private static Smilodon tamedSmilodon(GameTestHelper helper, Player owner) {
-        Smilodon smilodon = helper.spawnWithNoFreeWill(ModEntities.SMILODON.get(), 1, 2, 1);
+    private static LandCreature tamedSmilodon(GameTestHelper helper, Player owner) {
+        LandCreature smilodon = helper.spawnWithNoFreeWill(ModEntities.SMILODON.get(), 1, 2, 1);
         smilodon.tame(owner);
         smilodon.setAffinity(PrehistoricCreature.MAX_AFFINITY);
         return smilodon;
@@ -42,7 +42,7 @@ public class CommandTests {
 
     @GameTest(template = EMPTY)
     public static void ownerCanChangeOrder(GameTestHelper helper) {
-        Smilodon wild = helper.spawnWithNoFreeWill(ModEntities.SMILODON.get(), 1, 2, 1);
+        LandCreature wild = helper.spawnWithNoFreeWill(ModEntities.SMILODON.get(), 1, 2, 1);
         Player owner = playerAt(helper, wild);
         wild.tame(owner);
         wild.setAffinity(PrehistoricCreature.MAX_AFFINITY);
@@ -55,7 +55,7 @@ public class CommandTests {
 
     @GameTest(template = EMPTY)
     public static void strangerCannotCommand(GameTestHelper helper) {
-        Smilodon smilodon = helper.spawnWithNoFreeWill(ModEntities.SMILODON.get(), 1, 2, 1);
+        LandCreature smilodon = helper.spawnWithNoFreeWill(ModEntities.SMILODON.get(), 1, 2, 1);
         Player owner = playerAt(helper, smilodon);
         Player stranger = playerAt(helper, smilodon);
         smilodon.tame(owner);
@@ -68,7 +68,7 @@ public class CommandTests {
 
     @GameTest(template = EMPTY)
     public static void wildCreatureCannotBeCommanded(GameTestHelper helper) {
-        Smilodon wild = helper.spawnWithNoFreeWill(ModEntities.SMILODON.get(), 1, 2, 1);
+        LandCreature wild = helper.spawnWithNoFreeWill(ModEntities.SMILODON.get(), 1, 2, 1);
         Player player = playerAt(helper, wild);
         helper.assertTrue(!CreatureCommands.setOrder(player, wild, CreatureOrder.FOLLOW), "criatura selvagem aceitou ordem");
         helper.succeed();
@@ -76,7 +76,7 @@ public class CommandTests {
 
     @GameTest(template = EMPTY)
     public static void ownerTooFarCannotCommand(GameTestHelper helper) {
-        Smilodon smilodon = helper.spawnWithNoFreeWill(ModEntities.SMILODON.get(), 1, 2, 1);
+        LandCreature smilodon = helper.spawnWithNoFreeWill(ModEntities.SMILODON.get(), 1, 2, 1);
         Player owner = playerAt(helper, smilodon);
         smilodon.tame(owner);
         smilodon.setAffinity(PrehistoricCreature.MAX_AFFINITY);
@@ -87,7 +87,7 @@ public class CommandTests {
 
     @GameTest(template = EMPTY)
     public static void attackOrderTargetsOnlyForCreaturesAllowedToFight(GameTestHelper helper) {
-        Smilodon smilodon = helper.spawnWithNoFreeWill(ModEntities.SMILODON.get(), 1, 2, 1);
+        LandCreature smilodon = helper.spawnWithNoFreeWill(ModEntities.SMILODON.get(), 1, 2, 1);
         Player owner = playerAt(helper, smilodon);
         smilodon.tame(owner);
         smilodon.setAffinity(PrehistoricCreature.MAX_AFFINITY);
@@ -108,11 +108,11 @@ public class CommandTests {
 
     @GameTest(template = EMPTY)
     public static void attackOrderRejectsOwnCreaturesAndTheOwner(GameTestHelper helper) {
-        Smilodon first = helper.spawnWithNoFreeWill(ModEntities.SMILODON.get(), 1, 2, 1);
+        LandCreature first = helper.spawnWithNoFreeWill(ModEntities.SMILODON.get(), 1, 2, 1);
         Player owner = playerAt(helper, first);
         first.tame(owner);
         first.setAffinity(PrehistoricCreature.MAX_AFFINITY);
-        Smilodon second = tamedSmilodon(helper, owner);
+        LandCreature second = tamedSmilodon(helper, owner);
 
         helper.assertTrue(CreatureCommands.orderAttack(owner, second) == 0, "mandou atacar a própria criatura");
         helper.assertTrue(CreatureCommands.orderAttack(owner, owner) == 0, "mandou atacar o próprio dono");
@@ -122,13 +122,13 @@ public class CommandTests {
 
     @GameTest(template = EMPTY)
     public static void orderAndAffinitySurviveSaveAndLoad(GameTestHelper helper) {
-        Smilodon original = helper.spawnWithNoFreeWill(ModEntities.SMILODON.get(), 1, 2, 1);
+        LandCreature original = helper.spawnWithNoFreeWill(ModEntities.SMILODON.get(), 1, 2, 1);
         Player owner = playerAt(helper, original);
         original.tame(owner);
         original.setAffinity(73.0F);
         original.setOrder(CreatureOrder.FLEE);
 
-        Smilodon loaded = ModEntities.SMILODON.get().create(helper.getLevel());
+        LandCreature loaded = ModEntities.SMILODON.get().create(helper.getLevel());
         loaded.load(original.saveWithoutId(new CompoundTag()));
         loaded.setUUID(UUID.randomUUID());
 
@@ -139,7 +139,7 @@ public class CommandTests {
 
     @GameTest(template = EMPTY)
     public static void feedingTamedCreatureHealsAndRaisesAffinityOncePerInterval(GameTestHelper helper) {
-        Smilodon smilodon = helper.spawnWithNoFreeWill(ModEntities.SMILODON.get(), 1, 2, 1);
+        LandCreature smilodon = helper.spawnWithNoFreeWill(ModEntities.SMILODON.get(), 1, 2, 1);
         Player owner = playerAt(helper, smilodon);
         smilodon.tame(owner);
         smilodon.setAffinity(10.0F);

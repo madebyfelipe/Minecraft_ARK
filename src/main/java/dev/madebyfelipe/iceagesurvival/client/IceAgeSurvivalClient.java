@@ -13,14 +13,11 @@ import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.gui.ConfigurationScreen;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
-import software.bernie.geckolib.renderer.GeoEntityRenderer;
 
 @Mod(value = IceAgeSurvival.MODID, dist = Dist.CLIENT)
 public class IceAgeSurvivalClient {
     /** Cor da ponta da flecha tranquilizante, aplicada sobre a textura de flecha com ponta do vanilla. */
     private static final int TRANQ_ARROW_TIP_COLOR = 0xFF7A3FA0;
-    /** Amplia o modelo para o dorso do Smilodon ficar acima da cabeça de um jogador. */
-    private static final float SMILODON_SCALE = 2.0F;
 
     public IceAgeSurvivalClient(IEventBus modEventBus, ModContainer container) {
         container.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
@@ -34,8 +31,9 @@ public class IceAgeSurvivalClient {
     private static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerEntityRenderer(ModEntities.TEST_CREATURE.get(), TestCreatureRenderer::new);
         event.registerEntityRenderer(ModEntities.TRANQ_ARROW.get(), TranqArrowRenderer::new);
-        event.registerEntityRenderer(ModEntities.SMILODON.get(), context -> new GeoEntityRenderer<>(
-                context, new SmilodonModel()).withScale(SMILODON_SCALE));
+        for (var creature : ModEntities.LAND_CREATURES) {
+            event.registerEntityRenderer(creature.get(), context -> new CreatureRenderer(context, creature.getId()));
+        }
     }
 
     private static void registerItemColors(RegisterColorHandlersEvent.Item event) {

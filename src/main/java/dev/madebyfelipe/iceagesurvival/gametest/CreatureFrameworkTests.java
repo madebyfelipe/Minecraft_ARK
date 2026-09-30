@@ -2,7 +2,7 @@ package dev.madebyfelipe.iceagesurvival.gametest;
 
 import dev.madebyfelipe.iceagesurvival.IceAgeSurvival;
 import dev.madebyfelipe.iceagesurvival.core.stats.Stat;
-import dev.madebyfelipe.iceagesurvival.entity.Smilodon;
+import dev.madebyfelipe.iceagesurvival.entity.LandCreature;
 import dev.madebyfelipe.iceagesurvival.entity.TestCreature;
 import dev.madebyfelipe.iceagesurvival.registry.ModEntities;
 import dev.madebyfelipe.iceagesurvival.species.BehaviorProfile;
@@ -70,7 +70,7 @@ public class CreatureFrameworkTests {
 
     @GameTest(template = EMPTY)
     public static void smilodonIsTerritorialUntilTamed(GameTestHelper helper) {
-        Smilodon smilodon = helper.spawnWithNoFreeWill(ModEntities.SMILODON.get(), 1, 2, 1);
+        LandCreature smilodon = helper.spawnWithNoFreeWill(ModEntities.SMILODON.get(), 1, 2, 1);
         BehaviorProfile behavior = smilodon.behavior().orElseThrow();
         helper.assertTrue(smilodon.hasRestriction(), "selvagem sem território");
         helper.assertTrue(smilodon.getRestrictCenter().equals(smilodon.blockPosition()), "território fora do ponto de origem");
@@ -83,8 +83,8 @@ public class CreatureFrameworkTests {
 
     @GameTest(template = EMPTY)
     public static void territorySurvivesSaveAndLoad(GameTestHelper helper) {
-        Smilodon original = helper.spawnWithNoFreeWill(ModEntities.SMILODON.get(), 1, 2, 1);
-        Smilodon loaded = ModEntities.SMILODON.get().create(helper.getLevel());
+        LandCreature original = helper.spawnWithNoFreeWill(ModEntities.SMILODON.get(), 1, 2, 1);
+        LandCreature loaded = ModEntities.SMILODON.get().create(helper.getLevel());
         loaded.load(original.saveWithoutId(new CompoundTag()));
         // O NBT carrega o UUID da original; o mundo recusaria duas entidades com o mesmo.
         loaded.setUUID(UUID.randomUUID());

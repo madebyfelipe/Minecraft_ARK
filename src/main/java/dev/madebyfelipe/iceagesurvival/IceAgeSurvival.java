@@ -26,6 +26,7 @@ public class IceAgeSurvival {
 
         modEventBus.addListener(Species::registerRegistry);
         modEventBus.addListener(ModEntities::registerAttributes);
+        modEventBus.addListener(ModEntities::registerSpawnPlacements);
         modEventBus.addListener(ModItems::addToCreativeTabs);
         modEventBus.addListener(ModPayloads::register);
 

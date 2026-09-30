@@ -1,7 +1,7 @@
 package dev.madebyfelipe.iceagesurvival.gametest;
 
 import dev.madebyfelipe.iceagesurvival.IceAgeSurvival;
-import dev.madebyfelipe.iceagesurvival.entity.Smilodon;
+import dev.madebyfelipe.iceagesurvival.entity.LandCreature;
 import dev.madebyfelipe.iceagesurvival.entity.TestCreature;
 import dev.madebyfelipe.iceagesurvival.entity.TranqArrow;
 import dev.madebyfelipe.iceagesurvival.registry.ModEntities;
@@ -226,7 +226,7 @@ public class TamingTests {
 
     @GameTest(template = EMPTY)
     public static void largeSpeciesStepUpFullBlocks(GameTestHelper helper) {
-        Smilodon smilodon = helper.spawnWithNoFreeWill(ModEntities.SMILODON.get(), 1, 2, 1);
+        LandCreature smilodon = helper.spawnWithNoFreeWill(ModEntities.SMILODON.get(), 1, 2, 1);
         helper.assertTrue(smilodon.getAttributeValue(Attributes.STEP_HEIGHT) >= 1.0, "Smilodon não sobe um bloco");
         TestCreature small = spawn(helper);
         helper.assertTrue(small.getAttributeValue(Attributes.STEP_HEIGHT) == 0.6, "criatura pequena com degrau alterado");

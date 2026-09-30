@@ -2,7 +2,7 @@ package dev.madebyfelipe.iceagesurvival.gametest;
 
 import dev.madebyfelipe.iceagesurvival.IceAgeSurvival;
 import dev.madebyfelipe.iceagesurvival.block.BlackFruitLeavesBlock;
-import dev.madebyfelipe.iceagesurvival.entity.Smilodon;
+import dev.madebyfelipe.iceagesurvival.entity.LandCreature;
 import dev.madebyfelipe.iceagesurvival.entity.TestCreature;
 import dev.madebyfelipe.iceagesurvival.registry.ModBlocks;
 import dev.madebyfelipe.iceagesurvival.registry.ModEntities;
@@ -123,7 +123,7 @@ public class NarcoticTests {
 
     @GameTest(template = EMPTY)
     public static void largeSpeciesResistKnockback(GameTestHelper helper) {
-        Smilodon smilodon = helper.spawnWithNoFreeWill(ModEntities.SMILODON.get(), 1, 2, 1);
+        LandCreature smilodon = helper.spawnWithNoFreeWill(ModEntities.SMILODON.get(), 1, 2, 1);
         helper.assertTrue(smilodon.getAttributeValue(Attributes.KNOCKBACK_RESISTANCE) == 1.0,
                 "Smilodon sem resistência a recuo");
         smilodon.knockback(1.0, 1.0, 0.0);

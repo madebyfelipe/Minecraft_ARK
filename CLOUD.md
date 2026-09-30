@@ -220,28 +220,38 @@ Formato atual do JSON de espécie (cresce a cada etapa):
 **Corpo:** bloco `body` na espécie, para o que é físico:
 
 ```json
-"body": { "knockback_resistance": 1.0, "step_height": 1.1, "breaks_leaves": true }
+"body": { "knockback_resistance": 1.0, "step_height": 1.1, "breaks_leaves": true, "model_scale": 2.0 }
 ```
 
 - `knockback_resistance` (0 a 1, padrão 0). Regra de design: toda espécie maior que o jogador usa 1 — um golpe não arremessa um animal desses.
 - `step_height` (padrão 0,6): altura que sobe sem pular. Animais grandes e rápidos usam 1,1; com o padrão eles travam em qualquer degrau de um bloco.
+- `model_scale` (padrão 1): fator aplicado ao modelo na renderização. A caixa de colisão é definida no registro do tipo de entidade e precisa acompanhar.
 - `breaks_leaves` (padrão falso): ao esbarrar numa copa, destrói as folhas e passa, como o ravager. Respeita a regra `mobGriefing`. Sem isso, um animal de mais de 2 blocos de altura fica preso em floresta.
 
 **Limites do vanilla:** `max_health` satura em 1024 e `armor` em 30. Valores acima são cortados pelo jogo. Espécies grandes e o boss precisam caber nisso ou usar outro mecanismo (ver [25](#25-riscos)).
 
 ### Espécies
 
-Implementada: **Smilodon** (`smilodon`) — predador territorial agressivo. Modelo, textura e animações (parado, andando, mordida, inconsciente) gerados por `tools/gen_smilodon.py`. Domesticado, obedece a ordens (ver [13.1](#131-comandos-e-afinidade)); montaria ainda não existe.
+Todas as espécies terrestres usam a mesma classe (`LandCreature`); o que as diferencia é o JSON e os assets.
 
-Implementada: **criatura de teste** (`test_creature`) — provisória, usa o modelo do porco vanilla, existe só para validar o framework. Foi antecipada da Etapa 3 para a 2 porque sem uma entidade concreta não há como testar persistência em jogo.
+| Espécie | Papel | Tamanho (colisão) | Comportamento | Nasce em |
+|---|---|---|---|---|
+| **Lobo-terrível** (`dire_wolf`) | Primeira domesticação; predador de matilha | 0,8 × 1,2 | Agressivo, matilha de 2–4, defesa em grupo, caça presas pequenas, recua com 20% de vida | taiga, taiga nevada, taigas antigas, grove, planície nevada |
+| **Smilodon** (`smilodon`) | Predador territorial solitário, rápido | 1,3 × 2,3 | Agressivo, território de 32 blocos, caça presas grandes, recua com 25% de vida | taiga, taiga nevada, taigas antigas, grove, encostas nevadas |
+| **Mamute-lanoso** (`mammoth`) | Herbívoro de manada, tanque | 2,0 × 3,1 | Pacífico até ser provocado; manada de 2–4 que se defende junta | planície nevada, ice spikes, taiga nevada |
+| Criatura de teste (`test_creature`) | Só para testes automáticos; usa o modelo do porco | 0,9 × 0,9 | Passiva | não nasce |
 
-Ordem planejada:
+**Adicionar uma espécie terrestre:**
 
-1. Criatura de teste — agora valida níveis e persistência; na Etapa 3, torpor e domesticação.
-2. **Smilodon** (Etapa 4) — predador territorial, montável.
-3. Lote seguinte (Etapa 5), a definir: um herbívoro de manada (Mamute), um pequeno de início de jogo, um dinossauro.
+1. `tools/gen_<especie>.py` — ossos, cores e detalhes; gera geometria, textura e as quatro animações (`idle`, `walk`, `attack`, `unconscious`).
+2. Uma linha em `ModEntities` (id e caixa de colisão) e um ovo gerador em `ModItems`.
+3. `data/iceagesurvival/iceagesurvival/species/<especie>.json` — atributos, corpo, domesticação, comportamento.
+4. Opcional: `neoforge/biome_modifier/spawn_<especie>.json` + tag de biomas, para nascer no mundo.
+5. Traduções.
 
-Lista-alvo do brief — Era do Gelo: mamute-lanoso, smilodon, lobo-terrível, rinoceronte-lanoso, megaloceros, megatherium, urso-das-cavernas, bisão, auroque, mastodonte. Dinossauros: tyrannosaurus, triceratops, velociraptor, ankylosaurus, spinosaurus, giganotosaurus (boss).
+Nenhuma classe Java nova, nenhuma mudança no núcleo. Espécies com mecânica própria (voar, nadar, o boss) vão precisar de classe.
+
+Pendentes do brief — Era do Gelo: rinoceronte-lanoso, megaloceros, megatherium, urso-das-cavernas, bisão, auroque, mastodonte. Dinossauros: tyrannosaurus, triceratops, velociraptor, ankylosaurus, spinosaurus, giganotosaurus (boss).
 
 ### Comportamento (implementado)
 
@@ -252,7 +262,10 @@ Bloco `behavior` do JSON de espécie (ausente = passiva, sem território):
   "aggressive": true,
   "aggro_radius": 14,
   "territory_radius": 32,
-  "flee_health_fraction": 0.25
+  "flee_health_fraction": 0.25,
+  "herd_radius": 10,
+  "group_defense": true,
+  "prey": "#iceagesurvival:small_prey"
 }
 ```
 
@@ -260,10 +273,23 @@ Bloco `behavior` do JSON de espécie (ausente = passiva, sem território):
 - `aggro_radius` é o raio em que percebe um jogador e a distância em que desiste do alvo.
 - Abaixo de `flee_health_fraction` de vida, recua de quem a feriu em vez de lutar até morrer.
 - Domesticada, perde o território.
+- `herd_radius` > 0 faz a espécie andar em **manada**: o líder é o indivíduo selvagem de menor id por perto, e os outros voltam para junto dele quando passam do raio. Não há estado compartilhado nem registro de manadas; cada membro procura o líder a cada ~5–7 s.
+- `group_defense`: quando uma é ferida, as selvagens da mesma espécie por perto que estejam sem alvo atacam o agressor. Uma varredura por agressão.
+- `prey`: tag de tipos de entidade que a espécie caça. A procura acontece em média a cada 30 s por predador, para ser barata e não zerar a fauna. Tags atuais: `small_prey` (coelho, galinha, ovelha, porco, raposa) e `large_prey` (vaca, ovelha, porco, cabra, cavalo, burro, lhama).
+
+As velocidades dos goals são calculadas por espécie para que o passeio ocioso fique em ~1,8 bloco/s qualquer que seja a velocidade base.
 
 ### Workflow de assets
 
-Modelos são gerados por script em `tools/` (um por espécie), que escreve geometria Bedrock, textura e animações direto em `src/main/resources/assets/iceagesurvival/{geo,textures,animations}/entity/`. Os arquivos abrem no Blockbench para conferência e ajuste. **Rodar o script de novo sobrescreve edições manuais** — ao editar um modelo à mão, aposentar o script daquela espécie.
+Modelos são gerados por script em `tools/` (um `gen_<especie>.py` por espécie, sobre a biblioteca `modelgen.py`), que escreve geometria Bedrock, textura e animações direto em `src/main/resources/assets/iceagesurvival/{geo,textures,animations}/entity/`. Os arquivos abrem no Blockbench para conferência e ajuste. **Rodar o script de novo sobrescreve edições manuais** — ao editar um modelo à mão, aposentar o script daquela espécie.
+
+### Spawn natural (implementado)
+
+Cada espécie tem um `neoforge/biome_modifier/spawn_<especie>.json` do tipo `neoforge:add_spawns`, ligado a uma tag de biomas `spawns_<especie>`, com peso e tamanho de grupo. Regra de posição: chão firme e na superfície (vale neve, gelo e sob copa de árvore; nunca em caverna).
+
+As criaturas são da categoria `CREATURE` do vanilla: nascem principalmente quando o terreno é gerado e não desaparecem. Ou seja, **a fauna de uma região é finita** até que novos chunks sejam explorados — consequência a observar no balanceamento.
+
+Ainda não existe: nível variando por região, horário de atividade, densidade controlada por espécie.
 
 ## 12. Progressão
 
@@ -422,8 +448,8 @@ Pontos de atenção: validação de dono em todo payload, montaria (autoridade d
 | 1 | Workspace, Gradle, build, runServer | ✅ 2026-09-30 (`runClient` ainda não verificado) |
 | 2 | Core: níveis, atributos, ownership, persistência, registry de espécies | ✅ 2026-09-30 |
 | 3 | Domesticação com criatura de teste | ✅ 2026-09-30 (falta conferir no cliente) |
-| 4 | Smilodon | ✅ 2026-09-30 em testes automáticos; visual, atalhos e rede ainda não conferidos num cliente |
-| 5 | Mais criaturas, spawning | — |
+| 4 | Smilodon | ✅ 2026-09-30, conferido em jogo pelo Felipe |
+| 5 | Mais criaturas, spawning | ✅ 2026-09-30 em testes automáticos (mamute, lobo-terrível, manada, caça, spawn); falta conferir em jogo |
 | 6 | Temperatura | — |
 | 7 | Montaria | — |
 | 8 | Reprodução e genética | — |
@@ -440,6 +466,7 @@ Ver a tabela em [4](#4-decisões). Registro de mudanças estruturais:
 - 2026-09-30 — Etapa 2: D12–D14. Criatura de teste antecipada para a Etapa 2.
 - 2026-09-30 — Assets: workflow de modelos gerados por script aprovado. `blockbench-mcp` (enfp-dev-studio) avaliado e descartado: é só um esqueleto que envia `hello_world`.
 - 2026-09-30 — Narcótico, árvore de fruta-negra e nova receita da flecha, a pedido do Felipe. Smilodon ampliado (escala 2,0, dorso a ~2,4 blocos) e imune a recuo.
+- 2026-09-30 — Etapa 5: `LandCreature` genérica substitui a classe `Smilodon`; mamute e lobo-terrível; manada, defesa em grupo, caça e spawn natural por dados.
 - 2026-09-30 — Inventário de criatura (come sozinha; dono = quem derrubou), bloco `body` e correções de pathfinding do Smilodon (degrau 1,1, atravessa folhas, colisão 1,3 × 2,3).
 - 2026-09-30 — A instância de teste do Prism passou a receber uma cópia do jar (`tools/deploy-prism.sh`): o atalho para `build/libs` quebrava o jogo aberto a cada recompilação.
 - 2026-09-30 — Etapa 4: comandos, obediência por afinidade e D15.
@@ -453,7 +480,8 @@ Ver a tabela em [4](#4-decisões). Registro de mudanças estruturais:
 | Escopo: dez etapas, vários sistemas grandes. | Alto | MVP estreito; não avançar com etapa instável. |
 | Balanceamento de torpor/níveis/genética. | Médio | Tudo em dados e config; testes de lógica pura. |
 | Montaria em multiplayer (latência, dessincronização). | Médio | Reaproveitar o modelo de controle de veículo vanilla. |
-| Muitas entidades com IA em servidor. | Médio | Ver [22](#22-performance); medir na Etapa 5. |
+| Muitas entidades com IA em servidor. | Médio | Ver [22](#22-performance). Varreduras de entidade são espaçadas (manada ~5 s, caça ~30 s, defesa só ao ser ferida). Ainda não medido com fauna densa. |
+| Fauna finita: criaturas `CREATURE` só nascem com a geração do terreno. | Médio | Observar em jogo; se faltar fauna, adicionar reposição controlada. |
 | Teto de 1024 de vida do vanilla limita criaturas gigantes e o boss. | Médio | Decidir na Etapa 10: redução de dano por fase, ou atributo de vida próprio. |
 | 1.21.1 envelhecer. | Baixo | `core/` independente do Minecraft facilita port. |
 

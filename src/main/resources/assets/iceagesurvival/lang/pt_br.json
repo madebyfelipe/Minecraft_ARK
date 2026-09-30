@@ -34,5 +34,9 @@
   "item.iceagesurvival.black_fruit": "Fruta-Negra",
   "item.iceagesurvival.narcotic": "Narcótico",
   "iceagesurvival.configuration.narcoticTorpor": "Torpor do narcótico",
-  "iceagesurvival.taming.not_yours": "Outra pessoa derrubou esta criatura"
+  "iceagesurvival.taming.not_yours": "Outra pessoa derrubou esta criatura",
+  "entity.iceagesurvival.mammoth": "Mamute-Lanoso",
+  "item.iceagesurvival.mammoth_spawn_egg": "Ovo Gerador de Mamute-Lanoso",
+  "entity.iceagesurvival.dire_wolf": "Lobo-Terrível",
+  "item.iceagesurvival.dire_wolf_spawn_egg": "Ovo Gerador de Lobo-Terrível"
 }

@@ -30,6 +30,7 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -40,6 +41,7 @@ import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
@@ -50,7 +52,9 @@ import net.minecraft.world.inventory.ChestMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.LeavesBlock;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.pathfinder.PathType;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.event.EventHooks;
@@ -130,6 +134,18 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         super(type, level);
     }
 
+    /**
+     * Regra de spawn natural: em chão firme e na superfície (inclusive sobre neve e gelo, e sob
+     * copas de árvore), nunca dentro de cavernas. Usa o mapa de altura, que não depende de luz.
+     */
+    public static boolean checkSurfaceSpawnRules(EntityType<? extends PrehistoricCreature> type,
+                                                 ServerLevelAccessor level, MobSpawnType reason,
+                                                 BlockPos pos, RandomSource random) {
+        BlockPos below = pos.below();
+        int surface = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, pos.getX(), pos.getZ());
+        return pos.getY() >= surface && level.getBlockState(below).isValidSpawn(level, below, type);
+    }
+
     /** Atributos que toda criatura precisa ter registrados para os stats serem aplicados. */
     public static AttributeSupplier.Builder createBaseAttributes() {
         return Mob.createMobAttributes().add(Attributes.ATTACK_DAMAGE);
@@ -151,6 +167,11 @@ public abstract class PrehistoricCreature extends TamableAnimal {
 
     public Optional<BehaviorProfile> behavior() {
         return species().flatMap(Species::behavior);
+    }
+
+    /** Fator de escala do modelo; usado pelo renderer. */
+    public float modelScale() {
+        return species().flatMap(Species::body).map(BodyProfile::modelScale).orElse(BodyProfile.DEFAULT.modelScale());
     }
 
     private Optional<TamingProfile> tamingProfile() {
@@ -370,6 +391,26 @@ public abstract class PrehistoricCreature extends TamableAnimal {
             if (level().getBlockState(pos).getBlock() instanceof LeavesBlock) {
                 level().destroyBlock(pos, true, this);
             }
+        }
+    }
+
+    // ---- Manada ----
+
+    /**
+     * Defesa em grupo: faz as criaturas selvagens da mesma espécie por perto, que ainda não
+     * tenham alvo, atacarem quem feriu esta. Uma varredura por agressão sofrida.
+     */
+    public void alertHerd(@Nullable LivingEntity attacker) {
+        Optional<BehaviorProfile> behavior = behavior();
+        if (attacker == null || isTame() || behavior.isEmpty() || !behavior.get().groupDefense()) {
+            return;
+        }
+        double range = Math.max(behavior.get().herdRadius(), behavior.get().aggroRadius());
+        for (PrehistoricCreature other : level().getEntitiesOfClass(
+                PrehistoricCreature.class, getBoundingBox().inflate(range),
+                candidate -> candidate != this && candidate.getType() == getType() && !candidate.isTame()
+                        && !candidate.isUnconscious() && candidate.getTarget() == null)) {
+            other.setTarget(attacker);
         }
     }
 

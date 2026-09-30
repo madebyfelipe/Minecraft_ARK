@@ -34,5 +34,9 @@
   "item.iceagesurvival.black_fruit": "Blackfruit",
   "item.iceagesurvival.narcotic": "Narcotic",
   "iceagesurvival.configuration.narcoticTorpor": "Narcotic torpor",
-  "iceagesurvival.taming.not_yours": "Someone else knocked this creature out"
+  "iceagesurvival.taming.not_yours": "Someone else knocked this creature out",
+  "entity.iceagesurvival.mammoth": "Woolly Mammoth",
+  "item.iceagesurvival.mammoth_spawn_egg": "Woolly Mammoth Spawn Egg",
+  "entity.iceagesurvival.dire_wolf": "Dire Wolf",
+  "item.iceagesurvival.dire_wolf_spawn_egg": "Dire Wolf Spawn Egg"
 }

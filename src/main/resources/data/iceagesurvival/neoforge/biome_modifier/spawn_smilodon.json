@@ -1,0 +1,12 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": "#iceagesurvival:spawns_smilodon",
+  "spawners": [
+    {
+      "type": "iceagesurvival:smilodon",
+      "weight": 2,
+      "minCount": 1,
+      "maxCount": 1
+    }
+  ]
+}

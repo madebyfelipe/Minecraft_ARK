@@ -93,5 +93,11 @@ public final class OrderGoals {
         public boolean canUse() {
             return (!creature.isTame() || creature.order().fightsBack()) && super.canUse();
         }
+
+        @Override
+        public void start() {
+            super.start();
+            creature.alertHerd(creature.getLastHurtByMob());
+        }
     }
 }

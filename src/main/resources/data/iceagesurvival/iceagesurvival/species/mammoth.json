@@ -1,0 +1,57 @@
+{
+  "stats": {
+    "health": {
+      "base": 90,
+      "per_point": 0.08
+    },
+    "attack": {
+      "base": 10,
+      "per_point": 0.04
+    },
+    "speed": {
+      "base": 0.22
+    },
+    "torpor": {
+      "base": 250,
+      "per_point": 0.06
+    },
+    "armor": {
+      "base": 6,
+      "per_point": 0.03
+    }
+  },
+  "body": {
+    "knockback_resistance": 1.0,
+    "step_height": 1.1,
+    "breaks_leaves": true,
+    "model_scale": 1.8
+  },
+  "taming": {
+    "torpor_decay_per_second": 2.0,
+    "required_food": 300,
+    "required_food_per_level": 0.015,
+    "feed_interval_seconds": 8,
+    "foods": [
+      {
+        "items": "minecraft:hay_block",
+        "value": 40
+      },
+      {
+        "items": "minecraft:wheat",
+        "value": 15,
+        "quality": 0.8
+      },
+      {
+        "items": "#minecraft:leaves",
+        "value": 5,
+        "quality": 0.4
+      }
+    ]
+  },
+  "behavior": {
+    "aggressive": false,
+    "aggro_radius": 16,
+    "herd_radius": 14,
+    "group_defense": true
+  }
+}
