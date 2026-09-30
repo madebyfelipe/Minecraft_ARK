@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "iceagesurvival:item/creature_egg",
+    "layer1": "iceagesurvival:item/creature_egg_spots"
+  }
+}

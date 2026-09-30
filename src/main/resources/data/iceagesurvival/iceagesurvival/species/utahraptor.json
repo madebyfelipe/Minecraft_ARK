@@ -93,5 +93,11 @@
     "hurt": "iceagesurvival:entity.utahraptor.hurt",
     "death": "iceagesurvival:entity.utahraptor.death",
     "volume": 1.3
+  },
+  "breeding": {
+    "offspring": "egg",
+    "incubation_seconds": 480,
+    "maturation_seconds": 1500,
+    "cooldown_seconds": 900
   }
 }

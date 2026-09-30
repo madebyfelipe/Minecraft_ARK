@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "iceagesurvival:block/incubator_side",
+    "north": "iceagesurvival:block/incubator_front",
+    "south": "iceagesurvival:block/incubator_front",
+    "east": "iceagesurvival:block/incubator_side",
+    "west": "iceagesurvival:block/incubator_side",
+    "up": "iceagesurvival:block/incubator_top",
+    "down": "iceagesurvival:block/incubator_top"
+  }
+}

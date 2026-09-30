@@ -53,6 +53,26 @@ public final class ServerConfig {
             .comment("Raio em que a densidade de cada espécie é conferida contra o max_nearby do JSON da espécie.")
             .defineInRange("wildSpawnDensityRadius", 96, 16, 512);
 
+    public static final ModConfigSpec.DoubleValue STIMULANT_TORPOR = BUILDER
+            .comment("Torpor que um estimulante tira de uma criatura.")
+            .defineInRange("stimulantTorpor", 150.0, 0.0, 10000.0);
+
+    public static final ModConfigSpec.DoubleValue MUTATION_CHANCE = BUILDER
+            .comment("Chance de cada tentativa de mutação numa cria (o ARK usa 2,5%).")
+            .defineInRange("mutationChance", 0.025, 0.0, 1.0);
+
+    public static final ModConfigSpec.IntValue MUTATION_ATTEMPTS = BUILDER
+            .comment("Tentativas de mutação por cria.")
+            .defineInRange("mutationAttempts", 3, 0, 10);
+
+    public static final ModConfigSpec.DoubleValue HEALTH_GENE_CHANCE = BUILDER
+            .comment("Chance de o gene de mutação de vida surgir numa cria de pais sem ele.")
+            .defineInRange("healthGeneChance", 0.01, 0.0, 1.0);
+
+    public static final ModConfigSpec.DoubleValue WILD_HEALTH_GENE_CHANCE = BUILDER
+            .comment("Chance de uma criatura selvagem já carregar o gene de mutação de vida.")
+            .defineInRange("wildHealthGeneChance", 0.05, 0.0, 1.0);
+
     public static final ModConfigSpec.BooleanValue COLD_ENABLED = BUILDER
             .comment("Se o frio afeta os jogadores. Desligar entrega a mecânica de temperatura a outro mod.")
             .define("coldEnabled", true);

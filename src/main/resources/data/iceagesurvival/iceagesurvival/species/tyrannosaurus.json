@@ -94,5 +94,11 @@
     "alert": "iceagesurvival:entity.tyrannosaurus.alert",
     "attack": "minecraft:entity.ravager.attack",
     "volume": 3.0
+  },
+  "breeding": {
+    "offspring": "egg",
+    "incubation_seconds": 900,
+    "maturation_seconds": 3600,
+    "cooldown_seconds": 1800
   }
 }

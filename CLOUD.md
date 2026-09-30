@@ -520,7 +520,24 @@ Limites conhecidos: toda fonte de calor aquece igual (uma tocha vale uma fogueir
 
 ## 16. Reprodução
 
-Macho + fêmea da mesma espécie, domesticados → gestação ou ovo → incubadora → filhote. Adultos não exigem alimentação de manutenção. Detalhes na Etapa 8.
+Implementado na Etapa 8. Toda criatura tem **sexo** (sorteado ao nascer; criaturas de mundos antigos sorteiam ao carregar). O dono **liga o acasalamento** na tela de status (V); uma fêmea adulta com ele ligado, a até 8 blocos de um macho adulto da mesma espécie e do mesmo dono também com ele ligado, concebe depois de 10 s juntos (corações sobem nos dois). Ela espera `cooldown_seconds` para cruzar de novo.
+
+Bloco `breeding` no JSON da espécie; sem ele, a espécie não se reproduz:
+
+| Campo | |
+|---|---|
+| `offspring` | `live` (mamíferos: gestação na fêmea, o filhote nasce dela) ou `egg` (dinossauros: ela põe um ovo) |
+| `incubation_seconds` | tempo de gestação ou de incubação |
+| `maturation_seconds` | de filhote a adulto |
+| `cooldown_seconds` | espera da fêmea entre crias |
+
+**Filhote:** nasce domesticado pelo dono, seguindo e passivo, com 40% do tamanho, sem sela nem acasalamento até crescer. Adultos não exigem alimentação de manutenção.
+
+**Ovo** (`creature_egg`): um item só para todas as espécies, com espécie, genoma e dono no `CustomData` e as cores do ovo gerador da espécie. Só choca na **incubadora**.
+
+**Incubadora:** um espaço de ovo e um de combustível. O ovo só avança aquecido — por uma fonte de calor (`#iceagesurvival:heat_sources`) a até 2 blocos, ou por combustível de fornalha queimando, gasto só com ovo dentro e sem outra fonte. Fria, pausa sem perder o progresso. O filhote nasce em cima dela. Receita: vidro, lã, fornalha e ferro.
+
+**Mesa química:** duas entradas, uma saída, sem combustível; rende mais que a mesa de trabalho. Narcótico ×2 (fruta-negra + carne podre), estimulante ×2 (2 açúcares + frutas doces) e flecha tranquilizante ×4 (4 flechas + narcótico). O **estimulante** dado a uma criatura tira 150 de torpor (`stimulantTorpor`) — acorda uma criatura sua derrubada. Receita: frascos, caldeirão e tábuas. As receitas estão em código (`ChemistryRecipe`); virar tipo de receita de datapack fica para quando houver muitas.
 
 ## 17. Genética
 
@@ -531,6 +548,8 @@ Macho + fêmea da mesma espécie, domesticados → gestação ou ovo → incubad
   - **Vida:** só sobe em linhagens que carregam o gene de mutação de vida.
   - Demais atributos: não escalam por mutação.
 - O genoma é lógica pura em `core/genetics`, coberta por testes JUnit com RNG semeado.
+
+Implementado na Etapa 8 (`Genome`, `Genetics`). Pontos **e** contagem de mutações de cada atributo vêm juntos de um dos pais. A cada cria, 3 tentativas de mutação de 2,5% (`mutationAttempts`, `mutationChance`); cada uma sorteia entre ataque, velocidade e — se a linhagem tiver o gene — vida. Ataque e vida ganham 2 pontos (e 2 níveis) por mutação; velocidade ganha 3% por mutação até 10 (+30%), e passado o teto a mutação se perde. O gene de vida passa se um dos pais o tiver, surge sozinho em 1% das crias (`healthGeneChance`) e 5% das selvagens já o carregam (`wildHealthGeneChance`). A tela de status mostra sexo, mutações, o gene, gestação e crescimento.
 
 ## 18. Worldgen
 
@@ -598,7 +617,7 @@ O mundo do GameTest é plano e de bioma temperado, então o frio não chega a su
 | 5 | Mais criaturas, spawning | ✅ 2026-09-30 em testes automáticos (mamute, lobo-terrível, manada, caça, spawn); falta conferir em jogo |
 | 6 | Temperatura | ✅ 2026-09-30 em testes automáticos; falta sentir o frio em jogo e balancear a primeira hora |
 | 7 | Montaria | ✅ 2026-09-30 em testes automáticos (sela, controle, pulo, recusas) + reposição de fauna e comandos `/ias`; falta conferir em jogo |
-| 8 | Reprodução e genética | — |
+| 8 | Reprodução e genética | ✅ 2026-09-30 em testes automáticos (genética em JUnit; acasalamento, gestação, ovo, incubadora, mesa química e estimulante em gametests); falta conferir em jogo |
 | 9 | Worldgen | — |
 | 10 | Endgame: rastreador, caverna, arena, boss | — |
 
@@ -631,6 +650,7 @@ Ver a tabela em [4](#4-decisões). Registro de mudanças estruturais:
 - 2026-09-30 — Tyrannosaurus em dobro (colisão 3,6×7,2; escala do modelo 5,66; assento 6,2; degrau 2,8) e ataque de quem monta.
 - 2026-09-30 — Assento do Tyrannosaurus de 6,2 para 7,4: o jogador montado ficava dentro do corpo; 7,4 é a altura do osso `rider_pos` (21 px) na escala 5,66.
 - 2026-09-30 — Sons do F&A Revival (All Rights Reserved, mesmo caso dos modelos) para Smilodon, mamute e T-Rex: bloco opcional `sounds` no JSON de espécie (`ambient`, `hurt`, `death`, `alert` ao escolher alvo, `volume`), instalados por `tools/install-revival-placeholders.py`. O lobo-terrível segue mudo: o Revival não tem ele.
+- 2026-09-30 — Etapa 8: genética, sexo, acasalamento, gestação e ovo, incubadora, mesa química e estimulante.
 - 2026-09-30 — Comandos no esquema do ARK: movimento e postura independentes, assobios por tecla (mirada ou todas ao alcance), painel sob a mira refeito e tela de status (V).
 - 2026-09-30 — Mamute em 1,5x (colisão 3,0×4,65, escala 1,92, assento 3,85, degrau 1,65) e coletor de madeira pela mordida montada.
 - 2026-09-30 — Tyrannosaurus reduzido de 2x para 1,5x: colisão 2,7×5,4, escala do modelo 4,25, assento 5,6 (osso `rider_pos` × escala), degrau 2,1.
@@ -655,7 +675,7 @@ Ver a tabela em [4](#4-decisões). Registro de mudanças estruturais:
 4. World preset próprio vs. conversão global no estilo Primal Winter — decidir na Etapa 9 (D6).
 5. Integração com criaturas de mods externos: possível em tese (registrar uma espécie apontando para um `EntityType` alheio), mas exigiria anexar nossos dados a entidades de terceiros. Não planejado.
 6. Criaturas voadoras e de carga: quais espécies.
-7. Gestação vs. ovo por espécie.
+7. ~~Gestação vs. ovo por espécie~~ Decidido na Etapa 8: `breeding.offspring` no JSON — mamíferos `live`, dinossauros `egg`.
 8. Nome final do mod (`Ice Age Survival` / id `iceagesurvival` são provisórios).
 10. ~~Muda da árvore de fruta-negra~~ Feito em 2026-09-30: `black_fruit_sapling`, que as folhas dropam como as do vanilla (5%, mais com Fortuna; não com tesoura) e cresce na mesma árvore do mundo.
 12. Como tirar a sela em jogo (hoje só `/ias saddle` ou a morte da criatura): tecla, tela de inventário da criatura, ou clique com a mão vazia agachado.

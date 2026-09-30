@@ -76,5 +76,11 @@
     "hurt": "iceagesurvival:entity.brontosaurus.hurt",
     "death": "iceagesurvival:entity.brontosaurus.death",
     "volume": 4.0
+  },
+  "breeding": {
+    "offspring": "egg",
+    "incubation_seconds": 1200,
+    "maturation_seconds": 5400,
+    "cooldown_seconds": 2400
   }
 }

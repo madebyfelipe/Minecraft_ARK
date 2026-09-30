@@ -1,6 +1,11 @@
 package dev.madebyfelipe.iceagesurvival.client;
 
 import dev.madebyfelipe.iceagesurvival.IceAgeSurvival;
+import dev.madebyfelipe.iceagesurvival.item.CreatureEggItem;
+import dev.madebyfelipe.iceagesurvival.registry.ModMenus;
+import net.minecraft.util.FastColor;
+import net.minecraft.world.item.SpawnEggItem;
+import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import dev.madebyfelipe.iceagesurvival.network.ColdStatusPayload;
 import dev.madebyfelipe.iceagesurvival.network.CreatureStatusPayload;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
@@ -28,6 +33,7 @@ public class IceAgeSurvivalClient {
         modEventBus.addListener(IceAgeSurvivalClient::registerRenderers);
         modEventBus.addListener(IceAgeSurvivalClient::registerItemColors);
         modEventBus.addListener(IceAgeSurvivalClient::registerGuiLayers);
+        modEventBus.addListener(IceAgeSurvivalClient::registerScreens);
         modEventBus.addListener(IceAgeSurvivalClient::registerReloadListeners);
         modEventBus.addListener(CommandInput::registerKeys);
         NeoForge.EVENT_BUS.addListener(CommandInput::onClientTick);
@@ -47,6 +53,16 @@ public class IceAgeSurvivalClient {
 
     private static void registerItemColors(RegisterColorHandlersEvent.Item event) {
         event.register((stack, tintIndex) -> tintIndex == 0 ? TRANQ_ARROW_TIP_COLOR : -1, ModItems.TRANQ_ARROW);
+        // O ovo tem as cores do ovo gerador da espécie: casca na camada 0, pintas na 1.
+        event.register((stack, tintIndex) -> CreatureEggItem.species(stack)
+                .map(SpawnEggItem::byId)
+                .map(egg -> FastColor.ARGB32.opaque(egg.getColor(tintIndex)))
+                .orElse(-1), ModItems.CREATURE_EGG);
+    }
+
+    private static void registerScreens(RegisterMenuScreensEvent event) {
+        event.register(ModMenus.INCUBATOR.get(), IncubatorScreen::new);
+        event.register(ModMenus.CHEMISTRY_BENCH.get(), ChemistryBenchScreen::new);
     }
 
     private static void registerReloadListeners(RegisterClientReloadListenersEvent event) {

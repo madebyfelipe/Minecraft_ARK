@@ -1,6 +1,7 @@
 package dev.madebyfelipe.iceagesurvival.registry;
 
 import dev.madebyfelipe.iceagesurvival.IceAgeSurvival;
+import dev.madebyfelipe.iceagesurvival.item.CreatureEggItem;
 import dev.madebyfelipe.iceagesurvival.item.TranqArrowItem;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.BlockItem;
@@ -74,6 +75,16 @@ public final class ModItems {
     public static final DeferredItem<BlockItem> BLACK_FRUIT_LEAVES =
             ITEMS.registerSimpleBlockItem(ModBlocks.BLACK_FRUIT_LEAVES);
 
+    public static final DeferredItem<BlockItem> INCUBATOR = ITEMS.registerSimpleBlockItem(ModBlocks.INCUBATOR);
+    public static final DeferredItem<BlockItem> CHEMISTRY_BENCH = ITEMS.registerSimpleBlockItem(ModBlocks.CHEMISTRY_BENCH);
+
+    /** Ovo fecundado: espécie, genoma e dono do filhote. */
+    public static final DeferredItem<CreatureEggItem> CREATURE_EGG =
+            ITEMS.register("creature_egg", () -> new CreatureEggItem(new Item.Properties()));
+
+    /** Dado a uma criatura, tira torpor: acorda uma criatura sua derrubada. Feito na mesa química. */
+    public static final DeferredItem<Item> STIMULANT = ITEMS.registerSimpleItem("stimulant");
+
     /** Muda: plante perto da base para ter fruta-negra sem sair procurando a árvore. */
     public static final DeferredItem<BlockItem> BLACK_FRUIT_SAPLING =
             ITEMS.registerSimpleBlockItem(ModBlocks.BLACK_FRUIT_SAPLING);
@@ -110,7 +121,11 @@ public final class ModItems {
         } else if (event.getTabKey() == CreativeModeTabs.INGREDIENTS) {
             event.accept(BLACK_FRUIT);
             event.accept(PELT);
+            event.accept(STIMULANT);
             event.accept(NARCOTIC);
+        } else if (event.getTabKey() == CreativeModeTabs.FUNCTIONAL_BLOCKS) {
+            event.accept(INCUBATOR);
+            event.accept(CHEMISTRY_BENCH);
         } else if (event.getTabKey() == CreativeModeTabs.NATURAL_BLOCKS) {
             event.accept(BLACK_FRUIT_LEAVES);
             event.accept(BLACK_FRUIT_SAPLING);

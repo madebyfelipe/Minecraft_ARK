@@ -17,9 +17,14 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
  * @param values     valor final por atributo, na mesma ordem
  * @param baseValues valor com zero pontos, para mostrar o ganho
  * @param ownerName  nome do dono, ou vazio se ele nunca foi visto por este servidor
+ * @param mutations  mutações acumuladas na linhagem
+ * @param healthGene se carrega o gene de mutação de vida
+ * @param gestation  fração da gestação, ou −1 se não estiver prenhe
+ * @param maturation fração do crescimento; 1 = adulto
  */
 public record CreatureStatusPayload(int creatureId, int[] points, double[] values, double[] baseValues,
-                                    float health, double torpor, float affinity, String ownerName)
+                                    float health, double torpor, float affinity, String ownerName,
+                                    int mutations, boolean healthGene, float gestation, float maturation)
         implements CustomPacketPayload {
     public static final Type<CreatureStatusPayload> TYPE = new Type<>(IceAgeSurvival.id("creature_status"));
 
@@ -37,14 +42,17 @@ public record CreatureStatusPayload(int creatureId, int[] points, double[] value
         creature.species().ifPresent(species -> {
             for (Stat stat : stats) {
                 points[stat.ordinal()] = creature.statPoints().get(stat);
-                values[stat.ordinal()] = species.stats().value(stat, creature.statPoints());
+                values[stat.ordinal()] = species.stats().value(stat, creature.statPoints())
+                        * (stat == Stat.SPEED ? creature.genome().speedMultiplier() : 1.0);
                 baseValues[stat.ordinal()] = species.stats().value(stat, 0);
             }
         });
         Player owner = creature.getOwnerUUID() == null ? null : creature.level().getPlayerByUUID(creature.getOwnerUUID());
         String ownerName = owner != null ? owner.getGameProfile().getName() : "";
         return new CreatureStatusPayload(creature.getId(), points, values, baseValues,
-                creature.getHealth(), creature.torpor(), creature.affinity(), ownerName);
+                creature.getHealth(), creature.torpor(), creature.affinity(), ownerName,
+                creature.genome().totalMutations(), creature.genome().healthGene(),
+                creature.gestationProgress(), creature.maturationProgress());
     }
 
     private static CreatureStatusPayload read(FriendlyByteBuf buf) {
@@ -59,7 +67,8 @@ public record CreatureStatusPayload(int creatureId, int[] points, double[] value
             baseValues[i] = buf.readDouble();
         }
         return new CreatureStatusPayload(id, points, values, baseValues,
-                buf.readFloat(), buf.readDouble(), buf.readFloat(), buf.readUtf());
+                buf.readFloat(), buf.readDouble(), buf.readFloat(), buf.readUtf(),
+                buf.readVarInt(), buf.readBoolean(), buf.readFloat(), buf.readFloat());
     }
 
     private void write(FriendlyByteBuf buf) {
@@ -73,6 +82,10 @@ public record CreatureStatusPayload(int creatureId, int[] points, double[] value
         buf.writeDouble(torpor);
         buf.writeFloat(affinity);
         buf.writeUtf(ownerName);
+        buf.writeVarInt(mutations);
+        buf.writeBoolean(healthGene);
+        buf.writeFloat(gestation);
+        buf.writeFloat(maturation);
     }
 
     public int points(Stat stat) {

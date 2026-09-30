@@ -2,6 +2,8 @@ package dev.madebyfelipe.iceagesurvival.registry;
 
 import dev.madebyfelipe.iceagesurvival.IceAgeSurvival;
 import dev.madebyfelipe.iceagesurvival.block.BlackFruitLeavesBlock;
+import dev.madebyfelipe.iceagesurvival.block.ChemistryBenchBlock;
+import dev.madebyfelipe.iceagesurvival.block.IncubatorBlock;
 import java.util.Optional;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
@@ -29,6 +31,14 @@ public final class ModBlocks {
     public static final DeferredBlock<SaplingBlock> BLACK_FRUIT_SAPLING = BLOCKS.register(
             "black_fruit_sapling",
             () -> new SaplingBlock(BLACK_FRUIT_TREE_GROWER, BlockBehaviour.Properties.ofFullCopy(Blocks.SPRUCE_SAPLING)));
+
+    public static final DeferredBlock<IncubatorBlock> INCUBATOR = BLOCKS.register(
+            "incubator",
+            () -> new IncubatorBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_BLOCK).strength(3.5F)));
+
+    public static final DeferredBlock<ChemistryBenchBlock> CHEMISTRY_BENCH = BLOCKS.register(
+            "chemistry_bench",
+            () -> new ChemistryBenchBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.CRAFTING_TABLE)));
 
     private ModBlocks() {
     }

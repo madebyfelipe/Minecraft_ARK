@@ -7,7 +7,9 @@ import dev.madebyfelipe.iceagesurvival.network.ModPayloads;
 import dev.madebyfelipe.iceagesurvival.registry.ModArmorMaterials;
 import dev.madebyfelipe.iceagesurvival.registry.ModAttachments;
 import dev.madebyfelipe.iceagesurvival.registry.ModDataMaps;
+import dev.madebyfelipe.iceagesurvival.registry.ModBlockEntities;
 import dev.madebyfelipe.iceagesurvival.registry.ModBlocks;
+import dev.madebyfelipe.iceagesurvival.registry.ModMenus;
 import dev.madebyfelipe.iceagesurvival.registry.ModEntities;
 import dev.madebyfelipe.iceagesurvival.registry.ModItems;
 import dev.madebyfelipe.iceagesurvival.species.Species;
@@ -29,6 +31,8 @@ public class IceAgeSurvival {
     public IceAgeSurvival(IEventBus modEventBus, ModContainer modContainer) {
         ModAttachments.ATTACHMENT_TYPES.register(modEventBus);
         ModBlocks.BLOCKS.register(modEventBus);
+        ModBlockEntities.BLOCK_ENTITIES.register(modEventBus);
+        ModMenus.MENUS.register(modEventBus);
         ModEntities.ENTITY_TYPES.register(modEventBus);
         ModArmorMaterials.ARMOR_MATERIALS.register(modEventBus);
         ModItems.ITEMS.register(modEventBus);

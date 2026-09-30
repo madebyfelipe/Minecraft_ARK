@@ -75,5 +75,11 @@
     "death": "iceagesurvival:entity.mammoth.death",
     "attack": "minecraft:entity.hoglin.attack",
     "volume": 1.5
+  },
+  "breeding": {
+    "offspring": "live",
+    "incubation_seconds": 720,
+    "maturation_seconds": 2700,
+    "cooldown_seconds": 1200
   }
 }

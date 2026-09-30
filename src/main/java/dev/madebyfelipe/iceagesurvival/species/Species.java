@@ -27,7 +27,8 @@ public record Species(
         Optional<BehaviorProfile> behavior,
         Optional<MountProfile> mount,
         Optional<SpawnProfile> spawn,
-        Optional<SoundProfile> sounds) {
+        Optional<SoundProfile> sounds,
+        Optional<BreedingProfile> breeding) {
     public static final ResourceKey<Registry<Species>> REGISTRY_KEY =
             ResourceKey.createRegistryKey(IceAgeSurvival.id("species"));
 
@@ -54,7 +55,8 @@ public record Species(
             BehaviorProfile.CODEC.optionalFieldOf("behavior").forGetter(Species::behavior),
             MountProfile.CODEC.optionalFieldOf("mount").forGetter(Species::mount),
             SpawnProfile.CODEC.optionalFieldOf("spawn").forGetter(Species::spawn),
-            SoundProfile.CODEC.optionalFieldOf("sounds").forGetter(Species::sounds)
+            SoundProfile.CODEC.optionalFieldOf("sounds").forGetter(Species::sounds),
+            BreedingProfile.CODEC.optionalFieldOf("breeding").forGetter(Species::breeding)
     ).apply(instance, Species::new));
 
     public static void registerRegistry(DataPackRegistryEvent.NewRegistry event) {

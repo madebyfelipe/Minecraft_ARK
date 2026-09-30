@@ -83,5 +83,11 @@
     "hurt": "iceagesurvival:entity.velociraptor.hurt",
     "death": "iceagesurvival:entity.velociraptor.death",
     "volume": 1.0
+  },
+  "breeding": {
+    "offspring": "egg",
+    "incubation_seconds": 300,
+    "maturation_seconds": 900,
+    "cooldown_seconds": 600
   }
 }

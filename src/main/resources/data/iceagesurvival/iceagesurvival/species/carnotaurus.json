@@ -93,5 +93,11 @@
     "hurt": "iceagesurvival:entity.carnotaurus.hurt",
     "death": "iceagesurvival:entity.carnotaurus.death",
     "volume": 2.0
+  },
+  "breeding": {
+    "offspring": "egg",
+    "incubation_seconds": 600,
+    "maturation_seconds": 2400,
+    "cooldown_seconds": 1200
   }
 }

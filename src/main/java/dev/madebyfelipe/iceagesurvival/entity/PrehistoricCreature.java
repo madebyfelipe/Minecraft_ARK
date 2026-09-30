@@ -5,6 +5,11 @@ import dev.madebyfelipe.iceagesurvival.config.ServerConfig;
 import dev.madebyfelipe.iceagesurvival.core.command.Movement;
 import dev.madebyfelipe.iceagesurvival.core.command.Obedience;
 import dev.madebyfelipe.iceagesurvival.core.command.Stance;
+import dev.madebyfelipe.iceagesurvival.core.genetics.Genetics;
+import dev.madebyfelipe.iceagesurvival.core.genetics.Genome;
+import dev.madebyfelipe.iceagesurvival.genetics.GenomeNbt;
+import dev.madebyfelipe.iceagesurvival.item.CreatureEggItem;
+import dev.madebyfelipe.iceagesurvival.species.BreedingProfile;
 import dev.madebyfelipe.iceagesurvival.core.stats.Stat;
 import dev.madebyfelipe.iceagesurvival.core.stats.StatPoints;
 import dev.madebyfelipe.iceagesurvival.core.stats.StatProfile;
@@ -99,6 +104,10 @@ public abstract class PrehistoricCreature extends TamableAnimal implements Playe
             SynchedEntityData.defineId(PrehistoricCreature.class, EntityDataSerializers.BYTE);
     private static final EntityDataAccessor<Byte> DATA_STANCE =
             SynchedEntityData.defineId(PrehistoricCreature.class, EntityDataSerializers.BYTE);
+    private static final EntityDataAccessor<Boolean> DATA_FEMALE =
+            SynchedEntityData.defineId(PrehistoricCreature.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Boolean> DATA_MATING =
+            SynchedEntityData.defineId(PrehistoricCreature.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> DATA_SADDLED =
             SynchedEntityData.defineId(PrehistoricCreature.class, EntityDataSerializers.BOOLEAN);
 
@@ -119,6 +128,20 @@ public abstract class PrehistoricCreature extends TamableAnimal implements Playe
     private static final String TAG_INVENTORY = "Inventory";
     private static final String TAG_TAMER = "Tamer";
     private static final String TAG_SADDLED = "Saddled";
+    private static final String TAG_MUTATIONS = "Mutations";
+    private static final String TAG_HEALTH_GENE = "HealthGene";
+    private static final String TAG_FEMALE = "Female";
+    private static final String TAG_MATING = "Mating";
+    private static final String TAG_NEXT_MATING = "NextMating";
+    private static final String TAG_GESTATION_END = "GestationEnd";
+    private static final String TAG_GESTATION_CHILD = "GestationChild";
+
+    /** Segundos juntos, com o acasalamento ligado, até a fêmea conceber. */
+    public static final int MATING_SECONDS = 10;
+    /** Distância máxima entre os dois para cruzar. */
+    public static final double MATING_RADIUS = 8.0;
+    /** Tamanho do filhote em relação ao adulto (o vanilla usa 0,5). */
+    private static final float BABY_SCALE = 0.4F;
 
     private static final int TORPOR_UPDATE_INTERVAL_TICKS = 20;
     /** Afinidade inicial de uma domesticação com eficiência de 100%. */
@@ -150,14 +173,25 @@ public abstract class PrehistoricCreature extends TamableAnimal implements Playe
     private static final float RIDDEN_STRAFE_FACTOR = 0.5F;
 
     private StatPoints statPoints = StatPoints.NONE;
+    /** Mutações por atributo herdadas; com os pontos e o gene, formam o {@link #genome()}. */
+    private int[] mutations = new int[Stat.values().length];
+    private boolean healthGene;
     private boolean statsRolled;
     private double torpor;
     private TamingSession tamingSession = new TamingSession();
-    /** Game time a partir do qual a criatura aceita comer de novo. */
     private long nextRiderAttackTime;
     /** Durante o golpe de quem monta: a animação e o som já saíram, {@link #doHurtTarget} não repete. */
     private boolean attackSwung;
+    /** Game time a partir do qual a criatura aceita comer de novo. */
     private long nextFeedTime;
+    /** Segundos seguidos perto de um parceiro com o acasalamento ligado. */
+    private int matingProgress;
+    /** Game time a partir do qual a fêmea pode cruzar de novo. */
+    private long nextMatingTime;
+    /** Game time do parto; 0 = não está prenhe. */
+    private long gestationEnd;
+    @Nullable
+    private Genome gestationChild;
     private float affinity;
     /** Centro do território: onde a criatura entrou no mundo pela primeira vez. */
     @Nullable
@@ -212,6 +246,8 @@ public abstract class PrehistoricCreature extends TamableAnimal implements Playe
         builder.define(DATA_MOVEMENT, (byte) DEFAULT_MOVEMENT.ordinal());
         builder.define(DATA_STANCE, (byte) DEFAULT_STANCE.ordinal());
         builder.define(DATA_SADDLED, false);
+        builder.define(DATA_FEMALE, false);
+        builder.define(DATA_MATING, false);
     }
 
     public Optional<Species> species() {
@@ -307,6 +343,21 @@ public abstract class PrehistoricCreature extends TamableAnimal implements Playe
         return statPoints;
     }
 
+    /** O que a criatura passa aos filhotes: pontos, mutações e o gene de vida. Só no servidor. */
+    public Genome genome() {
+        return new Genome(statPoints, mutations, healthGene);
+    }
+
+    /** Aplica um genoma inteiro (filhote recém-nascido, testes). */
+    public void setGenome(Genome genome) {
+        mutations = genome.mutations();
+        healthGene = genome.healthGene();
+        species().ifPresentOrElse(species -> setStatPoints(genome.points(), species), () -> {
+            statPoints = genome.points();
+            statsRolled = true;
+        });
+    }
+
     /** Nível do indivíduo; disponível também no cliente. */
     public int creatureLevel() {
         return entityData.get(DATA_LEVEL);
@@ -365,6 +416,8 @@ public abstract class PrehistoricCreature extends TamableAnimal implements Playe
         }
         RandomGenerator generator = randomGenerator();
         int level = WildLevels.roll(ServerConfig.MAX_WILD_LEVEL.get(), ServerConfig.WILD_LEVEL_STEP.get(), generator);
+        healthGene = generator.nextDouble() < ServerConfig.WILD_HEALTH_GENE_CHANCE.get();
+        setFemale(generator.nextBoolean());
         setStatPoints(StatPoints.rollWild(level, generator), species.get());
         setHealth(getMaxHealth());
     }
@@ -377,7 +430,7 @@ public abstract class PrehistoricCreature extends TamableAnimal implements Playe
         StatProfile profile = species.stats();
         setBase(Attributes.MAX_HEALTH, profile.value(Stat.HEALTH, points));
         setBase(Attributes.ATTACK_DAMAGE, profile.value(Stat.ATTACK, points));
-        setBase(Attributes.MOVEMENT_SPEED, profile.value(Stat.SPEED, points));
+        setBase(Attributes.MOVEMENT_SPEED, profile.value(Stat.SPEED, points) * genome().speedMultiplier());
         setBase(Attributes.ARMOR, profile.value(Stat.ARMOR, points));
 
         BodyProfile body = species.body().orElse(BodyProfile.DEFAULT);
@@ -498,6 +551,161 @@ public abstract class PrehistoricCreature extends TamableAnimal implements Playe
                 && (!target.isAlive() || distanceToSqr(target) > TAMED_TARGET_LEASH * TAMED_TARGET_LEASH)) {
             setTarget(null);
         }
+        tickBreeding();
+    }
+
+    // ---- Reprodução ----
+
+    public boolean isFemale() {
+        return entityData.get(DATA_FEMALE);
+    }
+
+    public void setFemale(boolean female) {
+        entityData.set(DATA_FEMALE, female);
+    }
+
+    /** Se o dono ligou o acasalamento; disponível também no cliente. */
+    public boolean isMatingEnabled() {
+        return entityData.get(DATA_MATING);
+    }
+
+    public void setMatingEnabled(boolean enabled) {
+        entityData.set(DATA_MATING, enabled);
+        if (!enabled) {
+            matingProgress = 0;
+        }
+    }
+
+    public boolean isPregnant() {
+        return gestationEnd > 0;
+    }
+
+    /** Fração da gestação cumprida, de 0 a 1; −1 se não estiver prenhe. Só no servidor. */
+    public float gestationProgress() {
+        if (!isPregnant()) {
+            return -1.0F;
+        }
+        int total = breedingProfile().map(BreedingProfile::incubationSeconds).orElse(1) * 20;
+        return Math.clamp(1.0F - (gestationEnd - level().getGameTime()) / (float) total, 0.0F, 1.0F);
+    }
+
+    /** Fração do crescimento cumprida, de 0 a 1 (1 = adulto). Só no servidor. */
+    public float maturationProgress() {
+        if (!isBaby()) {
+            return 1.0F;
+        }
+        int total = breedingProfile().map(BreedingProfile::maturationSeconds).orElse(1) * 20;
+        return Math.clamp(1.0F + getAge() / (float) total, 0.0F, 1.0F);
+    }
+
+    public Optional<BreedingProfile> breedingProfile() {
+        return species().flatMap(Species::breeding);
+    }
+
+    /**
+     * Uma vez por segundo: a fêmea com o acasalamento ligado, perto de um macho da mesma espécie
+     * e do mesmo dono também com ele ligado, soma um segundo; em {@link #MATING_SECONDS} concebe.
+     */
+    private void tickBreeding() {
+        if (isPregnant()) {
+            if (level().getGameTime() >= gestationEnd) {
+                giveBirth();
+            }
+            return;
+        }
+        Optional<BreedingProfile> breeding = breedingProfile();
+        PrehistoricCreature partner = breeding.isPresent() && canMate() && isFemale()
+                && level().getGameTime() >= nextMatingTime ? findMate() : null;
+        if (partner == null) {
+            matingProgress = 0;
+            return;
+        }
+        matingProgress++;
+        level().broadcastEntityEvent(this, (byte) 18);
+        level().broadcastEntityEvent(partner, (byte) 18);
+        if (matingProgress >= MATING_SECONDS) {
+            conceive(partner, breeding.get());
+        }
+    }
+
+    private boolean canMate() {
+        return isMatingEnabled() && isTame() && !isBaby() && !isUnconscious() && isAlive();
+    }
+
+    @Nullable
+    private PrehistoricCreature findMate() {
+        return level().getEntitiesOfClass(PrehistoricCreature.class, getBoundingBox().inflate(MATING_RADIUS),
+                        other -> other != this && other.getType() == getType() && !other.isFemale() && other.canMate()
+                                && java.util.Objects.equals(other.getOwnerUUID(), getOwnerUUID()))
+                .stream().min(java.util.Comparator.comparingDouble(this::distanceToSqr)).orElse(null);
+    }
+
+    private void conceive(PrehistoricCreature father, BreedingProfile breeding) {
+        Genome child = Genetics.inherit(genome(), father.genome(), randomGenerator(), mutationTuning());
+        long now = level().getGameTime();
+        matingProgress = 0;
+        nextMatingTime = now + breeding.cooldownSeconds() * 20L;
+        Player owner = getOwnerUUID() == null ? null : level().getPlayerByUUID(getOwnerUUID());
+        if (breeding.offspring() == BreedingProfile.Offspring.EGG) {
+            spawnAtLocation(CreatureEggItem.create(getType(), child, getOwnerUUID()));
+            playSound(SoundEvents.TURTLE_LAY_EGG, 1.0F, 1.0F);
+            if (owner != null) {
+                owner.displayClientMessage(Component.translatable("iceagesurvival.breeding.egg", getName()), true);
+            }
+        } else {
+            gestationEnd = now + breeding.incubationSeconds() * 20L;
+            gestationChild = child;
+            if (owner != null) {
+                owner.displayClientMessage(Component.translatable("iceagesurvival.breeding.pregnant", getName()), true);
+            }
+        }
+    }
+
+    private void giveBirth() {
+        Genome child = gestationChild;
+        gestationEnd = 0;
+        gestationChild = null;
+        if (child != null && level() instanceof ServerLevel serverLevel) {
+            spawnOffspring(serverLevel, getType(), child, getOwnerUUID(), position());
+        }
+    }
+
+    public static Genetics.Tuning mutationTuning() {
+        return new Genetics.Tuning(ServerConfig.MUTATION_CHANCE.get(), ServerConfig.MUTATION_ATTEMPTS.get(),
+                ServerConfig.HEALTH_GENE_CHANCE.get());
+    }
+
+    /**
+     * Põe um filhote no mundo: com o genoma dado, sexo sorteado, domesticado pelo dono (se
+     * houver), seguindo e passivo. Usado pelo parto e pela incubadora.
+     */
+    @Nullable
+    public static PrehistoricCreature spawnOffspring(ServerLevel level, EntityType<?> type, Genome genome,
+                                                     @Nullable UUID owner, Vec3 pos) {
+        if (!(type.create(level) instanceof PrehistoricCreature baby)) {
+            return null;
+        }
+        baby.moveTo(pos.x, pos.y, pos.z, level.random.nextFloat() * 360.0F, 0.0F);
+        baby.setGenome(genome);
+        baby.setFemale(level.random.nextBoolean());
+        baby.setHealth(baby.getMaxHealth());
+        int maturation = baby.breedingProfile().map(BreedingProfile::maturationSeconds).orElse(1200);
+        baby.setAge(-maturation * 20);
+        if (owner != null) {
+            baby.setTame(true, true);
+            baby.setOwnerUUID(owner);
+            baby.affinity = MAX_INITIAL_AFFINITY;
+        }
+        baby.setMovement(Movement.FOLLOW);
+        baby.setStance(Stance.PASSIVE);
+        level.addFreshEntity(baby);
+        level.broadcastEntityEvent(baby, (byte) 18);
+        return baby;
+    }
+
+    @Override
+    public float getAgeScale() {
+        return isBaby() ? BABY_SCALE : 1.0F;
     }
 
     @Override
@@ -688,7 +896,7 @@ public abstract class PrehistoricCreature extends TamableAnimal implements Playe
 
     /** Se a espécie aceita sela; disponível também no cliente (vem dos dados sincronizados). */
     public boolean canBeSaddled() {
-        return mountProfile().isPresent();
+        return mountProfile().isPresent() && !isBaby();
     }
 
     /** Disponível também no cliente. */
@@ -957,6 +1165,15 @@ public abstract class PrehistoricCreature extends TamableAnimal implements Playe
 
     @Override
     public InteractionResult mobInteract(Player player, InteractionHand hand) {
+        ItemStack held = player.getItemInHand(hand);
+        if (held.is(ModItems.STIMULANT) && torpor > 0) {
+            if (!level().isClientSide) {
+                usePlayerItem(player, hand, held);
+                setTorpor(torpor - ServerConfig.STIMULANT_TORPOR.get());
+                playSound(SoundEvents.GENERIC_DRINK, 0.8F, 1.2F);
+            }
+            return InteractionResult.sidedSuccess(level().isClientSide);
+        }
         if (isUnconscious() && !isTame()) {
             ItemStack stack = player.getItemInHand(hand);
             if (stack.is(ModItems.NARCOTIC)) {
@@ -1146,12 +1363,41 @@ public abstract class PrehistoricCreature extends TamableAnimal implements Playe
             compound.putUUID(TAG_TAMER, tamerUUID);
         }
         compound.putBoolean(TAG_SADDLED, isSaddled());
+        CompoundTag mutationTag = new CompoundTag();
+        for (Stat stat : Stat.values()) {
+            if (mutations[stat.ordinal()] > 0) {
+                mutationTag.putInt(stat.id(), mutations[stat.ordinal()]);
+            }
+        }
+        compound.put(TAG_MUTATIONS, mutationTag);
+        compound.putBoolean(TAG_HEALTH_GENE, healthGene);
+        compound.putBoolean(TAG_FEMALE, isFemale());
+        compound.putBoolean(TAG_MATING, isMatingEnabled());
+        compound.putLong(TAG_NEXT_MATING, nextMatingTime);
+        if (gestationChild != null) {
+            compound.putLong(TAG_GESTATION_END, gestationEnd);
+            compound.put(TAG_GESTATION_CHILD, GenomeNbt.write(gestationChild));
+        }
     }
 
     @Override
     public void readAdditionalSaveData(CompoundTag compound) {
         super.readAdditionalSaveData(compound);
         Optional<Species> species = species();
+        // Antes dos pontos: a velocidade depende das mutações.
+        CompoundTag mutationTag = compound.getCompound(TAG_MUTATIONS);
+        for (Stat stat : Stat.values()) {
+            mutations[stat.ordinal()] = Math.max(0, mutationTag.getInt(stat.id()));
+        }
+        healthGene = compound.getBoolean(TAG_HEALTH_GENE);
+        // Criaturas de antes da reprodução não tinham sexo: sorteia uma vez.
+        setFemale(compound.contains(TAG_FEMALE) ? compound.getBoolean(TAG_FEMALE) : random.nextBoolean());
+        entityData.set(DATA_MATING, compound.getBoolean(TAG_MATING));
+        nextMatingTime = compound.getLong(TAG_NEXT_MATING);
+        if (compound.contains(TAG_GESTATION_CHILD, Tag.TAG_COMPOUND)) {
+            gestationEnd = compound.getLong(TAG_GESTATION_END);
+            gestationChild = GenomeNbt.read(compound.getCompound(TAG_GESTATION_CHILD));
+        }
         if (compound.contains(TAG_STAT_POINTS, Tag.TAG_COMPOUND)) {
             CompoundTag saved = compound.getCompound(TAG_STAT_POINTS);
             StatPoints points = StatPoints.NONE;

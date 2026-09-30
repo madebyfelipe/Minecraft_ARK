@@ -78,5 +78,11 @@
   },
   "sounds": {
     "attack": "minecraft:entity.fox.bite"
+  },
+  "breeding": {
+    "offspring": "live",
+    "incubation_seconds": 360,
+    "maturation_seconds": 1200,
+    "cooldown_seconds": 600
   }
 }

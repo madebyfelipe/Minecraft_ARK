@@ -7,6 +7,7 @@ import dev.madebyfelipe.iceagesurvival.core.stats.Stat;
 import dev.madebyfelipe.iceagesurvival.entity.PrehistoricCreature;
 import dev.madebyfelipe.iceagesurvival.network.CreatureStatusPayload;
 import dev.madebyfelipe.iceagesurvival.network.StatusRequestPayload;
+import dev.madebyfelipe.iceagesurvival.network.ToggleMatingPayload;
 import dev.madebyfelipe.iceagesurvival.network.WhistlePayload;
 import java.util.EnumMap;
 import java.util.Locale;
@@ -26,7 +27,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
  */
 public class CreatureStatusScreen extends Screen {
     private static final int WIDTH = 276;
-    private static final int HEIGHT = 196;
+    private static final int HEIGHT = 262;
     private static final int PREVIEW_WIDTH = 96;
     private static final int REFRESH_TICKS = 20;
     private static final int ROW_HEIGHT = 12;
@@ -45,6 +46,7 @@ public class CreatureStatusScreen extends Screen {
     private CreatureStatusPayload status;
     private final Map<Whistle, Button> buttons = new EnumMap<>(Whistle.class);
     private int ticks;
+    private Button mating;
     private int left;
     private int top;
 
@@ -77,6 +79,10 @@ public class CreatureStatusScreen extends Screen {
         left = (width - WIDTH) / 2;
         top = (height - HEIGHT) / 2;
         buttons.clear();
+        mating = addRenderableWidget(Button.builder(matingLabel(),
+                        b -> PacketDistributor.sendToServer(new ToggleMatingPayload(creature.getId())))
+                .bounds(left + 8, top + HEIGHT - 70, WIDTH - 16, 18)
+                .build());
         int y = top + HEIGHT - 48;
         addWhistleRow(y, Whistle.FOLLOW, Whistle.STAY);
         addWhistleRow(y + 22, Whistle.PASSIVE, Whistle.NEUTRAL, Whistle.DEFEND, Whistle.FLEE);
@@ -97,8 +103,17 @@ public class CreatureStatusScreen extends Screen {
         }
     }
 
+    private Component matingLabel() {
+        return Component.translatable(creature.isMatingEnabled() ? "iceagesurvival.status.mating_on"
+                : "iceagesurvival.status.mating_off");
+    }
+
     /** O botão da ordem em vigor fica apagado, como uma aba selecionada. */
     private void updateButtons() {
+        if (mating != null) {
+            mating.setMessage(matingLabel());
+            mating.active = !creature.isBaby() && creature.breedingProfile().isPresent();
+        }
         buttons.forEach((whistle, button) -> button.active =
                 whistle.movement().map(movement -> movement != creature.movement()).orElse(true)
                         && whistle.stance().map(stance -> stance != creature.stance()).orElse(true));
@@ -156,7 +171,7 @@ public class CreatureStatusScreen extends Screen {
         int x1 = left + 8;
         int y1 = top + 26;
         int x2 = left + PREVIEW_WIDTH;
-        int y2 = top + HEIGHT - 56;
+        int y2 = top + HEIGHT - 78;
         graphics.fill(x1, y1, x2, y2, 0x30FFFFFF);
         float size = Math.max(creature.getBbHeight(), creature.getBbWidth() * 1.4F);
         int scale = Math.max(4, Math.round((y2 - y1 - 16) / size));
@@ -199,6 +214,24 @@ public class CreatureStatusScreen extends Screen {
         y += ROW_HEIGHT;
         if (!status.ownerName().isEmpty()) {
             infoRow(graphics, x, right, y, "iceagesurvival.status.owner", Component.literal(status.ownerName()));
+            y += ROW_HEIGHT;
+        }
+        y += 4;
+        infoRow(graphics, x, right, y, "iceagesurvival.status.sex", Component.translatable(
+                creature.isFemale() ? "iceagesurvival.status.female" : "iceagesurvival.status.male"));
+        y += ROW_HEIGHT;
+        infoRow(graphics, x, right, y, "iceagesurvival.status.mutations", Component.translatable(
+                status.healthGene() ? "iceagesurvival.status.mutations_gene" : "iceagesurvival.status.mutations_count",
+                status.mutations()));
+        y += ROW_HEIGHT;
+        if (status.gestation() >= 0) {
+            infoRow(graphics, x, right, y, "iceagesurvival.status.gestation",
+                    Component.literal(Math.round(status.gestation() * 100) + "%"));
+            CreatureHud.drawBar(graphics, x, y + 9, right - x, 2, status.gestation(), 0xFFE07BB5);
+        } else if (status.maturation() < 1.0F) {
+            infoRow(graphics, x, right, y, "iceagesurvival.status.maturation",
+                    Component.literal(Math.round(status.maturation() * 100) + "%"));
+            CreatureHud.drawBar(graphics, x, y + 9, right - x, 2, status.maturation(), 0xFF5FB36B);
         }
     }
 
