@@ -33,6 +33,7 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
@@ -131,6 +132,8 @@ public abstract class PrehistoricCreature extends TamableAnimal implements Playe
     public static final net.minecraft.world.item.Item SADDLE_ITEM = Items.SADDLE;
     /** Alcance da mordida de quem monta, a partir da caixa de colisão da criatura. */
     public static final double RIDDEN_ATTACK_REACH = 3.0;
+    /** Quantos blocos à frente do corpo a mordida de quem monta quebra. */
+    private static final double BITE_DEPTH = 2.0;
     /** Ticks entre dois ataques de quem monta. */
     private static final int RIDDEN_ATTACK_COOLDOWN = 20;
     /** Recuo da ré de quem monta, como no cavalo: andar para trás é bem mais lento. */
@@ -144,6 +147,8 @@ public abstract class PrehistoricCreature extends TamableAnimal implements Playe
     private TamingSession tamingSession = new TamingSession();
     /** Game time a partir do qual a criatura aceita comer de novo. */
     private long nextRiderAttackTime;
+    /** Durante o golpe de quem monta: a animação e o som já saíram, {@link #doHurtTarget} não repete. */
+    private boolean attackSwung;
     private long nextFeedTime;
     private float affinity;
     /** Centro do território: onde a criatura entrou no mundo pela primeira vez. */
@@ -247,6 +252,22 @@ public abstract class PrehistoricCreature extends TamableAnimal implements Playe
     @Override
     protected float getSoundVolume() {
         return soundProfile().map(SoundProfile::volume).orElse(1.0F);
+    }
+
+    /** O golpe em si, acerte ou não: toca o som de ataque. As subclasses somam a animação. */
+    protected void swingAttack() {
+        SoundEvent attack = speciesSound(SoundProfile::attack);
+        if (attack != null) {
+            playSound(attack, getSoundVolume(), getVoicePitch());
+        }
+    }
+
+    @Override
+    public boolean doHurtTarget(Entity target) {
+        if (!attackSwung) {
+            swingAttack();
+        }
+        return super.doHurtTarget(target);
     }
 
     @Override
@@ -648,16 +669,41 @@ public abstract class PrehistoricCreature extends TamableAnimal implements Playe
     }
 
     /**
-     * Ataque de quem monta: a criatura morde o alvo com o ataque dela. Só vale vindo do
-     * condutor, com a criatura acordada, o alvo ao alcance e nunca contra o próprio dono ou
-     * as criaturas dele; o servidor confere tudo porque o cliente só diz em quem mirou.
+     * Ataque de quem monta. A mordida sempre acontece — recarga, animação, som e, para as
+     * espécies com {@code break_hardness}, os blocos à frente — e só depois se procura quem
+     * morder: o alvo mirado, se estiver ao alcance, ou a primeira criatura na área da
+     * mordida. Nunca o próprio dono nem as criaturas dele; o servidor confere tudo porque o
+     * cliente só diz em quem mirou.
      *
-     * @return se a mordida aconteceu
+     * @param target em quem quem monta mirou; nulo se a mira não pegou ninguém
+     * @return se a mordida aconteceu (não se acertou alguém)
      */
-    public boolean attackAsMount(Player rider, LivingEntity target) {
+    public boolean attackAsMount(Player rider, @Nullable LivingEntity target) {
         if (getControllingPassenger() != rider || !isAlive() || isUnconscious()
-                || target == this || target == rider || !target.isAlive()
                 || level().getGameTime() < nextRiderAttackTime) {
+            return false;
+        }
+        nextRiderAttackTime = level().getGameTime() + RIDDEN_ATTACK_COOLDOWN;
+        swingAttack();
+        if (rider instanceof ServerPlayer serverRider) {
+            breakBlocksInBite(serverRider);
+        }
+        LivingEntity victim = canBiteAsMount(rider, target) ? target : level()
+                .getEntitiesOfClass(LivingEntity.class, biteArea(), candidate -> canBiteAsMount(rider, candidate))
+                .stream().min(java.util.Comparator.comparingDouble(this::distanceToSqr)).orElse(null);
+        if (victim != null) {
+            attackSwung = true;
+            try {
+                doHurtTarget(victim);
+            } finally {
+                attackSwung = false;
+            }
+        }
+        return true;
+    }
+
+    private boolean canBiteAsMount(Player rider, @Nullable LivingEntity target) {
+        if (target == null || target == this || target == rider || !target.isAlive() || hasPassenger(target)) {
             return false;
         }
         if (target instanceof net.minecraft.world.entity.OwnableEntity ownable && rider.getUUID().equals(ownable.getOwnerUUID())) {
@@ -666,11 +712,49 @@ public abstract class PrehistoricCreature extends TamableAnimal implements Playe
         if (target instanceof Player other && !rider.canHarmPlayer(other)) {
             return false;
         }
-        if (!getBoundingBox().inflate(RIDDEN_ATTACK_REACH).intersects(target.getBoundingBox())) {
-            return false;
+        return getBoundingBox().inflate(RIDDEN_ATTACK_REACH).intersects(target.getBoundingBox());
+    }
+
+    /** O corpo esticado para a frente pelo alcance da mordida. */
+    private AABB biteArea() {
+        return getBoundingBox().expandTowards(Vec3.directionFromRotation(0.0F, getYRot()).scale(RIDDEN_ATTACK_REACH));
+    }
+
+    /**
+     * Quebra os blocos na frente do corpo, do chão em que pisa até o topo da cabeça, com
+     * dureza até o limite da espécie. Respeita {@code mobGriefing}, a proteção do spawn e
+     * os eventos de quebra de bloco (mods de proteção de terreno), como se fosse quem monta
+     * quebrando, e nunca quebra bloco com inventário.
+     */
+    private void breakBlocksInBite(ServerPlayer rider) {
+        float maxHardness = mountProfile().map(MountProfile::breakHardness).orElse(0.0F);
+        if (maxHardness <= 0.0F || !EventHooks.canEntityGrief(level(), this)) {
+            return;
         }
-        nextRiderAttackTime = level().getGameTime() + RIDDEN_ATTACK_COOLDOWN;
-        return doHurtTarget(target);
+        Vec3 forward = Vec3.directionFromRotation(0.0F, getYRot());
+        Vec3 side = new Vec3(-forward.z, 0.0, forward.x);
+        double halfWidth = getBbWidth() / 2.0;
+        int minY = Mth.floor(getY() + 0.01);
+        int maxY = Mth.floor(getY() + getBbHeight() - 0.01);
+        java.util.Set<BlockPos> bitten = new java.util.LinkedHashSet<>();
+        for (double depth = halfWidth + 0.5; depth <= halfWidth + BITE_DEPTH; depth += 1.0) {
+            for (double lateral = -halfWidth; lateral <= halfWidth + 1.0E-3; lateral += Math.min(1.0, halfWidth)) {
+                Vec3 column = position().add(forward.scale(depth)).add(side.scale(lateral));
+                for (int y = minY; y <= maxY; y++) {
+                    bitten.add(BlockPos.containing(column.x, y, column.z));
+                }
+            }
+        }
+        for (BlockPos pos : bitten) {
+            var state = level().getBlockState(pos);
+            float hardness = state.getDestroySpeed(level(), pos);
+            if (state.isAir() || hardness < 0.0F || hardness > maxHardness || state.hasBlockEntity()
+                    || !level().mayInteract(rider, pos)
+                    || CommonHooks.fireBlockBreak(level(), rider.gameMode.getGameModeForPlayer(), rider, pos, state).isCanceled()) {
+                continue;
+            }
+            level().destroyBlock(pos, true, this);
+        }
     }
 
     @Nullable

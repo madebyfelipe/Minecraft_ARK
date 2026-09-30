@@ -6,7 +6,6 @@ import dev.madebyfelipe.iceagesurvival.entity.ai.FollowHerdGoal;
 import dev.madebyfelipe.iceagesurvival.entity.ai.HuntGoal;
 import dev.madebyfelipe.iceagesurvival.species.BehaviorProfile;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
@@ -74,9 +73,9 @@ public class LandCreature extends PrehistoricCreature implements GeoEntity {
     }
 
     @Override
-    public boolean doHurtTarget(Entity target) {
+    protected void swingAttack() {
+        super.swingAttack();
         triggerAnim(ATTACK_CONTROLLER, ATTACK_TRIGGER);
-        return super.doHurtTarget(target);
     }
 
     @Override

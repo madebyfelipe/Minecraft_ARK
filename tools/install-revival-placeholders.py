@@ -129,7 +129,11 @@ def install_sounds(source):
         block["volume"] = volume
         species_file = SPECIES_DATA / f"{ours}.json"
         species = json.loads(species_file.read_text())
-        species["sounds"] = block
+        # Mescla: campos que não vêm do Revival (o som de ataque, vanilla) ficam.
+        sounds = species.get("sounds", {})
+        sounds.update(block)
+        sounds["volume"] = sounds.pop("volume")
+        species["sounds"] = sounds
         species_file.write_text(json.dumps(species, indent=2, ensure_ascii=False) + "\n")
         print(f"{ours}: sons {', '.join(mapping)}")
     events_file.write_text(json.dumps(dict(sorted(events.items())), indent=2) + "\n")

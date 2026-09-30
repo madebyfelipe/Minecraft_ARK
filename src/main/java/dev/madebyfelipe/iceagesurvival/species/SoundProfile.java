@@ -15,6 +15,7 @@ import net.minecraft.sounds.SoundEvent;
  * @param hurt    ao levar dano
  * @param death   ao morrer
  * @param alert   ao escolher um alvo (o rugido do T-Rex)
+ * @param attack  a cada golpe, acerte ou não
  * @param volume  volume de todos os sons da espécie; criaturas grandes se ouvem de mais longe
  */
 public record SoundProfile(
@@ -22,12 +23,14 @@ public record SoundProfile(
         Optional<ResourceLocation> hurt,
         Optional<ResourceLocation> death,
         Optional<ResourceLocation> alert,
+        Optional<ResourceLocation> attack,
         float volume) {
     public static final Codec<SoundProfile> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             ResourceLocation.CODEC.optionalFieldOf("ambient").forGetter(SoundProfile::ambient),
             ResourceLocation.CODEC.optionalFieldOf("hurt").forGetter(SoundProfile::hurt),
             ResourceLocation.CODEC.optionalFieldOf("death").forGetter(SoundProfile::death),
             ResourceLocation.CODEC.optionalFieldOf("alert").forGetter(SoundProfile::alert),
+            ResourceLocation.CODEC.optionalFieldOf("attack").forGetter(SoundProfile::attack),
             Codec.floatRange(0, 16).optionalFieldOf("volume", 1.0F).forGetter(SoundProfile::volume)
     ).apply(instance, SoundProfile::new));
 

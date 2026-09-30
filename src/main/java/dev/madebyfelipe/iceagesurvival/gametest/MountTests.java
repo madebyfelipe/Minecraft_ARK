@@ -16,6 +16,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.gametest.GameTestHolder;
 import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 
@@ -69,22 +70,71 @@ public class MountTests {
         helper.succeed();
     }
 
-    @GameTest(template = EMPTY)
-    public static void riderCommandsTheMountToBite(GameTestHelper helper) {
-        Player owner = helper.makeMockPlayer(GameType.SURVIVAL);
-        LandCreature rex = helper.spawnWithNoFreeWill(ModEntities.TYRANNOSAURUS.get(), 2, 2, 2);
+    /** T-Rex domesticado, selado, virado para +z e montado pelo dono. */
+    private static LandCreature mountedRex(GameTestHelper helper, Player owner) {
+        LandCreature rex = helper.spawnWithNoFreeWill(ModEntities.TYRANNOSAURUS.get(), 4, 0, 4);
         rex.tame(owner);
         rex.setAffinity(PrehistoricCreature.MAX_AFFINITY);
         rex.setSaddled(true);
+        rex.setYRot(0.0F);
+        rex.yBodyRot = 0.0F;
         owner.setPos(rex.position());
         helper.assertTrue(rex.ride(owner), "deveria montar");
-        net.minecraft.world.entity.animal.Pig prey = helper.spawnWithNoFreeWill(net.minecraft.world.entity.EntityType.PIG, 2, 2, 4);
-        net.minecraft.world.entity.animal.Pig far = helper.spawnWithNoFreeWill(net.minecraft.world.entity.EntityType.PIG, 1, 2, 12);
-        helper.assertFalse(rex.attackAsMount(owner, far), "alvo longe demais não deveria ser mordido");
-        helper.assertTrue(rex.attackAsMount(owner, prey), "alvo ao alcance deveria ser mordido");
-        helper.assertFalse(rex.attackAsMount(owner, prey), "segunda mordida no mesmo tick deveria esperar a recarga");
+        return rex;
+    }
+
+    @GameTest(template = EMPTY)
+    public static void riderCommandsTheMountToBite(GameTestHelper helper) {
+        Player owner = helper.makeMockPlayer(GameType.SURVIVAL);
+        LandCreature rex = mountedRex(helper, owner);
+        net.minecraft.world.entity.animal.Pig far = helper.spawnWithNoFreeWill(net.minecraft.world.entity.EntityType.PIG, 1, 2, 14);
         Player stranger = helper.makeMockPlayer(GameType.SURVIVAL);
         helper.assertFalse(rex.attackAsMount(stranger, far), "quem não conduz não manda morder");
+        helper.assertTrue(rex.attackAsMount(owner, far), "a mordida sai mesmo com o alvo longe");
+        helper.assertTrue(far.getHealth() == far.getMaxHealth(), "alvo longe demais não deveria ser mordido");
+        helper.assertFalse(rex.attackAsMount(owner, null), "segunda mordida no mesmo tick deveria esperar a recarga");
+
+        // Sem ninguém na mira, a mordida pega quem estiver na frente.
+        net.minecraft.world.entity.animal.Pig prey = helper.spawnWithNoFreeWill(net.minecraft.world.entity.EntityType.PIG, 4, 2, 7);
+        helper.runAfterDelay(21, () -> {
+            helper.assertTrue(rex.attackAsMount(owner, null), "a recarga deveria ter passado");
+            helper.assertTrue(prey.getHealth() < prey.getMaxHealth(), "quem está na frente deveria ser mordido");
+            helper.succeed();
+        });
+    }
+
+    @GameTest(template = EMPTY)
+    public static void bigMountBiteBreaksTheTerrainInFront(GameTestHelper helper) {
+        Player owner = helper.makeMockServerPlayerInLevel();
+        LandCreature rex = mountedRex(helper, owner);
+        helper.setBlock(4, 2, 6, Blocks.DIRT);
+        helper.setBlock(4, 3, 7, Blocks.STONE);
+        helper.setBlock(3, 4, 6, Blocks.OAK_LOG);
+        helper.setBlock(5, 2, 7, Blocks.OBSIDIAN);
+        helper.setBlock(5, 3, 6, Blocks.CHEST);
+        helper.setBlock(4, 2, 11, Blocks.DIRT);
+
+        helper.assertTrue(rex.attackAsMount(owner, null), "a mordida deveria sair sem alvo");
+
+        helper.assertBlockNotPresent(Blocks.DIRT, 4, 2, 6);
+        helper.assertBlockNotPresent(Blocks.STONE, 4, 3, 7);
+        helper.assertBlockPresent(Blocks.OAK_LOG, 3, 4, 6);
+        helper.assertBlockPresent(Blocks.OBSIDIAN, 5, 2, 7);
+        helper.assertBlockPresent(Blocks.CHEST, 5, 3, 6);
+        helper.assertBlockPresent(Blocks.DIRT, 4, 2, 11);
+        helper.succeed();
+    }
+
+    @GameTest(template = EMPTY)
+    public static void smallMountBiteLeavesTheTerrain(GameTestHelper helper) {
+        Player owner = helper.makeMockServerPlayerInLevel();
+        LandCreature smilodon = readyToRide(helper, owner);
+        smilodon.setYRot(0.0F);
+        owner.setPos(smilodon.position());
+        helper.assertTrue(smilodon.ride(owner), "deveria montar");
+        helper.setBlock(1, 2, 3, Blocks.DIRT);
+        helper.assertTrue(smilodon.attackAsMount(owner, null), "a mordida deveria sair sem alvo");
+        helper.assertBlockPresent(Blocks.DIRT, 1, 2, 3);
         helper.succeed();
     }
 

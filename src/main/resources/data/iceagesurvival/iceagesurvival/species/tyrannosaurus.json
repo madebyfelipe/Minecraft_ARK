@@ -76,7 +76,8 @@
     "seat_height": 5.6,
     "min_affinity": 25,
     "speed_multiplier": 0.8,
-    "jump_strength": 0.45
+    "jump_strength": 0.45,
+    "break_hardness": 1.5
   },
   "spawn": {
     "biomes": "#iceagesurvival:spawns_tyrannosaurus",
@@ -90,6 +91,7 @@
     "hurt": "iceagesurvival:entity.tyrannosaurus.hurt",
     "death": "iceagesurvival:entity.tyrannosaurus.death",
     "alert": "iceagesurvival:entity.tyrannosaurus.alert",
+    "attack": "minecraft:entity.ravager.attack",
     "volume": 3.0
   }
 }

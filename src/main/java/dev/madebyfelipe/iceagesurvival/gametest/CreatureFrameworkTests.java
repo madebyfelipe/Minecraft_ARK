@@ -40,8 +40,10 @@ public class CreatureFrameworkTests {
                 "T-Rex sem som de ambiente, dano ou morte");
         helper.assertTrue(rex.alert().isPresent(), "T-Rex sem rugido");
         helper.assertTrue(rex.volume() > 1.0F, "T-Rex devia ser ouvido de longe");
-        helper.assertTrue(Species.of(registries, ModEntities.DIRE_WOLF.get()).orElseThrow().sounds().isEmpty(),
-                "lobo-terrível não tem sons no Revival");
+        helper.assertTrue(rex.attack().isPresent(), "T-Rex sem som de ataque");
+        SoundProfile wolf = Species.of(registries, ModEntities.DIRE_WOLF.get()).orElseThrow().sounds().orElseThrow();
+        helper.assertTrue(wolf.ambient().isEmpty() && wolf.attack().isPresent(),
+                "lobo-terrível: só o som de ataque (o Revival não tem ele)");
         helper.succeed();
     }
 

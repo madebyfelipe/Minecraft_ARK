@@ -11,9 +11,12 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
  * @param minAffinity     afinidade mínima para deixar montar (0 a {@code MAX_AFFINITY})
  * @param speedMultiplier multiplicador da velocidade quando montada
  * @param jumpStrength     impulso de pulo em blocos/tick; 0 = não pula
+ * @param breakHardness    dureza máxima dos blocos que a mordida de quem monta quebra; 0 = não quebra
+ *                         (terra 0,5; pedra 1,5; tronco e pedregulho 2)
  */
-public record MountProfile(double seatHeight, float minAffinity, double speedMultiplier, double jumpStrength) {
-    public static final MountProfile DEFAULT = new MountProfile(0.0, 25.0F, 1.0, 0.5);
+public record MountProfile(double seatHeight, float minAffinity, double speedMultiplier, double jumpStrength,
+                           float breakHardness) {
+    public static final MountProfile DEFAULT = new MountProfile(0.0, 25.0F, 1.0, 0.5, 0.0F);
 
     public static final Codec<MountProfile> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.doubleRange(0, 16).optionalFieldOf("seat_height", DEFAULT.seatHeight())
@@ -23,7 +26,9 @@ public record MountProfile(double seatHeight, float minAffinity, double speedMul
             Codec.doubleRange(0.1, 5).optionalFieldOf("speed_multiplier", DEFAULT.speedMultiplier())
                     .forGetter(MountProfile::speedMultiplier),
             Codec.doubleRange(0, 2).optionalFieldOf("jump_strength", DEFAULT.jumpStrength())
-                    .forGetter(MountProfile::jumpStrength)
+                    .forGetter(MountProfile::jumpStrength),
+            Codec.floatRange(0, 50).optionalFieldOf("break_hardness", DEFAULT.breakHardness())
+                    .forGetter(MountProfile::breakHardness)
     ).apply(instance, MountProfile::new));
 
     /** Altura do assento para uma criatura com esta caixa de colisão. */

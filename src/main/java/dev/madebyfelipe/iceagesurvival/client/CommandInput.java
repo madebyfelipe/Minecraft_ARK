@@ -65,7 +65,8 @@ public final class CommandInput {
 
     /**
      * Montado numa criatura, o clique de ataque vira mordida dela: o ataque do jogador some e o
-     * servidor recebe em quem a mira está. O servidor confere alcance e dono.
+     * servidor recebe em quem a mira está, se estiver em alguém. A mordida sai mesmo sem alvo;
+     * o servidor confere alcance e dono.
      */
     public static void onAttackClick(InputEvent.InteractionKeyMappingTriggered event) {
         Minecraft minecraft = Minecraft.getInstance();
@@ -76,9 +77,8 @@ public final class CommandInput {
         }
         event.setCanceled(true);
         event.setSwingHand(false);
-        if (aimed != null && aimed != mount) {
-            PacketDistributor.sendToServer(new MountAttackPayload(aimed.getId()));
-        }
+        PacketDistributor.sendToServer(new MountAttackPayload(
+                aimed != null && aimed != mount ? aimed.getId() : MountAttackPayload.NO_TARGET));
     }
 
     @Nullable
