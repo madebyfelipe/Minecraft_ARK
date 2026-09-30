@@ -41,8 +41,8 @@ public class Smilodon extends PrehistoricCreature implements GeoEntity {
         goalSelector.addGoal(0, new FloatGoal(this));
         goalSelector.addGoal(1, new FleeWhenWeakGoal(this, 1.4));
         goalSelector.addGoal(3, new MeleeAttackGoal(this, 1.25, true));
-        goalSelector.addGoal(5, new MoveTowardsRestrictionGoal(this, 1.0));
-        goalSelector.addGoal(6, new WaterAvoidingRandomStrollGoal(this, 0.8));
+        goalSelector.addGoal(5, new MoveTowardsRestrictionGoal(this, 0.6));
+        goalSelector.addGoal(6, new WaterAvoidingRandomStrollGoal(this, 0.5));
         goalSelector.addGoal(7, new LookAtPlayerGoal(this, Player.class, 8.0F));
         goalSelector.addGoal(8, new RandomLookAroundGoal(this));
 

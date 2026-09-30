@@ -215,6 +215,8 @@ Formato atual do JSON de espécie (cresce a cada etapa):
 }
 ```
 
+**Velocidade de mobs:** a velocidade real cresce com o *quadrado* de `speed × modificador do goal`; o jogador anda a ~4,3 blocos/s e corre a ~5,6. Um produto de 0,5 dá ~11 blocos/s (o dobro da corrida do jogador); 0,2 dá ~1,8. O Smilodon tem `speed` 0,4 e persegue com modificador 1,25.
+
 **Limites do vanilla:** `max_health` satura em 1024 e `armor` em 30. Valores acima são cortados pelo jogo. Espécies grandes e o boss precisam caber nisso ou usar outro mecanismo (ver [25](#25-riscos)).
 
 ### Espécies
@@ -331,7 +333,7 @@ Rede: dois payloads cliente → servidor (`set_order`, `attack_order`). O servid
 
 - Valor separado da vida; máximo = atributo `torpor` do indivíduo (escala com os pontos).
 - Decai `torpor_decay_per_second` o tempo todo, acordada ou não. Atualizado uma vez por segundo.
-- Ao atingir o máximo, a criatura fica inconsciente (sem IA, imóvel) até o torpor zerar ou a domesticação concluir.
+- Ao atingir o máximo, a criatura fica inconsciente até o torpor zerar ou a domesticação concluir: sem IA, sem animação, e não pode ser empurrada nem sofre recuo de golpe.
 - Criaturas domesticadas são imunes.
 - Torpor, inconsciência e progresso são salvos no NBT; uma criatura inconsciente num chunk descarregado continua como estava ao recarregar.
 

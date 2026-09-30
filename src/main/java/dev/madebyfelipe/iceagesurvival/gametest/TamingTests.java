@@ -44,6 +44,19 @@ public class TamingTests {
     }
 
     @GameTest(template = EMPTY)
+    public static void unconsciousCreatureCannotBeMoved(GameTestHelper helper) {
+        TestCreature creature = spawn(helper);
+        creature.setDeltaMovement(0.4, 0.0, 0.4);
+        creature.addTorpor(creature.maxTorpor());
+
+        helper.assertTrue(creature.getDeltaMovement().horizontalDistanceSqr() == 0, "manteve o impulso ao cair");
+        helper.assertTrue(!creature.isPushable(), "continua empurrável");
+        creature.knockback(1.0, 1.0, 0.0);
+        helper.assertTrue(creature.getDeltaMovement().horizontalDistanceSqr() == 0, "sofreu recuo inconsciente");
+        helper.succeed();
+    }
+
+    @GameTest(template = EMPTY)
     public static void torporDecaysUntilCreatureWakes(GameTestHelper helper) {
         TestCreature creature = spawn(helper);
         creature.addTorpor(creature.maxTorpor());

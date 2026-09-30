@@ -219,11 +219,10 @@ def animations():
             },
             "animation.smilodon.unconscious": {
                 "loop": True,
-                "animation_length": 3.0,
+                "animation_length": 1.0,
                 "bones": {
-                    # Tombado de lado; o deslocamento compensa a rotação em torno da origem.
+                    # Tombado de lado e imóvel; o deslocamento compensa a rotação em torno da origem.
                     "root": {"rotation": [0, 0, 90], "position": [0, 5, 0]},
-                    "body": {"scale": {"0.0": [1, 1, 1], "1.5": [1.03, 1, 1], "3.0": [1, 1, 1]}},
                 },
             },
         },

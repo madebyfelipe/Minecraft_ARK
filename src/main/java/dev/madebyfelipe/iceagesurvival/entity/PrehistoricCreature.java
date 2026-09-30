@@ -257,6 +257,7 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         entityData.set(DATA_UNCONSCIOUS, true);
         getNavigation().stop();
         setTarget(null);
+        setDeltaMovement(0.0, getDeltaMovement().y, 0.0);
     }
 
     private void wakeUp() {
@@ -268,6 +269,19 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     @Override
     protected boolean isImmobile() {
         return super.isImmobile() || isUnconscious();
+    }
+
+    // Inconsciente, a criatura não sai do lugar: nem empurrada, nem por recuo de golpe.
+    @Override
+    public boolean isPushable() {
+        return !isUnconscious() && super.isPushable();
+    }
+
+    @Override
+    public void knockback(double strength, double x, double z) {
+        if (!isUnconscious()) {
+            super.knockback(strength, x, z);
+        }
     }
 
     @Override
