@@ -255,7 +255,7 @@ Todas as espécies terrestres usam a mesma classe (`LandCreature`); o que as dif
 | **Tyrannosaurus rex** (`tyrannosaurus`) | Primeiro dinossauro; predador de topo solitário, raro | 1,8 × 3,6 | Agressivo, raio de percepção 24, território de 48 blocos, caça presas grandes, recua com 10% de vida | taiga, taiga nevada, taigas antigas, planície nevada (peso 1) |
 | Criatura de teste (`test_creature`) | Só para testes automáticos; usa o modelo do porco | 0,9 × 0,9 | Passiva | não nasce |
 
-Montáveis: Smilodon e mamute. O lobo-terrível é pequeno demais e fica de fora — o que o exclui é não ter bloco `mount` no JSON, não uma regra em código.
+Montáveis: Smilodon, mamute e Tyrannosaurus. O lobo-terrível é pequeno demais e fica de fora — o que o exclui é não ter bloco `mount` no JSON, não uma regra em código.
 
 **Adicionar uma espécie terrestre:**
 
@@ -628,7 +628,5 @@ Ver a tabela em [4](#4-decisões). Registro de mudanças estruturais:
 10. Muda da árvore de fruta-negra (plantar perto da base) — hoje só se colhe de árvores naturais.
 12. Como tirar a sela em jogo (hoje só `/ias saddle` ou a morte da criatura): tecla, tela de inventário da criatura, ou clique com a mão vazia agachado.
 13. Atacar montado — o brief não pede, mas a Fase 4 ("domínio") fica estranha sem isso.
-14. **Tyrannosaurus montável?** O bloco `mount` existe desde a Etapa 7 e ele está sem. Um T-Rex de
-    montaria muda o equilíbrio da Fase 4 inteira, então é decisão de design, não de implementação:
-    basta acrescentar o bloco ao JSON quando decidido.
+14. ~~Tyrannosaurus montável?~~ Decidido: sim (2026-09-30). Bloco `mount` em `tyrannosaurus.json`: assento 3,1, afinidade 25, velocidade ×0,8 (≈ Smilodon), pulo 0,45.
 11. Mods de fauna só no CurseForge (ex.: Primal Era) — não verificados.

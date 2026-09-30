@@ -57,6 +57,19 @@ public class MountTests {
     }
 
     @GameTest(template = EMPTY)
+    public static void tyrannosaurusCanBeSaddled(GameTestHelper helper) {
+        Player owner = helper.makeMockPlayer(GameType.SURVIVAL);
+        LandCreature rex = helper.spawnWithNoFreeWill(ModEntities.TYRANNOSAURUS.get(), 1, 2, 1);
+        rex.tame(owner);
+        owner.setPos(rex.position());
+        owner.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.SADDLE));
+        helper.assertTrue(rex.canBeSaddled(), "T-Rex deveria aceitar sela");
+        rex.interact(owner, InteractionHand.MAIN_HAND);
+        helper.assertTrue(rex.isSaddled(), "T-Rex deveria ter sido selado");
+        helper.succeed();
+    }
+
+    @GameTest(template = EMPTY)
     public static void seatComesFromTheSpeciesData(GameTestHelper helper) {
         Player owner = helper.makeMockPlayer(GameType.SURVIVAL);
         LandCreature smilodon = readyToRide(helper, owner);
