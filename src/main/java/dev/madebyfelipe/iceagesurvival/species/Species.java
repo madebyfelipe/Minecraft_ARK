@@ -20,7 +20,7 @@ import net.neoforged.neoforge.registries.DataPackRegistryEvent;
  *
  * <p>A espécie de uma entidade é a que tem o mesmo id do seu {@link EntityType}.
  */
-public record Species(StatProfile stats) {
+public record Species(StatProfile stats, Optional<TamingProfile> taming) {
     public static final ResourceKey<Registry<Species>> REGISTRY_KEY =
             ResourceKey.createRegistryKey(IceAgeSurvival.id("species"));
 
@@ -41,7 +41,8 @@ public record Species(StatProfile stats) {
             }, StatProfile::entries);
 
     public static final Codec<Species> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            STATS_CODEC.fieldOf("stats").forGetter(Species::stats)
+            STATS_CODEC.fieldOf("stats").forGetter(Species::stats),
+            TamingProfile.CODEC.optionalFieldOf("taming").forGetter(Species::taming)
     ).apply(instance, Species::new));
 
     public static void registerRegistry(DataPackRegistryEvent.NewRegistry event) {

@@ -23,16 +23,24 @@ public final class StatPoints {
         if (level < 1) {
             throw new IllegalArgumentException("Nível inválido: " + level);
         }
-        int[] rolled = new int[Stat.values().length];
-        var scalable = Stat.wildScalableStats();
-        for (int i = 0; i < level - 1; i++) {
-            rolled[scalable.get(random.nextInt(scalable.size())).ordinal()]++;
-        }
-        return new StatPoints(rolled);
+        return NONE.addRandom(level - 1, random);
     }
 
     public int get(Stat stat) {
         return points[stat.ordinal()];
+    }
+
+    /** Acrescenta {@code count} pontos ao acaso entre os atributos escaláveis. */
+    public StatPoints addRandom(int count, RandomGenerator random) {
+        if (count < 0) {
+            throw new IllegalArgumentException("Quantidade negativa: " + count);
+        }
+        int[] copy = points.clone();
+        var scalable = Stat.wildScalableStats();
+        for (int i = 0; i < count; i++) {
+            copy[scalable.get(random.nextInt(scalable.size())).ordinal()]++;
+        }
+        return new StatPoints(copy);
     }
 
     public StatPoints with(Stat stat, int value) {

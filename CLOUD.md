@@ -242,18 +242,56 @@ Lista-alvo do brief — Era do Gelo: mamute-lanoso, smilodon, lobo-terrível, ri
 
 ## 13. Domesticação
 
-Fluxo: enfraquecer → aplicar torpor → inconsciente → alimentar → esperar e proteger → domesticada.
+Implementado na criatura de teste.
 
-- Alimentos por espécie, configurados no JSON (preferido / aceito / recusado), com multiplicador de eficiência.
-- Eficiência de domesticação cai se a criatura tomar dano enquanto inconsciente.
-- Detalhes numéricos: a definir na Etapa 3.
+1. Flechas tranquilizantes acumulam torpor; ao atingir o máximo a criatura cai inconsciente.
+2. Inconsciente, ela aceita comida (clique direito com um alimento da espécie). Cada unidade soma o `value` do alimento ao progresso.
+3. Entre uma alimentação e outra há uma espera (`feed_interval_seconds`) — é o tempo em que o jogador precisa proteger a criatura.
+4. O torpor continua caindo. Se zerar antes do progresso completar, ela acorda e **o progresso é perdido**. Mais flechas mantêm o torpor, mas o dano delas reduz a eficiência.
+5. Progresso completo → domesticada; o dono é quem deu a última comida.
+
+**Alimento exigido** = `required_food × (1 + required_food_per_level × (nível − 1))`.
+
+**Eficiência** (0 a 1) = média da `quality` dos alimentos, ponderada pelo `value` × (1 − dano sofrido inconsciente ÷ vida máxima).
+
+**Recompensa:** `nível × tamingBonusLevelFraction × eficiência` pontos extras de atributo (padrão: até +50% do nível), distribuídos ao acaso.
+
+**Afinidade** (0 a 100): começa em `50 × eficiência`. Por ora só é guardada; ganho posterior e efeito sobre obediência entram junto com os comandos (Etapa 4), para não existir um número sem função.
+
+Bloco `taming` do JSON de espécie (ausente = espécie não acumula torpor):
+
+```json
+"taming": {
+  "torpor_multiplier": 1.0,
+  "torpor_decay_per_second": 1.0,
+  "required_food": 40,
+  "required_food_per_level": 0.02,
+  "feed_interval_seconds": 5,
+  "foods": [
+    { "items": "minecraft:carrot", "value": 20 },
+    { "items": ["minecraft:potato", "minecraft:beetroot"], "value": 10, "quality": 0.5 },
+    { "items": "#minecraft:leaves", "value": 4, "quality": 0.2 }
+  ]
+}
+```
+
+`items` aceita um item, uma lista ou uma tag. O primeiro alimento que casar vale.
+
+Feedback ao jogador: texto sob a mira ao olhar para a criatura — nome e nível, torpor %, domesticação %. Sem menu.
+
+Ainda não existe: sedativo para manter o torpor sem dano; regra de "tribo" no multiplayer (hoje qualquer jogador pode alimentar, e quem completa fica com a criatura).
 
 ## 14. Torpor
 
-- Valor separado da vida; máximo escala com o nível.
-- Sobe com projéteis tranquilizantes; decai com o tempo.
-- Ao atingir o máximo, a criatura fica inconsciente até o torpor zerar ou a domesticação concluir.
-- Escala das ferramentas: arco < besta < rifle.
+- Valor separado da vida; máximo = atributo `torpor` do indivíduo (escala com os pontos).
+- Decai `torpor_decay_per_second` o tempo todo, acordada ou não. Atualizado uma vez por segundo.
+- Ao atingir o máximo, a criatura fica inconsciente (sem IA, imóvel) até o torpor zerar ou a domesticação concluir.
+- Criaturas domesticadas são imunes.
+- Torpor, inconsciência e progresso são salvos no NBT; uma criatura inconsciente num chunk descarregado continua como estava ao recarregar.
+
+**Flecha tranquilizante** (`iceagesurvival:tranq_arrow`): flecha + frutas silvestres (sweet berries, que crescem em taiga). Dano base 0,5 contra 2,0 da flecha comum. Torpor = `tranqArrowTorpor` (config, padrão 25) × velocidade ÷ 3 — arco totalmente puxado dá o valor cheio. Funciona em arco, besta e dispensador.
+
+Escala das ferramentas: arco < besta < rifle. Hoje a besta ganha só ~5% pela velocidade maior; o multiplicador próprio dela e o rifle entram nas fases correspondentes.
 
 ## 15. Temperatura
 
@@ -317,7 +355,7 @@ Pontos de atenção: validação de dono em todo payload, montaria (autoridade d
 | 0 | Pesquisa e este documento | ✅ 2026-09-30 |
 | 1 | Workspace, Gradle, build, runServer | ✅ 2026-09-30 (`runClient` ainda não verificado) |
 | 2 | Core: níveis, atributos, ownership, persistência, registry de espécies | ✅ 2026-09-30 |
-| 3 | Domesticação com criatura de teste | — |
+| 3 | Domesticação com criatura de teste | ✅ 2026-09-30 (falta conferir no cliente) |
 | 4 | Smilodon | — |
 | 5 | Mais criaturas, spawning | — |
 | 6 | Temperatura | — |
@@ -334,6 +372,7 @@ Ver a tabela em [4](#4-decisões). Registro de mudanças estruturais:
 
 - 2026-09-30 — Documento criado; D1–D11 registradas.
 - 2026-09-30 — Etapa 2: D12–D14. Criatura de teste antecipada para a Etapa 2.
+- 2026-09-30 — Etapa 3: torpor, domesticação e flecha tranquilizante; regras nas seções 13 e 14.
 
 ## 25. Riscos
 
@@ -357,4 +396,6 @@ Ver a tabela em [4](#4-decisões). Registro de mudanças estruturais:
 6. Criaturas voadoras e de carga: quais espécies.
 7. Gestação vs. ovo por espécie.
 8. Nome final do mod (`Ice Age Survival` / id `iceagesurvival` são provisórios).
-9. Mods de fauna só no CurseForge (ex.: Primal Era) — não verificados.
+9. Propriedade em multiplayer durante a domesticação (quem derrubou vs. quem alimentou).
+10. Sedativo (manter torpor sem causar dano): item, receita e fase em que aparece.
+11. Mods de fauna só no CurseForge (ex.: Primal Era) — não verificados.

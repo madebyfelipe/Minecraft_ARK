@@ -3,6 +3,7 @@ package dev.madebyfelipe.iceagesurvival.registry;
 import dev.madebyfelipe.iceagesurvival.IceAgeSurvival;
 import dev.madebyfelipe.iceagesurvival.entity.PrehistoricCreature;
 import dev.madebyfelipe.iceagesurvival.entity.TestCreature;
+import dev.madebyfelipe.iceagesurvival.entity.TranqArrow;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
@@ -18,6 +19,14 @@ public final class ModEntities {
             ENTITY_TYPES.register("test_creature", () -> EntityType.Builder.of(TestCreature::new, MobCategory.CREATURE)
                     .sized(0.9F, 0.9F)
                     .build("test_creature"));
+
+    public static final DeferredHolder<EntityType<?>, EntityType<TranqArrow>> TRANQ_ARROW =
+            ENTITY_TYPES.register("tranq_arrow", () -> EntityType.Builder.<TranqArrow>of(TranqArrow::new, MobCategory.MISC)
+                    .sized(0.5F, 0.5F)
+                    .eyeHeight(0.13F)
+                    .clientTrackingRange(4)
+                    .updateInterval(20)
+                    .build("tranq_arrow"));
 
     private ModEntities() {
     }

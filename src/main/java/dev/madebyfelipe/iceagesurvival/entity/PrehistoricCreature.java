@@ -6,17 +6,24 @@ import dev.madebyfelipe.iceagesurvival.core.stats.Stat;
 import dev.madebyfelipe.iceagesurvival.core.stats.StatPoints;
 import dev.madebyfelipe.iceagesurvival.core.stats.StatProfile;
 import dev.madebyfelipe.iceagesurvival.core.stats.WildLevels;
+import dev.madebyfelipe.iceagesurvival.core.taming.TamingRules;
+import dev.madebyfelipe.iceagesurvival.core.taming.TamingSession;
 import dev.madebyfelipe.iceagesurvival.species.Species;
+import dev.madebyfelipe.iceagesurvival.species.TamingProfile;
 import java.util.Optional;
 import java.util.random.RandomGenerator;
 import javax.annotation.Nullable;
 import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
@@ -25,22 +32,49 @@ import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
 /**
  * Base de toda criatura do mod. Guarda os pontos de atributo do indivíduo e os
- * aplica sobre a curva da {@link Species} correspondente ao tipo da entidade.
+ * aplica sobre a curva da {@link Species} correspondente ao tipo da entidade,
+ * e conduz o ciclo torpor → inconsciente → alimentação → domesticada.
  *
  * <p>Dono e estado domesticado vêm de {@link TamableAnimal}.
  */
 public abstract class PrehistoricCreature extends TamableAnimal {
     private static final EntityDataAccessor<Integer> DATA_LEVEL =
             SynchedEntityData.defineId(PrehistoricCreature.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Float> DATA_TORPOR_FRACTION =
+            SynchedEntityData.defineId(PrehistoricCreature.class, EntityDataSerializers.FLOAT);
+    private static final EntityDataAccessor<Boolean> DATA_UNCONSCIOUS =
+            SynchedEntityData.defineId(PrehistoricCreature.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Float> DATA_TAMING_PROGRESS =
+            SynchedEntityData.defineId(PrehistoricCreature.class, EntityDataSerializers.FLOAT);
+
     private static final String TAG_STAT_POINTS = "StatPoints";
+    private static final String TAG_TORPOR = "Torpor";
+    private static final String TAG_UNCONSCIOUS = "Unconscious";
+    private static final String TAG_TAMING = "Taming";
+    private static final String TAG_TAMING_FOOD = "Food";
+    private static final String TAG_TAMING_QUALITY = "Quality";
+    private static final String TAG_TAMING_DAMAGE = "Damage";
+    private static final String TAG_NEXT_FEED_TIME = "NextFeedTime";
+    private static final String TAG_AFFINITY = "Affinity";
+
+    private static final int TORPOR_UPDATE_INTERVAL_TICKS = 20;
+    /** Afinidade inicial de uma domesticação com eficiência de 100%. */
+    private static final float MAX_INITIAL_AFFINITY = 50.0F;
+    public static final float MAX_AFFINITY = 100.0F;
 
     private StatPoints statPoints = StatPoints.NONE;
     private boolean statsRolled;
+    private double torpor;
+    private TamingSession tamingSession = new TamingSession();
+    /** Game time a partir do qual a criatura aceita comer de novo. */
+    private long nextFeedTime;
+    private float affinity;
 
     protected PrehistoricCreature(EntityType<? extends PrehistoricCreature> type, Level level) {
         super(type, level);
@@ -55,11 +89,20 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
         builder.define(DATA_LEVEL, 1);
+        builder.define(DATA_TORPOR_FRACTION, 0.0F);
+        builder.define(DATA_UNCONSCIOUS, false);
+        builder.define(DATA_TAMING_PROGRESS, 0.0F);
     }
 
     public Optional<Species> species() {
         return Species.of(level().registryAccess(), getType());
     }
+
+    private Optional<TamingProfile> tamingProfile() {
+        return species().flatMap(Species::taming);
+    }
+
+    // ---- Atributos ----
 
     public StatPoints statPoints() {
         return statPoints;
@@ -83,6 +126,10 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         }
     }
 
+    private RandomGenerator randomGenerator() {
+        return random::nextLong;
+    }
+
     private void rollWildStats() {
         Optional<Species> species = species();
         if (species.isEmpty()) {
@@ -90,7 +137,7 @@ public abstract class PrehistoricCreature extends TamableAnimal {
                     EntityType.getKey(getType()));
             return;
         }
-        RandomGenerator generator = random::nextLong;
+        RandomGenerator generator = randomGenerator();
         int level = WildLevels.roll(ServerConfig.MAX_WILD_LEVEL.get(), ServerConfig.WILD_LEVEL_STEP.get(), generator);
         setStatPoints(StatPoints.rollWild(level, generator), species.get());
         setHealth(getMaxHealth());
@@ -115,6 +162,143 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         }
     }
 
+    // ---- Torpor ----
+
+    public double torpor() {
+        return torpor;
+    }
+
+    /** De 0 a 1; disponível também no cliente. */
+    public float torporFraction() {
+        return entityData.get(DATA_TORPOR_FRACTION);
+    }
+
+    /** Disponível também no cliente. */
+    public boolean isUnconscious() {
+        return entityData.get(DATA_UNCONSCIOUS);
+    }
+
+    /** Aplica torpor vindo de um tranquilizante. Criaturas domesticadas são imunes. */
+    public void addTorpor(double amount) {
+        Optional<TamingProfile> profile = tamingProfile();
+        if (level().isClientSide || amount <= 0 || isTame() || profile.isEmpty()) {
+            return;
+        }
+        setTorpor(torpor + amount * profile.get().torporMultiplier());
+    }
+
+    /** Define o torpor diretamente, derrubando ou acordando a criatura conforme o caso. */
+    public void setTorpor(double value) {
+        double max = maxTorpor();
+        torpor = Math.clamp(value, 0.0, max);
+        entityData.set(DATA_TORPOR_FRACTION, max > 0 ? (float) (torpor / max) : 0.0F);
+        if (!isUnconscious() && max > 0 && torpor >= max) {
+            knockOut();
+        } else if (isUnconscious() && torpor <= 0) {
+            wakeUp();
+        }
+    }
+
+    private void knockOut() {
+        entityData.set(DATA_UNCONSCIOUS, true);
+        getNavigation().stop();
+        setTarget(null);
+    }
+
+    private void wakeUp() {
+        entityData.set(DATA_UNCONSCIOUS, false);
+        tamingSession.reset();
+        entityData.set(DATA_TAMING_PROGRESS, 0.0F);
+    }
+
+    @Override
+    protected boolean isImmobile() {
+        return super.isImmobile() || isUnconscious();
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+        if (!level().isClientSide && torpor > 0 && tickCount % TORPOR_UPDATE_INTERVAL_TICKS == 0) {
+            double decayPerSecond = tamingProfile().map(TamingProfile::torporDecayPerSecond).orElse(0.0);
+            setTorpor(torpor - decayPerSecond * TORPOR_UPDATE_INTERVAL_TICKS / 20.0);
+        }
+    }
+
+    // ---- Domesticação ----
+
+    /** De 0 a 1; disponível também no cliente. */
+    public float tamingProgress() {
+        return entityData.get(DATA_TAMING_PROGRESS);
+    }
+
+    /** De 0 a {@link #MAX_AFFINITY}; só no servidor. */
+    public float affinity() {
+        return affinity;
+    }
+
+    private double requiredFood(TamingProfile profile) {
+        return TamingRules.requiredFood(profile.requiredFood(), profile.requiredFoodPerLevel(), statPoints.level());
+    }
+
+    @Override
+    public boolean hurt(DamageSource source, float amount) {
+        boolean hurt = super.hurt(source, amount);
+        if (hurt && !level().isClientSide && isUnconscious() && !isTame()) {
+            tamingSession.recordDamage(amount / getMaxHealth());
+        }
+        return hurt;
+    }
+
+    @Override
+    public InteractionResult mobInteract(Player player, InteractionHand hand) {
+        if (isUnconscious() && !isTame()) {
+            ItemStack stack = player.getItemInHand(hand);
+            Optional<TamingProfile> profile = tamingProfile();
+            Optional<TamingProfile.Food> food = profile.flatMap(p -> p.foodFor(stack));
+            if (food.isPresent()) {
+                if (!level().isClientSide) {
+                    feedUnconscious(player, hand, stack, profile.get(), food.get());
+                }
+                return InteractionResult.sidedSuccess(level().isClientSide);
+            }
+        }
+        return super.mobInteract(player, hand);
+    }
+
+    private void feedUnconscious(Player player, InteractionHand hand, ItemStack stack,
+                                 TamingProfile profile, TamingProfile.Food food) {
+        long now = level().getGameTime();
+        if (now < nextFeedTime) {
+            player.displayClientMessage(Component.translatable("iceagesurvival.taming.not_hungry"), true);
+            return;
+        }
+        usePlayerItem(player, hand, stack);
+        tamingSession.feed(food.value(), food.quality());
+        nextFeedTime = now + profile.feedIntervalSeconds() * 20L;
+
+        double required = requiredFood(profile);
+        if (tamingSession.isComplete(required)) {
+            completeTaming(player);
+        } else {
+            entityData.set(DATA_TAMING_PROGRESS, (float) tamingSession.progress(required));
+        }
+    }
+
+    private void completeTaming(Player player) {
+        double effectiveness = tamingSession.effectiveness();
+        int bonus = TamingRules.bonusPoints(
+                statPoints.level(), ServerConfig.TAMING_BONUS_LEVEL_FRACTION.get(), effectiveness);
+        species().ifPresent(species -> setStatPoints(statPoints.addRandom(bonus, randomGenerator()), species));
+        affinity = (float) (effectiveness * MAX_INITIAL_AFFINITY);
+
+        tame(player);
+        setTorpor(0);
+        level().broadcastEntityEvent(this, (byte) 7); // corações de domesticação do TamableAnimal
+    }
+
+    // ---- Persistência ----
+
     @Override
     public void addAdditionalSaveData(CompoundTag compound) {
         super.addAdditionalSaveData(compound);
@@ -125,18 +309,27 @@ public abstract class PrehistoricCreature extends TamableAnimal {
             }
             compound.put(TAG_STAT_POINTS, points);
         }
+        compound.putDouble(TAG_TORPOR, torpor);
+        compound.putBoolean(TAG_UNCONSCIOUS, isUnconscious());
+        CompoundTag taming = new CompoundTag();
+        taming.putDouble(TAG_TAMING_FOOD, tamingSession.foodValue());
+        taming.putDouble(TAG_TAMING_QUALITY, tamingSession.qualityWeighted());
+        taming.putDouble(TAG_TAMING_DAMAGE, tamingSession.damageFraction());
+        compound.put(TAG_TAMING, taming);
+        compound.putLong(TAG_NEXT_FEED_TIME, nextFeedTime);
+        compound.putFloat(TAG_AFFINITY, affinity);
     }
 
     @Override
     public void readAdditionalSaveData(CompoundTag compound) {
         super.readAdditionalSaveData(compound);
+        Optional<Species> species = species();
         if (compound.contains(TAG_STAT_POINTS, Tag.TAG_COMPOUND)) {
             CompoundTag saved = compound.getCompound(TAG_STAT_POINTS);
             StatPoints points = StatPoints.NONE;
             for (Stat stat : Stat.values()) {
                 points = points.with(stat, Math.max(0, saved.getInt(stat.id())));
             }
-            Optional<Species> species = species();
             if (species.isPresent()) {
                 // A vida atual já foi lida pelo super; reaplicar os atributos não a altera.
                 float health = getHealth();
@@ -147,6 +340,20 @@ public abstract class PrehistoricCreature extends TamableAnimal {
                 statsRolled = true;
             }
         }
+
+        CompoundTag taming = compound.getCompound(TAG_TAMING);
+        tamingSession = new TamingSession(
+                taming.getDouble(TAG_TAMING_FOOD), taming.getDouble(TAG_TAMING_QUALITY), taming.getDouble(TAG_TAMING_DAMAGE));
+        nextFeedTime = compound.getLong(TAG_NEXT_FEED_TIME);
+        affinity = Math.clamp(compound.getFloat(TAG_AFFINITY), 0.0F, MAX_AFFINITY);
+
+        double max = maxTorpor();
+        torpor = Math.clamp(compound.getDouble(TAG_TORPOR), 0.0, max);
+        entityData.set(DATA_TORPOR_FRACTION, max > 0 ? (float) (torpor / max) : 0.0F);
+        entityData.set(DATA_UNCONSCIOUS, compound.getBoolean(TAG_UNCONSCIOUS) && torpor > 0);
+        entityData.set(DATA_TAMING_PROGRESS, species.flatMap(Species::taming)
+                .map(profile -> (float) tamingSession.progress(requiredFood(profile)))
+                .orElse(0.0F));
     }
 
     // A reprodução vanilla (alimentar dois adultos) não se aplica; o mod tem sistema próprio.

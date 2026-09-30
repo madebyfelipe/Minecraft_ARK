@@ -48,6 +48,17 @@ class StatPointsTest {
     }
 
     @Test
+    void addRandomKeepsExistingPointsAndAddsExactlyCount() {
+        StatPoints base = StatPoints.rollWild(30, new Random(5));
+        StatPoints grown = base.addRandom(12, new Random(6));
+        assertEquals(base.level() + 12, grown.level());
+        for (Stat stat : Stat.values()) {
+            assertTrue(grown.get(stat) >= base.get(stat), stat.id());
+        }
+        assertEquals(0, grown.get(Stat.SPEED));
+    }
+
+    @Test
     void rejectsInvalidInput() {
         assertThrows(IllegalArgumentException.class, () -> StatPoints.rollWild(0, new Random()));
         assertThrows(IllegalArgumentException.class, () -> StatPoints.NONE.with(Stat.HEALTH, -1));

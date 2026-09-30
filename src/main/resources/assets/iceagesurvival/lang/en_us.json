@@ -3,5 +3,13 @@
   "iceagesurvival.configuration.maxWildLevel": "Max wild level",
   "iceagesurvival.configuration.wildLevelStep": "Wild level step",
   "entity.iceagesurvival.test_creature": "Test Creature",
-  "item.iceagesurvival.test_creature_spawn_egg": "Test Creature Spawn Egg"
+  "item.iceagesurvival.test_creature_spawn_egg": "Test Creature Spawn Egg",
+  "entity.iceagesurvival.tranq_arrow": "Tranquilizer Arrow",
+  "item.iceagesurvival.tranq_arrow": "Tranquilizer Arrow",
+  "iceagesurvival.hud.name_and_level": "%s · Lv. %s",
+  "iceagesurvival.hud.torpor": "Torpor %s%%",
+  "iceagesurvival.hud.taming": "Taming %s%%",
+  "iceagesurvival.taming.not_hungry": "It is not ready to eat again yet",
+  "iceagesurvival.configuration.tranqArrowTorpor": "Tranquilizer arrow torpor",
+  "iceagesurvival.configuration.tamingBonusLevelFraction": "Taming bonus level fraction"
 }

@@ -3,5 +3,13 @@
   "iceagesurvival.configuration.maxWildLevel": "Nível selvagem máximo",
   "iceagesurvival.configuration.wildLevelStep": "Intervalo de níveis selvagens",
   "entity.iceagesurvival.test_creature": "Criatura de Teste",
-  "item.iceagesurvival.test_creature_spawn_egg": "Ovo Gerador de Criatura de Teste"
+  "item.iceagesurvival.test_creature_spawn_egg": "Ovo Gerador de Criatura de Teste",
+  "entity.iceagesurvival.tranq_arrow": "Flecha Tranquilizante",
+  "item.iceagesurvival.tranq_arrow": "Flecha Tranquilizante",
+  "iceagesurvival.hud.name_and_level": "%s · Nv. %s",
+  "iceagesurvival.hud.torpor": "Torpor %s%%",
+  "iceagesurvival.hud.taming": "Domesticação %s%%",
+  "iceagesurvival.taming.not_hungry": "Ainda não está pronta para comer de novo",
+  "iceagesurvival.configuration.tranqArrowTorpor": "Torpor da flecha tranquilizante",
+  "iceagesurvival.configuration.tamingBonusLevelFraction": "Fração de nível bônus da domesticação"
 }

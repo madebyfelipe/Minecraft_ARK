@@ -17,6 +17,14 @@ public final class ServerConfig {
             .comment("Intervalo entre níveis selvagens possíveis (10 = 10, 20, 30...).")
             .defineInRange("wildLevelStep", 10, 1, 100);
 
+    public static final ModConfigSpec.DoubleValue TRANQ_ARROW_TORPOR = BUILDER
+            .comment("Torpor aplicado por uma flecha tranquilizante disparada de um arco totalmente puxado.")
+            .defineInRange("tranqArrowTorpor", 25.0, 0.0, 10000.0);
+
+    public static final ModConfigSpec.DoubleValue TAMING_BONUS_LEVEL_FRACTION = BUILDER
+            .comment("Fração do nível que vira pontos extras numa domesticação com eficiência de 100%.")
+            .defineInRange("tamingBonusLevelFraction", 0.5, 0.0, 10.0);
+
     public static final ModConfigSpec SPEC = BUILDER.build();
 
     private ServerConfig() {
