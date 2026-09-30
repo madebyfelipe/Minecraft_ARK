@@ -5,16 +5,12 @@ import dev.madebyfelipe.iceagesurvival.species.BehaviorProfile;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
-import net.minecraft.world.entity.ai.goal.FollowOwnerGoal;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
 import net.minecraft.world.entity.ai.goal.MoveTowardsRestrictionGoal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
 import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
-import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NonTameRandomTargetGoal;
-import net.minecraft.world.entity.ai.goal.target.OwnerHurtByTargetGoal;
-import net.minecraft.world.entity.ai.goal.target.OwnerHurtTargetGoal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import software.bernie.geckolib.animatable.GeoEntity;
@@ -44,16 +40,13 @@ public class Smilodon extends PrehistoricCreature implements GeoEntity {
     protected void registerGoals() {
         goalSelector.addGoal(0, new FloatGoal(this));
         goalSelector.addGoal(1, new FleeWhenWeakGoal(this, 1.4));
-        goalSelector.addGoal(2, new MeleeAttackGoal(this, 1.25, true));
-        goalSelector.addGoal(3, new FollowOwnerGoal(this, 1.2, 8.0F, 3.0F));
-        goalSelector.addGoal(4, new MoveTowardsRestrictionGoal(this, 1.0));
-        goalSelector.addGoal(5, new WaterAvoidingRandomStrollGoal(this, 0.8));
-        goalSelector.addGoal(6, new LookAtPlayerGoal(this, Player.class, 8.0F));
-        goalSelector.addGoal(7, new RandomLookAroundGoal(this));
+        goalSelector.addGoal(3, new MeleeAttackGoal(this, 1.25, true));
+        goalSelector.addGoal(5, new MoveTowardsRestrictionGoal(this, 1.0));
+        goalSelector.addGoal(6, new WaterAvoidingRandomStrollGoal(this, 0.8));
+        goalSelector.addGoal(7, new LookAtPlayerGoal(this, Player.class, 8.0F));
+        goalSelector.addGoal(8, new RandomLookAroundGoal(this));
 
-        targetSelector.addGoal(1, new OwnerHurtByTargetGoal(this));
-        targetSelector.addGoal(2, new OwnerHurtTargetGoal(this));
-        targetSelector.addGoal(3, new HurtByTargetGoal(this));
+        addOrderGoals(2, 4, 1.2);
         targetSelector.addGoal(4, new NonTameRandomTargetGoal<>(this, Player.class, true,
                 player -> behavior().map(BehaviorProfile::aggressive).orElse(false)));
     }

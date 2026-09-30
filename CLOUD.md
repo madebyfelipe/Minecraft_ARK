@@ -49,7 +49,8 @@ Fora de escopo: máquinas, árvores tecnológicas, dezenas de armaduras, arsenal
 | D11 | Repositório GitHub **privado** | Pode ser aberto depois; publicar é irreversível. | Fechada até o Felipe decidir o contrário |
 | D12 | Indivíduo = **pontos por atributo**; nível = 1 + total de pontos | Dois animais do mesmo nível ficam diferentes ("esse tem ataque melhor"), e é exatamente o que a reprodução vai herdar atributo a atributo. Evita "mob com HP multiplicado". Ver [11](#11-criaturas). | Fechada |
 | D13 | Dono e estado domesticado via **`TamableAnimal`** vanilla | Persistência, sync e regras de aliado já prontas e compatíveis com outros mods. | Fechada |
-| D14 | Sem pacote `network/` até existir o primeiro payload | O registry de espécies já sincroniza sozinho; comandos (primeiro payload real) chegam com a domesticação. | Fechada |
+| D14 | Sem pacote `network/` até existir o primeiro payload | O registry de espécies já sincroniza sozinho. O pacote nasceu na Etapa 4, com os comandos. | Cumprida |
+| D15 | Ordem de ataque vale para **todas** as criaturas do jogador ao alcance | Exigir escolher uma criatura antes de apontar o alvo pediria um estado de "selecionada" escondido. Não é o sistema de grupos do brief (que continua fora). | Fechada |
 
 ## 5. Mods avaliados
 
@@ -218,7 +219,7 @@ Formato atual do JSON de espécie (cresce a cada etapa):
 
 ### Espécies
 
-Implementada: **Smilodon** (`smilodon`) — predador territorial agressivo. Modelo, textura e animações (parado, andando, mordida, inconsciente) gerados por `tools/gen_smilodon.py`. Domesticado, segue o dono e defende; comandos e montaria ainda não existem.
+Implementada: **Smilodon** (`smilodon`) — predador territorial agressivo. Modelo, textura e animações (parado, andando, mordida, inconsciente) gerados por `tools/gen_smilodon.py`. Domesticado, obedece a ordens (ver [13.1](#131-comandos-e-afinidade)); montaria ainda não existe.
 
 Implementada: **criatura de teste** (`test_creature`) — provisória, usa o modelo do porco vanilla, existe só para validar o framework. Foi antecipada da Etapa 3 para a 2 porque sem uma entidade concreta não há como testar persistência em jogo.
 
@@ -280,7 +281,7 @@ Implementado na criatura de teste.
 
 **Recompensa:** `nível × tamingBonusLevelFraction × eficiência` pontos extras de atributo (padrão: até +50% do nível), distribuídos ao acaso.
 
-**Afinidade** (0 a 100): começa em `50 × eficiência`. Por ora só é guardada; ganho posterior e efeito sobre obediência entram junto com os comandos (Etapa 4), para não existir um número sem função.
+**Afinidade** (0 a 100): começa em `50 × eficiência`. Ver [13.1](#131-comandos-e-afinidade) para o que ela faz e como sobe.
 
 Bloco `taming` do JSON de espécie (ausente = espécie não acumula torpor):
 
@@ -304,6 +305,27 @@ Bloco `taming` do JSON de espécie (ausente = espécie não acumula torpor):
 Feedback ao jogador: texto sob a mira ao olhar para a criatura — nome e nível, torpor %, domesticação %. Sem menu.
 
 Ainda não existe: sedativo para manter o torpor sem dano; regra de "tribo" no multiplayer (hoje qualquer jogador pode alimentar, e quem completa fica com a criatura).
+
+### 13.1 Comandos e afinidade
+
+Implementado. Cada criatura domesticada tem uma **ordem** permanente, salva no NBT e visível no texto sob a mira:
+
+| Ordem | Acompanha o dono | Revida | Defende o dono |
+|---|---|---|---|
+| Seguir | sim | sim | não |
+| Ficar | não | não | não |
+| Defender (padrão) | sim | sim | sim |
+| Fugir | sim | não — corre de quem a ferir | não |
+
+**Atacar** não é uma ordem, é uma ação: o jogador mira um alvo e todas as suas criaturas num raio de 32 blocos cuja ordem permita lutar (Seguir, Defender) recebem aquele alvo. Largam o alvo se ele morrer ou se afastar mais de 40 blocos. Não pode mirar as próprias criaturas nem a si mesmo; contra outro jogador, respeita a regra de PvP do servidor.
+
+Atalhos (remapeáveis em Controles → Ice Age Survival): **R** alterna a ordem da criatura sob a mira; **G** manda atacar o que está sob a mira. A mira alcança 48 blocos e é bloqueada por paredes.
+
+**Obediência:** a chance de a criatura acatar um comando vai de `minObedience` (config, padrão 60%) com afinidade 0 até 100% com afinidade máxima. Quando ignora, o jogador é avisado.
+
+**Ganhar afinidade:** dar à criatura domesticada um alimento da espécie cura `value` de vida e soma `5 × quality` de afinidade, no máximo uma vez a cada 30 s. É opcional — não há fome nem manutenção.
+
+Rede: dois payloads cliente → servidor (`set_order`, `attack_order`). O servidor revalida dono, distância, consciência da criatura e validade do alvo; o cliente só envia a intenção. Comandos por grupo não existem; `CreatureCommands` recebe criatura ou alvo individualmente, então um seletor de grupo caberia por cima sem mudar o protocolo de ordem.
 
 ## 14. Torpor
 
@@ -380,7 +402,7 @@ Pontos de atenção: validação de dono em todo payload, montaria (autoridade d
 | 1 | Workspace, Gradle, build, runServer | ✅ 2026-09-30 (`runClient` ainda não verificado) |
 | 2 | Core: níveis, atributos, ownership, persistência, registry de espécies | ✅ 2026-09-30 |
 | 3 | Domesticação com criatura de teste | ✅ 2026-09-30 (falta conferir no cliente) |
-| 4 | Smilodon | em andamento — modelo, IA territorial e domesticação prontos; faltam comandos |
+| 4 | Smilodon | ✅ 2026-09-30 em testes automáticos; visual, atalhos e rede ainda não conferidos num cliente |
 | 5 | Mais criaturas, spawning | — |
 | 6 | Temperatura | — |
 | 7 | Montaria | — |
@@ -397,6 +419,7 @@ Ver a tabela em [4](#4-decisões). Registro de mudanças estruturais:
 - 2026-09-30 — Documento criado; D1–D11 registradas.
 - 2026-09-30 — Etapa 2: D12–D14. Criatura de teste antecipada para a Etapa 2.
 - 2026-09-30 — Assets: workflow de modelos gerados por script aprovado. `blockbench-mcp` (enfp-dev-studio) avaliado e descartado: é só um esqueleto que envia `hello_world`.
+- 2026-09-30 — Etapa 4: comandos, obediência por afinidade e D15.
 - 2026-09-30 — Etapa 3: torpor, domesticação e flecha tranquilizante; regras nas seções 13 e 14.
 
 ## 25. Riscos

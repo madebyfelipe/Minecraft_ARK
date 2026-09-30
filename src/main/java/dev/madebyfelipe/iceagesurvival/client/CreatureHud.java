@@ -19,7 +19,7 @@ public final class CreatureHud {
 
     public static void render(GuiGraphics graphics, DeltaTracker deltaTracker) {
         Minecraft minecraft = Minecraft.getInstance();
-        if (minecraft.options.hideGui || !(minecraft.crosshairPickEntity instanceof PrehistoricCreature creature)) {
+        if (minecraft.options.hideGui || !(CommandInput.aimedEntity() instanceof PrehistoricCreature creature)) {
             return;
         }
 
@@ -30,6 +30,11 @@ public final class CreatureHud {
         }
         if (creature.isUnconscious() && !creature.isTame()) {
             lines.add(Component.translatable("iceagesurvival.hud.taming", percent(creature.tamingProgress())));
+        }
+
+        if (minecraft.player != null && creature.isOwner(minecraft.player)) {
+            lines.add(Component.translatable("iceagesurvival.hud.order",
+                    Component.translatable("iceagesurvival.order." + creature.order().id())));
         }
 
         int x = graphics.guiWidth() / 2;

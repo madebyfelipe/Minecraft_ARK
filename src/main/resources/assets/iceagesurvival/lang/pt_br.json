@@ -13,5 +13,21 @@
   "iceagesurvival.configuration.tranqArrowTorpor": "Torpor da flecha tranquilizante",
   "iceagesurvival.configuration.tamingBonusLevelFraction": "Fração de nível bônus da domesticação",
   "entity.iceagesurvival.smilodon": "Smilodon",
-  "item.iceagesurvival.smilodon_spawn_egg": "Ovo Gerador de Smilodon"
+  "item.iceagesurvival.smilodon_spawn_egg": "Ovo Gerador de Smilodon",
+  "key.categories.iceagesurvival": "Ice Age Survival",
+  "key.iceagesurvival.cycle_order": "Mudar ordem da criatura",
+  "key.iceagesurvival.order_attack": "Ordenar ataque",
+  "iceagesurvival.order.follow": "Seguir",
+  "iceagesurvival.order.stay": "Ficar",
+  "iceagesurvival.order.defend": "Defender",
+  "iceagesurvival.order.flee": "Fugir",
+  "iceagesurvival.hud.order": "Ordem: %s",
+  "iceagesurvival.command.order.follow": "%s vai seguir você",
+  "iceagesurvival.command.order.stay": "%s vai ficar aqui",
+  "iceagesurvival.command.order.defend": "%s vai defender você",
+  "iceagesurvival.command.order.flee": "%s vai evitar lutas",
+  "iceagesurvival.command.ignored": "%s ignora você",
+  "iceagesurvival.command.attack": "%s de %s criaturas atacam %s",
+  "iceagesurvival.command.attack.none": "Nenhuma criatura por perto pode atacar",
+  "iceagesurvival.configuration.minObedience": "Obediência mínima"
 }

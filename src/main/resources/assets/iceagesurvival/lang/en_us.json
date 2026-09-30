@@ -13,5 +13,21 @@
   "iceagesurvival.configuration.tranqArrowTorpor": "Tranquilizer arrow torpor",
   "iceagesurvival.configuration.tamingBonusLevelFraction": "Taming bonus level fraction",
   "entity.iceagesurvival.smilodon": "Smilodon",
-  "item.iceagesurvival.smilodon_spawn_egg": "Smilodon Spawn Egg"
+  "item.iceagesurvival.smilodon_spawn_egg": "Smilodon Spawn Egg",
+  "key.categories.iceagesurvival": "Ice Age Survival",
+  "key.iceagesurvival.cycle_order": "Change creature order",
+  "key.iceagesurvival.order_attack": "Order attack",
+  "iceagesurvival.order.follow": "Follow",
+  "iceagesurvival.order.stay": "Stay",
+  "iceagesurvival.order.defend": "Defend",
+  "iceagesurvival.order.flee": "Flee",
+  "iceagesurvival.hud.order": "Order: %s",
+  "iceagesurvival.command.order.follow": "%s will follow you",
+  "iceagesurvival.command.order.stay": "%s will stay here",
+  "iceagesurvival.command.order.defend": "%s will defend you",
+  "iceagesurvival.command.order.flee": "%s will avoid fights",
+  "iceagesurvival.command.ignored": "%s ignores you",
+  "iceagesurvival.command.attack": "%s of %s creatures attack %s",
+  "iceagesurvival.command.attack.none": "No creature nearby can attack",
+  "iceagesurvival.configuration.minObedience": "Minimum obedience"
 }

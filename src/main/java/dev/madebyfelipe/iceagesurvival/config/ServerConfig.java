@@ -25,6 +25,10 @@ public final class ServerConfig {
             .comment("Fração do nível que vira pontos extras numa domesticação com eficiência de 100%.")
             .defineInRange("tamingBonusLevelFraction", 0.5, 0.0, 10.0);
 
+    public static final ModConfigSpec.DoubleValue MIN_OBEDIENCE = BUILDER
+            .comment("Chance de uma criatura com afinidade zero obedecer a um comando. Com afinidade máxima, obedece sempre.")
+            .defineInRange("minObedience", 0.6, 0.0, 1.0);
+
     public static final ModConfigSpec SPEC = BUILDER.build();
 
     private ServerConfig() {

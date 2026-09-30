@@ -2,6 +2,7 @@ package dev.madebyfelipe.iceagesurvival;
 
 import com.mojang.logging.LogUtils;
 import dev.madebyfelipe.iceagesurvival.config.ServerConfig;
+import dev.madebyfelipe.iceagesurvival.network.ModPayloads;
 import dev.madebyfelipe.iceagesurvival.registry.ModEntities;
 import dev.madebyfelipe.iceagesurvival.registry.ModItems;
 import dev.madebyfelipe.iceagesurvival.species.Species;
@@ -24,6 +25,7 @@ public class IceAgeSurvival {
         modEventBus.addListener(Species::registerRegistry);
         modEventBus.addListener(ModEntities::registerAttributes);
         modEventBus.addListener(ModItems::addToCreativeTabs);
+        modEventBus.addListener(ModPayloads::register);
 
         modContainer.registerConfig(ModConfig.Type.SERVER, ServerConfig.SPEC);
     }

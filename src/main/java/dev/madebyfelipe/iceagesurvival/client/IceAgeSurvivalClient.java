@@ -8,6 +8,7 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
+import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
@@ -28,6 +29,8 @@ public class IceAgeSurvivalClient {
         modEventBus.addListener(IceAgeSurvivalClient::registerRenderers);
         modEventBus.addListener(IceAgeSurvivalClient::registerItemColors);
         modEventBus.addListener(IceAgeSurvivalClient::registerGuiLayers);
+        modEventBus.addListener(CommandInput::registerKeys);
+        NeoForge.EVENT_BUS.addListener(CommandInput::onClientTick);
     }
 
     private static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {

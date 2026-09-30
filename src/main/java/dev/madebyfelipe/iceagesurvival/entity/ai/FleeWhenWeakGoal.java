@@ -1,10 +1,13 @@
 package dev.madebyfelipe.iceagesurvival.entity.ai;
 
+import dev.madebyfelipe.iceagesurvival.core.command.CreatureOrder;
 import dev.madebyfelipe.iceagesurvival.entity.PrehistoricCreature;
 import dev.madebyfelipe.iceagesurvival.species.BehaviorProfile;
 import net.minecraft.world.entity.ai.goal.PanicGoal;
 
-/** Criatura selvagem com pouca vida recua de quem a feriu, em vez de lutar até morrer. */
+/**
+ * Recua de quem a feriu: selvagem, quando está com pouca vida; domesticada, quando a ordem é fugir.
+ */
 public class FleeWhenWeakGoal extends PanicGoal {
     private final PrehistoricCreature creature;
 
@@ -15,8 +18,11 @@ public class FleeWhenWeakGoal extends PanicGoal {
 
     @Override
     protected boolean shouldPanic() {
-        if (creature.isTame() || creature.getLastHurtByMob() == null) {
+        if (creature.getLastHurtByMob() == null) {
             return false;
+        }
+        if (creature.isTame()) {
+            return creature.order() == CreatureOrder.FLEE;
         }
         double fraction = creature.behavior().map(BehaviorProfile::fleeHealthFraction).orElse(0.0);
         return creature.getHealth() < creature.getMaxHealth() * fraction;
