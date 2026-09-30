@@ -55,7 +55,12 @@ Regras:
   sessões acabam com metades que não conversam, o `tools/deploy-prism.sh` instala um jar com
   só uma delas, e a integração vira um merge a mais. Uma branch por vez no mesmo checkout
   mantém visível o que já existe.
-- Commit na branch e push. **Nunca push na `main`** nem force-push; a integração é por PR.
+- Commit na branch e push. **Merge na `main` é permitido** — não ficar esperando PR nem pedir
+  autorização a cada vez. A única condição é o verde: `./gradlew build` e
+  `./gradlew runGameTestServer` passando antes de integrar. Preferir fast-forward quando der.
+- Continua proibido **reescrever histórico já enviado**: nada de force-push, rebase de commit
+  que já está no origin, ou `git push --delete` de branch alheia. Isso não é burocracia de
+  integração, é o que outra sessão perderia trabalho com.
 - Antes de começar, `git fetch` e olhar as branches remotas: outra sessão pode já ter feito
   parte do trabalho. Não afirmar que algo não existe sem ter buscado o remoto.
 - Verificar antes de dizer que terminou: `./gradlew build` (JUnit) e
