@@ -3,6 +3,7 @@ package dev.madebyfelipe.iceagesurvival.client;
 import dev.madebyfelipe.iceagesurvival.command.CreatureCommands;
 import dev.madebyfelipe.iceagesurvival.entity.PrehistoricCreature;
 import dev.madebyfelipe.iceagesurvival.network.AttackOrderPayload;
+import dev.madebyfelipe.iceagesurvival.network.MountAttackPayload;
 import dev.madebyfelipe.iceagesurvival.network.SetOrderPayload;
 import javax.annotation.Nullable;
 import net.minecraft.client.KeyMapping;
@@ -15,6 +16,7 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.InputEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.lwjgl.glfw.GLFW;
@@ -58,6 +60,24 @@ public final class CommandInput {
             if (aimed != null) {
                 PacketDistributor.sendToServer(new AttackOrderPayload(aimed.getId()));
             }
+        }
+    }
+
+    /**
+     * Montado numa criatura, o clique de ataque vira mordida dela: o ataque do jogador some e o
+     * servidor recebe em quem a mira está. O servidor confere alcance e dono.
+     */
+    public static void onAttackClick(InputEvent.InteractionKeyMappingTriggered event) {
+        Minecraft minecraft = Minecraft.getInstance();
+        if (!event.isAttack() || minecraft.player == null
+                || !(minecraft.player.getVehicle() instanceof PrehistoricCreature mount)
+                || mount.getControllingPassenger() != minecraft.player) {
+            return;
+        }
+        event.setCanceled(true);
+        event.setSwingHand(false);
+        if (aimed != null && aimed != mount) {
+            PacketDistributor.sendToServer(new MountAttackPayload(aimed.getId()));
         }
     }
 

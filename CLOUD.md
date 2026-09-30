@@ -316,7 +316,9 @@ Como funciona:
 - **Recusa:** sem sela, com afinidade abaixo do mínimo, com outra pessoa em cima, ou de quem não é o dono. A criatura diz o motivo.
 - **Desce sozinho:** cair inconsciente e tirar a sela ejetam quem estiver montado. Montar uma criatura mandada ficar a solta da ordem.
 
-Ainda não existe: tirar a sela em jogo (só `/ias saddle` ou a morte da criatura), atacar montado, carga, e montaria de água ou ar.
+- **Atacar montado:** o clique de ataque, com o condutor em cima, vira mordida da criatura (`MountAttackPayload`): o ataque do jogador é cancelado no cliente e o servidor confere condutor, criatura acordada, alvo a até 3 blocos da colisão, recarga de 1 s e que o alvo não é o dono nem criatura dele. O dano é o atributo de ataque da criatura.
+
+Ainda não existe: tirar a sela em jogo (só `/ias saddle` ou a morte da criatura), carga, e montaria de água ou ar.
 
 ### Workflow de assets
 
@@ -602,6 +604,7 @@ Ver a tabela em [4](#4-decisões). Registro de mudanças estruturais:
 - 2026-09-30 — A instância de teste do Prism passou a receber uma cópia do jar (`tools/deploy-prism.sh`): o atalho para `build/libs` quebrava o jogo aberto a cada recompilação.
 - 2026-09-30 — Etapa 4: comandos, obediência por afinidade e D15.
 - 2026-09-30 — Etapa 3: torpor, domesticação e flecha tranquilizante; regras nas seções 13 e 14.
+- 2026-09-30 — Tyrannosaurus em dobro (colisão 3,6×7,2; escala do modelo 5,66; assento 6,2; degrau 2,8) e ataque de quem monta.
 
 ## 25. Riscos
 
@@ -627,6 +630,6 @@ Ver a tabela em [4](#4-decisões). Registro de mudanças estruturais:
 8. Nome final do mod (`Ice Age Survival` / id `iceagesurvival` são provisórios).
 10. Muda da árvore de fruta-negra (plantar perto da base) — hoje só se colhe de árvores naturais.
 12. Como tirar a sela em jogo (hoje só `/ias saddle` ou a morte da criatura): tecla, tela de inventário da criatura, ou clique com a mão vazia agachado.
-13. Atacar montado — o brief não pede, mas a Fase 4 ("domínio") fica estranha sem isso.
-14. ~~Tyrannosaurus montável?~~ Decidido: sim (2026-09-30). Bloco `mount` em `tyrannosaurus.json`: assento 3,1, afinidade 25, velocidade ×0,8 (≈ Smilodon), pulo 0,45.
+13. ~~Atacar montado~~ Feito em 2026-09-30 (clique de ataque = mordida da montaria).
+14. ~~Tyrannosaurus montável?~~ Decidido: sim (2026-09-30). Bloco `mount` em `tyrannosaurus.json`: assento 6,2, afinidade 25, velocidade ×0,8 (≈ Smilodon), pulo 0,45.
 11. Mods de fauna só no CurseForge (ex.: Primal Era) — não verificados.

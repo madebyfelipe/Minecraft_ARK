@@ -13,6 +13,7 @@ public final class ModPayloads {
     public static void register(RegisterPayloadHandlersEvent event) {
         PayloadRegistrar registrar = event.registrar(PROTOCOL_VERSION);
         registrar.playToServer(SetOrderPayload.TYPE, SetOrderPayload.STREAM_CODEC, SetOrderPayload::handle);
+        registrar.playToServer(MountAttackPayload.TYPE, MountAttackPayload.STREAM_CODEC, MountAttackPayload::handle);
         registrar.playToServer(AttackOrderPayload.TYPE, AttackOrderPayload.STREAM_CODEC, AttackOrderPayload::handle);
     }
 }

@@ -70,6 +70,25 @@ public class MountTests {
     }
 
     @GameTest(template = EMPTY)
+    public static void riderCommandsTheMountToBite(GameTestHelper helper) {
+        Player owner = helper.makeMockPlayer(GameType.SURVIVAL);
+        LandCreature rex = helper.spawnWithNoFreeWill(ModEntities.TYRANNOSAURUS.get(), 2, 2, 2);
+        rex.tame(owner);
+        rex.setAffinity(PrehistoricCreature.MAX_AFFINITY);
+        rex.setSaddled(true);
+        owner.setPos(rex.position());
+        helper.assertTrue(rex.ride(owner), "deveria montar");
+        net.minecraft.world.entity.animal.Pig prey = helper.spawnWithNoFreeWill(net.minecraft.world.entity.EntityType.PIG, 2, 2, 4);
+        net.minecraft.world.entity.animal.Pig far = helper.spawnWithNoFreeWill(net.minecraft.world.entity.EntityType.PIG, 1, 2, 12);
+        helper.assertFalse(rex.attackAsMount(owner, far), "alvo longe demais não deveria ser mordido");
+        helper.assertTrue(rex.attackAsMount(owner, prey), "alvo ao alcance deveria ser mordido");
+        helper.assertFalse(rex.attackAsMount(owner, prey), "segunda mordida no mesmo tick deveria esperar a recarga");
+        Player stranger = helper.makeMockPlayer(GameType.SURVIVAL);
+        helper.assertFalse(rex.attackAsMount(stranger, far), "quem não conduz não manda morder");
+        helper.succeed();
+    }
+
+    @GameTest(template = EMPTY)
     public static void seatComesFromTheSpeciesData(GameTestHelper helper) {
         Player owner = helper.makeMockPlayer(GameType.SURVIVAL);
         LandCreature smilodon = readyToRide(helper, owner);

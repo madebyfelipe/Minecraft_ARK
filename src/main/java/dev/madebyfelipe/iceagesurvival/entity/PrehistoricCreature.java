@@ -125,6 +125,10 @@ public abstract class PrehistoricCreature extends TamableAnimal implements Playe
     private static final double INVENTORY_REACH = 8.0;
     /** Item que sela uma criatura montável. */
     public static final net.minecraft.world.item.Item SADDLE_ITEM = Items.SADDLE;
+    /** Alcance da mordida de quem monta, a partir da caixa de colisão da criatura. */
+    public static final double RIDDEN_ATTACK_REACH = 3.0;
+    /** Ticks entre dois ataques de quem monta. */
+    private static final int RIDDEN_ATTACK_COOLDOWN = 20;
     /** Recuo da ré de quem monta, como no cavalo: andar para trás é bem mais lento. */
     private static final float RIDDEN_BACKWARD_FACTOR = 0.25F;
     /** Fator lateral de quem monta, como no cavalo. */
@@ -135,6 +139,7 @@ public abstract class PrehistoricCreature extends TamableAnimal implements Playe
     private double torpor;
     private TamingSession tamingSession = new TamingSession();
     /** Game time a partir do qual a criatura aceita comer de novo. */
+    private long nextRiderAttackTime;
     private long nextFeedTime;
     private float affinity;
     /** Centro do território: onde a criatura entrou no mundo pela primeira vez. */
@@ -589,6 +594,32 @@ public abstract class PrehistoricCreature extends TamableAnimal implements Playe
         player.setYRot(getYRot());
         player.setXRot(getXRot());
         return player.startRiding(this);
+    }
+
+    /**
+     * Ataque de quem monta: a criatura morde o alvo com o ataque dela. Só vale vindo do
+     * condutor, com a criatura acordada, o alvo ao alcance e nunca contra o próprio dono ou
+     * as criaturas dele; o servidor confere tudo porque o cliente só diz em quem mirou.
+     *
+     * @return se a mordida aconteceu
+     */
+    public boolean attackAsMount(Player rider, LivingEntity target) {
+        if (getControllingPassenger() != rider || !isAlive() || isUnconscious()
+                || target == this || target == rider || !target.isAlive()
+                || level().getGameTime() < nextRiderAttackTime) {
+            return false;
+        }
+        if (target instanceof net.minecraft.world.entity.OwnableEntity ownable && rider.getUUID().equals(ownable.getOwnerUUID())) {
+            return false;
+        }
+        if (target instanceof Player other && !rider.canHarmPlayer(other)) {
+            return false;
+        }
+        if (!getBoundingBox().inflate(RIDDEN_ATTACK_REACH).intersects(target.getBoundingBox())) {
+            return false;
+        }
+        nextRiderAttackTime = level().getGameTime() + RIDDEN_ATTACK_COOLDOWN;
+        return doHurtTarget(target);
     }
 
     @Nullable

@@ -28,6 +28,7 @@ public class IceAgeSurvivalClient {
         modEventBus.addListener(IceAgeSurvivalClient::registerReloadListeners);
         modEventBus.addListener(CommandInput::registerKeys);
         NeoForge.EVENT_BUS.addListener(CommandInput::onClientTick);
+        NeoForge.EVENT_BUS.addListener(CommandInput::onAttackClick);
         NeoForge.EVENT_BUS.addListener(FrozenHearts::onHeartType);
     }
 

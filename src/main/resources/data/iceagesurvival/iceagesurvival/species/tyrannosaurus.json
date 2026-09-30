@@ -22,7 +22,7 @@
   },
   "body": {
     "knockback_resistance": 1.0,
-    "step_height": 1.4,
+    "step_height": 2.8,
     "breaks_leaves": true
   },
   "taming": {
@@ -73,7 +73,7 @@
     "prey": "#iceagesurvival:large_prey"
   },
   "mount": {
-    "seat_height": 3.1,
+    "seat_height": 6.2,
     "min_affinity": 25,
     "speed_multiplier": 0.8,
     "jump_strength": 0.45
