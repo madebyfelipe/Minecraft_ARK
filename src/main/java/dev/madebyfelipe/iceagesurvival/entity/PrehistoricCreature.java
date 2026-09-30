@@ -2,8 +2,9 @@ package dev.madebyfelipe.iceagesurvival.entity;
 
 import dev.madebyfelipe.iceagesurvival.IceAgeSurvival;
 import dev.madebyfelipe.iceagesurvival.config.ServerConfig;
-import dev.madebyfelipe.iceagesurvival.core.command.CreatureOrder;
+import dev.madebyfelipe.iceagesurvival.core.command.Movement;
 import dev.madebyfelipe.iceagesurvival.core.command.Obedience;
+import dev.madebyfelipe.iceagesurvival.core.command.Stance;
 import dev.madebyfelipe.iceagesurvival.core.stats.Stat;
 import dev.madebyfelipe.iceagesurvival.core.stats.StatPoints;
 import dev.madebyfelipe.iceagesurvival.core.stats.StatProfile;
@@ -93,7 +94,9 @@ public abstract class PrehistoricCreature extends TamableAnimal implements Playe
             SynchedEntityData.defineId(PrehistoricCreature.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Float> DATA_TAMING_PROGRESS =
             SynchedEntityData.defineId(PrehistoricCreature.class, EntityDataSerializers.FLOAT);
-    private static final EntityDataAccessor<Byte> DATA_ORDER =
+    private static final EntityDataAccessor<Byte> DATA_MOVEMENT =
+            SynchedEntityData.defineId(PrehistoricCreature.class, EntityDataSerializers.BYTE);
+    private static final EntityDataAccessor<Byte> DATA_STANCE =
             SynchedEntityData.defineId(PrehistoricCreature.class, EntityDataSerializers.BYTE);
     private static final EntityDataAccessor<Boolean> DATA_SADDLED =
             SynchedEntityData.defineId(PrehistoricCreature.class, EntityDataSerializers.BOOLEAN);
@@ -108,7 +111,10 @@ public abstract class PrehistoricCreature extends TamableAnimal implements Playe
     private static final String TAG_NEXT_FEED_TIME = "NextFeedTime";
     private static final String TAG_AFFINITY = "Affinity";
     private static final String TAG_HOME = "Home";
-    private static final String TAG_ORDER = "Order";
+    /** Ordem única de antes dos assobios; só lida, para converter mundos antigos. */
+    private static final String TAG_LEGACY_ORDER = "Order";
+    private static final String TAG_MOVEMENT = "Movement";
+    private static final String TAG_STANCE = "Stance";
     private static final String TAG_INVENTORY = "Inventory";
     private static final String TAG_TAMER = "Tamer";
     private static final String TAG_SADDLED = "Saddled";
@@ -117,8 +123,9 @@ public abstract class PrehistoricCreature extends TamableAnimal implements Playe
     /** Afinidade inicial de uma domesticação com eficiência de 100%. */
     private static final float MAX_INITIAL_AFFINITY = 50.0F;
     public static final float MAX_AFFINITY = 100.0F;
-    /** Ordem de uma criatura recém-domesticada. */
-    private static final CreatureOrder DEFAULT_ORDER = CreatureOrder.DEFEND;
+    /** Uma criatura recém-domesticada segue o dono e o defende. */
+    private static final Movement DEFAULT_MOVEMENT = Movement.FOLLOW;
+    private static final Stance DEFAULT_STANCE = Stance.DEFEND;
     /** Espera entre duas alimentações de uma criatura já domesticada. */
     private static final int TAMED_FEED_INTERVAL_TICKS = 30 * 20;
     /** Afinidade ganha ao dar o alimento preferido a uma criatura domesticada. */
@@ -198,7 +205,8 @@ public abstract class PrehistoricCreature extends TamableAnimal implements Playe
         builder.define(DATA_TORPOR_FRACTION, 0.0F);
         builder.define(DATA_UNCONSCIOUS, false);
         builder.define(DATA_TAMING_PROGRESS, 0.0F);
-        builder.define(DATA_ORDER, (byte) DEFAULT_ORDER.ordinal());
+        builder.define(DATA_MOVEMENT, (byte) DEFAULT_MOVEMENT.ordinal());
+        builder.define(DATA_STANCE, (byte) DEFAULT_STANCE.ordinal());
         builder.define(DATA_SADDLED, false);
     }
 
@@ -574,21 +582,32 @@ public abstract class PrehistoricCreature extends TamableAnimal implements Playe
         return isTame() && player.getUUID().equals(getOwnerUUID());
     }
 
-    /** Ordem atual; disponível também no cliente. Só tem efeito em criaturas domesticadas. */
-    public CreatureOrder order() {
-        CreatureOrder[] all = CreatureOrder.values();
-        int index = entityData.get(DATA_ORDER);
-        return index >= 0 && index < all.length ? all[index] : DEFAULT_ORDER;
+    /** Seguir ou ficar; disponível também no cliente. Só tem efeito em criaturas domesticadas. */
+    public Movement movement() {
+        Movement[] all = Movement.values();
+        int index = entityData.get(DATA_MOVEMENT);
+        return index >= 0 && index < all.length ? all[index] : DEFAULT_MOVEMENT;
     }
 
-    public void setOrder(CreatureOrder order) {
-        entityData.set(DATA_ORDER, (byte) order.ordinal());
-        setOrderedToSit(!order.followsOwner());
-        if (!order.fightsBack()) {
-            setTarget(null);
-        }
-        if (!order.followsOwner()) {
+    /** Postura de luta; disponível também no cliente. Só tem efeito em criaturas domesticadas. */
+    public Stance stance() {
+        Stance[] all = Stance.values();
+        int index = entityData.get(DATA_STANCE);
+        return index >= 0 && index < all.length ? all[index] : DEFAULT_STANCE;
+    }
+
+    public void setMovement(Movement movement) {
+        entityData.set(DATA_MOVEMENT, (byte) movement.ordinal());
+        setOrderedToSit(movement == Movement.STAY);
+        if (movement == Movement.STAY) {
             getNavigation().stop();
+        }
+    }
+
+    public void setStance(Stance stance) {
+        entityData.set(DATA_STANCE, (byte) stance.ordinal());
+        if (!stance.fightsBack()) {
+            setTarget(null);
         }
     }
 
@@ -658,8 +677,8 @@ public abstract class PrehistoricCreature extends TamableAnimal implements Playe
             return true;
         }
         // Montar solta uma criatura que estava mandada ficar.
-        if (!order().followsOwner()) {
-            setOrder(CreatureOrder.FOLLOW);
+        if (movement() == Movement.STAY) {
+            setMovement(Movement.FOLLOW);
         }
         getNavigation().stop();
         setTarget(null);
@@ -1029,7 +1048,8 @@ public abstract class PrehistoricCreature extends TamableAnimal implements Playe
         species().ifPresent(species -> setStatPoints(statPoints.addRandom(bonus, randomGenerator()), species));
         affinity = (float) (effectiveness * MAX_INITIAL_AFFINITY);
 
-        setOrder(DEFAULT_ORDER);
+        setMovement(DEFAULT_MOVEMENT);
+        setStance(DEFAULT_STANCE);
         Player player = level().getPlayerByUUID(owner);
         if (player != null) {
             tame(player);
@@ -1063,7 +1083,8 @@ public abstract class PrehistoricCreature extends TamableAnimal implements Playe
         compound.put(TAG_TAMING, taming);
         compound.putLong(TAG_NEXT_FEED_TIME, nextFeedTime);
         compound.putFloat(TAG_AFFINITY, affinity);
-        compound.putString(TAG_ORDER, order().id());
+        compound.putString(TAG_MOVEMENT, movement().id());
+        compound.putString(TAG_STANCE, stance().id());
         if (homePos != null) {
             compound.put(TAG_HOME, NbtUtils.writeBlockPos(homePos));
         }
@@ -1104,7 +1125,21 @@ public abstract class PrehistoricCreature extends TamableAnimal implements Playe
         inventory.fromTag(compound.getList(TAG_INVENTORY, Tag.TAG_COMPOUND), registryAccess());
         tamerUUID = compound.hasUUID(TAG_TAMER) ? compound.getUUID(TAG_TAMER) : null;
         entityData.set(DATA_SADDLED, compound.getBoolean(TAG_SADDLED));
-        entityData.set(DATA_ORDER, (byte) CreatureOrder.byId(compound.getString(TAG_ORDER), DEFAULT_ORDER).ordinal());
+        Movement movement = Movement.byId(compound.getString(TAG_MOVEMENT), DEFAULT_MOVEMENT);
+        Stance stance = Stance.byId(compound.getString(TAG_STANCE), DEFAULT_STANCE);
+        if (!compound.contains(TAG_STANCE) && compound.contains(TAG_LEGACY_ORDER)) {
+            switch (compound.getString(TAG_LEGACY_ORDER)) {
+                case "stay" -> {
+                    movement = Movement.STAY;
+                    stance = Stance.PASSIVE;
+                }
+                case "follow" -> stance = Stance.NEUTRAL;
+                case "flee" -> stance = Stance.FLEE;
+                default -> { }
+            }
+        }
+        entityData.set(DATA_MOVEMENT, (byte) movement.ordinal());
+        entityData.set(DATA_STANCE, (byte) stance.ordinal());
 
         double max = maxTorpor();
         torpor = Math.clamp(compound.getDouble(TAG_TORPOR), 0.0, max);

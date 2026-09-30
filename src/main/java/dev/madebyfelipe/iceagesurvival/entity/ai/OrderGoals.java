@@ -1,5 +1,6 @@
 package dev.madebyfelipe.iceagesurvival.entity.ai;
 
+import dev.madebyfelipe.iceagesurvival.core.command.Movement;
 import dev.madebyfelipe.iceagesurvival.entity.PrehistoricCreature;
 import java.util.EnumSet;
 import net.minecraft.world.entity.ai.goal.FollowOwnerGoal;
@@ -8,12 +9,15 @@ import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.OwnerHurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.OwnerHurtTargetGoal;
 
-/** Goals vanilla condicionados à ordem atual de uma criatura domesticada. */
+/** Goals vanilla condicionados ao movimento e à postura de uma criatura domesticada. */
 public final class OrderGoals {
     private OrderGoals() {
     }
 
-    /** Segura a criatura no lugar enquanto a ordem for ficar. */
+    /**
+     * Segura a criatura no lugar enquanto ela estiver mandada ficar. Com um alvo (revidar ou
+     * ordem de ataque) ela sai para lutar e fica onde a briga acabar.
+     */
     public static class Stay extends Goal {
         private final PrehistoricCreature creature;
 
@@ -24,7 +28,12 @@ public final class OrderGoals {
 
         @Override
         public boolean canUse() {
-            return creature.isTame() && !creature.order().followsOwner();
+            return creature.isTame() && creature.movement() == Movement.STAY && creature.getTarget() == null;
+        }
+
+        @Override
+        public boolean canContinueToUse() {
+            return canUse();
         }
 
         @Override
@@ -43,12 +52,12 @@ public final class OrderGoals {
 
         @Override
         public boolean canUse() {
-            return creature.order().followsOwner() && super.canUse();
+            return creature.movement() == Movement.FOLLOW && super.canUse();
         }
 
         @Override
         public boolean canContinueToUse() {
-            return creature.order().followsOwner() && super.canContinueToUse();
+            return creature.movement() == Movement.FOLLOW && super.canContinueToUse();
         }
     }
 
@@ -62,7 +71,7 @@ public final class OrderGoals {
 
         @Override
         public boolean canUse() {
-            return creature.order().defendsOwner() && super.canUse();
+            return creature.stance().defendsOwner() && super.canUse();
         }
     }
 
@@ -76,7 +85,7 @@ public final class OrderGoals {
 
         @Override
         public boolean canUse() {
-            return creature.order().defendsOwner() && super.canUse();
+            return creature.stance().defendsOwner() && super.canUse();
         }
     }
 
@@ -91,7 +100,7 @@ public final class OrderGoals {
 
         @Override
         public boolean canUse() {
-            return (!creature.isTame() || creature.order().fightsBack()) && super.canUse();
+            return (!creature.isTame() || creature.stance().fightsBack()) && super.canUse();
         }
 
         @Override

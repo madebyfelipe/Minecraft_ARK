@@ -1,6 +1,5 @@
 package dev.madebyfelipe.iceagesurvival.entity.ai;
 
-import dev.madebyfelipe.iceagesurvival.core.command.CreatureOrder;
 import dev.madebyfelipe.iceagesurvival.entity.PrehistoricCreature;
 import dev.madebyfelipe.iceagesurvival.species.BehaviorProfile;
 import net.minecraft.world.entity.ai.goal.PanicGoal;
@@ -22,7 +21,7 @@ public class FleeWhenWeakGoal extends PanicGoal {
             return false;
         }
         if (creature.isTame()) {
-            return creature.order() == CreatureOrder.FLEE;
+            return creature.stance().fleesWhenHurt();
         }
         double fraction = creature.behavior().map(BehaviorProfile::fleeHealthFraction).orElse(0.0);
         return creature.getHealth() < creature.getMaxHealth() * fraction;

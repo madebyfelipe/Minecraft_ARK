@@ -162,8 +162,9 @@ public final class DebugCommands {
                 creature.torpor(), creature.maxTorpor(),
                 creature.isUnconscious() ? " · inconsciente" : "")), false);
         source.sendSuccess(() -> Component.literal(creature.isTame()
-                ? String.format("domesticada · afinidade %.0f/%.0f · ordem %s · sela: %s",
-                        creature.affinity(), PrehistoricCreature.MAX_AFFINITY, creature.order().id(), saddleState(creature))
+                ? String.format("domesticada · afinidade %.0f/%.0f · %s · %s · sela: %s",
+                        creature.affinity(), PrehistoricCreature.MAX_AFFINITY, creature.movement().id(),
+                        creature.stance().id(), saddleState(creature))
                 : "selvagem"), false);
         source.sendSuccess(() -> Component.literal(creature.statPoints().toString()), false);
         return 1;

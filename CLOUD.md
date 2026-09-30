@@ -425,24 +425,35 @@ Ainda não existe: tribo/time — a criatura é de um jogador só.
 
 ### 13.1 Comandos e afinidade
 
-Implementado. Cada criatura domesticada tem uma **ordem** permanente, salva no NBT e visível no texto sob a mira:
+Implementado, no esquema do ARK. Cada criatura domesticada tem dois estados independentes, salvos no NBT e visíveis no painel sob a mira:
 
-| Ordem | Acompanha o dono | Revida | Defende o dono |
+| Movimento | |
+|---|---|
+| Seguir (padrão) | acompanha o dono |
+| Parar | fica onde está; com um alvo sai para lutar e fica onde a briga acabar |
+
+| Postura | Revida | Defende o dono | |
 |---|---|---|---|
-| Seguir | sim | sim | não |
-| Ficar | não | não | não |
-| Defender (padrão) | sim | sim | sim |
-| Fugir | sim | não — corre de quem a ferir | não |
+| Passivo | não | não | |
+| Passivo (fugir) | não | não | corre de quem a ferir |
+| Neutro | sim | não | |
+| Defenda-me (padrão) | sim | sim | ataca quem ferir o dono e quem o dono atacar |
 
-**Atacar** não é uma ordem, é uma ação: o jogador mira um alvo e todas as suas criaturas num raio de 32 blocos cuja ordem permita lutar (Seguir, Defender) recebem aquele alvo. Largam o alvo se ele morrer ou se afastar mais de 40 blocos. Não pode mirar as próprias criaturas nem a si mesmo; contra outro jogador, respeita a regra de PvP do servidor.
+**Assobios:** cada tecla muda só o movimento ou só a postura. Vale para a criatura sob a mira, se for do jogador; sem mira, para todas as dele num raio de 32 blocos. Cada criatura sorteia a obediência; o assobio toca uma flauta, com tom por comando, que todos por perto ouvem. Mundos anteriores têm a `Order` antiga convertida ao carregar (ficar → parar + passivo, seguir → neutro, fugir → passivo-fugir, defender → defenda-me).
 
-Atalhos (remapeáveis em Controles → Ice Age Survival): **R** alterna a ordem da criatura sob a mira; **G** manda atacar o que está sob a mira. A mira alcança 48 blocos e é bloqueada por paredes.
+**Atacar** não é uma ordem, é uma ação: o jogador mira um alvo e todas as suas criaturas num raio de 32 blocos cuja postura permita lutar (Neutro, Defenda-me) recebem aquele alvo. Largam o alvo se ele morrer ou se afastar mais de 40 blocos. Não pode mirar as próprias criaturas nem a si mesmo; contra outro jogador, respeita a regra de PvP do servidor.
+
+Atalhos (remapeáveis em Controles → Ice Age Survival): **Y** seguir, **U** parar, **J** passivo, **K** neutro, **H** defenda-me, passivo-fugir sem tecla padrão, **G** atacar o que está sob a mira, **V** status. O T do ARK é o chat do Minecraft, daí as teclas diferentes. A mira alcança 48 blocos e é bloqueada por paredes.
+
+**Painel sob a mira:** nome, nível, de quem é (borda verde = sua, laranja = de outro jogador, cinza = selvagem), sela, barra de vida, torpor e domesticação quando houver, e nas suas as ordens e a tecla de status.
+
+**Tela de status (V):** para as criaturas do próprio jogador a até 32 blocos (ou a montaria, montado e sem mira). Modelo da criatura, cada atributo com o valor e os pontos ganhos, afinidade, ordens, sela e dono, e botões de assobio só para ela. Os pontos de atributo só existem no servidor: a tela pede (`status_request`) e recebe (`creature_status`) a cada segundo enquanto aberta.
 
 **Obediência:** a chance de a criatura acatar um comando vai de `minObedience` (config, padrão 60%) com afinidade 0 até 100% com afinidade máxima. Quando ignora, o jogador é avisado.
 
 **Ganhar afinidade:** dar à criatura domesticada um alimento da espécie cura `value` de vida e soma `5 × quality` de afinidade, no máximo uma vez a cada 30 s. É opcional — não há fome nem manutenção.
 
-Rede: dois payloads cliente → servidor (`set_order`, `attack_order`). O servidor revalida dono, distância, consciência da criatura e validade do alvo; o cliente só envia a intenção. Comandos por grupo não existem; `CreatureCommands` recebe criatura ou alvo individualmente, então um seletor de grupo caberia por cima sem mudar o protocolo de ordem.
+Rede: cliente → servidor `whistle`, `attack_order`, `mount_attack` e `status_request`; servidor → cliente `creature_status`. O servidor revalida dono, distância, consciência da criatura e validade do alvo; o cliente só envia a intenção. Grupos nomeados (como os do ARK) não existem: o assobio é para uma criatura ou para todas ao alcance.
 
 ## 14. Torpor
 
@@ -607,6 +618,7 @@ Ver a tabela em [4](#4-decisões). Registro de mudanças estruturais:
 - 2026-09-30 — Tyrannosaurus em dobro (colisão 3,6×7,2; escala do modelo 5,66; assento 6,2; degrau 2,8) e ataque de quem monta.
 - 2026-09-30 — Assento do Tyrannosaurus de 6,2 para 7,4: o jogador montado ficava dentro do corpo; 7,4 é a altura do osso `rider_pos` (21 px) na escala 5,66.
 - 2026-09-30 — Sons do F&A Revival (All Rights Reserved, mesmo caso dos modelos) para Smilodon, mamute e T-Rex: bloco opcional `sounds` no JSON de espécie (`ambient`, `hurt`, `death`, `alert` ao escolher alvo, `volume`), instalados por `tools/install-revival-placeholders.py`. O lobo-terrível segue mudo: o Revival não tem ele.
+- 2026-09-30 — Comandos no esquema do ARK: movimento e postura independentes, assobios por tecla (mirada ou todas ao alcance), painel sob a mira refeito e tela de status (V).
 - 2026-09-30 — Mamute em 1,5x (colisão 3,0×4,65, escala 1,92, assento 3,85, degrau 1,65) e coletor de madeira pela mordida montada.
 - 2026-09-30 — Tyrannosaurus reduzido de 2x para 1,5x: colisão 2,7×5,4, escala do modelo 4,25, assento 5,6 (osso `rider_pos` × escala), degrau 2,1.
 

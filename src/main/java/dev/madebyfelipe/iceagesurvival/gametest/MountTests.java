@@ -1,7 +1,7 @@
 package dev.madebyfelipe.iceagesurvival.gametest;
 
 import dev.madebyfelipe.iceagesurvival.IceAgeSurvival;
-import dev.madebyfelipe.iceagesurvival.core.command.CreatureOrder;
+import dev.madebyfelipe.iceagesurvival.core.command.Movement;
 import dev.madebyfelipe.iceagesurvival.entity.LandCreature;
 import dev.madebyfelipe.iceagesurvival.entity.PrehistoricCreature;
 import dev.madebyfelipe.iceagesurvival.registry.ModEntities;
@@ -260,11 +260,11 @@ public class MountTests {
         Player owner = helper.makeMockPlayer(GameType.SURVIVAL);
         LandCreature smilodon = readyToRide(helper, owner);
         owner.setPos(smilodon.position());
-        smilodon.setOrder(CreatureOrder.STAY);
+        smilodon.setMovement(Movement.STAY);
 
         helper.assertTrue(smilodon.ride(owner), "montaria recusada");
-        helper.assertTrue(smilodon.order().followsOwner() && !smilodon.isOrderedToSit(),
-                "continuou mandada ficar: " + smilodon.order());
+        helper.assertTrue(smilodon.movement() == Movement.FOLLOW && !smilodon.isOrderedToSit(),
+                "continuou mandada ficar: " + smilodon.movement());
         helper.succeed();
     }
 

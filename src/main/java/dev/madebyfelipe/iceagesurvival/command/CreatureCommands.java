@@ -1,9 +1,12 @@
 package dev.madebyfelipe.iceagesurvival.command;
 
-import dev.madebyfelipe.iceagesurvival.core.command.CreatureOrder;
+import dev.madebyfelipe.iceagesurvival.core.command.Whistle;
 import dev.madebyfelipe.iceagesurvival.entity.PrehistoricCreature;
 import java.util.List;
+import javax.annotation.Nullable;
 import net.minecraft.network.chat.Component;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.OwnableEntity;
 import net.minecraft.world.entity.player.Player;
@@ -21,23 +24,50 @@ public final class CreatureCommands {
     private CreatureCommands() {
     }
 
-    /** @return se a ordem foi aceita */
-    public static boolean setOrder(Player player, PrehistoricCreature creature, CreatureOrder order) {
-        if (!canCommand(player, creature)) {
-            return false;
+    /**
+     * Assobio, como no ARK: vale para a criatura mirada, se for do jogador, ou senão para todas
+     * as dele num raio de {@link #COMMAND_RANGE}. Cada uma sorteia a obediência.
+     *
+     * @param aimed criatura sob a mira do jogador, ou nulo
+     * @return quantas criaturas obedeceram
+     */
+    public static int whistle(Player player, Whistle whistle, @Nullable PrehistoricCreature aimed) {
+        player.level().playSound(null, player.getX(), player.getEyeY(), player.getZ(),
+                SoundEvents.NOTE_BLOCK_FLUTE.value(), SoundSource.PLAYERS, 1.0F, whistle.pitch());
+        List<PrehistoricCreature> hearing = aimed != null && canCommand(player, aimed)
+                ? List.of(aimed)
+                : player.level().getEntitiesOfClass(PrehistoricCreature.class,
+                        player.getBoundingBox().inflate(COMMAND_RANGE), creature -> canCommand(player, creature));
+        int obeyed = 0;
+        for (PrehistoricCreature creature : hearing) {
+            if (creature.rollObedience()) {
+                apply(creature, whistle);
+                obeyed++;
+            }
         }
-        if (!creature.rollObedience()) {
-            player.displayClientMessage(Component.translatable("iceagesurvival.command.ignored", creature.getName()), true);
-            return false;
+        Component command = Component.translatable("iceagesurvival.whistle." + whistle.id());
+        Component message;
+        if (hearing.isEmpty()) {
+            message = Component.translatable("iceagesurvival.whistle.none", command);
+        } else if (hearing.size() == 1) {
+            message = obeyed == 1
+                    ? Component.translatable("iceagesurvival.whistle.one", hearing.getFirst().getName(), command)
+                    : Component.translatable("iceagesurvival.command.ignored", hearing.getFirst().getName());
+        } else {
+            message = Component.translatable("iceagesurvival.whistle.many", command, obeyed, hearing.size());
         }
-        creature.setOrder(order);
-        player.displayClientMessage(
-                Component.translatable("iceagesurvival.command.order." + order.id(), creature.getName()), true);
-        return true;
+        player.displayClientMessage(message, true);
+        return obeyed;
+    }
+
+    /** Aplica o assobio a uma criatura, sem conferir dono nem obediência. */
+    public static void apply(PrehistoricCreature creature, Whistle whistle) {
+        whistle.movement().ifPresent(creature::setMovement);
+        whistle.stance().ifPresent(creature::setStance);
     }
 
     /**
-     * Manda todas as criaturas do jogador ao alcance, cuja ordem permita lutar, atacarem o alvo.
+     * Manda todas as criaturas do jogador ao alcance, cuja postura permita lutar, atacarem o alvo.
      *
      * @return quantas criaturas obedeceram
      */
@@ -48,7 +78,7 @@ public final class CreatureCommands {
         List<PrehistoricCreature> creatures = player.level().getEntitiesOfClass(
                 PrehistoricCreature.class,
                 player.getBoundingBox().inflate(COMMAND_RANGE),
-                creature -> canCommand(player, creature) && creature.order().fightsBack() && creature != target);
+                creature -> canCommand(player, creature) && creature.stance().fightsBack() && creature != target);
         int obeyed = 0;
         for (PrehistoricCreature creature : creatures) {
             if (creature.rollObedience()) {
