@@ -29,6 +29,10 @@ public final class ModItems {
             "dire_wolf_spawn_egg",
             () -> new DeferredSpawnEggItem(ModEntities.DIRE_WOLF, 0x76767C, 0x4A4A52, new Item.Properties()));
 
+    public static final DeferredItem<DeferredSpawnEggItem> TYRANNOSAURUS_SPAWN_EGG = ITEMS.register(
+            "tyrannosaurus_spawn_egg",
+            () -> new DeferredSpawnEggItem(ModEntities.TYRANNOSAURUS, 0x58683F, 0xB2AA80, new Item.Properties()));
+
     public static final DeferredItem<TranqArrowItem> TRANQ_ARROW =
             ITEMS.register("tranq_arrow", () -> new TranqArrowItem(new Item.Properties()));
 
@@ -50,6 +54,7 @@ public final class ModItems {
             event.accept(SMILODON_SPAWN_EGG);
             event.accept(MAMMOTH_SPAWN_EGG);
             event.accept(DIRE_WOLF_SPAWN_EGG);
+            event.accept(TYRANNOSAURUS_SPAWN_EGG);
         } else if (event.getTabKey() == CreativeModeTabs.COMBAT) {
             event.accept(TRANQ_ARROW);
         } else if (event.getTabKey() == CreativeModeTabs.INGREDIENTS) {

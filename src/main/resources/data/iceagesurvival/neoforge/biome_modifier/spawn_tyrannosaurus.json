@@ -1,0 +1,12 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": "#iceagesurvival:spawns_tyrannosaurus",
+  "spawners": [
+    {
+      "type": "iceagesurvival:tyrannosaurus",
+      "weight": 1,
+      "minCount": 1,
+      "maxCount": 1
+    }
+  ]
+}

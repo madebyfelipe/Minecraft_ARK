@@ -119,6 +119,24 @@ public class EcologyTests {
         assertSpawnsIn(helper, Biomes.SNOWY_PLAINS, ModEntities.DIRE_WOLF.get());
         assertSpawnsIn(helper, Biomes.TAIGA, ModEntities.SMILODON.get());
         assertSpawnsIn(helper, Biomes.TAIGA, ModEntities.DIRE_WOLF.get());
+        assertSpawnsIn(helper, Biomes.SNOWY_PLAINS, ModEntities.TYRANNOSAURUS.get());
+        assertSpawnsIn(helper, Biomes.TAIGA, ModEntities.TYRANNOSAURUS.get());
+        helper.succeed();
+    }
+
+    @GameTest(template = EMPTY)
+    public static void tyrannosaurusIsASoloApexPredator(GameTestHelper helper) {
+        var registries = helper.getLevel().registryAccess();
+        Species rex = Species.of(registries, ModEntities.TYRANNOSAURUS.get()).orElseThrow();
+        Species smilodon = Species.of(registries, ModEntities.SMILODON.get()).orElseThrow();
+        BehaviorProfile behavior = rex.behavior().orElseThrow();
+        helper.assertTrue(behavior.aggressive() && behavior.prey().isPresent(), "T-Rex deveria ser agressivo e caçador");
+        helper.assertTrue(behavior.herdRadius() == 0 && !behavior.groupDefense(), "T-Rex deveria ser solitário");
+        helper.assertTrue(behavior.territoryRadius() > smilodon.behavior().orElseThrow().territoryRadius(),
+                "território do T-Rex deveria ser maior que o do Smilodon");
+
+        LandCreature spawned = helper.spawnWithNoFreeWill(ModEntities.TYRANNOSAURUS.get(), 1, 2, 1);
+        helper.assertTrue(spawned.getMaxHealth() > 200, "T-Rex com pouca vida: " + spawned.getMaxHealth());
         helper.succeed();
     }
 

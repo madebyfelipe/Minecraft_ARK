@@ -38,5 +38,7 @@
   "entity.iceagesurvival.mammoth": "Woolly Mammoth",
   "item.iceagesurvival.mammoth_spawn_egg": "Woolly Mammoth Spawn Egg",
   "entity.iceagesurvival.dire_wolf": "Dire Wolf",
-  "item.iceagesurvival.dire_wolf_spawn_egg": "Dire Wolf Spawn Egg"
+  "item.iceagesurvival.dire_wolf_spawn_egg": "Dire Wolf Spawn Egg",
+  "entity.iceagesurvival.tyrannosaurus": "Tyrannosaurus Rex",
+  "item.iceagesurvival.tyrannosaurus_spawn_egg": "Tyrannosaurus Rex Spawn Egg"
 }

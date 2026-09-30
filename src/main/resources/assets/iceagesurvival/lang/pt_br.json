@@ -38,5 +38,7 @@
   "entity.iceagesurvival.mammoth": "Mamute-Lanoso",
   "item.iceagesurvival.mammoth_spawn_egg": "Ovo Gerador de Mamute-Lanoso",
   "entity.iceagesurvival.dire_wolf": "Lobo-Terrível",
-  "item.iceagesurvival.dire_wolf_spawn_egg": "Ovo Gerador de Lobo-Terrível"
+  "item.iceagesurvival.dire_wolf_spawn_egg": "Ovo Gerador de Lobo-Terrível",
+  "entity.iceagesurvival.tyrannosaurus": "Tiranossauro Rex",
+  "item.iceagesurvival.tyrannosaurus_spawn_egg": "Ovo Gerador de Tiranossauro Rex"
 }

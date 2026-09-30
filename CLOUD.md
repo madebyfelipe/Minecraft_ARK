@@ -242,6 +242,7 @@ Todas as espécies terrestres usam a mesma classe (`LandCreature`); o que as dif
 | **Lobo-terrível** (`dire_wolf`) | Primeira domesticação; predador de matilha | 0,8 × 1,2 | Agressivo, matilha de 2–4, defesa em grupo, caça presas pequenas, recua com 20% de vida | taiga, taiga nevada, taigas antigas, grove, planície nevada |
 | **Smilodon** (`smilodon`) | Predador territorial solitário, rápido | 1,3 × 2,3 | Agressivo, território de 32 blocos, caça presas grandes, recua com 25% de vida | taiga, taiga nevada, taigas antigas, grove, encostas nevadas |
 | **Mamute-lanoso** (`mammoth`) | Herbívoro de manada, tanque | 2,0 × 3,1 | Pacífico até ser provocado; manada de 2–4 que se defende junta | planície nevada, ice spikes, taiga nevada |
+| **Tyrannosaurus rex** (`tyrannosaurus`) | Primeiro dinossauro; predador de topo solitário, raro | 1,8 × 3,6 | Agressivo, raio de percepção 24, território de 48 blocos, caça presas grandes, recua com 10% de vida | taiga, taiga nevada, taigas antigas, planície nevada (peso 1) |
 | Criatura de teste (`test_creature`) | Só para testes automáticos; usa o modelo do porco | 0,9 × 0,9 | Passiva | não nasce |
 
 **Adicionar uma espécie terrestre:**
@@ -254,7 +255,7 @@ Todas as espécies terrestres usam a mesma classe (`LandCreature`); o que as dif
 
 Nenhuma classe Java nova, nenhuma mudança no núcleo. Espécies com mecânica própria (voar, nadar, o boss) vão precisar de classe.
 
-Pendentes do brief — Era do Gelo: rinoceronte-lanoso, megaloceros, megatherium, urso-das-cavernas, bisão, auroque, mastodonte. Dinossauros: tyrannosaurus, triceratops, velociraptor, ankylosaurus, spinosaurus, giganotosaurus (boss).
+Pendentes do brief — Era do Gelo: rinoceronte-lanoso, megaloceros, megatherium, urso-das-cavernas, bisão, auroque, mastodonte. Dinossauros: ~~tyrannosaurus~~ (feito), triceratops, velociraptor, ankylosaurus, spinosaurus, giganotosaurus (boss).
 
 ### Comportamento (implementado)
 
@@ -496,6 +497,7 @@ MVP = Etapas 1–4 + versão mínima de 6, 7 e 9 (mundo frio, temperatura básic
 
 Ver a tabela em [4](#4-decisões). Registro de mudanças estruturais:
 
+- 2026-09-30 — Primeiro dinossauro: `tyrannosaurus`, pela receita de espécie terrestre (sem classe nova). Bípede, sem montaria: o codec `Species` ainda não tem bloco de montaria, que nasce na Etapa 7. Spawn em biomas frios por ora (D6 ainda aberta).
 - 2026-09-30 — Etapa 6: temperatura. D5 fechada (sistema interno fica), D16 e D17. O frio reaproveita o congelamento do vanilla em vez de ter HUD próprio.
 - 2026-09-30 — Documento criado; D1–D11 registradas.
 - 2026-09-30 — Etapa 2: D12–D14. Criatura de teste antecipada para a Etapa 2.
