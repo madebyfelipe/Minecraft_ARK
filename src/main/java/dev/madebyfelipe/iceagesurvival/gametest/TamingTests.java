@@ -9,11 +9,13 @@ import dev.madebyfelipe.iceagesurvival.registry.ModItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.gametest.GameTestHolder;
@@ -95,6 +97,29 @@ public class TamingTests {
         arrow.shoot(0, -1, 0, 1.5F, 0);
         helper.getLevel().addFreshEntity(arrow);
         helper.succeedWhen(() -> helper.assertTrue(creature.torpor() > 0, "flecha não aplicou torpor"));
+    }
+
+    @GameTest(template = EMPTY)
+    public static void powerEnchantmentIncreasesArrowTorpor(GameTestHelper helper) {
+        TestCreature plain = helper.spawnWithNoFreeWill(ModEntities.TEST_CREATURE.get(), 0, 2, 1);
+        TestCreature boosted = helper.spawnWithNoFreeWill(ModEntities.TEST_CREATURE.get(), 2, 2, 1);
+        ItemStack bow = new ItemStack(Items.BOW);
+        bow.enchant(helper.getLevel().registryAccess().registryOrThrow(Registries.ENCHANTMENT)
+                .getHolderOrThrow(Enchantments.POWER), 5);
+        for (var entry : new Object[][] {{plain, null}, {boosted, bow}}) {
+            TestCreature target = (TestCreature) entry[0];
+            Vec3 above = target.position().add(0, 1.5, 0);
+            TranqArrow arrow = new TranqArrow(helper.getLevel(), above.x, above.y, above.z,
+                    new ItemStack(ModItems.TRANQ_ARROW.get()), (ItemStack) entry[1]);
+            arrow.shoot(0, -1, 0, 1.5F, 0);
+            helper.getLevel().addFreshEntity(arrow);
+        }
+        helper.succeedWhen(() -> {
+            helper.assertTrue(plain.torpor() > 0, "flecha comum não aplicou torpor");
+            helper.assertTrue(boosted.torpor() > 0, "flecha com Força não aplicou torpor");
+            helper.assertTrue(boosted.torpor() > plain.torpor() * 2.0,
+                    "Força V não aumentou o torpor: " + boosted.torpor() + " vs " + plain.torpor());
+        });
     }
 
     // ---- Inventário e domesticação ----
