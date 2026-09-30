@@ -607,6 +607,7 @@ Ver a tabela em [4](#4-decisões). Registro de mudanças estruturais:
 - 2026-09-30 — Tyrannosaurus em dobro (colisão 3,6×7,2; escala do modelo 5,66; assento 6,2; degrau 2,8) e ataque de quem monta.
 - 2026-09-30 — Assento do Tyrannosaurus de 6,2 para 7,4: o jogador montado ficava dentro do corpo; 7,4 é a altura do osso `rider_pos` (21 px) na escala 5,66.
 - 2026-09-30 — Sons do F&A Revival (All Rights Reserved, mesmo caso dos modelos) para Smilodon, mamute e T-Rex: bloco opcional `sounds` no JSON de espécie (`ambient`, `hurt`, `death`, `alert` ao escolher alvo, `volume`), instalados por `tools/install-revival-placeholders.py`. O lobo-terrível segue mudo: o Revival não tem ele.
+- 2026-09-30 — Tyrannosaurus reduzido de 2x para 1,5x: colisão 2,7×5,4, escala do modelo 4,25, assento 5,6 (osso `rider_pos` × escala), degrau 2,1.
 
 ## 25. Riscos
 
@@ -633,5 +634,5 @@ Ver a tabela em [4](#4-decisões). Registro de mudanças estruturais:
 10. Muda da árvore de fruta-negra (plantar perto da base) — hoje só se colhe de árvores naturais.
 12. Como tirar a sela em jogo (hoje só `/ias saddle` ou a morte da criatura): tecla, tela de inventário da criatura, ou clique com a mão vazia agachado.
 13. ~~Atacar montado~~ Feito em 2026-09-30 (clique de ataque = mordida da montaria).
-14. ~~Tyrannosaurus montável?~~ Decidido: sim (2026-09-30). Bloco `mount` em `tyrannosaurus.json`: assento 7,4 (osso `rider_pos` do modelo × escala), afinidade 25, velocidade ×0,8 (≈ Smilodon), pulo 0,45.
+14. ~~Tyrannosaurus montável?~~ Decidido: sim (2026-09-30). Bloco `mount` em `tyrannosaurus.json`: assento 5,6 (osso `rider_pos` do modelo × escala), afinidade 25, velocidade ×0,8 (≈ Smilodon), pulo 0,45.
 11. Mods de fauna só no CurseForge (ex.: Primal Era) — não verificados.

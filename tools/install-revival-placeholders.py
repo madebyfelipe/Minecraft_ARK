@@ -34,7 +34,7 @@ SPECIES = {
     "mammoth": ("mammoth", "mammoth_male.png",
                 {"idle": "idle_1_90", "walk": "walk", "attack": "attack", "unconscious": "rest/sleep"}, 3.3),
     "tyrannosaurus": ("tyrannosaurus", "tyrannosaurus_male.png",
-                      {"idle": "idle", "walk": "walk", "attack": "attack_normal_1", "unconscious": "sleep_1"}, 8.0),
+                      {"idle": "idle", "walk": "walk", "attack": "attack_normal_1", "unconscious": "sleep_1"}, 6.0),
 }
 
 # espécie nossa -> nosso som -> (evento de sounds.json do Revival, volume da espécie)
