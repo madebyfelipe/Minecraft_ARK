@@ -94,6 +94,33 @@ public class PredatorTests {
         huntsThePlayer(helper, ModEntities.TYRANNOSAURUS.get(), true);
     }
 
+    @GameTest(template = ARENA, timeoutTicks = 400)
+    public static void velociraptorHuntsThePlayer(GameTestHelper helper) {
+        huntsThePlayer(helper, ModEntities.VELOCIRAPTOR.get());
+    }
+
+    @GameTest(template = ARENA, timeoutTicks = 400)
+    public static void carnotaurusHuntsThePlayer(GameTestHelper helper) {
+        huntsThePlayer(helper, ModEntities.CARNOTAURUS.get());
+    }
+
+    @GameTest(template = ARENA, timeoutTicks = 400)
+    public static void spinosaurusHuntsThePlayer(GameTestHelper helper) {
+        huntsThePlayer(helper, ModEntities.SPINOSAURUS.get());
+    }
+
+    /** O Brontossauro é pacífico: não vai atrás do jogador. */
+    @GameTest(template = ARENA, timeoutTicks = 200)
+    public static void brontosaurusLeavesThePlayerAlone(GameTestHelper helper) {
+        LandCreature bronto = helper.spawn(ModEntities.BRONTOSAURUS.get(), 6, 0, 4);
+        Player player = survivalPlayer(helper);
+        player.moveTo(helper.absoluteVec(new Vec3(6.5, 0, 14.5)));
+        helper.runAtTickTime(150, () -> {
+            helper.assertTrue(bronto.getTarget() == null, "brontossauro escolheu o jogador como alvo");
+            helper.succeed();
+        });
+    }
+
     /** Velocidade de corrida do jogador, em blocos por segundo. */
     private static final double PLAYER_SPRINT = 5.612;
 

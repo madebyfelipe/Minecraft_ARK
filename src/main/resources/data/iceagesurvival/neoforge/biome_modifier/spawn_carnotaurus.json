@@ -1,0 +1,12 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": "#iceagesurvival:spawns_carnotaurus",
+  "spawners": [
+    {
+      "type": "iceagesurvival:carnotaurus",
+      "weight": 1,
+      "minCount": 1,
+      "maxCount": 1
+    }
+  ]
+}

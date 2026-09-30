@@ -12,6 +12,7 @@ import net.minecraft.world.level.block.Block;
  * espécie não pode ser montada — é assim que o lobo-terrível fica de fora.
  *
  * @param seatHeight      altura do assento em blocos a partir dos pés; 0 = 85% da altura da colisão
+ * @param seatForward     quanto o assento fica à frente do centro, em blocos (à frente da vela do espinossauro)
  * @param minAffinity     afinidade mínima para deixar montar (0 a {@code MAX_AFFINITY})
  * @param speedMultiplier multiplicador da velocidade quando montada
  * @param jumpStrength     impulso de pulo em blocos/tick; 0 = não pula
@@ -20,13 +21,15 @@ import net.minecraft.world.level.block.Block;
  * @param breakBlocks      se presente, a mordida só quebra blocos desta tag — é o que faz do mamute um
  *                         coletor de madeira sem que ele cave pedra
  */
-public record MountProfile(double seatHeight, float minAffinity, double speedMultiplier, double jumpStrength,
+public record MountProfile(double seatHeight, double seatForward, float minAffinity, double speedMultiplier, double jumpStrength,
                            float breakHardness, Optional<TagKey<Block>> breakBlocks) {
-    public static final MountProfile DEFAULT = new MountProfile(0.0, 25.0F, 1.0, 0.5, 0.0F, Optional.empty());
+    public static final MountProfile DEFAULT = new MountProfile(0.0, 0.0, 25.0F, 1.0, 0.5, 0.0F, Optional.empty());
 
     public static final Codec<MountProfile> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.doubleRange(0, 16).optionalFieldOf("seat_height", DEFAULT.seatHeight())
                     .forGetter(MountProfile::seatHeight),
+            Codec.doubleRange(-16, 16).optionalFieldOf("seat_forward", DEFAULT.seatForward())
+                    .forGetter(MountProfile::seatForward),
             Codec.floatRange(0, 100).optionalFieldOf("min_affinity", DEFAULT.minAffinity())
                     .forGetter(MountProfile::minAffinity),
             Codec.doubleRange(0.1, 5).optionalFieldOf("speed_multiplier", DEFAULT.speedMultiplier())

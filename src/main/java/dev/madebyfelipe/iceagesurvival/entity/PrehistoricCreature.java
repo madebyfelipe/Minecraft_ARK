@@ -918,9 +918,10 @@ public abstract class PrehistoricCreature extends TamableAnimal implements Playe
     /** Onde quem monta se senta. Fica nos dados da espécie, junto do resto do corpo. */
     @Override
     protected Vec3 getPassengerAttachmentPoint(Entity entity, EntityDimensions dimensions, float partialTick) {
-        return new Vec3(0.0, mountProfile()
-                .map(mount -> mount.seatHeight(dimensions.height()))
-                .orElseGet(() -> (double) dimensions.height()), 0.0);
+        double height = mountProfile().map(mount -> mount.seatHeight(dimensions.height()))
+                .orElseGet(() -> (double) dimensions.height());
+        double forward = mountProfile().map(MountProfile::seatForward).orElse(0.0);
+        return new Vec3(0.0, height, forward).yRot(-yBodyRot * Mth.DEG_TO_RAD);
     }
 
     @Override

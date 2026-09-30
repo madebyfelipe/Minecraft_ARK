@@ -35,6 +35,14 @@ SPECIES = {
                 {"idle": "idle_1_90", "walk": "walk", "attack": "attack", "unconscious": "rest/sleep"}, 4.95),
     "tyrannosaurus": ("tyrannosaurus", "tyrannosaurus_male.png",
                       {"idle": "idle", "walk": "walk", "attack": "attack_normal_1", "unconscious": "sleep_1"}, 6.0),
+    "velociraptor": ("velociraptor", "velociraptor_male.png", {"idle": "idle", "walk": "walk", "attack": "attack", "unconscious": "sleep"}, 1.3),
+    # Sem Utahraptor no Revival: o Deinonychus, parente próximo, em tamanho de Utahraptor.
+    "utahraptor": ("deinonychus", "deinonychus_male.png", {"idle": "idle", "walk": "walk", "attack": "attack", "unconscious": "sleep"}, 2.6),
+    "spinosaurus": ("spinosaurus", "spinosaurus_male.png", {"idle": "idle", "walk": "walk", "attack": "attack", "unconscious": "sleep"}, 6.4),
+    # Sem Carnotauro no Revival: o Ceratossauro, outro terópode de chifres.
+    "carnotaurus": ("ceratosaurus", "ceratosaurus_male.png", {"idle": "idle", "walk": "walk", "attack": "attack", "unconscious": "sleep"}, 3.8),
+    # Sem Brontossauro no Revival: o Diplodoco, da mesma família.
+    "brontosaurus": ("diplodocus", "diplodocus_male.png", {"idle": "idle", "walk": "walk", "attack": "attack", "unconscious": "sleep"}, 9.0),
 }
 
 # espécie nossa -> nosso som -> (evento de sounds.json do Revival, volume da espécie)
@@ -43,6 +51,11 @@ SOUNDS = {
     "mammoth": ({"ambient": "mammoth_ambient", "hurt": "mammoth_hurt", "death": "mammoth_death"}, 1.5),
     "tyrannosaurus": ({"ambient": "tyrannosaurus_ambient", "hurt": "tyrannosaurus_hurt",
                        "death": "tyrannosaurus_death", "alert": "tyrannosaurus_roar"}, 3.0),
+    "velociraptor": ({"ambient": "velociraptor_ambient", "hurt": "velociraptor_hurt", "death": "velociraptor_death"}, 1.0),
+    "utahraptor": ({"ambient": "deinonychus_ambient", "hurt": "deinonychus_hurt", "death": "deinonychus_death"}, 1.3),
+    "spinosaurus": ({"ambient": "spinosaurus_ambient", "hurt": "spinosaurus_hurt", "death": "spinosaurus_death"}, 3.0),
+    "carnotaurus": ({"ambient": "ceratosaurus_ambient", "hurt": "ceratosaurus_hurt", "death": "ceratosaurus_death"}, 2.0),
+    "brontosaurus": ({"ambient": "diplodocus_ambient", "hurt": "diplodocus_hurt", "death": "diplodocus_death"}, 4.0),
 }
 SPECIES_DATA = PROJECT / "src" / "main" / "resources" / "data" / "iceagesurvival" / "iceagesurvival" / "species"
 
@@ -52,6 +65,21 @@ def fetch_revival():
         return
     CACHE.parent.mkdir(parents=True, exist_ok=True)
     subprocess.run(["git", "clone", "--quiet", "--depth", "1", REVIVAL_REPO, str(CACHE)], check=True)
+
+
+def adult_only(geometry):
+    """Tira os ossos de filhote e de adolescente (babysail, teensail...), que o código do Revival esconde."""
+    bones = geometry["minecraft:geometry"][0]["bones"]
+    removed = {b["name"] for b in bones if b["name"].lower().startswith(("baby", "teen"))}
+    changed = True
+    while changed:
+        changed = False
+        for bone in bones:
+            if bone.get("parent") in removed and bone["name"] not in removed:
+                removed.add(bone["name"])
+                changed = True
+    geometry["minecraft:geometry"][0]["bones"] = [b for b in bones if b["name"] not in removed]
+    return geometry
 
 
 def model_height_blocks(geometry):
@@ -160,7 +188,7 @@ def main():
         (ASSETS / sub).mkdir(parents=True, exist_ok=True)
 
     for ours, (theirs, texture, mapping, height) in SPECIES.items():
-        geometry = json.loads((source / "geo" / "entity" / f"{theirs}.geo.json").read_text())
+        geometry = adult_only(json.loads((source / "geo" / "entity" / f"{theirs}.geo.json").read_text()))
         # Indentado, ao contrário do pack local que isto substituiu: agora estes arquivos
         # vivem no git e são abertos à mão no Blockbench.
         (ASSETS / "geo" / "entity" / f"{ours}.geo.json").write_text(json.dumps(geometry, indent=2) + "\n")

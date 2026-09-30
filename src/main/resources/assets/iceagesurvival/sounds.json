@@ -1,4 +1,60 @@
 {
+  "entity.brontosaurus.ambient": {
+    "category": "neutral",
+    "sounds": [
+      "iceagesurvival:entity/brontosaurus/diplodocus_ambient1",
+      "iceagesurvival:entity/brontosaurus/diplodocus_ambient2",
+      "iceagesurvival:entity/brontosaurus/diplodocus_ambient3",
+      "iceagesurvival:entity/brontosaurus/diplodocus_ambient4",
+      "iceagesurvival:entity/brontosaurus/diplodocus_ambient5",
+      "iceagesurvival:entity/brontosaurus/diplodocus_ambient6",
+      "iceagesurvival:entity/brontosaurus/diplodocus_ambient7",
+      "iceagesurvival:entity/brontosaurus/diplodocus_ambient8",
+      "iceagesurvival:entity/brontosaurus/diplodocus_ambient9"
+    ],
+    "subtitle": "subtitles.iceagesurvival.entity.brontosaurus.ambient"
+  },
+  "entity.brontosaurus.death": {
+    "category": "neutral",
+    "sounds": [
+      "iceagesurvival:entity/brontosaurus/diplodocus_death1"
+    ],
+    "subtitle": "subtitles.iceagesurvival.entity.brontosaurus.death"
+  },
+  "entity.brontosaurus.hurt": {
+    "category": "neutral",
+    "sounds": [
+      "iceagesurvival:entity/brontosaurus/diplodocus_hurt1",
+      "iceagesurvival:entity/brontosaurus/diplodocus_hurt2",
+      "iceagesurvival:entity/brontosaurus/diplodocus_hurt3",
+      "iceagesurvival:entity/brontosaurus/diplodocus_hurt4"
+    ],
+    "subtitle": "subtitles.iceagesurvival.entity.brontosaurus.hurt"
+  },
+  "entity.carnotaurus.ambient": {
+    "category": "neutral",
+    "sounds": [
+      "iceagesurvival:entity/carnotaurus/ceratosaurus_ambient1",
+      "iceagesurvival:entity/carnotaurus/ceratosaurus_ambient2",
+      "iceagesurvival:entity/carnotaurus/ceratosaurus_ambient3"
+    ],
+    "subtitle": "subtitles.iceagesurvival.entity.carnotaurus.ambient"
+  },
+  "entity.carnotaurus.death": {
+    "category": "neutral",
+    "sounds": [
+      "iceagesurvival:entity/carnotaurus/ceratosaurus_death1"
+    ],
+    "subtitle": "subtitles.iceagesurvival.entity.carnotaurus.death"
+  },
+  "entity.carnotaurus.hurt": {
+    "category": "neutral",
+    "sounds": [
+      "iceagesurvival:entity/carnotaurus/ceratosaurus_hurt1",
+      "iceagesurvival:entity/carnotaurus/ceratosaurus_hurt2"
+    ],
+    "subtitle": "subtitles.iceagesurvival.entity.carnotaurus.hurt"
+  },
   "entity.mammoth.ambient": {
     "category": "neutral",
     "sounds": [
@@ -43,6 +99,34 @@
     ],
     "subtitle": "subtitles.iceagesurvival.entity.smilodon.hurt"
   },
+  "entity.spinosaurus.ambient": {
+    "category": "neutral",
+    "sounds": [
+      "iceagesurvival:entity/spinosaurus/spinosaurus_ambient1",
+      "iceagesurvival:entity/spinosaurus/spinosaurus_ambient2",
+      "iceagesurvival:entity/spinosaurus/spinosaurus_ambient3",
+      "iceagesurvival:entity/spinosaurus/spinosaurus_ambient4",
+      "iceagesurvival:entity/spinosaurus/spinosaurus_ambient5",
+      "iceagesurvival:entity/spinosaurus/spinosaurus_ambient6"
+    ],
+    "subtitle": "subtitles.iceagesurvival.entity.spinosaurus.ambient"
+  },
+  "entity.spinosaurus.death": {
+    "category": "neutral",
+    "sounds": [
+      "iceagesurvival:entity/spinosaurus/spinosaurus_death"
+    ],
+    "subtitle": "subtitles.iceagesurvival.entity.spinosaurus.death"
+  },
+  "entity.spinosaurus.hurt": {
+    "category": "neutral",
+    "sounds": [
+      "iceagesurvival:entity/spinosaurus/spinosaurus_hurt1",
+      "iceagesurvival:entity/spinosaurus/spinosaurus_hurt2",
+      "iceagesurvival:entity/spinosaurus/spinosaurus_hurt3"
+    ],
+    "subtitle": "subtitles.iceagesurvival.entity.spinosaurus.hurt"
+  },
   "entity.tyrannosaurus.alert": {
     "category": "neutral",
     "sounds": [
@@ -73,5 +157,55 @@
       "iceagesurvival:entity/tyrannosaurus/trex_hurt"
     ],
     "subtitle": "subtitles.iceagesurvival.entity.tyrannosaurus.hurt"
+  },
+  "entity.utahraptor.ambient": {
+    "category": "neutral",
+    "sounds": [
+      "iceagesurvival:entity/utahraptor/deinonychus_ambient1",
+      "iceagesurvival:entity/utahraptor/deinonychus_ambient2",
+      "iceagesurvival:entity/utahraptor/deinonychus_ambient3"
+    ],
+    "subtitle": "subtitles.iceagesurvival.entity.utahraptor.ambient"
+  },
+  "entity.utahraptor.death": {
+    "category": "neutral",
+    "sounds": [
+      "iceagesurvival:entity/utahraptor/deinonychus_death"
+    ],
+    "subtitle": "subtitles.iceagesurvival.entity.utahraptor.death"
+  },
+  "entity.utahraptor.hurt": {
+    "category": "neutral",
+    "sounds": [
+      "iceagesurvival:entity/utahraptor/deinonychus_hurt"
+    ],
+    "subtitle": "subtitles.iceagesurvival.entity.utahraptor.hurt"
+  },
+  "entity.velociraptor.ambient": {
+    "category": "neutral",
+    "sounds": [
+      "iceagesurvival:entity/velociraptor/velociraptor_ambient1",
+      "iceagesurvival:entity/velociraptor/velociraptor_ambient2",
+      "iceagesurvival:entity/velociraptor/velociraptor_ambient3",
+      "iceagesurvival:entity/velociraptor/velociraptor_ambient4",
+      "iceagesurvival:entity/velociraptor/velociraptor_ambient5",
+      "iceagesurvival:entity/velociraptor/velociraptor_ambient6"
+    ],
+    "subtitle": "subtitles.iceagesurvival.entity.velociraptor.ambient"
+  },
+  "entity.velociraptor.death": {
+    "category": "neutral",
+    "sounds": [
+      "iceagesurvival:entity/velociraptor/velociraptor_death1"
+    ],
+    "subtitle": "subtitles.iceagesurvival.entity.velociraptor.death"
+  },
+  "entity.velociraptor.hurt": {
+    "category": "neutral",
+    "sounds": [
+      "iceagesurvival:entity/velociraptor/velociraptor_hurt1",
+      "iceagesurvival:entity/velociraptor/velociraptor_hurt2"
+    ],
+    "subtitle": "subtitles.iceagesurvival.entity.velociraptor.hurt"
   }
 }

@@ -33,6 +33,26 @@ public final class ModItems {
             "tyrannosaurus_spawn_egg",
             () -> new DeferredSpawnEggItem(ModEntities.TYRANNOSAURUS, 0x58683F, 0xB2AA80, new Item.Properties()));
 
+    public static final DeferredItem<DeferredSpawnEggItem> VELOCIRAPTOR_SPAWN_EGG = ITEMS.register(
+            "velociraptor_spawn_egg",
+            () -> new DeferredSpawnEggItem(ModEntities.VELOCIRAPTOR, 0x9A7B4F, 0x3E3226, new Item.Properties()));
+
+    public static final DeferredItem<DeferredSpawnEggItem> UTAHRAPTOR_SPAWN_EGG = ITEMS.register(
+            "utahraptor_spawn_egg",
+            () -> new DeferredSpawnEggItem(ModEntities.UTAHRAPTOR, 0x7A5A3A, 0xC9B38A, new Item.Properties()));
+
+    public static final DeferredItem<DeferredSpawnEggItem> SPINOSAURUS_SPAWN_EGG = ITEMS.register(
+            "spinosaurus_spawn_egg",
+            () -> new DeferredSpawnEggItem(ModEntities.SPINOSAURUS, 0x5B6B4E, 0xB04A2E, new Item.Properties()));
+
+    public static final DeferredItem<DeferredSpawnEggItem> CARNOTAURUS_SPAWN_EGG = ITEMS.register(
+            "carnotaurus_spawn_egg",
+            () -> new DeferredSpawnEggItem(ModEntities.CARNOTAURUS, 0x8C3B2A, 0x2F2A26, new Item.Properties()));
+
+    public static final DeferredItem<DeferredSpawnEggItem> BRONTOSAURUS_SPAWN_EGG = ITEMS.register(
+            "brontosaurus_spawn_egg",
+            () -> new DeferredSpawnEggItem(ModEntities.BRONTOSAURUS, 0x6F7A6A, 0xA8A38D, new Item.Properties()));
+
     public static final DeferredItem<TranqArrowItem> TRANQ_ARROW =
             ITEMS.register("tranq_arrow", () -> new TranqArrowItem(new Item.Properties()));
 
@@ -55,6 +75,11 @@ public final class ModItems {
             event.accept(MAMMOTH_SPAWN_EGG);
             event.accept(DIRE_WOLF_SPAWN_EGG);
             event.accept(TYRANNOSAURUS_SPAWN_EGG);
+            event.accept(VELOCIRAPTOR_SPAWN_EGG);
+            event.accept(UTAHRAPTOR_SPAWN_EGG);
+            event.accept(SPINOSAURUS_SPAWN_EGG);
+            event.accept(CARNOTAURUS_SPAWN_EGG);
+            event.accept(BRONTOSAURUS_SPAWN_EGG);
         } else if (event.getTabKey() == CreativeModeTabs.COMBAT) {
             event.accept(TRANQ_ARROW);
         } else if (event.getTabKey() == CreativeModeTabs.INGREDIENTS) {

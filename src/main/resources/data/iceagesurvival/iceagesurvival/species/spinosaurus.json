@@ -1,0 +1,90 @@
+{
+  "stats": {
+    "health": {
+      "base": 240,
+      "per_point": 0.08
+    },
+    "attack": {
+      "base": 26,
+      "per_point": 0.04
+    },
+    "speed": {
+      "base": 0.3
+    },
+    "torpor": {
+      "base": 520,
+      "per_point": 0.06
+    },
+    "armor": {
+      "base": 6,
+      "per_point": 0.03
+    }
+  },
+  "body": {
+    "knockback_resistance": 1.0,
+    "step_height": 2.1,
+    "breaks_leaves": true,
+    "plow_hardness": 2.5
+  },
+  "taming": {
+    "torpor_decay_per_second": 2.5,
+    "required_food": 420,
+    "required_food_per_level": 0.015,
+    "feed_interval_seconds": 10,
+    "foods": [
+      {
+        "items": [
+          "minecraft:salmon",
+          "minecraft:cod"
+        ],
+        "value": 30
+      },
+      {
+        "items": [
+          "minecraft:beef",
+          "minecraft:mutton",
+          "minecraft:porkchop"
+        ],
+        "value": 30,
+        "quality": 0.7
+      },
+      {
+        "items": [
+          "minecraft:cooked_salmon",
+          "minecraft:cooked_cod"
+        ],
+        "value": 15,
+        "quality": 0.4
+      }
+    ]
+  },
+  "behavior": {
+    "aggressive": true,
+    "aggro_radius": 24,
+    "territory_radius": 40,
+    "flee_health_fraction": 0.1,
+    "prey": "#iceagesurvival:large_prey"
+  },
+  "mount": {
+    "seat_height": 3.4,
+    "seat_forward": 2.4,
+    "min_affinity": 25,
+    "speed_multiplier": 0.8,
+    "jump_strength": 0.4,
+    "break_hardness": 1.5
+  },
+  "spawn": {
+    "biomes": "#iceagesurvival:spawns_spinosaurus",
+    "weight": 1,
+    "group_min": 1,
+    "group_max": 1,
+    "max_nearby": 1
+  },
+  "sounds": {
+    "attack": "minecraft:entity.ravager.attack",
+    "ambient": "iceagesurvival:entity.spinosaurus.ambient",
+    "hurt": "iceagesurvival:entity.spinosaurus.hurt",
+    "death": "iceagesurvival:entity.spinosaurus.death",
+    "volume": 3.0
+  }
+}

@@ -250,12 +250,19 @@ Todas as espécies terrestres usam a mesma classe (`LandCreature`); o que as dif
 | Espécie | Papel | Tamanho (colisão) | Comportamento | Nasce em |
 |---|---|---|---|---|
 | **Lobo-terrível** (`dire_wolf`) | Primeira domesticação; predador de matilha | 0,8 × 1,2 | Agressivo, matilha de 2–4, defesa em grupo, caça presas pequenas, recua com 20% de vida | taiga, taiga nevada, taigas antigas, grove, planície nevada |
-| **Smilodon** (`smilodon`) | Predador territorial solitário, rápido | 1,3 × 2,3 | Agressivo, território de 32 blocos, caça presas grandes, recua com 25% de vida | taiga, taiga nevada, taigas antigas, grove, encostas nevadas |
-| **Mamute-lanoso** (`mammoth`) | Herbívoro de manada, tanque | 2,0 × 3,1 | Pacífico até ser provocado; manada de 2–4 que se defende junta | planície nevada, ice spikes, taiga nevada |
-| **Tyrannosaurus rex** (`tyrannosaurus`) | Primeiro dinossauro; predador de topo solitário, raro | 1,8 × 3,6 | Agressivo, raio de percepção 24, território de 48 blocos, caça presas grandes, recua com 10% de vida | taiga, taiga nevada, taigas antigas, planície nevada (peso 1) |
+| **Smilodon** (`smilodon`) | Predador territorial solitário, rápido | 1,3 × 2,3 | Agressivo e **espreita** (`hunt_style: stalk`): aproxima-se devagar pelas costas e só dá o bote, rugindo, a 4,5 blocos, ao ser ferido ou quando o jogador o vê. Território de 32 blocos, caça presas grandes, recua com 25% de vida | taiga, taiga nevada, taigas antigas, grove, encostas nevadas |
+| **Mamute-lanoso** (`mammoth`) | Herbívoro de manada, tanque; montado, coletor de madeira | 3,0 × 4,65 | Pacífico até ser provocado; manada de 2–4 que se defende junta | planície nevada, ice spikes, taiga nevada |
+| **Tyrannosaurus rex** (`tyrannosaurus`) | Primeiro dinossauro; predador de topo solitário, raro | 2,7 × 5,4 | Agressivo, raio de percepção 24, território de 48 blocos, caça presas grandes, recua com 10% de vida | taiga, taiga nevada, taigas antigas, planície nevada (peso 1) |
+| **Velociraptor** (`velociraptor`) | Predador pequeno de bando | 0,7 × 1,1 | Agressivo, bando de 3–5 com defesa em grupo, caça presas pequenas | taiga, taiga nevada, grove |
+| **Utahraptor** (`utahraptor`) | Raptor grande, montável (o "raptor" do ARK) | 1,2 × 2,3 | Agressivo, bando de 2–3, caça presas grandes | taigas nevadas e de abetos |
+| **Espinossauro** (`spinosaurus`) | Predador de topo das águas geladas, montável | 2,7 × 5,6 | Agressivo, atravessa o mato, domesticado com peixe; assento à frente da vela (`seat_forward`) | rio congelado, praia nevada, oceano congelado |
+| **Carnotauro** (`carnotaurus`) | Predador médio veloz, montável | 1,8 × 3,4 | Agressivo, território de 56 blocos, atravessa o mato | planície nevada, encostas nevadas, grove |
+| **Brontossauro** (`brontosaurus`) | Saurópode gigante de manada, montável, coletor de madeira | 4,0 × 8,0 | Pacífico, manada de 1–3 que se defende junta, atravessa o mato | planície nevada, grove, taiga nevada |
 | Criatura de teste (`test_creature`) | Só para testes automáticos; usa o modelo do porco | 0,9 × 0,9 | Passiva | não nasce |
 
-Montáveis: Smilodon, mamute e Tyrannosaurus. O lobo-terrível é pequeno demais e fica de fora — o que o exclui é não ter bloco `mount` no JSON, não uma regra em código.
+Montáveis: Smilodon, mamute, Tyrannosaurus, Utahraptor, Espinossauro, Carnotauro e Brontossauro. Os modelos do Utahraptor, do Carnotauro e do Brontossauro são placeholders do Revival de parentes próximos (Deinonychus, Ceratossauro, Diplodoco), porque o Revival não tem essas espécies.
+
+**Grandes animais não ficam presos no mato:** `body.plow_hardness` quebra, ao esbarrar, os blocos da tag `iceagesurvival:plowable` (troncos, folhas, plantas, neve) até essa dureza, e a perseguição (`ChaseGoal`) vai em linha reta quando não há caminho completo até o alvo. O chão e as encostas não são quebrados: sobem por eles. Os agressivos lembram do alvo por 10 s sem vê-lo. O T-Rex persegue a mais de 5,6 blocos/s, o sprint do jogador (gametest). O lobo-terrível é pequeno demais e fica de fora — o que o exclui é não ter bloco `mount` no JSON, não uma regra em código.
 
 **Adicionar uma espécie terrestre:**
 
@@ -267,7 +274,7 @@ Montáveis: Smilodon, mamute e Tyrannosaurus. O lobo-terrível é pequeno demais
 
 Nenhuma classe Java nova, nenhuma mudança no núcleo. Espécies com mecânica própria (voar, nadar, o boss) vão precisar de classe.
 
-Pendentes do brief — Era do Gelo: rinoceronte-lanoso, megaloceros, megatherium, urso-das-cavernas, bisão, auroque, mastodonte. Dinossauros: ~~tyrannosaurus~~ (feito), triceratops, velociraptor, ankylosaurus, spinosaurus, giganotosaurus (boss).
+Pendentes do brief — Era do Gelo: rinoceronte-lanoso, megaloceros, megatherium, urso-das-cavernas, bisão, auroque, mastodonte. Dinossauros: ~~tyrannosaurus~~, ~~velociraptor~~, ~~spinosaurus~~, ~~utahraptor~~, ~~carnotaurus~~, ~~brontosaurus~~ (feitos), triceratops, ankylosaurus, giganotosaurus (boss).
 
 ### Comportamento (implementado)
 

@@ -1,0 +1,97 @@
+{
+  "stats": {
+    "health": {
+      "base": 160,
+      "per_point": 0.08
+    },
+    "attack": {
+      "base": 20,
+      "per_point": 0.04
+    },
+    "speed": {
+      "base": 0.36
+    },
+    "torpor": {
+      "base": 320,
+      "per_point": 0.06
+    },
+    "armor": {
+      "base": 4,
+      "per_point": 0.03
+    }
+  },
+  "body": {
+    "knockback_resistance": 1.0,
+    "step_height": 1.6,
+    "breaks_leaves": true,
+    "plow_hardness": 2.5
+  },
+  "taming": {
+    "torpor_decay_per_second": 2.0,
+    "required_food": 300,
+    "required_food_per_level": 0.015,
+    "feed_interval_seconds": 9,
+    "foods": [
+      {
+        "items": [
+          "minecraft:beef",
+          "minecraft:mutton",
+          "minecraft:porkchop"
+        ],
+        "value": 40
+      },
+      {
+        "items": [
+          "minecraft:chicken",
+          "minecraft:rabbit"
+        ],
+        "value": 20,
+        "quality": 0.7
+      },
+      {
+        "items": [
+          "minecraft:cooked_beef",
+          "minecraft:cooked_mutton",
+          "minecraft:cooked_porkchop",
+          "minecraft:cooked_chicken",
+          "minecraft:cooked_rabbit"
+        ],
+        "value": 20,
+        "quality": 0.4
+      },
+      {
+        "items": "minecraft:rotten_flesh",
+        "value": 5,
+        "quality": 0.2
+      }
+    ]
+  },
+  "behavior": {
+    "aggressive": true,
+    "aggro_radius": 22,
+    "territory_radius": 56,
+    "flee_health_fraction": 0.15,
+    "prey": "#iceagesurvival:large_prey"
+  },
+  "mount": {
+    "seat_height": 3.5,
+    "min_affinity": 25,
+    "speed_multiplier": 0.95,
+    "jump_strength": 0.5,
+    "break_hardness": 1.5
+  },
+  "spawn": {
+    "biomes": "#iceagesurvival:spawns_carnotaurus",
+    "weight": 1,
+    "group_min": 1,
+    "group_max": 1,
+    "max_nearby": 2
+  },
+  "sounds": {
+    "attack": "minecraft:entity.ravager.attack",
+    "ambient": "iceagesurvival:entity.carnotaurus.ambient",
+    "hurt": "iceagesurvival:entity.carnotaurus.hurt",
+    "death": "iceagesurvival:entity.carnotaurus.death",
+    "volume": 2.0
+  }
+}
