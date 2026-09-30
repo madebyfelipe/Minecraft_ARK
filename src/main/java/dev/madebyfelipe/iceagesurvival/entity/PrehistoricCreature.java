@@ -286,11 +286,18 @@ public abstract class PrehistoricCreature extends TamableAnimal implements Playe
     public void setTarget(@Nullable LivingEntity target) {
         boolean acquired = target != null && getTarget() == null;
         super.setTarget(target);
-        if (acquired && !level().isClientSide && getTarget() == target) {
-            SoundEvent alert = speciesSound(SoundProfile::alert);
-            if (alert != null) {
-                playSound(alert, getSoundVolume(), getVoicePitch());
-            }
+        // Quem espreita fica quieto: o alerta sai no bote (StalkGoal).
+        boolean stalker = behavior().map(b -> b.huntStyle() == BehaviorProfile.HuntStyle.STALK).orElse(false);
+        if (acquired && !level().isClientSide && getTarget() == target && (isTame() || !stalker)) {
+            playAlert();
+        }
+    }
+
+    /** Som de alerta da espécie (o rugido), se ela tiver um. */
+    public void playAlert() {
+        SoundEvent alert = speciesSound(SoundProfile::alert);
+        if (alert != null) {
+            playSound(alert, getSoundVolume(), getVoicePitch());
         }
     }
 

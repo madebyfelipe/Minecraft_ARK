@@ -5,6 +5,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.Optional;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.tags.TagKey;
+import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.entity.EntityType;
 
 /**
@@ -19,6 +20,8 @@ import net.minecraft.world.entity.EntityType;
  * @param herdRadius         distância máxima que se afasta do líder da manada. 0 = solitária
  * @param groupDefense       quando uma é atacada, as outras da mesma espécie por perto revidam juntas
  * @param prey               tag de tipos de entidade que ela caça
+ * @param huntStyle          {@code chase}: vai direto no alvo; {@code stalk}: espreita e só dá o bote
+ *                           quando chega perto ou quando o alvo a vê
  */
 public record BehaviorProfile(
         boolean aggressive,
@@ -27,10 +30,29 @@ public record BehaviorProfile(
         double fleeHealthFraction,
         int herdRadius,
         boolean groupDefense,
-        Optional<TagKey<EntityType<?>>> prey) {
+        Optional<TagKey<EntityType<?>>> prey,
+        HuntStyle huntStyle) {
+
+    public enum HuntStyle implements StringRepresentable {
+        CHASE("chase"),
+        STALK("stalk");
+
+        public static final Codec<HuntStyle> CODEC = StringRepresentable.fromEnum(HuntStyle::values);
+        private final String id;
+
+        HuntStyle(String id) {
+            this.id = id;
+        }
+
+        @Override
+        public String getSerializedName() {
+            return id;
+        }
+    }
 
     /** Espécie sem bloco de comportamento: passiva, solitária, sem território. */
-    public static final BehaviorProfile PASSIVE = new BehaviorProfile(false, 16.0, 0, 0.0, 0, false, Optional.empty());
+    public static final BehaviorProfile PASSIVE =
+            new BehaviorProfile(false, 16.0, 0, 0.0, 0, false, Optional.empty(), HuntStyle.CHASE);
 
     public static final Codec<BehaviorProfile> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.BOOL.optionalFieldOf("aggressive", PASSIVE.aggressive()).forGetter(BehaviorProfile::aggressive),
@@ -39,6 +61,7 @@ public record BehaviorProfile(
             Codec.doubleRange(0, 1).optionalFieldOf("flee_health_fraction", PASSIVE.fleeHealthFraction()).forGetter(BehaviorProfile::fleeHealthFraction),
             Codec.intRange(0, 64).optionalFieldOf("herd_radius", PASSIVE.herdRadius()).forGetter(BehaviorProfile::herdRadius),
             Codec.BOOL.optionalFieldOf("group_defense", PASSIVE.groupDefense()).forGetter(BehaviorProfile::groupDefense),
-            TagKey.hashedCodec(Registries.ENTITY_TYPE).optionalFieldOf("prey").forGetter(BehaviorProfile::prey)
+            TagKey.hashedCodec(Registries.ENTITY_TYPE).optionalFieldOf("prey").forGetter(BehaviorProfile::prey),
+            HuntStyle.CODEC.optionalFieldOf("hunt_style", HuntStyle.CHASE).forGetter(BehaviorProfile::huntStyle)
     ).apply(instance, BehaviorProfile::new));
 }

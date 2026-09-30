@@ -5,6 +5,7 @@ import dev.madebyfelipe.iceagesurvival.entity.ai.ChaseGoal;
 import dev.madebyfelipe.iceagesurvival.entity.ai.FleeWhenWeakGoal;
 import dev.madebyfelipe.iceagesurvival.entity.ai.FollowHerdGoal;
 import dev.madebyfelipe.iceagesurvival.entity.ai.HuntGoal;
+import dev.madebyfelipe.iceagesurvival.entity.ai.StalkGoal;
 import dev.madebyfelipe.iceagesurvival.species.BehaviorProfile;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.EntityType;
@@ -34,6 +35,7 @@ public class LandCreature extends PrehistoricCreature implements GeoEntity {
     private static final String ATTACK_TRIGGER = "attack";
 
     private static final double CHASE_SPEED = 1.25;
+    private static final double STALK_SPEED = 0.55;
     private static final int TARGET_MEMORY_TICKS = 200;
     private static final double FLEE_SPEED = 1.4;
     private static final double FOLLOW_SPEED = 1.2;
@@ -57,6 +59,9 @@ public class LandCreature extends PrehistoricCreature implements GeoEntity {
 
         goalSelector.addGoal(0, new FloatGoal(this));
         goalSelector.addGoal(1, new FleeWhenWeakGoal(this, FLEE_SPEED));
+        if (behavior.huntStyle() == BehaviorProfile.HuntStyle.STALK) {
+            goalSelector.addGoal(2, new StalkGoal(this, STALK_SPEED));
+        }
         goalSelector.addGoal(3, new ChaseGoal(this, CHASE_SPEED));
         addOrderGoals(2, 4, FOLLOW_SPEED);
         if (behavior.herdRadius() > 0) {

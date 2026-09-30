@@ -70,7 +70,8 @@
     "aggro_radius": 14,
     "territory_radius": 32,
     "flee_health_fraction": 0.25,
-    "prey": "#iceagesurvival:large_prey"
+    "prey": "#iceagesurvival:large_prey",
+    "hunt_style": "stalk"
   },
   "mount": {
     "seat_height": 2.3,

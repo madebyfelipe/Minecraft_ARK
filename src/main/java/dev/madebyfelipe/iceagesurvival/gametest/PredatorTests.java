@@ -8,6 +8,7 @@ import net.minecraft.gametest.framework.GameTestHelper;
 import com.mojang.authlib.GameProfile;
 import io.netty.channel.embedded.EmbeddedChannel;
 import java.util.UUID;
+import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.server.level.ServerPlayer;
@@ -108,6 +109,40 @@ public class PredatorTests {
             double speed = rex.position().subtract(start[0]).horizontalDistance();
             helper.assertTrue(speed > PLAYER_SPRINT, String.format("T-Rex corre %.2f blocos/s; o jogador corre %.2f",
                     speed, PLAYER_SPRINT));
+            helper.succeed();
+        });
+    }
+
+    /** Jogador de costas: o Smilodon espreita, devagar, e só dá o bote quando chega perto. */
+    @GameTest(template = ARENA, timeoutTicks = 400)
+    public static void smilodonStalksAPlayerWhoIsNotLooking(GameTestHelper helper) {
+        LandCreature smilodon = helper.spawn(ModEntities.SMILODON.get(), 6, 0, 2);
+        Player player = survivalPlayer(helper);
+        player.moveTo(helper.absoluteVec(new Vec3(6.5, 0, 20.5)));
+        // Olha sempre para o lado oposto ao Smilodon.
+        helper.onEachTick(() -> player.lookAt(EntityAnchorArgument.Anchor.EYES,
+                player.getEyePosition().scale(2.0).subtract(smilodon.getEyePosition())));
+        smilodon.setTarget(player);
+        helper.runAtTickTime(20, () -> helper.assertTrue(smilodon.isStalking(), "deveria estar espreitando"));
+        helper.onEachTick(() -> {
+            if (player.getHealth() < player.getMaxHealth()) {
+                helper.assertFalse(smilodon.isStalking(), "mordeu ainda espreitando");
+                helper.succeed();
+            }
+        });
+    }
+
+    /** Jogador olhando para ele: acaba a espreita e vem o bote. */
+    @GameTest(template = ARENA, timeoutTicks = 100)
+    public static void smilodonPouncesWhenSeen(GameTestHelper helper) {
+        LandCreature smilodon = helper.spawn(ModEntities.SMILODON.get(), 6, 0, 2);
+        Player player = survivalPlayer(helper);
+        player.moveTo(helper.absoluteVec(new Vec3(6.5, 0, 20.5)));
+        helper.onEachTick(() -> player.lookAt(EntityAnchorArgument.Anchor.EYES, smilodon.getEyePosition()));
+        smilodon.setTarget(player);
+        helper.runAtTickTime(10, () -> {
+            helper.assertFalse(smilodon.isStalking(), "visto, deveria ter partido para o ataque");
+            helper.assertTrue(smilodon.getTarget() == player, "perdeu o alvo");
             helper.succeed();
         });
     }
