@@ -151,5 +151,6 @@
   "iceagesurvival.status.mutations_count": "%s",
   "iceagesurvival.status.mutations_gene": "%s · health gene",
   "iceagesurvival.status.gestation": "Gestation",
-  "iceagesurvival.status.maturation": "Growth"
+  "iceagesurvival.status.maturation": "Growth",
+  "generator.iceagesurvival.ice_age": "Ice Age"
 }

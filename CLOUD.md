@@ -41,7 +41,7 @@ Fora de escopo: máquinas, árvores tecnológicas, dezenas de armaduras, arsenal
 | D3 | **GeckoLib** como única dependência obrigatória | MIT, release estável para 1.21.1, padrão do ecossistema para criaturas animadas. | Fechada |
 | D4 | **Não** depender de nenhum mod de fauna | Todos os mods de fauna relevantes são All Rights Reserved ou licença custom; nenhum asset pode ser incorporado. Além disso o brief exige que progressão/domesticação sejam nossas. | Fechada |
 | D5 | Temperatura: **sistema interno leve**, atrás de uma interface | Frostiful no NeoForge é alpha e exige Forgified Fabric API; Cold Sweat é estável mas muito mais complexo do que o brief pede ("secundária, sem burocracia"). Ver [15](#15-temperatura). | Fechada na Etapa 6 — o sistema interno cabe em ~200 linhas e não precisou de HUD próprio; a costura `ColdSource` continua de pé |
-| D6 | Mundo glacial por **world preset próprio em datapack**, sem mod de worldgen obrigatório | Um preset com a fonte de biomas restrita a biomas frios resolve "mundo predominantemente congelado" sem dependência. Ver [18](#18-worldgen). | Provisória — reavaliar na Etapa 9 |
+| D6 | Mundo glacial por **world preset próprio em datapack**, sem mod de worldgen obrigatório | Um preset com a fonte de biomas restrita a biomas frios resolve "mundo predominantemente congelado" sem dependência. Ver [18](#18-worldgen). | Fechada na Etapa 9 — o preset embrulha o overworld do vanilla numa fonte de biomas que troca os quentes pelos frios (`iceagesurvival:remapped`); Primal Winter e Ice Age não entram |
 | D7 | Espécies num **registry de datapack** sincronizado | Permite adicionar espécie por JSON, com validação por Codec e sync automático para o cliente. | Fechada |
 | D8 | Dados da criatura no **NBT da própria entidade**, serializados por Codec | As entidades são nossas; não precisamos de attachments para anexar dados a entidades alheias. | Fechada |
 | D9 | IA com **Goals vanilla** | Suficiente para território e manada; SmartBrainLib fica como opção se os Goals virarem gargalo. | Provisória |
@@ -553,9 +553,15 @@ Implementado na Etapa 8 (`Genome`, `Genetics`). Pontos **e** contagem de mutaç�
 
 ## 18. Worldgen
 
-Desenho provisório (D6): world preset `iceagesurvival:ice_age` em datapack, com a fonte de biomas do overworld restrita a biomas frios (vanilla primeiro, próprios depois). Água congelada e cobertura de neve vêm da temperatura dos biomas. Nada de dimensão separada.
+Implementado na Etapa 9 (D6). **Não precisa de mod.** O world preset **Era do Gelo** (`iceagesurvival:ice_age`) aparece em *Criar mundo → Tipo de mundo*; num servidor, `level-type=iceagesurvival:ice_age` no `server.properties`.
 
-A confirmar na Etapa 9: variedade suficiente só com biomas frios, regiões "relativamente seguras", e se vale suporte opcional a Tectonic para relevo.
+Ele é o overworld do vanilla — mesmo relevo, cavernas e estruturas — com a fonte de biomas embrulhada por `iceagesurvival:remapped` (`RemappedBiomeSource`), que troca cada bioma por outro segundo uma tabela no JSON do preset: planícies → planície nevada, florestas e pântanos → taigas nevadas, selvas → taiga de pinheiros antiga, desertos e savanas → planície nevada (as badlands erodidas viram ice spikes), prados → grove, picos rochosos → picos congelados, praia → praia nevada, rio → rio congelado, oceanos → oceanos congelados. A neve no chão e a água congelada vêm sozinhas da temperatura dos biomas.
+
+A alternativa — listar os ~7 mil pontos climáticos do overworld num `multi_noise` só com biomas frios — daria um JSON de megabytes que precisaria ser regerado a cada versão; a troca é uma tabela de 35 linhas.
+
+**Regiões relativamente seguras:** taigas (0,25), taigas antigas e morros ventosos (0,2) ficam como estão — frias pelo sistema de temperatura, mas sem nevasca. As cavernas guardam a temperatura delas (lush caves 0,5): descer é se abrigar.
+
+Nether e End são os do vanilla. Mundos já criados não mudam: o preset vale na criação. Relevo mais dramático (Tectonic) fica opcional e fora do escopo; o preset funciona com ele instalado, porque troca só os biomas.
 
 ## 19. Caverna
 
@@ -618,7 +624,7 @@ O mundo do GameTest é plano e de bioma temperado, então o frio não chega a su
 | 6 | Temperatura | ✅ 2026-09-30 em testes automáticos; falta sentir o frio em jogo e balancear a primeira hora |
 | 7 | Montaria | ✅ 2026-09-30 em testes automáticos (sela, controle, pulo, recusas) + reposição de fauna e comandos `/ias`; falta conferir em jogo |
 | 8 | Reprodução e genética | ✅ 2026-09-30 em testes automáticos (genética em JUnit; acasalamento, gestação, ovo, incubadora, mesa química e estimulante em gametests); falta conferir em jogo |
-| 9 | Worldgen | — |
+| 9 | Worldgen | ✅ 2026-09-30 em teste automático (os biomas possíveis do preset são todos frios); falta criar um mundo e andar por ele |
 | 10 | Endgame: rastreador, caverna, arena, boss | — |
 
 MVP = Etapas 1–4 + versão mínima de 6, 7 e 9 (mundo frio, temperatura básica, montar o Smilodon).
@@ -650,6 +656,7 @@ Ver a tabela em [4](#4-decisões). Registro de mudanças estruturais:
 - 2026-09-30 — Tyrannosaurus em dobro (colisão 3,6×7,2; escala do modelo 5,66; assento 6,2; degrau 2,8) e ataque de quem monta.
 - 2026-09-30 — Assento do Tyrannosaurus de 6,2 para 7,4: o jogador montado ficava dentro do corpo; 7,4 é a altura do osso `rider_pos` (21 px) na escala 5,66.
 - 2026-09-30 — Sons do F&A Revival (All Rights Reserved, mesmo caso dos modelos) para Smilodon, mamute e T-Rex: bloco opcional `sounds` no JSON de espécie (`ambient`, `hurt`, `death`, `alert` ao escolher alvo, `volume`), instalados por `tools/install-revival-placeholders.py`. O lobo-terrível segue mudo: o Revival não tem ele.
+- 2026-09-30 — Etapa 9: world preset Era do Gelo com `RemappedBiomeSource` (D6 fechada, sem mod de worldgen).
 - 2026-09-30 — Etapa 8: genética, sexo, acasalamento, gestação e ovo, incubadora, mesa química e estimulante.
 - 2026-09-30 — Comandos no esquema do ARK: movimento e postura independentes, assobios por tecla (mirada ou todas ao alcance), painel sob a mira refeito e tela de status (V).
 - 2026-09-30 — Mamute em 1,5x (colisão 3,0×4,65, escala 1,92, assento 3,85, degrau 1,65) e coletor de madeira pela mordida montada.
@@ -672,7 +679,7 @@ Ver a tabela em [4](#4-decisões). Registro de mudanças estruturais:
 ## 26. Ainda não decidido
 
 1. **Licença do nosso código** e se o repositório será público.
-4. World preset próprio vs. conversão global no estilo Primal Winter — decidir na Etapa 9 (D6).
+4. ~~World preset próprio vs. conversão global no estilo Primal Winter~~ Decidido na Etapa 9: preset próprio (D6).
 5. Integração com criaturas de mods externos: possível em tese (registrar uma espécie apontando para um `EntityType` alheio), mas exigiria anexar nossos dados a entidades de terceiros. Não planejado.
 6. Criaturas voadoras e de carga: quais espécies.
 7. ~~Gestação vs. ovo por espécie~~ Decidido na Etapa 8: `breeding.offspring` no JSON — mamíferos `live`, dinossauros `egg`.

@@ -14,6 +14,7 @@ import dev.madebyfelipe.iceagesurvival.registry.ModEntities;
 import dev.madebyfelipe.iceagesurvival.registry.ModItems;
 import dev.madebyfelipe.iceagesurvival.species.Species;
 import dev.madebyfelipe.iceagesurvival.temperature.ColdExposure;
+import dev.madebyfelipe.iceagesurvival.world.RemappedBiomeSource;
 import dev.madebyfelipe.iceagesurvival.world.WildSpawner;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.IEventBus;
@@ -33,6 +34,7 @@ public class IceAgeSurvival {
         ModBlocks.BLOCKS.register(modEventBus);
         ModBlockEntities.BLOCK_ENTITIES.register(modEventBus);
         ModMenus.MENUS.register(modEventBus);
+        RemappedBiomeSource.BIOME_SOURCES.register(modEventBus);
         ModEntities.ENTITY_TYPES.register(modEventBus);
         ModArmorMaterials.ARMOR_MATERIALS.register(modEventBus);
         ModItems.ITEMS.register(modEventBus);
