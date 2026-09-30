@@ -1,6 +1,7 @@
 package dev.madebyfelipe.iceagesurvival.client;
 
 import dev.madebyfelipe.iceagesurvival.IceAgeSurvival;
+import dev.madebyfelipe.iceagesurvival.entity.Smilodon;
 import dev.madebyfelipe.iceagesurvival.registry.ModEntities;
 import dev.madebyfelipe.iceagesurvival.registry.ModItems;
 import net.neoforged.api.distmarker.Dist;
@@ -12,11 +13,15 @@ import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.gui.ConfigurationScreen;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
+import software.bernie.geckolib.model.DefaultedEntityGeoModel;
+import software.bernie.geckolib.renderer.GeoEntityRenderer;
 
 @Mod(value = IceAgeSurvival.MODID, dist = Dist.CLIENT)
 public class IceAgeSurvivalClient {
     /** Cor da ponta da flecha tranquilizante, aplicada sobre a textura de flecha com ponta do vanilla. */
     private static final int TRANQ_ARROW_TIP_COLOR = 0xFF7A3FA0;
+    /** O modelo do Smilodon foi feito em escala menor que a caixa de colisão. */
+    private static final float SMILODON_SCALE = 1.25F;
 
     public IceAgeSurvivalClient(IEventBus modEventBus, ModContainer container) {
         container.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
@@ -28,6 +33,8 @@ public class IceAgeSurvivalClient {
     private static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerEntityRenderer(ModEntities.TEST_CREATURE.get(), TestCreatureRenderer::new);
         event.registerEntityRenderer(ModEntities.TRANQ_ARROW.get(), TranqArrowRenderer::new);
+        event.registerEntityRenderer(ModEntities.SMILODON.get(), context -> new GeoEntityRenderer<>(
+                context, new DefaultedEntityGeoModel<Smilodon>(IceAgeSurvival.id("smilodon"), true)).withScale(SMILODON_SCALE));
     }
 
     private static void registerItemColors(RegisterColorHandlersEvent.Item event) {

@@ -11,5 +11,7 @@
   "iceagesurvival.hud.taming": "Taming %s%%",
   "iceagesurvival.taming.not_hungry": "It is not ready to eat again yet",
   "iceagesurvival.configuration.tranqArrowTorpor": "Tranquilizer arrow torpor",
-  "iceagesurvival.configuration.tamingBonusLevelFraction": "Taming bonus level fraction"
+  "iceagesurvival.configuration.tamingBonusLevelFraction": "Taming bonus level fraction",
+  "entity.iceagesurvival.smilodon": "Smilodon",
+  "item.iceagesurvival.smilodon_spawn_egg": "Smilodon Spawn Egg"
 }

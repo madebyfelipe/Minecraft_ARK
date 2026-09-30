@@ -11,5 +11,7 @@
   "iceagesurvival.hud.taming": "Domesticação %s%%",
   "iceagesurvival.taming.not_hungry": "Ainda não está pronta para comer de novo",
   "iceagesurvival.configuration.tranqArrowTorpor": "Torpor da flecha tranquilizante",
-  "iceagesurvival.configuration.tamingBonusLevelFraction": "Fração de nível bônus da domesticação"
+  "iceagesurvival.configuration.tamingBonusLevelFraction": "Fração de nível bônus da domesticação",
+  "entity.iceagesurvival.smilodon": "Smilodon",
+  "item.iceagesurvival.smilodon_spawn_egg": "Ovo Gerador de Smilodon"
 }

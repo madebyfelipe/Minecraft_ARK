@@ -8,13 +8,16 @@ import dev.madebyfelipe.iceagesurvival.core.stats.StatProfile;
 import dev.madebyfelipe.iceagesurvival.core.stats.WildLevels;
 import dev.madebyfelipe.iceagesurvival.core.taming.TamingRules;
 import dev.madebyfelipe.iceagesurvival.core.taming.TamingSession;
+import dev.madebyfelipe.iceagesurvival.species.BehaviorProfile;
 import dev.madebyfelipe.iceagesurvival.species.Species;
 import dev.madebyfelipe.iceagesurvival.species.TamingProfile;
 import java.util.Optional;
 import java.util.random.RandomGenerator;
 import javax.annotation.Nullable;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -62,6 +65,7 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     private static final String TAG_TAMING_DAMAGE = "Damage";
     private static final String TAG_NEXT_FEED_TIME = "NextFeedTime";
     private static final String TAG_AFFINITY = "Affinity";
+    private static final String TAG_HOME = "Home";
 
     private static final int TORPOR_UPDATE_INTERVAL_TICKS = 20;
     /** Afinidade inicial de uma domesticação com eficiência de 100%. */
@@ -75,6 +79,9 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     /** Game time a partir do qual a criatura aceita comer de novo. */
     private long nextFeedTime;
     private float affinity;
+    /** Centro do território: onde a criatura entrou no mundo pela primeira vez. */
+    @Nullable
+    private BlockPos homePos;
 
     protected PrehistoricCreature(EntityType<? extends PrehistoricCreature> type, Level level) {
         super(type, level);
@@ -96,6 +103,10 @@ public abstract class PrehistoricCreature extends TamableAnimal {
 
     public Optional<Species> species() {
         return Species.of(level().registryAccess(), getType());
+    }
+
+    public Optional<BehaviorProfile> behavior() {
+        return species().flatMap(Species::behavior);
     }
 
     private Optional<TamingProfile> tamingProfile() {
@@ -121,8 +132,35 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     @Override
     public void onAddedToLevel() {
         super.onAddedToLevel();
-        if (!level().isClientSide && !statsRolled) {
+        if (level().isClientSide) {
+            return;
+        }
+        if (!statsRolled) {
             rollWildStats();
+        }
+        if (homePos == null) {
+            homePos = blockPosition();
+        }
+        applyBehavior();
+    }
+
+    /** Aplica percepção e território da espécie. Criaturas domesticadas não têm território. */
+    private void applyBehavior() {
+        Optional<BehaviorProfile> behavior = behavior();
+        behavior.ifPresent(profile -> setBase(Attributes.FOLLOW_RANGE, profile.aggroRadius()));
+        int territory = behavior.map(BehaviorProfile::territoryRadius).orElse(0);
+        if (!isTame() && territory > 0 && homePos != null) {
+            restrictTo(homePos, territory);
+        } else {
+            clearRestriction();
+        }
+    }
+
+    @Override
+    protected void applyTamingSideEffects() {
+        super.applyTamingSideEffects();
+        if (!level().isClientSide) {
+            applyBehavior();
         }
     }
 
@@ -318,6 +356,9 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         compound.put(TAG_TAMING, taming);
         compound.putLong(TAG_NEXT_FEED_TIME, nextFeedTime);
         compound.putFloat(TAG_AFFINITY, affinity);
+        if (homePos != null) {
+            compound.put(TAG_HOME, NbtUtils.writeBlockPos(homePos));
+        }
     }
 
     @Override
@@ -346,6 +387,7 @@ public abstract class PrehistoricCreature extends TamableAnimal {
                 taming.getDouble(TAG_TAMING_FOOD), taming.getDouble(TAG_TAMING_QUALITY), taming.getDouble(TAG_TAMING_DAMAGE));
         nextFeedTime = compound.getLong(TAG_NEXT_FEED_TIME);
         affinity = Math.clamp(compound.getFloat(TAG_AFFINITY), 0.0F, MAX_AFFINITY);
+        homePos = NbtUtils.readBlockPos(compound, TAG_HOME).orElse(null);
 
         double max = maxTorpor();
         torpor = Math.clamp(compound.getDouble(TAG_TORPOR), 0.0, max);

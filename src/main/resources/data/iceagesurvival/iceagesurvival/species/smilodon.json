@@ -1,0 +1,69 @@
+{
+  "stats": {
+    "health": {
+      "base": 40,
+      "per_point": 0.08
+    },
+    "attack": {
+      "base": 6,
+      "per_point": 0.04
+    },
+    "speed": {
+      "base": 0.3
+    },
+    "torpor": {
+      "base": 80,
+      "per_point": 0.06
+    },
+    "armor": {
+      "base": 2,
+      "per_point": 0.03
+    }
+  },
+  "taming": {
+    "torpor_decay_per_second": 1.5,
+    "required_food": 150,
+    "required_food_per_level": 0.015,
+    "feed_interval_seconds": 8,
+    "foods": [
+      {
+        "items": [
+          "minecraft:beef",
+          "minecraft:mutton",
+          "minecraft:porkchop"
+        ],
+        "value": 25
+      },
+      {
+        "items": [
+          "minecraft:chicken",
+          "minecraft:rabbit"
+        ],
+        "value": 15,
+        "quality": 0.7
+      },
+      {
+        "items": [
+          "minecraft:cooked_beef",
+          "minecraft:cooked_mutton",
+          "minecraft:cooked_porkchop",
+          "minecraft:cooked_chicken",
+          "minecraft:cooked_rabbit"
+        ],
+        "value": 15,
+        "quality": 0.4
+      },
+      {
+        "items": "minecraft:rotten_flesh",
+        "value": 5,
+        "quality": 0.2
+      }
+    ]
+  },
+  "behavior": {
+    "aggressive": true,
+    "aggro_radius": 14,
+    "territory_radius": 32,
+    "flee_health_fraction": 0.25
+  }
+}

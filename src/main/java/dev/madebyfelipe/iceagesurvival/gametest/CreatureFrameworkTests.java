@@ -2,9 +2,12 @@ package dev.madebyfelipe.iceagesurvival.gametest;
 
 import dev.madebyfelipe.iceagesurvival.IceAgeSurvival;
 import dev.madebyfelipe.iceagesurvival.core.stats.Stat;
+import dev.madebyfelipe.iceagesurvival.entity.Smilodon;
 import dev.madebyfelipe.iceagesurvival.entity.TestCreature;
 import dev.madebyfelipe.iceagesurvival.registry.ModEntities;
+import dev.madebyfelipe.iceagesurvival.species.BehaviorProfile;
 import dev.madebyfelipe.iceagesurvival.species.Species;
+import java.util.UUID;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.CompoundTag;
@@ -62,6 +65,32 @@ public class CreatureFrameworkTests {
         assertClose(helper, "vida atual", original.getHealth(), loaded.getHealth());
         helper.assertTrue(loaded.isTame(), "estado domesticado não persistiu");
         helper.assertTrue(owner.getUUID().equals(loaded.getOwnerUUID()), "dono não persistiu");
+        helper.succeed();
+    }
+
+    @GameTest(template = EMPTY)
+    public static void smilodonIsTerritorialUntilTamed(GameTestHelper helper) {
+        Smilodon smilodon = helper.spawnWithNoFreeWill(ModEntities.SMILODON.get(), 1, 2, 1);
+        BehaviorProfile behavior = smilodon.behavior().orElseThrow();
+        helper.assertTrue(smilodon.hasRestriction(), "selvagem sem território");
+        helper.assertTrue(smilodon.getRestrictCenter().equals(smilodon.blockPosition()), "território fora do ponto de origem");
+        assertClose(helper, "raio de percepção", behavior.aggroRadius(), smilodon.getAttributeValue(Attributes.FOLLOW_RANGE));
+
+        smilodon.tame(helper.makeMockPlayer(GameType.SURVIVAL));
+        helper.assertTrue(!smilodon.hasRestriction(), "domesticado continua preso ao território");
+        helper.succeed();
+    }
+
+    @GameTest(template = EMPTY)
+    public static void territorySurvivesSaveAndLoad(GameTestHelper helper) {
+        Smilodon original = helper.spawnWithNoFreeWill(ModEntities.SMILODON.get(), 1, 2, 1);
+        Smilodon loaded = ModEntities.SMILODON.get().create(helper.getLevel());
+        loaded.load(original.saveWithoutId(new CompoundTag()));
+        // O NBT carrega o UUID da original; o mundo recusaria duas entidades com o mesmo.
+        loaded.setUUID(UUID.randomUUID());
+        loaded.moveTo(original.getX() + 1, original.getY(), original.getZ());
+        helper.assertTrue(helper.getLevel().addFreshEntity(loaded), "entidade recarregada não entrou no mundo");
+        helper.assertTrue(loaded.getRestrictCenter().equals(original.getRestrictCenter()), "centro do território mudou ao recarregar");
         helper.succeed();
     }
 

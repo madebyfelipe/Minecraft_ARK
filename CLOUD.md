@@ -218,6 +218,8 @@ Formato atual do JSON de espécie (cresce a cada etapa):
 
 ### Espécies
 
+Implementada: **Smilodon** (`smilodon`) — predador territorial agressivo. Modelo, textura e animações (parado, andando, mordida, inconsciente) gerados por `tools/gen_smilodon.py`. Domesticado, segue o dono e defende; comandos e montaria ainda não existem.
+
 Implementada: **criatura de teste** (`test_creature`) — provisória, usa o modelo do porco vanilla, existe só para validar o framework. Foi antecipada da Etapa 3 para a 2 porque sem uma entidade concreta não há como testar persistência em jogo.
 
 Ordem planejada:
@@ -227,6 +229,28 @@ Ordem planejada:
 3. Lote seguinte (Etapa 5), a definir: um herbívoro de manada (Mamute), um pequeno de início de jogo, um dinossauro.
 
 Lista-alvo do brief — Era do Gelo: mamute-lanoso, smilodon, lobo-terrível, rinoceronte-lanoso, megaloceros, megatherium, urso-das-cavernas, bisão, auroque, mastodonte. Dinossauros: tyrannosaurus, triceratops, velociraptor, ankylosaurus, spinosaurus, giganotosaurus (boss).
+
+### Comportamento (implementado)
+
+Bloco `behavior` do JSON de espécie (ausente = passiva, sem território):
+
+```json
+"behavior": {
+  "aggressive": true,
+  "aggro_radius": 14,
+  "territory_radius": 32,
+  "flee_health_fraction": 0.25
+}
+```
+
+- O território é centrado em onde a criatura entrou no mundo pela primeira vez (salvo no NBT). Ela não vagueia nem persegue além do raio, e volta para dentro quando o alvo foge.
+- `aggro_radius` é o raio em que percebe um jogador e a distância em que desiste do alvo.
+- Abaixo de `flee_health_fraction` de vida, recua de quem a feriu em vez de lutar até morrer.
+- Domesticada, perde o território.
+
+### Workflow de assets
+
+Modelos são gerados por script em `tools/` (um por espécie), que escreve geometria Bedrock, textura e animações direto em `src/main/resources/assets/iceagesurvival/{geo,textures,animations}/entity/`. Os arquivos abrem no Blockbench para conferência e ajuste. **Rodar o script de novo sobrescreve edições manuais** — ao editar um modelo à mão, aposentar o script daquela espécie.
 
 ## 12. Progressão
 
@@ -356,7 +380,7 @@ Pontos de atenção: validação de dono em todo payload, montaria (autoridade d
 | 1 | Workspace, Gradle, build, runServer | ✅ 2026-09-30 (`runClient` ainda não verificado) |
 | 2 | Core: níveis, atributos, ownership, persistência, registry de espécies | ✅ 2026-09-30 |
 | 3 | Domesticação com criatura de teste | ✅ 2026-09-30 (falta conferir no cliente) |
-| 4 | Smilodon | — |
+| 4 | Smilodon | em andamento — modelo, IA territorial e domesticação prontos; faltam comandos |
 | 5 | Mais criaturas, spawning | — |
 | 6 | Temperatura | — |
 | 7 | Montaria | — |
@@ -372,13 +396,14 @@ Ver a tabela em [4](#4-decisões). Registro de mudanças estruturais:
 
 - 2026-09-30 — Documento criado; D1–D11 registradas.
 - 2026-09-30 — Etapa 2: D12–D14. Criatura de teste antecipada para a Etapa 2.
+- 2026-09-30 — Assets: workflow de modelos gerados por script aprovado. `blockbench-mcp` (enfp-dev-studio) avaliado e descartado: é só um esqueleto que envia `hello_world`.
 - 2026-09-30 — Etapa 3: torpor, domesticação e flecha tranquilizante; regras nas seções 13 e 14.
 
 ## 25. Riscos
 
 | Risco | Impacto | Mitigação |
 |---|---|---|
-| **Assets de criaturas.** Não há artista no projeto e nenhum asset externo é reutilizável. | Alto — criaturas são o coração do mod. | Modelos simples no estilo vanilla; definir cedo quem produz os assets. |
+| **Assets de criaturas.** Não há artista no projeto e nenhum asset externo é reutilizável. | Médio — resolvido por ora com modelos gerados por script, aprovados pelo Felipe como workflow; a qualidade visual é de blocagem. | Iterar os modelos no Blockbench quando fizer diferença. |
 | Escopo: dez etapas, vários sistemas grandes. | Alto | MVP estreito; não avançar com etapa instável. |
 | Balanceamento de torpor/níveis/genética. | Médio | Tudo em dados e config; testes de lógica pura. |
 | Montaria em multiplayer (latência, dessincronização). | Médio | Reaproveitar o modelo de controle de veículo vanilla. |
@@ -389,7 +414,6 @@ Ver a tabela em [4](#4-decisões). Registro de mudanças estruturais:
 ## 26. Ainda não decidido
 
 1. **Licença do nosso código** e se o repositório será público.
-2. **Quem produz modelos, texturas e animações** (e em que ferramenta — Blockbench é o padrão para GeckoLib).
 3. Temperatura interna vs. Cold Sweat — decidir na Etapa 6 (D5).
 4. World preset próprio vs. conversão global no estilo Primal Winter — decidir na Etapa 9 (D6).
 5. Integração com criaturas de mods externos: possível em tese (registrar uma espécie apontando para um `EntityType` alheio), mas exigiria anexar nossos dados a entidades de terceiros. Não planejado.
