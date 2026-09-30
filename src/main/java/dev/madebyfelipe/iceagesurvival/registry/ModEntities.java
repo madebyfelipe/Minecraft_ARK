@@ -30,7 +30,7 @@ public final class ModEntities {
     // Espécie nova: uma linha aqui (id e caixa de colisão), um ovo em ModItems, o JSON em
     // data/.../species/ e os assets gerados por tools/gen_<especie>.py.
     public static final DeferredHolder<EntityType<?>, EntityType<LandCreature>> SMILODON = landCreature("smilodon", 1.3F, 2.3F);
-    public static final DeferredHolder<EntityType<?>, EntityType<LandCreature>> MAMMOTH = landCreature("mammoth", 2.0F, 3.1F);
+    public static final DeferredHolder<EntityType<?>, EntityType<LandCreature>> MAMMOTH = landCreature("mammoth", 3.0F, 4.65F);
     public static final DeferredHolder<EntityType<?>, EntityType<LandCreature>> DIRE_WOLF = landCreature("dire_wolf", 0.8F, 1.2F);
     public static final DeferredHolder<EntityType<?>, EntityType<LandCreature>> TYRANNOSAURUS = landCreature("tyrannosaurus", 2.7F, 5.4F);
 

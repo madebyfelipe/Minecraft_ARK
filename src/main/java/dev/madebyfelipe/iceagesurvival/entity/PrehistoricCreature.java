@@ -722,15 +722,17 @@ public abstract class PrehistoricCreature extends TamableAnimal implements Playe
 
     /**
      * Quebra os blocos na frente do corpo, do chão em que pisa até o topo da cabeça, com
-     * dureza até o limite da espécie. Respeita {@code mobGriefing}, a proteção do spawn e
+     * dureza até o limite da espécie e, se ela tiver {@code break_blocks}, só os daquela tag.
+     * Os blocos dropam como se quebrados à mão. Respeita {@code mobGriefing}, a proteção do spawn e
      * os eventos de quebra de bloco (mods de proteção de terreno), como se fosse quem monta
      * quebrando, e nunca quebra bloco com inventário.
      */
     private void breakBlocksInBite(ServerPlayer rider) {
-        float maxHardness = mountProfile().map(MountProfile::breakHardness).orElse(0.0F);
-        if (maxHardness <= 0.0F || !EventHooks.canEntityGrief(level(), this)) {
+        MountProfile mount = mountProfile().orElse(null);
+        if (mount == null || mount.breakHardness() <= 0.0F || !EventHooks.canEntityGrief(level(), this)) {
             return;
         }
+        float maxHardness = mount.breakHardness();
         Vec3 forward = Vec3.directionFromRotation(0.0F, getYRot());
         Vec3 side = new Vec3(-forward.z, 0.0, forward.x);
         double halfWidth = getBbWidth() / 2.0;
@@ -749,6 +751,7 @@ public abstract class PrehistoricCreature extends TamableAnimal implements Playe
             var state = level().getBlockState(pos);
             float hardness = state.getDestroySpeed(level(), pos);
             if (state.isAir() || hardness < 0.0F || hardness > maxHardness || state.hasBlockEntity()
+                    || mount.breakBlocks().isPresent() && !state.is(mount.breakBlocks().get())
                     || !level().mayInteract(rider, pos)
                     || CommonHooks.fireBlockBreak(level(), rider.gameMode.getGameModeForPlayer(), rider, pos, state).isCanceled()) {
                 continue;

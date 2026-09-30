@@ -32,7 +32,7 @@ SPECIES = {
     "smilodon": ("smilodon", "smilodon_male.png",
                  {"idle": "idle", "walk": "walk", "attack": "attack", "unconscious": "sleep"}, 2.5),
     "mammoth": ("mammoth", "mammoth_male.png",
-                {"idle": "idle_1_90", "walk": "walk", "attack": "attack", "unconscious": "rest/sleep"}, 3.3),
+                {"idle": "idle_1_90", "walk": "walk", "attack": "attack", "unconscious": "rest/sleep"}, 4.95),
     "tyrannosaurus": ("tyrannosaurus", "tyrannosaurus_male.png",
                       {"idle": "idle", "walk": "walk", "attack": "attack_normal_1", "unconscious": "sleep_1"}, 6.0),
 }

@@ -72,7 +72,12 @@ public class MountTests {
 
     /** T-Rex domesticado, selado, virado para +z e montado pelo dono. */
     private static LandCreature mountedRex(GameTestHelper helper, Player owner) {
-        LandCreature rex = helper.spawnWithNoFreeWill(ModEntities.TYRANNOSAURUS.get(), 4, 0, 4);
+        return mounted(helper, owner, ModEntities.TYRANNOSAURUS.get());
+    }
+
+    private static LandCreature mounted(GameTestHelper helper, Player owner,
+                                        net.minecraft.world.entity.EntityType<LandCreature> type) {
+        LandCreature rex = helper.spawnWithNoFreeWill(type, 4, 0, 4);
         rex.tame(owner);
         rex.setAffinity(PrehistoricCreature.MAX_AFFINITY);
         rex.setSaddled(true);
@@ -122,6 +127,25 @@ public class MountTests {
         helper.assertBlockPresent(Blocks.OBSIDIAN, 5, 2, 7);
         helper.assertBlockPresent(Blocks.CHEST, 5, 3, 6);
         helper.assertBlockPresent(Blocks.DIRT, 4, 2, 11);
+        helper.succeed();
+    }
+
+    @GameTest(template = EMPTY)
+    public static void mammothBiteHarvestsWoodButNotStone(GameTestHelper helper) {
+        Player owner = helper.makeMockServerPlayerInLevel();
+        LandCreature mammoth = mounted(helper, owner, ModEntities.MAMMOTH.get());
+        helper.setBlock(4, 1, 6, Blocks.OAK_LOG);
+        helper.setBlock(3, 2, 7, Blocks.OAK_LEAVES);
+        helper.setBlock(5, 0, 6, Blocks.STONE);
+        helper.setBlock(4, 0, 7, Blocks.DIRT);
+
+        helper.assertTrue(mammoth.attackAsMount(owner, null), "a mordida deveria sair sem alvo");
+
+        helper.assertBlockNotPresent(Blocks.OAK_LOG, 4, 1, 6);
+        helper.assertBlockNotPresent(Blocks.OAK_LEAVES, 3, 2, 7);
+        helper.assertBlockPresent(Blocks.STONE, 5, 0, 6);
+        helper.assertBlockPresent(Blocks.DIRT, 4, 0, 7);
+        helper.assertItemEntityPresent(Items.OAK_LOG, new BlockPos(4, 1, 6), 2.0);
         helper.succeed();
     }
 
