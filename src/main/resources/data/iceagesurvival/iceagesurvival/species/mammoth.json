@@ -52,5 +52,18 @@
     "aggro_radius": 16,
     "herd_radius": 14,
     "group_defense": true
+  },
+  "mount": {
+    "seat_height": 3.0,
+    "min_affinity": 25,
+    "speed_multiplier": 0.8,
+    "jump_strength": 0.42
+  },
+  "spawn": {
+    "biomes": "#iceagesurvival:spawns_mammoth",
+    "weight": 4,
+    "group_min": 2,
+    "group_max": 4,
+    "max_nearby": 6
   }
 }

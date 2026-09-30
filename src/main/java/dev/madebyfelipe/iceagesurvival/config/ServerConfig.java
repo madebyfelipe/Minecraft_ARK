@@ -33,6 +33,26 @@ public final class ServerConfig {
             .comment("Chance de uma criatura com afinidade zero obedecer a um comando. Com afinidade máxima, obedece sempre.")
             .defineInRange("minObedience", 0.6, 0.0, 1.0);
 
+    public static final ModConfigSpec.BooleanValue WILD_SPAWN_ENABLED = BUILDER
+            .comment("Se o mod repõe fauna selvagem em chunks já gerados. Desligar deixa a fauna só na geração do terreno.")
+            .define("wildSpawnEnabled", true);
+
+    public static final ModConfigSpec.IntValue WILD_SPAWN_INTERVAL_SECONDS = BUILDER
+            .comment("Segundos entre duas tentativas de reposição de fauna por jogador.")
+            .defineInRange("wildSpawnIntervalSeconds", 45, 5, 3600);
+
+    public static final ModConfigSpec.IntValue WILD_SPAWN_MIN_DISTANCE = BUILDER
+            .comment("Distância mínima do jogador para uma criatura nascer, para não aparecer à vista.")
+            .defineInRange("wildSpawnMinDistance", 40, 8, 256);
+
+    public static final ModConfigSpec.IntValue WILD_SPAWN_MAX_DISTANCE = BUILDER
+            .comment("Distância máxima do jogador para uma criatura nascer. Acima da distância de simulação não nasce nada.")
+            .defineInRange("wildSpawnMaxDistance", 96, 16, 512);
+
+    public static final ModConfigSpec.IntValue WILD_SPAWN_DENSITY_RADIUS = BUILDER
+            .comment("Raio em que a densidade de cada espécie é conferida contra o max_nearby do JSON da espécie.")
+            .defineInRange("wildSpawnDensityRadius", 96, 16, 512);
+
     public static final ModConfigSpec.BooleanValue COLD_ENABLED = BUILDER
             .comment("Se o frio afeta os jogadores. Desligar entrega a mecânica de temperatura a outro mod.")
             .define("coldEnabled", true);

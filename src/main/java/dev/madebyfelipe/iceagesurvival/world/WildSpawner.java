@@ -1,0 +1,214 @@
+package dev.madebyfelipe.iceagesurvival.world;
+
+import dev.madebyfelipe.iceagesurvival.config.ServerConfig;
+import dev.madebyfelipe.iceagesurvival.core.spawn.WildSpawnRules;
+import dev.madebyfelipe.iceagesurvival.entity.PrehistoricCreature;
+import dev.madebyfelipe.iceagesurvival.registry.ModEntities;
+import dev.madebyfelipe.iceagesurvival.species.Species;
+import dev.madebyfelipe.iceagesurvival.species.SpawnProfile;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.random.RandomGenerator;
+import javax.annotation.Nullable;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.SpawnPlacements;
+import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.phys.AABB;
+import net.neoforged.neoforge.event.EventHooks;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
+
+/**
+ * Reposição de fauna selvagem em chunks já gerados.
+ *
+ * <p>Criaturas do mod são da categoria {@code CREATURE} do vanilla, que na prática só nasce
+ * quando o terreno é gerado: num mundo já explorado, a fauna que morre não volta. Em vez de
+ * mudar a categoria (o que faria as criaturas desaparecerem sozinhas), o mod repõe por conta
+ * própria — uma tentativa por jogador a cada intervalo, num anel fora do campo de visão, com
+ * teto de densidade por espécie vindo do bloco {@code spawn} do JSON da espécie.
+ *
+ * <p>Sem o teto, a reposição encheria o mundo; com ele, a densidade converge para
+ * {@code max_nearby} indivíduos por raio de densidade em torno de onde o jogador andou.
+ */
+public final class WildSpawner {
+    /** Quantas posições tentar antes de desistir da tentativa deste intervalo. */
+    private static final int POSITION_ATTEMPTS = 12;
+    /** Espalhamento horizontal dos membros de um grupo em relação à posição sorteada. */
+    private static final int GROUP_SPREAD = 4;
+
+    private WildSpawner() {
+    }
+
+    /** Uma espécie candidata à reposição, com a contagem do que já existe perto. */
+    public record Report(EntityType<?> type, SpawnProfile profile, int nearby) {
+    }
+
+    public static void onServerTick(ServerTickEvent.Post event) {
+        if (!ServerConfig.WILD_SPAWN_ENABLED.get()) {
+            return;
+        }
+        int interval = ServerConfig.WILD_SPAWN_INTERVAL_SECONDS.get() * 20;
+        for (ServerLevel level : event.getServer().getAllLevels()) {
+            if (level.getGameTime() % interval != 0 || level.players().isEmpty()) {
+                continue;
+            }
+            for (ServerPlayer player : level.players()) {
+                if (!player.isSpectator()) {
+                    trySpawnAround(level, player);
+                }
+            }
+        }
+    }
+
+    /**
+     * Uma tentativa de reposição em torno do jogador, com as distâncias da config.
+     *
+     * @return quantas criaturas nasceram
+     */
+    public static int trySpawnAround(ServerLevel level, ServerPlayer player) {
+        return trySpawnAround(level, player,
+                ServerConfig.WILD_SPAWN_MIN_DISTANCE.get(), ServerConfig.WILD_SPAWN_MAX_DISTANCE.get());
+    }
+
+    /** Como {@link #trySpawnAround(ServerLevel, ServerPlayer)}, com as distâncias dadas. */
+    public static int trySpawnAround(ServerLevel level, ServerPlayer player, int minDistance, int maxDistance) {
+        List<Report> reports = survey(level, player);
+        if (reports.isEmpty()) {
+            return 0;
+        }
+        List<WildSpawnRules.Candidate> candidates = new ArrayList<>(reports.size());
+        for (Report report : reports) {
+            candidates.add(new WildSpawnRules.Candidate(
+                    report.profile().weight(), report.nearby(), report.profile().maxNearby()));
+        }
+        RandomGenerator random = level.random::nextLong;
+        int chosen = WildSpawnRules.pick(candidates, random);
+        if (chosen < 0) {
+            return 0;
+        }
+        Report report = reports.get(chosen);
+        int room = report.profile().maxNearby() - report.nearby();
+        int group = WildSpawnRules.groupSize(report.profile().groupMin(), report.profile().groupMax(), room, random);
+        return group <= 0 ? 0 : spawnGroup(level, player, report, group, minDistance, maxDistance, random);
+    }
+
+    /**
+     * Espécies que podem nascer no bioma em que o jogador está, com quantas delas já existem
+     * no raio de densidade. Só as que ainda têm vaga.
+     */
+    public static List<Report> survey(ServerLevel level, ServerPlayer player) {
+        Object2IntMap<EntityType<?>> nearby = countNearby(level, player);
+        List<Report> reports = new ArrayList<>();
+        for (var holder : ModEntities.LAND_CREATURES) {
+            EntityType<?> type = holder.get();
+            Optional<SpawnProfile> profile = Species.of(level.registryAccess(), type).flatMap(Species::spawn);
+            if (profile.isEmpty()) {
+                continue;
+            }
+            if (!level.getBiome(player.blockPosition()).is(profile.get().biomes())) {
+                continue;
+            }
+            reports.add(new Report(type, profile.get(), nearby.getInt(type)));
+        }
+        return reports;
+    }
+
+    /** Uma varredura só, para todas as espécies: contagens de criaturas do mod perto do jogador. */
+    private static Object2IntMap<EntityType<?>> countNearby(ServerLevel level, ServerPlayer player) {
+        double radius = ServerConfig.WILD_SPAWN_DENSITY_RADIUS.get();
+        Object2IntMap<EntityType<?>> counts = new Object2IntOpenHashMap<>();
+        AABB box = player.getBoundingBox().inflate(radius);
+        for (PrehistoricCreature creature : level.getEntitiesOfClass(PrehistoricCreature.class, box,
+                creature -> !creature.isTame())) {
+            counts.mergeInt(creature.getType(), 1, Integer::sum);
+        }
+        return counts;
+    }
+
+    private static int spawnGroup(ServerLevel level, ServerPlayer player, Report report, int group,
+                                  int minDistance, int maxDistance, RandomGenerator random) {
+        int min = minDistance;
+        int max = Math.max(min + 1, maxDistance);
+        EntityType<?> type = report.type();
+
+        for (int attempt = 0; attempt < POSITION_ATTEMPTS; attempt++) {
+            WildSpawnRules.Offset offset = WildSpawnRules.ringOffset(min, max, random);
+            BlockPos origin = surfacePos(level, player.getBlockX() + offset.x(), player.getBlockZ() + offset.z(), type);
+            if (origin == null || !canSpawnAt(level, type, origin, report.profile())) {
+                continue;
+            }
+            int spawned = 0;
+            for (int index = 0; index < group; index++) {
+                BlockPos pos = index == 0 ? origin : nearbySurfacePos(level, origin, type, report.profile(), random);
+                if (pos != null && spawnAt(level, type, pos)) {
+                    spawned++;
+                }
+            }
+            return spawned;
+        }
+        return 0;
+    }
+
+    /**
+     * Posição na superfície da coluna, já ajustada pelo tipo de colocação da espécie.
+     *
+     * @return null se o chunk não estiver carregado; a reposição nunca carrega chunk
+     */
+    @Nullable
+    public static BlockPos surfacePos(ServerLevel level, int x, int z, EntityType<?> type) {
+        if (!level.hasChunkAt(x, z)) {
+            return null;
+        }
+        Heightmap.Types heightmap = SpawnPlacements.getHeightmapType(type);
+        BlockPos top = new BlockPos(x, level.getHeight(heightmap, x, z), z);
+        return SpawnPlacements.getPlacementType(type).adjustSpawnPosition(level, top);
+    }
+
+    @Nullable
+    private static BlockPos nearbySurfacePos(ServerLevel level, BlockPos origin, EntityType<?> type,
+                                             SpawnProfile profile, RandomGenerator random) {
+        for (int attempt = 0; attempt < 6; attempt++) {
+            int x = origin.getX() + random.nextInt(GROUP_SPREAD * 2 + 1) - GROUP_SPREAD;
+            int z = origin.getZ() + random.nextInt(GROUP_SPREAD * 2 + 1) - GROUP_SPREAD;
+            BlockPos pos = surfacePos(level, x, z, type);
+            if (pos != null && canSpawnAt(level, type, pos, profile)) {
+                return pos;
+            }
+        }
+        return null;
+    }
+
+    /** As mesmas checagens do spawn natural do vanilla, mais o bioma da espécie. */
+    public static boolean canSpawnAt(ServerLevel level, EntityType<?> type, BlockPos pos, SpawnProfile profile) {
+        return level.getBiome(pos).is(profile.biomes())
+                && SpawnPlacements.isSpawnPositionOk(type, level, pos)
+                && SpawnPlacements.checkSpawnRules(type, level, MobSpawnType.NATURAL, pos, level.random)
+                && level.noCollision(type.getSpawnAABB(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5));
+    }
+
+    /**
+     * Faz nascer um indivíduo selvagem nesta posição, pelo mesmo caminho do spawn natural
+     * (inclusive os eventos do NeoForge, para outros mods poderem barrar).
+     *
+     * @return se nasceu
+     */
+    public static boolean spawnAt(ServerLevel level, EntityType<?> type, BlockPos pos) {
+        if (!(type.create(level) instanceof Mob mob)) {
+            return false;
+        }
+        mob.moveTo(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, level.random.nextFloat() * 360.0F, 0.0F);
+        if (!EventHooks.checkSpawnPosition(mob, level, MobSpawnType.NATURAL)) {
+            mob.discard();
+            return false;
+        }
+        EventHooks.finalizeMobSpawn(mob, level, level.getCurrentDifficultyAt(pos), MobSpawnType.NATURAL, null);
+        return level.addFreshEntity(mob);
+    }
+}

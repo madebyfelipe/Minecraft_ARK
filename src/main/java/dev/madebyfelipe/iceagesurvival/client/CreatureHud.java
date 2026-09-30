@@ -35,6 +35,9 @@ public final class CreatureHud {
         if (minecraft.player != null && creature.isOwner(minecraft.player)) {
             lines.add(Component.translatable("iceagesurvival.hud.order",
                     Component.translatable("iceagesurvival.order." + creature.order().id())));
+            if (creature.isSaddled()) {
+                lines.add(Component.translatable("iceagesurvival.hud.saddled"));
+            }
         }
 
         int x = graphics.guiWidth() / 2;

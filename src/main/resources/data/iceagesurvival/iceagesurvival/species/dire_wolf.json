@@ -68,5 +68,12 @@
     "herd_radius": 10,
     "group_defense": true,
     "prey": "#iceagesurvival:small_prey"
+  },
+  "spawn": {
+    "biomes": "#iceagesurvival:spawns_dire_wolf",
+    "weight": 4,
+    "group_min": 2,
+    "group_max": 4,
+    "max_nearby": 8
   }
 }

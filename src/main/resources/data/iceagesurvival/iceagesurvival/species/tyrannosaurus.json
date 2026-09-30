@@ -71,5 +71,12 @@
     "territory_radius": 48,
     "flee_health_fraction": 0.1,
     "prey": "#iceagesurvival:large_prey"
+  },
+  "spawn": {
+    "biomes": "#iceagesurvival:spawns_tyrannosaurus",
+    "weight": 1,
+    "group_min": 1,
+    "group_max": 1,
+    "max_nearby": 1
   }
 }
