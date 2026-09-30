@@ -58,5 +58,15 @@
   "iceagesurvival.debug.kit": "Kit de teste entregue",
   "iceagesurvival.debug.spawned": "%s criatura(s) de %s",
   "iceagesurvival.debug.spawns.none": "Nenhuma espécie do mod nasce neste bioma",
-  "iceagesurvival.debug.repopulate": "%s criatura(s) repostas"
+  "iceagesurvival.debug.repopulate": "%s criatura(s) repostas",
+  "subtitles.iceagesurvival.entity.smilodon.ambient": "Smilodon rosna",
+  "subtitles.iceagesurvival.entity.smilodon.hurt": "Smilodon ferido",
+  "subtitles.iceagesurvival.entity.smilodon.death": "Smilodon morre",
+  "subtitles.iceagesurvival.entity.mammoth.ambient": "Mamute barre",
+  "subtitles.iceagesurvival.entity.mammoth.hurt": "Mamute ferido",
+  "subtitles.iceagesurvival.entity.mammoth.death": "Mamute morre",
+  "subtitles.iceagesurvival.entity.tyrannosaurus.ambient": "Tiranossauro rosna",
+  "subtitles.iceagesurvival.entity.tyrannosaurus.hurt": "Tiranossauro ferido",
+  "subtitles.iceagesurvival.entity.tyrannosaurus.death": "Tiranossauro morre",
+  "subtitles.iceagesurvival.entity.tyrannosaurus.alert": "Tiranossauro ruge"
 }

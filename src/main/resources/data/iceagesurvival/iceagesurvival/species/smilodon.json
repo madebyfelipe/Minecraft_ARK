@@ -84,5 +84,11 @@
     "group_min": 1,
     "group_max": 1,
     "max_nearby": 2
+  },
+  "sounds": {
+    "ambient": "iceagesurvival:entity.smilodon.ambient",
+    "hurt": "iceagesurvival:entity.smilodon.hurt",
+    "death": "iceagesurvival:entity.smilodon.death",
+    "volume": 1.0
   }
 }

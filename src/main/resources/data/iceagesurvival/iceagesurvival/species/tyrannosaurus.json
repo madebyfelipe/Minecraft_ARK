@@ -84,5 +84,12 @@
     "group_min": 1,
     "group_max": 1,
     "max_nearby": 1
+  },
+  "sounds": {
+    "ambient": "iceagesurvival:entity.tyrannosaurus.ambient",
+    "hurt": "iceagesurvival:entity.tyrannosaurus.hurt",
+    "death": "iceagesurvival:entity.tyrannosaurus.death",
+    "alert": "iceagesurvival:entity.tyrannosaurus.alert",
+    "volume": 3.0
   }
 }

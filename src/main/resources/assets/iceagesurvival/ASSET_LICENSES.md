@@ -3,8 +3,8 @@
 > **Antes de distribuir o mod para qualquer pessoa, leia isto.**
 
 Nem toda arte deste diretório é nossa. As espécies listadas em
-[`tools/hand_authored.txt`](../../../../../tools/hand_authored.txt) usam modelos, texturas e
-animações do mod **Fossils and Archeology: Revival**
+[`tools/hand_authored.txt`](../../../../../tools/hand_authored.txt) usam modelos, texturas,
+animações e sons (`sounds/entity/<especie>/`, com `sounds.json`) do mod **Fossils and Archeology: Revival**
 (<https://github.com/TeamFossilsArcheology/FossilsArcheologyRevival>), instalados por
 `tools/install-revival-placeholders.py`.
 

@@ -15,10 +15,12 @@ import dev.madebyfelipe.iceagesurvival.registry.ModItems;
 import dev.madebyfelipe.iceagesurvival.species.BehaviorProfile;
 import dev.madebyfelipe.iceagesurvival.species.BodyProfile;
 import dev.madebyfelipe.iceagesurvival.species.MountProfile;
+import dev.madebyfelipe.iceagesurvival.species.SoundProfile;
 import dev.madebyfelipe.iceagesurvival.species.Species;
 import dev.madebyfelipe.iceagesurvival.species.TamingProfile;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Function;
 import java.util.random.RandomGenerator;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
@@ -31,6 +33,8 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
@@ -208,6 +212,53 @@ public abstract class PrehistoricCreature extends TamableAnimal implements Playe
     /** Montaria da espécie; vazio se a espécie não pode ser montada. */
     public Optional<MountProfile> mountProfile() {
         return species().flatMap(Species::mount);
+    }
+
+    // ---- Sons ----
+
+    private Optional<SoundProfile> soundProfile() {
+        return species().flatMap(Species::sounds);
+    }
+
+    @Nullable
+    private SoundEvent speciesSound(Function<SoundProfile, Optional<ResourceLocation>> which) {
+        return soundProfile().flatMap(which).map(SoundProfile::event).orElse(null);
+    }
+
+    @Nullable
+    @Override
+    protected SoundEvent getAmbientSound() {
+        // Inconsciente não faz barulho.
+        return isUnconscious() ? null : speciesSound(SoundProfile::ambient);
+    }
+
+    @Nullable
+    @Override
+    protected SoundEvent getHurtSound(DamageSource source) {
+        return speciesSound(SoundProfile::hurt);
+    }
+
+    @Nullable
+    @Override
+    protected SoundEvent getDeathSound() {
+        return speciesSound(SoundProfile::death);
+    }
+
+    @Override
+    protected float getSoundVolume() {
+        return soundProfile().map(SoundProfile::volume).orElse(1.0F);
+    }
+
+    @Override
+    public void setTarget(@Nullable LivingEntity target) {
+        boolean acquired = target != null && getTarget() == null;
+        super.setTarget(target);
+        if (acquired && !level().isClientSide && getTarget() == target) {
+            SoundEvent alert = speciesSound(SoundProfile::alert);
+            if (alert != null) {
+                playSound(alert, getSoundVolume(), getVoicePitch());
+            }
+        }
     }
 
     // ---- Atributos ----

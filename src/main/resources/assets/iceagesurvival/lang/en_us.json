@@ -58,5 +58,15 @@
   "iceagesurvival.debug.kit": "Debug kit delivered",
   "iceagesurvival.debug.spawned": "%s creature(s) of %s",
   "iceagesurvival.debug.spawns.none": "No mod species spawns in this biome",
-  "iceagesurvival.debug.repopulate": "%s creature(s) repopulated"
+  "iceagesurvival.debug.repopulate": "%s creature(s) repopulated",
+  "subtitles.iceagesurvival.entity.smilodon.ambient": "Smilodon growls",
+  "subtitles.iceagesurvival.entity.smilodon.hurt": "Smilodon hurts",
+  "subtitles.iceagesurvival.entity.smilodon.death": "Smilodon dies",
+  "subtitles.iceagesurvival.entity.mammoth.ambient": "Mammoth trumpets",
+  "subtitles.iceagesurvival.entity.mammoth.hurt": "Mammoth hurts",
+  "subtitles.iceagesurvival.entity.mammoth.death": "Mammoth dies",
+  "subtitles.iceagesurvival.entity.tyrannosaurus.ambient": "Tyrannosaurus growls",
+  "subtitles.iceagesurvival.entity.tyrannosaurus.hurt": "Tyrannosaurus hurts",
+  "subtitles.iceagesurvival.entity.tyrannosaurus.death": "Tyrannosaurus dies",
+  "subtitles.iceagesurvival.entity.tyrannosaurus.alert": "Tyrannosaurus roars"
 }

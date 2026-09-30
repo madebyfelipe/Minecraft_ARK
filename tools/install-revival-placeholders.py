@@ -11,7 +11,7 @@ qualquer distribuição do mod — tester, servidor de outra pessoa, release —
 espécies listadas em `tools/hand_authored.txt` precisam ser nossos ou licenciados.
 
 O script baixa o Revival para um cache fora do projeto e escreve, por espécie, geometria,
-textura, as quatro animações e a escala. Rodar de novo **sobrescreve** edições manuais.
+textura, as quatro animações, a escala e os sons (ambiente, dano, morte e alerta). Rodar de novo **sobrescreve** edições manuais.
 """
 
 import json
@@ -34,8 +34,17 @@ SPECIES = {
     "mammoth": ("mammoth", "mammoth_male.png",
                 {"idle": "idle_1_90", "walk": "walk", "attack": "attack", "unconscious": "rest/sleep"}, 3.3),
     "tyrannosaurus": ("tyrannosaurus", "tyrannosaurus_male.png",
-                      {"idle": "idle", "walk": "walk", "attack": "attack_normal_1", "unconscious": "sleep_1"}, 4.0),
+                      {"idle": "idle", "walk": "walk", "attack": "attack_normal_1", "unconscious": "sleep_1"}, 8.0),
 }
+
+# espécie nossa -> nosso som -> (evento de sounds.json do Revival, volume da espécie)
+SOUNDS = {
+    "smilodon": ({"ambient": "smilodon_ambient", "hurt": "smilodon_hurt", "death": "smilodon_death"}, 1.0),
+    "mammoth": ({"ambient": "mammoth_ambient", "hurt": "mammoth_hurt", "death": "mammoth_death"}, 1.5),
+    "tyrannosaurus": ({"ambient": "tyrannosaurus_ambient", "hurt": "tyrannosaurus_hurt",
+                       "death": "tyrannosaurus_death", "alert": "tyrannosaurus_roar"}, 3.0),
+}
+SPECIES_DATA = PROJECT / "src" / "main" / "resources" / "data" / "iceagesurvival" / "iceagesurvival" / "species"
 
 
 def fetch_revival():
@@ -95,6 +104,37 @@ def convert_animations(ours, theirs_name, mapping, source):
     return {"format_version": "1.8.0", "animations": out}
 
 
+def install_sounds(source):
+    """Copia os .ogg, escreve sounds.json e aponta o bloco "sounds" de cada espécie para eles."""
+    theirs = json.loads((source / "sounds.json").read_text())
+    events_file = ASSETS / "sounds.json"
+    events = json.loads(events_file.read_text()) if events_file.exists() else {}
+    for ours, (mapping, volume) in SOUNDS.items():
+        folder = ASSETS / "sounds" / "entity" / ours
+        if folder.exists():
+            shutil.rmtree(folder)
+        folder.mkdir(parents=True)
+        block = {}
+        for kind, their_event in mapping.items():
+            files = []
+            for sound in theirs[their_event]["sounds"]:
+                name = (sound["name"] if isinstance(sound, dict) else sound).split(":", 1)[1]
+                target = Path(name).name
+                shutil.copyfile(source / "sounds" / f"{name}.ogg", folder / f"{target}.ogg")
+                files.append(f"iceagesurvival:entity/{ours}/{target}")
+            event = f"entity.{ours}.{kind}"
+            events[event] = {"category": "neutral", "sounds": files,
+                             "subtitle": f"subtitles.iceagesurvival.{event}"}
+            block[kind] = f"iceagesurvival:{event}"
+        block["volume"] = volume
+        species_file = SPECIES_DATA / f"{ours}.json"
+        species = json.loads(species_file.read_text())
+        species["sounds"] = block
+        species_file.write_text(json.dumps(species, indent=2, ensure_ascii=False) + "\n")
+        print(f"{ours}: sons {', '.join(mapping)}")
+    events_file.write_text(json.dumps(dict(sorted(events.items())), indent=2) + "\n")
+
+
 def mark_hand_authored(species):
     """Registra as espécies que o modelgen não deve sobrescrever."""
     existing = set()
@@ -129,6 +169,7 @@ def main():
         (ASSETS / "creature_models" / f"{ours}.json").write_text(json.dumps({"scale": scale}, indent=2) + "\n")
         print(f"{ours}: modelo do Revival, escala {scale}")
 
+    install_sounds(source)
     mark_hand_authored(SPECIES)
     print(f"Assets em {ASSETS}")
     print("Arte All Rights Reserved: substituir antes de distribuir o mod (ver ASSET_LICENSES.md).")

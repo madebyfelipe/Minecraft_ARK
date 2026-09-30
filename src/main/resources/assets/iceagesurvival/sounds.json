@@ -1,0 +1,77 @@
+{
+  "entity.mammoth.ambient": {
+    "category": "neutral",
+    "sounds": [
+      "iceagesurvival:entity/mammoth/mammoth_ambient"
+    ],
+    "subtitle": "subtitles.iceagesurvival.entity.mammoth.ambient"
+  },
+  "entity.mammoth.death": {
+    "category": "neutral",
+    "sounds": [
+      "iceagesurvival:entity/mammoth/mammoth_death"
+    ],
+    "subtitle": "subtitles.iceagesurvival.entity.mammoth.death"
+  },
+  "entity.mammoth.hurt": {
+    "category": "neutral",
+    "sounds": [
+      "iceagesurvival:entity/mammoth/mammoth_hurt"
+    ],
+    "subtitle": "subtitles.iceagesurvival.entity.mammoth.hurt"
+  },
+  "entity.smilodon.ambient": {
+    "category": "neutral",
+    "sounds": [
+      "iceagesurvival:entity/smilodon/smilodon_ambient1",
+      "iceagesurvival:entity/smilodon/smilodon_ambient2",
+      "iceagesurvival:entity/smilodon/smilodon_ambient3"
+    ],
+    "subtitle": "subtitles.iceagesurvival.entity.smilodon.ambient"
+  },
+  "entity.smilodon.death": {
+    "category": "neutral",
+    "sounds": [
+      "iceagesurvival:entity/smilodon/smilodon_death"
+    ],
+    "subtitle": "subtitles.iceagesurvival.entity.smilodon.death"
+  },
+  "entity.smilodon.hurt": {
+    "category": "neutral",
+    "sounds": [
+      "iceagesurvival:entity/smilodon/smilodon_hurt"
+    ],
+    "subtitle": "subtitles.iceagesurvival.entity.smilodon.hurt"
+  },
+  "entity.tyrannosaurus.alert": {
+    "category": "neutral",
+    "sounds": [
+      "iceagesurvival:entity/tyrannosaurus/tyrannosaurus_roar"
+    ],
+    "subtitle": "subtitles.iceagesurvival.entity.tyrannosaurus.alert"
+  },
+  "entity.tyrannosaurus.ambient": {
+    "category": "neutral",
+    "sounds": [
+      "iceagesurvival:entity/tyrannosaurus/trex_ambient1",
+      "iceagesurvival:entity/tyrannosaurus/trex_ambient2",
+      "iceagesurvival:entity/tyrannosaurus/trex_ambient3"
+    ],
+    "subtitle": "subtitles.iceagesurvival.entity.tyrannosaurus.ambient"
+  },
+  "entity.tyrannosaurus.death": {
+    "category": "neutral",
+    "sounds": [
+      "iceagesurvival:entity/tyrannosaurus/trex_death1",
+      "iceagesurvival:entity/tyrannosaurus/trex_death2"
+    ],
+    "subtitle": "subtitles.iceagesurvival.entity.tyrannosaurus.death"
+  },
+  "entity.tyrannosaurus.hurt": {
+    "category": "neutral",
+    "sounds": [
+      "iceagesurvival:entity/tyrannosaurus/trex_hurt"
+    ],
+    "subtitle": "subtitles.iceagesurvival.entity.tyrannosaurus.hurt"
+  }
+}

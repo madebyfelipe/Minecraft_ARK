@@ -6,6 +6,7 @@ import dev.madebyfelipe.iceagesurvival.entity.LandCreature;
 import dev.madebyfelipe.iceagesurvival.entity.TestCreature;
 import dev.madebyfelipe.iceagesurvival.registry.ModEntities;
 import dev.madebyfelipe.iceagesurvival.species.BehaviorProfile;
+import dev.madebyfelipe.iceagesurvival.species.SoundProfile;
 import dev.madebyfelipe.iceagesurvival.species.Species;
 import java.util.UUID;
 import net.minecraft.gametest.framework.GameTest;
@@ -28,6 +29,19 @@ public class CreatureFrameworkTests {
         helper.assertTrue(
                 Species.of(helper.getLevel().registryAccess(), ModEntities.TEST_CREATURE.get()).isPresent(),
                 "espécie test_creature não carregada");
+        helper.succeed();
+    }
+
+    @GameTest(template = EMPTY)
+    public static void speciesSoundsAreLoaded(GameTestHelper helper) {
+        var registries = helper.getLevel().registryAccess();
+        SoundProfile rex = Species.of(registries, ModEntities.TYRANNOSAURUS.get()).orElseThrow().sounds().orElseThrow();
+        helper.assertTrue(rex.ambient().isPresent() && rex.hurt().isPresent() && rex.death().isPresent(),
+                "T-Rex sem som de ambiente, dano ou morte");
+        helper.assertTrue(rex.alert().isPresent(), "T-Rex sem rugido");
+        helper.assertTrue(rex.volume() > 1.0F, "T-Rex devia ser ouvido de longe");
+        helper.assertTrue(Species.of(registries, ModEntities.DIRE_WOLF.get()).orElseThrow().sounds().isEmpty(),
+                "lobo-terrível não tem sons no Revival");
         helper.succeed();
     }
 
