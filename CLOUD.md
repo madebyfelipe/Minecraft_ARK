@@ -53,6 +53,9 @@ Fora de escopo: máquinas, árvores tecnológicas, dezenas de armaduras, arsenal
 | D15 | Ordem de ataque vale para **todas** as criaturas do jogador ao alcance | Exigir escolher uma criatura antes de apontar o alvo pediria um estado de "selecionada" escondido. Não é o sistema de grupos do brief (que continua fora). | Fechada |
 | D16 | O frio **é** o `ticksFrozen` do vanilla, não um valor paralelo sincronizado | Sincronização, persistência, vinheta de gelo e lentidão já existem e são de graça; um valor próprio pediria payload, HUD e NBT para o mesmo resultado. Custo: parar em 139/140 e assumir o dano (ver [15](#15-temperatura)). | Fechada |
 | D17 | Estado de frio do jogador em **attachment do NeoForge** | D8 dispensa attachments para *nossas* entidades; o jogador é de terceiros, e é exatamente o caso que os attachments existem para resolver. | Fechada |
+| D18 | Montaria pelo **modelo de veículo do vanilla** (`travelRidden`, `PlayerRideableJumping`) | É o caminho do cavalo: o cliente de quem monta simula o movimento e manda a posição do veículo, o servidor confere que o remetente é o controlador. Escrever controle próprio seria reinventar a predição e a reconciliação. Ver [11](#11-criaturas). | Fechada na Etapa 7 |
+| D19 | A sela é o **`minecraft:saddle` do vanilla**, com receita nossa | Um item por espécie (como no ARK) seria uma dúzia de itens e texturas para a mesma função; o item do vanilla já é reconhecível e o que gateia a montaria é a espécie ter bloco `mount`. A receita existe porque no vanilla a sela não é craftável, e depender de baú de estrutura num mundo glacial travaria a Fase 4. | Fechada na Etapa 7 |
+| D20 | **Reposição de fauna própria**, em vez de mudar a categoria das criaturas | `CREATURE` do vanilla só nasce na geração do terreno; trocar para `MONSTER` faria a fauna aparecer e *desaparecer* sozinha, contra o design. A reposição repõe no que já existe, com teto de densidade por espécie. Ver [11](#11-criaturas). | Fechada na Etapa 7 |
 
 ## 5. Mods avaliados
 
@@ -244,6 +247,8 @@ Todas as espécies terrestres usam a mesma classe (`LandCreature`); o que as dif
 | **Mamute-lanoso** (`mammoth`) | Herbívoro de manada, tanque | 2,0 × 3,1 | Pacífico até ser provocado; manada de 2–4 que se defende junta | planície nevada, ice spikes, taiga nevada |
 | Criatura de teste (`test_creature`) | Só para testes automáticos; usa o modelo do porco | 0,9 × 0,9 | Passiva | não nasce |
 
+Montáveis: Smilodon e mamute. O lobo-terrível é pequeno demais e fica de fora — o que o exclui é não ter bloco `mount` no JSON, não uma regra em código.
+
 **Adicionar uma espécie terrestre:**
 
 1. `tools/gen_<especie>.py` — ossos, cores e detalhes; gera geometria, textura e as quatro animações (`idle`, `walk`, `attack`, `unconscious`).
@@ -282,6 +287,29 @@ Bloco `behavior` do JSON de espécie (ausente = passiva, sem território):
 
 As velocidades dos goals são calculadas por espécie para que o passeio ocioso fique em ~1,8 bloco/s qualquer que seja a velocidade base.
 
+### Montaria (implementado)
+
+Bloco `mount` do JSON de espécie. **Ausente = espécie não montável**; é isso que deixa o lobo-terrível de fora.
+
+```json
+"mount": { "seat_height": 2.3, "min_affinity": 25, "speed_multiplier": 0.6, "jump_strength": 0.62 }
+```
+
+- `seat_height`: altura do assento em blocos a partir dos pés (0 = 85% da altura da colisão). Fica aqui, e não nos assets, porque é a colisão que manda — trocar o modelo por resource pack não muda onde o jogador senta.
+- `min_affinity` (padrão 25): uma criatura recém-domesticada tem afinidade 50 × eficiência, então uma domesticação ruim precisa ser alimentada antes de aceitar alguém em cima.
+- `speed_multiplier`: a velocidade montada é o atributo `MOVEMENT_SPEED` puro, numa escala diferente da dos goals de IA (que multiplicam o atributo pelo modificador do goal). O Smilodon corre a `speed` 0,4 na IA e monta a 0,24 — sem o multiplicador, montá-lo daria ~17 blocos/s.
+- `jump_strength` em blocos/tick; 0 tira o pulo e a barra de carga.
+
+Como funciona:
+
+- **Selar:** o dono clica com um `minecraft:saddle` na criatura domesticada e acordada. A sela fica na criatura (sincronizada para o cliente, salva no NBT) e volta ao mundo quando ela morre. Receita nossa, em [D19](#4-decisões).
+- **Montar:** clique com a mão livre. Alimentar tem preferência enquanto a criatura estiver com fome, então uma mão cheia de carne não impede montar depois.
+- **Controlar:** `travelRidden` do vanilla ([D18](#4-decisões)). A criatura aponta para onde o jogador olha, ré e passo lateral são reduzidos como no cavalo, e o pulo usa a barra de carga do cavalo (`PlayerRideableJumping`): o cliente de quem monta carrega e aplica o impulso, o servidor toca o som e aceita a posição do veículo.
+- **Recusa:** sem sela, com afinidade abaixo do mínimo, com outra pessoa em cima, ou de quem não é o dono. A criatura diz o motivo.
+- **Desce sozinho:** cair inconsciente e tirar a sela ejetam quem estiver montado. Montar uma criatura mandada ficar a solta da ordem.
+
+Ainda não existe: tirar a sela em jogo (só `/ias saddle` ou a morte da criatura), atacar montado, carga, e montaria de água ou ar.
+
 ### Workflow de assets
 
 Modelos são gerados por script em `tools/` (um `gen_<especie>.py` por espécie, sobre a biblioteca `modelgen.py`), que escreve geometria Bedrock, textura e animações direto em `src/main/resources/assets/iceagesurvival/{geo,textures,animations}/entity/`. Os arquivos abrem no Blockbench para conferência e ajuste.
@@ -294,9 +322,25 @@ O tamanho do modelo no jogo fica em `assets/iceagesurvival/creature_models/<espe
 
 Cada espécie tem um `neoforge/biome_modifier/spawn_<especie>.json` do tipo `neoforge:add_spawns`, ligado a uma tag de biomas `spawns_<especie>`, com peso e tamanho de grupo. Regra de posição: chão firme e na superfície (vale neve, gelo e sob copa de árvore; nunca em caverna).
 
-As criaturas são da categoria `CREATURE` do vanilla: nascem principalmente quando o terreno é gerado e não desaparecem. Ou seja, **a fauna de uma região é finita** até que novos chunks sejam explorados — consequência a observar no balanceamento.
+As criaturas são da categoria `CREATURE` do vanilla: nascem quando o terreno é gerado e não desaparecem. Na prática isso significa que **num mundo já explorado a fauna que morre não volta** — foi o que apareceu em jogo na Etapa 7.
 
-Ainda não existe: nível variando por região, horário de atividade, densidade controlada por espécie.
+### Reposição de fauna (implementado)
+
+Bloco `spawn` do JSON de espécie, lido pela reposição própria do mod. **Ausente = a espécie só nasce com o terreno** (é o caso da criatura de teste).
+
+```json
+"spawn": { "biomes": "#iceagesurvival:spawns_smilodon", "weight": 2, "group_min": 1, "group_max": 1, "max_nearby": 2 }
+```
+
+- Uma tentativa por jogador a cada `wildSpawnIntervalSeconds` (padrão 45 s): sorteia uma espécie entre as que podem nascer no bioma do jogador **e ainda têm vaga**, proporcionalmente ao `weight`, e procura posição num anel de `wildSpawnMinDistance` a `wildSpawnMaxDistance` (padrão 40 a 96 blocos) — longe da vista, dentro da distância de simulação.
+- A posição passa pelas mesmas checagens do spawn natural do vanilla (mapa de altura, tipo de colocação, colisão, regra de superfície da espécie) mais o bioma da tag, e o nascimento passa pelos eventos do NeoForge, então outro mod pode barrar.
+- `max_nearby` é o teto de indivíduos daquela espécie no `wildSpawnDensityRadius` em volta do jogador. É ele que impede a reposição de encher o mundo: a densidade converge para `max_nearby` por raio de densidade onde o jogador andou, e não cresce além disso. Criaturas domesticadas não entram na contagem.
+- Não trocamos a categoria para `MONSTER` para conseguir spawn contínuo: isso faria a fauna desaparecer sozinha ([D20](#4-decisões)).
+- Tudo desligável em `wildSpawnEnabled`, para quem quiser a fauna só na geração do terreno.
+
+O `neoforge:add_spawns` continua: ele povoa chunk novo, a reposição cuida do que já existe. Os dois usam a mesma tag de biomas.
+
+Ainda não existe: nível variando por região, horário de atividade.
 
 ## 12. Progressão
 
@@ -464,6 +508,23 @@ Pontos de atenção: validação de dono em todo payload, montaria (autoridade d
 - **GameTest** (`./gradlew runGameTestServer`): comportamento em servidor real — carregamento da espécie, sorteio e aplicação de atributos, persistência de atributos e dono, tags e attachments.
 - **Manual:** `runClient` e sessão multiplayer de verdade (dois clientes) — não automatizados.
 
+**Comandos de teste (`/ias`, permissão 2).** Existem para não refazer a cadeia torpor → alimentar → domesticar a cada recompilação. Sem seletor agem na criatura sob a mira (ou na mais próxima); com `<criaturas>` agem no seletor inteiro.
+
+| Comando | O que faz |
+|---|---|
+| `/ias tame [criaturas]` | Domestica na hora, com os níveis bônus de uma domesticação perfeita e afinidade cheia |
+| `/ias knockout` / `wake` | Derruba (torpor no máximo) ou acorda |
+| `/ias torpor <valor>` / `level <n>` / `affinity <v>` | Ajusta torpor, refaz os atributos num nível, ajusta afinidade |
+| `/ias saddle` | Põe ou tira a sela |
+| `/ias ride` | Domestica, sela, enche a afinidade e monta — o caminho curto para testar a Etapa 7 |
+| `/ias info` | Nível, vida, torpor, dono, afinidade, ordem, sela e os pontos por atributo |
+| `/ias kit` | Arco, flechas tranquilizantes, narcóticos, selas e comida |
+| `/ias spawn <espécie> [nível] [qtd] [wild\|tamed\|knocked]` | Faz nascer à frente do jogador; `tamed` entrega o estado de meio de jogo direto |
+| `/ias spawns` | Diagnóstico: bioma atual, quais espécies nascem nele, quantas já existem no raio e o teto de cada uma |
+| `/ias repopulate` | Força uma tentativa de reposição agora e diz quantas nasceram |
+
+Nenhuma mecânica vive nos comandos: cada subcomando só chama o sistema correspondente. Em jogo, é por `/ias spawns` e `/ias repopulate` que se investiga fauna que não aparece.
+
 O mundo do GameTest é plano e de bioma temperado, então o frio não chega a subir lá: a curva de temperatura é coberta por JUnit e o que o gametest confere é a tubulação (tags carregadas, attachment anexado e salvo, criativo imune).
 
 ## 22. Performance
@@ -473,6 +534,7 @@ O mundo do GameTest é plano e de bioma temperado, então o frio não chega a su
 - IA reduzida longe de jogadores.
 - Estado de domesticação seguro a descarregamento de chunk (baseado em game time, não em contadores por tick).
 - O frio roda a cada tick por jogador, mas só com aritmética: a leitura do mundo (que varre blocos procurando fonte de calor) acontece uma vez por segundo e fica em cache no attachment.
+- A reposição de fauna é uma varredura de entidades por jogador a cada 45 s, e uma só para todas as espécies (as contagens saem da mesma lista). A procura por posição não carrega chunk: coluna em chunk descarregado é descartada.
 
 ## 23. Roadmap
 
@@ -485,7 +547,7 @@ O mundo do GameTest é plano e de bioma temperado, então o frio não chega a su
 | 4 | Smilodon | ✅ 2026-09-30, conferido em jogo pelo Felipe |
 | 5 | Mais criaturas, spawning | ✅ 2026-09-30 em testes automáticos (mamute, lobo-terrível, manada, caça, spawn); falta conferir em jogo |
 | 6 | Temperatura | ✅ 2026-09-30 em testes automáticos; falta sentir o frio em jogo e balancear a primeira hora |
-| 7 | Montaria | — |
+| 7 | Montaria | ✅ 2026-09-30 em testes automáticos (sela, controle, pulo, recusas) + reposição de fauna e comandos `/ias`; falta conferir em jogo |
 | 8 | Reprodução e genética | — |
 | 9 | Worldgen | — |
 | 10 | Endgame: rastreador, caverna, arena, boss | — |
@@ -496,6 +558,7 @@ MVP = Etapas 1–4 + versão mínima de 6, 7 e 9 (mundo frio, temperatura básic
 
 Ver a tabela em [4](#4-decisões). Registro de mudanças estruturais:
 
+- 2026-09-30 — Etapa 7: montaria (D18, D19), reposição de fauna (D20) e comandos de teste `/ias`. A fauna que não voltava num mundo já explorado era a categoria `CREATURE` do vanilla, não os biome modifiers; ver [11](#11-criaturas).
 - 2026-09-30 — Etapa 6: temperatura. D5 fechada (sistema interno fica), D16 e D17. O frio reaproveita o congelamento do vanilla em vez de ter HUD próprio.
 - 2026-09-30 — Documento criado; D1–D11 registradas.
 - 2026-09-30 — Etapa 2: D12–D14. Criatura de teste antecipada para a Etapa 2.
@@ -516,9 +579,9 @@ Ver a tabela em [4](#4-decisões). Registro de mudanças estruturais:
 | Escopo: dez etapas, vários sistemas grandes. | Alto | MVP estreito; não avançar com etapa instável. |
 | Balanceamento de torpor/níveis/genética. | Médio | Tudo em dados e config; testes de lógica pura. |
 | O frio matar o jogador na primeira hora, antes de haver couro ou fogueira. | Médio | Curva e tempos todos em config; medir em jogo e afrouxar `coldSecondsToFreeze` ou a temperatura de conforto. |
-| Montaria em multiplayer (latência, dessincronização). | Médio | Reaproveitar o modelo de controle de veículo vanilla. |
-| Muitas entidades com IA em servidor. | Médio | Ver [22](#22-performance). Varreduras de entidade são espaçadas (manada ~5 s, caça ~30 s, defesa só ao ser ferida). Ainda não medido com fauna densa. |
-| Fauna finita: criaturas `CREATURE` só nascem com a geração do terreno. | Médio | Observar em jogo; se faltar fauna, adicionar reposição controlada. |
+| Montaria em multiplayer (latência, dessincronização). | Baixo — resolvido reaproveitando o `travelRidden` do vanilla ([D18](#4-decisões)); a autoridade de movimento é a mesma do cavalo. | Conferir com dois clientes de verdade, que é o que ainda não foi feito. |
+| Muitas entidades com IA em servidor. | Médio | Ver [22](#22-performance). Varreduras de entidade são espaçadas (manada ~5 s, caça ~30 s, reposição ~45 s, defesa só ao ser ferida). Ainda não medido com fauna densa. |
+| Fauna finita: criaturas `CREATURE` só nascem com a geração do terreno. | Resolvido na Etapa 7 pela reposição própria ([D20](#4-decisões)). | Novo risco em troca: a reposição encher o mundo. Contido pelo `max_nearby` por espécie; medir a densidade em jogo ao longo de uma sessão longa. |
 | Teto de 1024 de vida do vanilla limita criaturas gigantes e o boss. | Médio | Decidir na Etapa 10: redução de dano por fase, ou atributo de vida próprio. |
 | 1.21.1 envelhecer. | Baixo | `core/` independente do Minecraft facilita port. |
 
@@ -531,4 +594,6 @@ Ver a tabela em [4](#4-decisões). Registro de mudanças estruturais:
 7. Gestação vs. ovo por espécie.
 8. Nome final do mod (`Ice Age Survival` / id `iceagesurvival` são provisórios).
 10. Muda da árvore de fruta-negra (plantar perto da base) — hoje só se colhe de árvores naturais.
+12. Como tirar a sela em jogo (hoje só `/ias saddle` ou a morte da criatura): tecla, tela de inventário da criatura, ou clique com a mão vazia agachado.
+13. Atacar montado — o brief não pede, mas a Fase 4 ("domínio") fica estranha sem isso.
 11. Mods de fauna só no CurseForge (ex.: Primal Era) — não verificados.

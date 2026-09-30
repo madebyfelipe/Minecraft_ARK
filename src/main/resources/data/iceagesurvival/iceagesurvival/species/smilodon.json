@@ -71,5 +71,18 @@
     "territory_radius": 32,
     "flee_health_fraction": 0.25,
     "prey": "#iceagesurvival:large_prey"
+  },
+  "mount": {
+    "seat_height": 2.3,
+    "min_affinity": 25,
+    "speed_multiplier": 0.6,
+    "jump_strength": 0.62
+  },
+  "spawn": {
+    "biomes": "#iceagesurvival:spawns_smilodon",
+    "weight": 2,
+    "group_min": 1,
+    "group_max": 1,
+    "max_nearby": 2
   }
 }

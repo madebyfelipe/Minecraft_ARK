@@ -14,6 +14,7 @@ import dev.madebyfelipe.iceagesurvival.entity.ai.OrderGoals;
 import dev.madebyfelipe.iceagesurvival.registry.ModItems;
 import dev.madebyfelipe.iceagesurvival.species.BehaviorProfile;
 import dev.madebyfelipe.iceagesurvival.species.BodyProfile;
+import dev.madebyfelipe.iceagesurvival.species.MountProfile;
 import dev.madebyfelipe.iceagesurvival.species.Species;
 import dev.madebyfelipe.iceagesurvival.species.TamingProfile;
 import java.util.Optional;
@@ -30,6 +31,9 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
@@ -38,10 +42,13 @@ import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.AgeableMob;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.PlayerRideableJumping;
 import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
@@ -51,12 +58,16 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ChestMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.LeavesBlock;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.pathfinder.PathType;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec2;
+import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.common.CommonHooks;
 import net.neoforged.neoforge.event.EventHooks;
 
 /**
@@ -64,9 +75,11 @@ import net.neoforged.neoforge.event.EventHooks;
  * aplica sobre a curva da {@link Species} correspondente ao tipo da entidade,
  * e conduz o ciclo torpor → inconsciente → alimentação → domesticada.
  *
- * <p>Dono e estado domesticado vêm de {@link TamableAnimal}.
+ * <p>Dono e estado domesticado vêm de {@link TamableAnimal}. O controle da montaria
+ * reaproveita o modelo de veículo do vanilla ({@code travelRidden}): o cliente de quem
+ * monta simula o movimento e o servidor valida, como num cavalo.
  */
-public abstract class PrehistoricCreature extends TamableAnimal {
+public abstract class PrehistoricCreature extends TamableAnimal implements PlayerRideableJumping {
     private static final EntityDataAccessor<Integer> DATA_LEVEL =
             SynchedEntityData.defineId(PrehistoricCreature.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Float> DATA_TORPOR_FRACTION =
@@ -77,6 +90,8 @@ public abstract class PrehistoricCreature extends TamableAnimal {
             SynchedEntityData.defineId(PrehistoricCreature.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Byte> DATA_ORDER =
             SynchedEntityData.defineId(PrehistoricCreature.class, EntityDataSerializers.BYTE);
+    private static final EntityDataAccessor<Boolean> DATA_SADDLED =
+            SynchedEntityData.defineId(PrehistoricCreature.class, EntityDataSerializers.BOOLEAN);
 
     private static final String TAG_STAT_POINTS = "StatPoints";
     private static final String TAG_TORPOR = "Torpor";
@@ -91,6 +106,7 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     private static final String TAG_ORDER = "Order";
     private static final String TAG_INVENTORY = "Inventory";
     private static final String TAG_TAMER = "Tamer";
+    private static final String TAG_SADDLED = "Saddled";
 
     private static final int TORPOR_UPDATE_INTERVAL_TICKS = 20;
     /** Afinidade inicial de uma domesticação com eficiência de 100%. */
@@ -107,6 +123,12 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     /** Uma fileira de baú. */
     public static final int INVENTORY_SIZE = 9;
     private static final double INVENTORY_REACH = 8.0;
+    /** Item que sela uma criatura montável. */
+    public static final net.minecraft.world.item.Item SADDLE_ITEM = Items.SADDLE;
+    /** Recuo da ré de quem monta, como no cavalo: andar para trás é bem mais lento. */
+    private static final float RIDDEN_BACKWARD_FACTOR = 0.25F;
+    /** Fator lateral de quem monta, como no cavalo. */
+    private static final float RIDDEN_STRAFE_FACTOR = 0.5F;
 
     private StatPoints statPoints = StatPoints.NONE;
     private boolean statsRolled;
@@ -122,6 +144,10 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     @Nullable
     private UUID tamerUUID;
     private boolean breaksLeaves;
+    /** Carga do pulo enviada pelo cliente de quem monta, de 0 a 1. */
+    private float playerJumpPendingScale;
+    /** Se o impulso do pulo já foi aplicado e a criatura ainda não voltou ao chão. */
+    private boolean ridingJump;
     private final SimpleContainer inventory = new SimpleContainer(INVENTORY_SIZE) {
         @Override
         public boolean stillValid(Player player) {
@@ -159,6 +185,7 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         builder.define(DATA_UNCONSCIOUS, false);
         builder.define(DATA_TAMING_PROGRESS, 0.0F);
         builder.define(DATA_ORDER, (byte) DEFAULT_ORDER.ordinal());
+        builder.define(DATA_SADDLED, false);
     }
 
     public Optional<Species> species() {
@@ -171,6 +198,11 @@ public abstract class PrehistoricCreature extends TamableAnimal {
 
     private Optional<TamingProfile> tamingProfile() {
         return species().flatMap(Species::taming);
+    }
+
+    /** Montaria da espécie; vazio se a espécie não pode ser montada. */
+    public Optional<MountProfile> mountProfile() {
+        return species().flatMap(Species::mount);
     }
 
     // ---- Atributos ----
@@ -320,6 +352,7 @@ public abstract class PrehistoricCreature extends TamableAnimal {
 
     private void knockOut() {
         entityData.set(DATA_UNCONSCIOUS, true);
+        ejectPassengers();
         getNavigation().stop();
         setTarget(null);
         setDeltaMovement(0.0, getDeltaMovement().y, 0.0);
@@ -451,6 +484,9 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     @Override
     protected void dropEquipment() {
         super.dropEquipment();
+        if (isSaddled()) {
+            spawnAtLocation(new ItemStack(SADDLE_ITEM));
+        }
         Containers.dropContents(level(), this, inventory);
     }
 
@@ -498,6 +534,159 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         targetSelector.addGoal(1, new OrderGoals.DefendOwner(this));
         targetSelector.addGoal(2, new OrderGoals.AssistOwner(this));
         targetSelector.addGoal(3, new OrderGoals.Retaliate(this));
+    }
+
+    // ---- Montaria ----
+
+    /** Se a espécie aceita sela; disponível também no cliente (vem dos dados sincronizados). */
+    public boolean canBeSaddled() {
+        return mountProfile().isPresent();
+    }
+
+    /** Disponível também no cliente. */
+    public boolean isSaddled() {
+        return entityData.get(DATA_SADDLED);
+    }
+
+    public void setSaddled(boolean saddled) {
+        entityData.set(DATA_SADDLED, saddled);
+        if (!saddled) {
+            ejectPassengers();
+        }
+    }
+
+    /**
+     * Se este jogador pode montar agora. Exige ser o dono, a criatura selada, acordada e com
+     * afinidade suficiente — uma criatura que acabou de ser domesticada ainda não deixa montar.
+     */
+    public boolean canBeRiddenBy(Player player) {
+        Optional<MountProfile> mount = mountProfile();
+        return mount.isPresent()
+                && isSaddled()
+                && isAlive()
+                && !isUnconscious()
+                && isOwner(player)
+                && affinity >= mount.get().minAffinity();
+    }
+
+    /**
+     * Coloca o jogador na criatura, se ela aceitar. Como no cavalo, quem monta de verdade é
+     * o servidor; no cliente a chamada só confirma que a interação valeu.
+     */
+    public boolean ride(Player player) {
+        if (!canBeRiddenBy(player) || isVehicle()) {
+            return false;
+        }
+        if (level().isClientSide) {
+            return true;
+        }
+        // Montar solta uma criatura que estava mandada ficar.
+        if (!order().followsOwner()) {
+            setOrder(CreatureOrder.FOLLOW);
+        }
+        getNavigation().stop();
+        setTarget(null);
+        player.setYRot(getYRot());
+        player.setXRot(getXRot());
+        return player.startRiding(this);
+    }
+
+    @Nullable
+    @Override
+    public LivingEntity getControllingPassenger() {
+        if (isSaddled() && !isUnconscious() && getFirstPassenger() instanceof Player player && isOwner(player)) {
+            return player;
+        }
+        return super.getControllingPassenger();
+    }
+
+    @Override
+    protected Vec3 getRiddenInput(Player player, Vec3 travelVector) {
+        float strafe = player.xxa * RIDDEN_STRAFE_FACTOR;
+        float forward = player.zza;
+        if (forward <= 0.0F) {
+            forward *= RIDDEN_BACKWARD_FACTOR;
+        }
+        return new Vec3(strafe, 0.0, forward);
+    }
+
+    @Override
+    protected float getRiddenSpeed(Player player) {
+        double multiplier = mountProfile().map(MountProfile::speedMultiplier).orElse(1.0);
+        return (float) (getAttributeValue(Attributes.MOVEMENT_SPEED) * multiplier);
+    }
+
+    @Override
+    protected void tickRidden(Player player, Vec3 travelVector) {
+        super.tickRidden(player, travelVector);
+        // A criatura aponta para onde quem monta olha; o passo do pescoço é metade, como no cavalo.
+        setRot(player.getYRot(), player.getXRot() * 0.5F);
+        yRotO = yBodyRot = yHeadRot = getYRot();
+        getNavigation().stop();
+        if (!isControlledByLocalInstance()) {
+            return;
+        }
+        if (onGround()) {
+            ridingJump = false;
+            if (playerJumpPendingScale > 0.0F) {
+                executeRidersJump(playerJumpPendingScale, travelVector);
+            }
+            playerJumpPendingScale = 0.0F;
+        }
+    }
+
+    private void executeRidersJump(float scale, Vec3 travelVector) {
+        double strength = mountProfile().map(MountProfile::jumpStrength).orElse(0.0) * scale * getBlockJumpFactor();
+        if (strength <= 0.0) {
+            return;
+        }
+        Vec3 movement = getDeltaMovement();
+        setDeltaMovement(movement.x, strength, movement.z);
+        ridingJump = true;
+        hasImpulse = true;
+        CommonHooks.onLivingJump(this);
+        if (travelVector.z > 0.0) {
+            // Pulo para frente ganha um empurrão na direção em que a criatura olha.
+            float sin = Mth.sin(getYRot() * (float) (Math.PI / 180.0));
+            float cos = Mth.cos(getYRot() * (float) (Math.PI / 180.0));
+            setDeltaMovement(getDeltaMovement().add(-0.4F * sin * scale, 0.0, 0.4F * cos * scale));
+        }
+    }
+
+    @Override
+    public void onPlayerJump(int jumpPower) {
+        if (!canJump()) {
+            return;
+        }
+        playerJumpPendingScale = jumpPower >= 90 ? 1.0F : 0.4F + 0.4F * Math.max(jumpPower, 0) / 90.0F;
+    }
+
+    @Override
+    public boolean canJump() {
+        return isSaddled() && mountProfile().map(mount -> mount.jumpStrength() > 0).orElse(false);
+    }
+
+    @Override
+    public void handleStartJump(int jumpPower) {
+        playSound(SoundEvents.HORSE_JUMP, 0.4F, 1.0F);
+    }
+
+    @Override
+    public void handleStopJump() {
+    }
+
+    /** Onde quem monta se senta. Fica nos dados da espécie, junto do resto do corpo. */
+    @Override
+    protected Vec3 getPassengerAttachmentPoint(Entity entity, EntityDimensions dimensions, float partialTick) {
+        return new Vec3(0.0, mountProfile()
+                .map(mount -> mount.seatHeight(dimensions.height()))
+                .orElseGet(() -> (double) dimensions.height()), 0.0);
+    }
+
+    @Override
+    public boolean isPushedByFluid() {
+        // Com alguém montado, a correnteza não arrasta a criatura para fora do controle de quem monta.
+        return !isVehicle() && super.isPushedByFluid();
     }
 
     // ---- Domesticação ----
@@ -550,15 +739,45 @@ public abstract class PrehistoricCreature extends TamableAnimal {
                 return InteractionResult.sidedSuccess(level().isClientSide);
             }
             ItemStack stack = player.getItemInHand(hand);
+            if (stack.is(SADDLE_ITEM) && canBeSaddled() && !isSaddled()) {
+                if (!level().isClientSide) {
+                    usePlayerItem(player, hand, stack);
+                    setSaddled(true);
+                    playSound(SoundEvents.HORSE_SADDLE, 0.5F, 1.0F);
+                }
+                return InteractionResult.sidedSuccess(level().isClientSide);
+            }
             Optional<TamingProfile.Food> food = tamingProfile().flatMap(p -> p.foodFor(stack));
-            if (food.isPresent()) {
+            // Alimentar tem preferência; passada a fome, a mesma mão cheia de carne monta.
+            if (food.isPresent() && level().getGameTime() >= nextFeedTime) {
                 if (!level().isClientSide) {
                     feedTamed(player, hand, stack, food.get());
                 }
                 return InteractionResult.sidedSuccess(level().isClientSide);
             }
+            if (canBeSaddled()) {
+                if (ride(player)) {
+                    return InteractionResult.sidedSuccess(level().isClientSide);
+                }
+                if (!level().isClientSide) {
+                    player.displayClientMessage(mountRefusal(), true);
+                }
+                return InteractionResult.sidedSuccess(false);
+            }
         }
         return super.mobInteract(player, hand);
+    }
+
+    /** Por que a criatura não deixou montar, para dizer a quem tentou. */
+    private Component mountRefusal() {
+        if (!isSaddled()) {
+            return Component.translatable("iceagesurvival.mount.needs_saddle", getName());
+        }
+        float required = mountProfile().map(MountProfile::minAffinity).orElse(0.0F);
+        if (affinity < required) {
+            return Component.translatable("iceagesurvival.mount.needs_affinity", getName(), (int) required);
+        }
+        return Component.translatable("iceagesurvival.mount.occupied", getName());
     }
 
     /** Alimentar uma criatura domesticada cura e aumenta a afinidade; é opcional, não manutenção. */
@@ -604,6 +823,34 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         } else {
             entityData.set(DATA_TAMING_PROGRESS, (float) tamingSession.progress(required));
         }
+    }
+
+    /**
+     * Domestica na hora, com a eficiência e os níveis bônus de uma domesticação perfeita e
+     * afinidade cheia. Só para os comandos de teste — o caminho de jogo é torpor e alimento.
+     */
+    public void debugTame(Player owner) {
+        if (level().isClientSide) {
+            return;
+        }
+        tamingSession = new TamingSession();
+        tamingProfile().ifPresent(profile -> tamingSession.feed(requiredFood(profile), 1.0));
+        completeTaming(owner.getUUID());
+        setAffinity(MAX_AFFINITY);
+    }
+
+    /**
+     * Refaz os pontos de atributo da criatura num nível dado, como se ela tivesse nascido
+     * nele. Usado pelos comandos de teste. (Não é {@code setLevel}, que no {@code Entity}
+     * do vanilla troca o mundo da entidade.)
+     */
+    public void setCreatureLevel(int newLevel) {
+        if (level().isClientSide) {
+            return;
+        }
+        species().ifPresent(species -> setStatPoints(StatPoints.rollWild(newLevel, randomGenerator()), species));
+        setHealth(getMaxHealth());
+        setTorpor(Math.min(torpor, maxTorpor()));
     }
 
     private void completeTaming(UUID owner) {
@@ -655,6 +902,7 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         if (tamerUUID != null) {
             compound.putUUID(TAG_TAMER, tamerUUID);
         }
+        compound.putBoolean(TAG_SADDLED, isSaddled());
     }
 
     @Override
@@ -686,6 +934,7 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         homePos = NbtUtils.readBlockPos(compound, TAG_HOME).orElse(null);
         inventory.fromTag(compound.getList(TAG_INVENTORY, Tag.TAG_COMPOUND), registryAccess());
         tamerUUID = compound.hasUUID(TAG_TAMER) ? compound.getUUID(TAG_TAMER) : null;
+        entityData.set(DATA_SADDLED, compound.getBoolean(TAG_SADDLED));
         entityData.set(DATA_ORDER, (byte) CreatureOrder.byId(compound.getString(TAG_ORDER), DEFAULT_ORDER).ordinal());
 
         double max = maxTorpor();
