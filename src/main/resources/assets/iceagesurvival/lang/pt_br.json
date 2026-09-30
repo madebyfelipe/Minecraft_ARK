@@ -118,5 +118,6 @@
   "item.iceagesurvival.brontosaurus_spawn_egg": "Ovo Gerador de Brontossauro",
   "subtitles.iceagesurvival.entity.brontosaurus.ambient": "Brontossauro rosna",
   "subtitles.iceagesurvival.entity.brontosaurus.hurt": "Brontossauro ferido",
-  "subtitles.iceagesurvival.entity.brontosaurus.death": "Brontossauro morre"
+  "subtitles.iceagesurvival.entity.brontosaurus.death": "Brontossauro morre",
+  "block.iceagesurvival.black_fruit_sapling": "Muda de Fruta-Negra"
 }

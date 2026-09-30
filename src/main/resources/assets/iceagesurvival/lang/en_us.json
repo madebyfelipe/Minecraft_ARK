@@ -118,5 +118,6 @@
   "item.iceagesurvival.brontosaurus_spawn_egg": "Brontosaurus Spawn Egg",
   "subtitles.iceagesurvival.entity.brontosaurus.ambient": "Brontosaurus growls",
   "subtitles.iceagesurvival.entity.brontosaurus.hurt": "Brontosaurus hurts",
-  "subtitles.iceagesurvival.entity.brontosaurus.death": "Brontosaurus dies"
+  "subtitles.iceagesurvival.entity.brontosaurus.death": "Brontosaurus dies",
+  "block.iceagesurvival.black_fruit_sapling": "Black Fruit Sapling"
 }

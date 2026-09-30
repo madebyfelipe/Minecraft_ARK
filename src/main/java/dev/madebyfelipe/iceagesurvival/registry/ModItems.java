@@ -65,6 +65,10 @@ public final class ModItems {
     public static final DeferredItem<BlockItem> BLACK_FRUIT_LEAVES =
             ITEMS.registerSimpleBlockItem(ModBlocks.BLACK_FRUIT_LEAVES);
 
+    /** Muda: plante perto da base para ter fruta-negra sem sair procurando a árvore. */
+    public static final DeferredItem<BlockItem> BLACK_FRUIT_SAPLING =
+            ITEMS.registerSimpleBlockItem(ModBlocks.BLACK_FRUIT_SAPLING);
+
     private ModItems() {
     }
 
@@ -87,6 +91,7 @@ public final class ModItems {
             event.accept(NARCOTIC);
         } else if (event.getTabKey() == CreativeModeTabs.NATURAL_BLOCKS) {
             event.accept(BLACK_FRUIT_LEAVES);
+            event.accept(BLACK_FRUIT_SAPLING);
         }
     }
 }

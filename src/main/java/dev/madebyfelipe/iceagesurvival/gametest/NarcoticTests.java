@@ -29,6 +29,23 @@ import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 public class NarcoticTests {
     private static final String EMPTY = "empty";
 
+    @GameTest(template = "arena")
+    public static void saplingGrowsIntoABlackFruitTree(GameTestHelper helper) {
+        net.minecraft.core.BlockPos pos = new net.minecraft.core.BlockPos(1, 1, 1);
+        helper.setBlock(pos.below(), net.minecraft.world.level.block.Blocks.GRASS_BLOCK);
+        helper.setBlock(pos, dev.madebyfelipe.iceagesurvival.registry.ModBlocks.BLACK_FRUIT_SAPLING.get());
+        net.minecraft.server.level.ServerLevel level = helper.getLevel();
+        net.minecraft.core.BlockPos absolute = helper.absolutePos(pos);
+        for (int i = 0; i < 2; i++) {
+            dev.madebyfelipe.iceagesurvival.registry.ModBlocks.BLACK_FRUIT_SAPLING.get()
+                    .advanceTree(level, absolute, level.getBlockState(absolute), level.getRandom());
+        }
+        helper.assertFalse(level.getBlockState(absolute).is(dev.madebyfelipe.iceagesurvival.registry.ModBlocks.BLACK_FRUIT_SAPLING.get()),
+                "a muda não virou árvore");
+        helper.assertTrue(level.getBlockState(absolute).is(net.minecraft.tags.BlockTags.LOGS), "sem tronco onde estava a muda");
+        helper.succeed();
+    }
+
     @GameTest(template = EMPTY)
     public static void narcoticRaisesTorporWithoutDamage(GameTestHelper helper) {
         TestCreature creature = helper.spawnWithNoFreeWill(ModEntities.TEST_CREATURE.get(), 1, 2, 1);

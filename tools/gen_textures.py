@@ -24,6 +24,8 @@ PASTE_DARK = (34, 18, 46)
 PASTE_LIGHT = (96, 66, 118)
 BOWL = (122, 88, 60)
 BOWL_DARK = (88, 60, 40)
+BARK = (86, 62, 44)
+BARK_DARK = (60, 42, 30)
 
 
 def new():
@@ -78,6 +80,20 @@ def fruit_item():
     return img
 
 
+def sapling(rng):
+    """Muda: caule fino e três tufos da folhagem escura, com uma fruta."""
+    img = new()
+    for y in range(9, 16):
+        put(img, 7 + (y < 12), y, BARK if y % 3 else BARK_DARK)
+    for cx, cy, r in [(8, 5, 3), (4, 8, 2), (11, 9, 2)]:
+        for x in range(cx - r, cx + r + 1):
+            for y in range(cy - r, cy + r + 1):
+                if (x - cx) ** 2 + (y - cy) ** 2 <= r * r + 1 and rng.random() > 0.12:
+                    put(img, x, y, rng.choice(LEAF_SHADES))
+    berry(img, 9, 4)
+    return img
+
+
 def narcotic_item():
     img = new()
     # Tigela vista de lado com uma pasta escura dentro.
@@ -105,6 +121,7 @@ def main():
         "block/black_fruit_leaves_ripe.png": ripe_leaves(base),
         "item/black_fruit.png": fruit_item(),
         "item/narcotic.png": narcotic_item(),
+        "block/black_fruit_sapling.png": sapling(random.Random(11)),
     }
     for relative, img in outputs.items():
         path = TEXTURES / relative

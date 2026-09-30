@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "iceagesurvival:block/black_fruit_sapling"
+  }
+}

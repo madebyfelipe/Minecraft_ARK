@@ -651,7 +651,7 @@ Ver a tabela em [4](#4-decisões). Registro de mudanças estruturais:
 6. Criaturas voadoras e de carga: quais espécies.
 7. Gestação vs. ovo por espécie.
 8. Nome final do mod (`Ice Age Survival` / id `iceagesurvival` são provisórios).
-10. Muda da árvore de fruta-negra (plantar perto da base) — hoje só se colhe de árvores naturais.
+10. ~~Muda da árvore de fruta-negra~~ Feito em 2026-09-30: `black_fruit_sapling`, que as folhas dropam como as do vanilla (5%, mais com Fortuna; não com tesoura) e cresce na mesma árvore do mundo.
 12. Como tirar a sela em jogo (hoje só `/ias saddle` ou a morte da criatura): tecla, tela de inventário da criatura, ou clique com a mão vazia agachado.
 13. ~~Atacar montado~~ Feito em 2026-09-30 (clique de ataque = mordida da montaria).
 14. ~~Tyrannosaurus montável?~~ Decidido: sim (2026-09-30). Bloco `mount` em `tyrannosaurus.json`: assento 5,6 (osso `rider_pos` do modelo × escala), afinidade 25, velocidade ×0,8 (≈ Smilodon), pulo 0,45.
