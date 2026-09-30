@@ -23,7 +23,7 @@ public final class ModEntities {
 
     public static final DeferredHolder<EntityType<?>, EntityType<Smilodon>> SMILODON =
             ENTITY_TYPES.register("smilodon", () -> EntityType.Builder.of(Smilodon::new, MobCategory.CREATURE)
-                    .sized(1.2F, 1.6F)
+                    .sized(1.4F, 1.8F)
                     .clientTrackingRange(10)
                     .build("smilodon"));
 

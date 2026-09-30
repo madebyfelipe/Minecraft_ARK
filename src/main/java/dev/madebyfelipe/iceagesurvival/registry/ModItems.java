@@ -2,6 +2,7 @@ package dev.madebyfelipe.iceagesurvival.registry;
 
 import dev.madebyfelipe.iceagesurvival.IceAgeSurvival;
 import dev.madebyfelipe.iceagesurvival.item.TranqArrowItem;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
 import net.neoforged.neoforge.common.DeferredSpawnEggItem;
@@ -23,6 +24,15 @@ public final class ModItems {
     public static final DeferredItem<TranqArrowItem> TRANQ_ARROW =
             ITEMS.register("tranq_arrow", () -> new TranqArrowItem(new Item.Properties()));
 
+    /** Fruta da árvore de fruta-negra; ingrediente do narcótico. */
+    public static final DeferredItem<Item> BLACK_FRUIT = ITEMS.registerSimpleItem("black_fruit");
+
+    /** Dado a uma criatura inconsciente, aumenta o torpor sem causar dano. */
+    public static final DeferredItem<Item> NARCOTIC = ITEMS.registerSimpleItem("narcotic");
+
+    public static final DeferredItem<BlockItem> BLACK_FRUIT_LEAVES =
+            ITEMS.registerSimpleBlockItem(ModBlocks.BLACK_FRUIT_LEAVES);
+
     private ModItems() {
     }
 
@@ -32,6 +42,11 @@ public final class ModItems {
             event.accept(SMILODON_SPAWN_EGG);
         } else if (event.getTabKey() == CreativeModeTabs.COMBAT) {
             event.accept(TRANQ_ARROW);
+        } else if (event.getTabKey() == CreativeModeTabs.INGREDIENTS) {
+            event.accept(BLACK_FRUIT);
+            event.accept(NARCOTIC);
+        } else if (event.getTabKey() == CreativeModeTabs.NATURAL_BLOCKS) {
+            event.accept(BLACK_FRUIT_LEAVES);
         }
     }
 }

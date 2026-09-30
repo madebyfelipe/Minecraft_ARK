@@ -19,8 +19,8 @@ import software.bernie.geckolib.renderer.GeoEntityRenderer;
 public class IceAgeSurvivalClient {
     /** Cor da ponta da flecha tranquilizante, aplicada sobre a textura de flecha com ponta do vanilla. */
     private static final int TRANQ_ARROW_TIP_COLOR = 0xFF7A3FA0;
-    /** O modelo do Smilodon foi feito em escala menor que a caixa de colisão. */
-    private static final float SMILODON_SCALE = 1.25F;
+    /** Amplia o modelo para o dorso do Smilodon ficar na altura de um jogador. */
+    private static final float SMILODON_SCALE = 1.5F;
 
     public IceAgeSurvivalClient(IEventBus modEventBus, ModContainer container) {
         container.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);

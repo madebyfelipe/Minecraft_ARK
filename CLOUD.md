@@ -217,6 +217,8 @@ Formato atual do JSON de espécie (cresce a cada etapa):
 
 **Velocidade de mobs:** a velocidade real cresce com o *quadrado* de `speed × modificador do goal`; o jogador anda a ~4,3 blocos/s e corre a ~5,6. Um produto de 0,5 dá ~11 blocos/s (o dobro da corrida do jogador); 0,2 dá ~1,8. O Smilodon tem `speed` 0,4 e persegue com modificador 1,25.
 
+**Recuo (knockback):** campo `knockback_resistance` na espécie, de 0 a 1 (padrão 0). Regra de design: toda espécie maior que o jogador usa 1 — um golpe não arremessa um animal desses. O Smilodon usa 1.
+
 **Limites do vanilla:** `max_health` satura em 1024 e `armor` em 30. Valores acima são cortados pelo jogo. Espécies grandes e o boss precisam caber nisso ou usar outro mecanismo (ver [25](#25-riscos)).
 
 ### Espécies
@@ -306,7 +308,7 @@ Bloco `taming` do JSON de espécie (ausente = espécie não acumula torpor):
 
 Feedback ao jogador: texto sob a mira ao olhar para a criatura — nome e nível, torpor %, domesticação %. Sem menu.
 
-Ainda não existe: sedativo para manter o torpor sem dano; regra de "tribo" no multiplayer (hoje qualquer jogador pode alimentar, e quem completa fica com a criatura).
+Ainda não existe: regra de "tribo" no multiplayer (hoje qualquer jogador pode alimentar, e quem completa fica com a criatura).
 
 ### 13.1 Comandos e afinidade
 
@@ -337,7 +339,13 @@ Rede: dois payloads cliente → servidor (`set_order`, `attack_order`). O servid
 - Criaturas domesticadas são imunes.
 - Torpor, inconsciência e progresso são salvos no NBT; uma criatura inconsciente num chunk descarregado continua como estava ao recarregar.
 
-**Flecha tranquilizante** (`iceagesurvival:tranq_arrow`): flecha + frutas silvestres (sweet berries, que crescem em taiga). Dano base 0,5 contra 2,0 da flecha comum. Torpor = `tranqArrowTorpor` (config, padrão 25) × velocidade ÷ 3 — arco totalmente puxado dá o valor cheio. Funciona em arco, besta e dispensador.
+**Flecha tranquilizante** (`iceagesurvival:tranq_arrow`): flecha + narcótico. Dano base 0,5 contra 2,0 da flecha comum. Torpor = `tranqArrowTorpor` (config, padrão 25) × velocidade ÷ 3 — arco totalmente puxado dá o valor cheio. Funciona em arco, besta e dispensador.
+
+**Narcótico** (`iceagesurvival:narcotic`): carne podre + fruta-negra. Além de ingrediente da flecha, pode ser dado com clique direito a uma criatura **inconsciente**: soma `narcoticTorpor` (config, padrão 40) de torpor, sem causar dano e sem contar como alimento. Não tem espera entre doses; o custo é o item. Não funciona em criatura acordada.
+
+**Árvore de fruta-negra:** tronco de abeto com folhas próprias (`black_fruit_leaves`), copa arredondada, 3–4 blocos de tronco. Nasce em taiga, taiga nevada, taigas antigas, grove e planície nevada (tag de bioma `has_black_fruit_tree`), em média uma tentativa a cada 3 chunks. As folhas amadurecem sozinhas enquanto presas a uma árvore viva; maduras, o clique direito solta 1–2 frutas e elas voltam a amadurecer. Quebrar folhas maduras também solta frutas. Cerca de 1 em 4 folhas já nasce madura. Não há muda: a árvore não é plantável por enquanto.
+
+Cadeia para a primeira domesticação: achar a árvore → fruta-negra + carne podre → narcótico → + flecha → flecha tranquilizante.
 
 Escala das ferramentas: arco < besta < rifle. Hoje a besta ganha só ~5% pela velocidade maior; o multiplicador próprio dela e o rifle entram nas fases correspondentes.
 
@@ -421,6 +429,7 @@ Ver a tabela em [4](#4-decisões). Registro de mudanças estruturais:
 - 2026-09-30 — Documento criado; D1–D11 registradas.
 - 2026-09-30 — Etapa 2: D12–D14. Criatura de teste antecipada para a Etapa 2.
 - 2026-09-30 — Assets: workflow de modelos gerados por script aprovado. `blockbench-mcp` (enfp-dev-studio) avaliado e descartado: é só um esqueleto que envia `hello_world`.
+- 2026-09-30 — Narcótico, árvore de fruta-negra e nova receita da flecha, a pedido do Felipe. Smilodon na altura do jogador (escala 1,5; colisão 1,4 × 1,8) e imune a recuo.
 - 2026-09-30 — Etapa 4: comandos, obediência por afinidade e D15.
 - 2026-09-30 — Etapa 3: torpor, domesticação e flecha tranquilizante; regras nas seções 13 e 14.
 
@@ -446,5 +455,5 @@ Ver a tabela em [4](#4-decisões). Registro de mudanças estruturais:
 7. Gestação vs. ovo por espécie.
 8. Nome final do mod (`Ice Age Survival` / id `iceagesurvival` são provisórios).
 9. Propriedade em multiplayer durante a domesticação (quem derrubou vs. quem alimentou).
-10. Sedativo (manter torpor sem causar dano): item, receita e fase em que aparece.
+10. Muda da árvore de fruta-negra (plantar perto da base) — hoje só se colhe de árvores naturais.
 11. Mods de fauna só no CurseForge (ex.: Primal Era) — não verificados.

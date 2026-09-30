@@ -29,5 +29,9 @@
   "iceagesurvival.command.ignored": "%s ignores you",
   "iceagesurvival.command.attack": "%s of %s creatures attack %s",
   "iceagesurvival.command.attack.none": "No creature nearby can attack",
-  "iceagesurvival.configuration.minObedience": "Minimum obedience"
+  "iceagesurvival.configuration.minObedience": "Minimum obedience",
+  "block.iceagesurvival.black_fruit_leaves": "Blackfruit Leaves",
+  "item.iceagesurvival.black_fruit": "Blackfruit",
+  "item.iceagesurvival.narcotic": "Narcotic",
+  "iceagesurvival.configuration.narcoticTorpor": "Narcotic torpor"
 }

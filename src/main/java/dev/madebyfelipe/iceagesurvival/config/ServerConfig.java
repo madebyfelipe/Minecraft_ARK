@@ -21,6 +21,10 @@ public final class ServerConfig {
             .comment("Torpor aplicado por uma flecha tranquilizante disparada de um arco totalmente puxado.")
             .defineInRange("tranqArrowTorpor", 25.0, 0.0, 10000.0);
 
+    public static final ModConfigSpec.DoubleValue NARCOTIC_TORPOR = BUILDER
+            .comment("Torpor aplicado por um narcótico dado a uma criatura inconsciente.")
+            .defineInRange("narcoticTorpor", 40.0, 0.0, 10000.0);
+
     public static final ModConfigSpec.DoubleValue TAMING_BONUS_LEVEL_FRACTION = BUILDER
             .comment("Fração do nível que vira pontos extras numa domesticação com eficiência de 100%.")
             .defineInRange("tamingBonusLevelFraction", 0.5, 0.0, 10.0);

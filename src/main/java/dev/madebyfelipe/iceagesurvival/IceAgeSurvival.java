@@ -3,6 +3,7 @@ package dev.madebyfelipe.iceagesurvival;
 import com.mojang.logging.LogUtils;
 import dev.madebyfelipe.iceagesurvival.config.ServerConfig;
 import dev.madebyfelipe.iceagesurvival.network.ModPayloads;
+import dev.madebyfelipe.iceagesurvival.registry.ModBlocks;
 import dev.madebyfelipe.iceagesurvival.registry.ModEntities;
 import dev.madebyfelipe.iceagesurvival.registry.ModItems;
 import dev.madebyfelipe.iceagesurvival.species.Species;
@@ -19,6 +20,7 @@ public class IceAgeSurvival {
     public static final Logger LOGGER = LogUtils.getLogger();
 
     public IceAgeSurvival(IEventBus modEventBus, ModContainer modContainer) {
+        ModBlocks.BLOCKS.register(modEventBus);
         ModEntities.ENTITY_TYPES.register(modEventBus);
         ModItems.ITEMS.register(modEventBus);
 

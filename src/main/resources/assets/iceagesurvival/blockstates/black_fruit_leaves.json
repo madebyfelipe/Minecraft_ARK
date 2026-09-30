@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "ripe=false": {
+      "model": "iceagesurvival:block/black_fruit_leaves"
+    },
+    "ripe=true": {
+      "model": "iceagesurvival:block/black_fruit_leaves_ripe"
+    }
+  }
+}

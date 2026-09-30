@@ -11,6 +11,7 @@ import dev.madebyfelipe.iceagesurvival.core.stats.WildLevels;
 import dev.madebyfelipe.iceagesurvival.core.taming.TamingRules;
 import dev.madebyfelipe.iceagesurvival.core.taming.TamingSession;
 import dev.madebyfelipe.iceagesurvival.entity.ai.OrderGoals;
+import dev.madebyfelipe.iceagesurvival.registry.ModItems;
 import dev.madebyfelipe.iceagesurvival.species.BehaviorProfile;
 import dev.madebyfelipe.iceagesurvival.species.Species;
 import dev.madebyfelipe.iceagesurvival.species.TamingProfile;
@@ -207,6 +208,7 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         setBase(Attributes.ATTACK_DAMAGE, profile.value(Stat.ATTACK, points));
         setBase(Attributes.MOVEMENT_SPEED, profile.value(Stat.SPEED, points));
         setBase(Attributes.ARMOR, profile.value(Stat.ARMOR, points));
+        setBase(Attributes.KNOCKBACK_RESISTANCE, species.knockbackResistance());
     }
 
     private void setBase(Holder<Attribute> attribute, double value) {
@@ -376,6 +378,13 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     public InteractionResult mobInteract(Player player, InteractionHand hand) {
         if (isUnconscious() && !isTame()) {
             ItemStack stack = player.getItemInHand(hand);
+            if (stack.is(ModItems.NARCOTIC)) {
+                if (!level().isClientSide) {
+                    usePlayerItem(player, hand, stack);
+                    addTorpor(ServerConfig.NARCOTIC_TORPOR.get());
+                }
+                return InteractionResult.sidedSuccess(level().isClientSide);
+            }
             Optional<TamingProfile> profile = tamingProfile();
             Optional<TamingProfile.Food> food = profile.flatMap(p -> p.foodFor(stack));
             if (food.isPresent()) {
