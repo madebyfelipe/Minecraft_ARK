@@ -11,6 +11,12 @@ public final class Coldness {
     public static final double COMFORT_TEMPERATURE = 0.5;
     /** Queda a partir do conforto que já corresponde ao frio máximo. */
     public static final double SEVERE_TEMPERATURE_DROP = 1.0;
+    public static final double NORMAL_BODY_TEMPERATURE = 37.0;
+    public static final double FROZEN_BODY_TEMPERATURE = 30.0;
+    /** Frio líquido abaixo disto é "estável" no termômetro. */
+    private static final double TREND_DEADBAND = 0.02;
+    /** Frio líquido acima disto é "caindo rápido". */
+    private static final double FAST_TREND = 0.5;
 
     private Coldness() {
     }
@@ -25,6 +31,9 @@ public final class Coldness {
         if (reading.exposedToStorm()) {
             temperature -= tuning.stormDrop();
         }
+        if (reading.wet()) {
+            temperature -= tuning.wetDrop();
+        }
         return temperature;
     }
 
@@ -37,7 +46,7 @@ public final class Coldness {
     /** Proteção contra o frio, na mesma escala de {@link #chill}. */
     public static double warmth(ColdReading reading, ColdTuning tuning) {
         double warmth = Math.clamp(reading.heatProximity(), 0.0, 1.0) * tuning.heatWarmth()
-                + Math.max(0, reading.insulatingPieces()) * tuning.insulationPerPiece();
+                + Math.max(0.0, reading.insulation());
         return reading.sheltered() ? warmth + tuning.shelterWarmth() : warmth;
     }
 
@@ -61,5 +70,23 @@ public final class Coldness {
      */
     public static int frozenTicks(double exposure, int ticksRequiredToFreeze) {
         return (int) (Math.clamp(exposure, 0.0, 1.0) * (ticksRequiredToFreeze - 1));
+    }
+
+    /** Temperatura do corpo, em °C, para o termômetro: 37 aquecido, 30 congelado. */
+    public static double bodyTemperature(double exposure) {
+        return NORMAL_BODY_TEMPERATURE - Math.clamp(exposure, 0.0, 1.0) * (NORMAL_BODY_TEMPERATURE - FROZEN_BODY_TEMPERATURE);
+    }
+
+    /** Para onde a temperatura do corpo está indo. */
+    public enum Trend { FALLING_FAST, FALLING, STABLE, RISING, RISING_FAST }
+
+    public static Trend trend(double exposure, double severity) {
+        if (severity > 0 && exposure >= 1.0 || severity < 0 && exposure <= 0.0 || Math.abs(severity) < TREND_DEADBAND) {
+            return Trend.STABLE;
+        }
+        if (severity > 0) {
+            return severity > FAST_TREND ? Trend.FALLING_FAST : Trend.FALLING;
+        }
+        return -severity > FAST_TREND ? Trend.RISING_FAST : Trend.RISING;
     }
 }

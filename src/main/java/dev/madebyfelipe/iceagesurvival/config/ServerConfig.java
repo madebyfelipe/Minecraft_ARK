@@ -81,9 +81,13 @@ public final class ServerConfig {
             .comment("Distância em que uma fonte de calor ainda aquece. Raios maiores custam mais por jogador.")
             .defineInRange("coldHeatRadius", 4, 1, 8);
 
-    public static final ModConfigSpec.DoubleValue COLD_INSULATION_PER_ARMOR_PIECE = BUILDER
-            .comment("Proteção por peça de armadura da tag iceagesurvival:insulating_armor.")
-            .defineInRange("coldInsulationPerArmorPiece", 0.2, 0.0, 1.0);
+    public static final ModConfigSpec.DoubleValue COLD_WET_DROP = BUILDER
+            .comment("Queda de temperatura para quem está na água ou tomando chuva. O isolamento da roupa vem do data map iceagesurvival:insulation.")
+            .defineInRange("coldWetDrop", 0.3, 0.0, 2.0);
+
+    public static final ModConfigSpec.DoubleValue COLD_SHIVER_EXHAUSTION = BUILDER
+            .comment("Cansaço (fome) por tick no frio máximo: tremer gasta comida. 0,005 = um ponto de fome a cada 40 s.")
+            .defineInRange("coldShiverExhaustion", 0.005, 0.0, 1.0);
 
     public static final ModConfigSpec.IntValue COLD_SECONDS_TO_FREEZE = BUILDER
             .comment("Segundos no frio extremo para um jogador sem proteção congelar. Também é o tempo de recuperação no calor.")

@@ -30,6 +30,12 @@ Para destravar a distribuição, uma das três:
 3. voltar a arte para fora do repositório (era um resource pack local, ver o histórico do
    git em `tools/install-revival-placeholders.py`).
 
+## Derivado do Minecraft, só a silhueta
+
+`textures/item/fur_*.png`, `textures/item/pelt.png` e `textures/models/armor/fur_layer_*.png`
+(`tools/gen_fur_armor.py`) usam das texturas de couro do Minecraft apenas o canal alfa — onde há
+pixel no layout UV da armadura e o contorno do ícone. Toda a cor é gerada pelo script.
+
 ## Nosso
 
 Tudo o mais: geometria, texturas e animações geradas por `tools/gen_<especie>.py`, os JSONs

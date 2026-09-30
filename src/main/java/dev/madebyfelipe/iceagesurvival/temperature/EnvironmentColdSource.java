@@ -4,6 +4,7 @@ import dev.madebyfelipe.iceagesurvival.config.ServerConfig;
 import dev.madebyfelipe.iceagesurvival.core.temperature.ColdReading;
 import dev.madebyfelipe.iceagesurvival.core.temperature.ColdTuning;
 import dev.madebyfelipe.iceagesurvival.core.temperature.Coldness;
+import dev.madebyfelipe.iceagesurvival.registry.ModDataMaps;
 import dev.madebyfelipe.iceagesurvival.registry.ModTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -13,7 +14,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.BlockGetter;
 
 /** Mede o frio a partir do bioma, do céu, da roupa e das fontes de calor por perto. */
-final class EnvironmentColdSource implements ColdSource {
+public final class EnvironmentColdSource implements ColdSource {
     private static final EquipmentSlot[] ARMOR_SLOTS = {
             EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET};
 
@@ -29,7 +30,8 @@ final class EnvironmentColdSource implements ColdSource {
                 level.isRaining() && !sheltered,
                 sheltered,
                 heatProximity(level, pos, ServerConfig.COLD_HEAT_RADIUS.get()),
-                insulatingPieces(player));
+                insulation(player),
+                player.isInWaterOrRain());
         return Coldness.severity(reading, tuning());
     }
 
@@ -40,7 +42,7 @@ final class EnvironmentColdSource implements ColdSource {
                 ServerConfig.COLD_STORM_DROP.get(),
                 ServerConfig.COLD_SHELTER_WARMTH.get(),
                 ServerConfig.COLD_HEAT_WARMTH.get(),
-                ServerConfig.COLD_INSULATION_PER_ARMOR_PIECE.get());
+                ServerConfig.COLD_WET_DROP.get());
     }
 
     /**
@@ -70,13 +72,15 @@ final class EnvironmentColdSource implements ColdSource {
         return Math.max(0.0, 1.0 - Math.sqrt(nearestSqr) / radius);
     }
 
-    private static int insulatingPieces(LivingEntity player) {
-        int pieces = 0;
+    /** Soma do isolamento da roupa vestida, pelo data map {@code iceagesurvival:insulation}. */
+    public static double insulation(LivingEntity player) {
+        double total = 0.0;
         for (EquipmentSlot slot : ARMOR_SLOTS) {
-            if (player.getItemBySlot(slot).is(ModTags.INSULATING_ARMOR)) {
-                pieces++;
+            Float value = player.getItemBySlot(slot).getItemHolder().getData(ModDataMaps.INSULATION);
+            if (value != null) {
+                total += value;
             }
         }
-        return pieces;
+        return total;
     }
 }

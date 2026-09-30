@@ -2,6 +2,7 @@ package dev.madebyfelipe.iceagesurvival.registry;
 
 import dev.madebyfelipe.iceagesurvival.IceAgeSurvival;
 import dev.madebyfelipe.iceagesurvival.item.TranqArrowItem;
+import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
@@ -53,6 +54,14 @@ public final class ModItems {
             "brontosaurus_spawn_egg",
             () -> new DeferredSpawnEggItem(ModEntities.BRONTOSAURUS, 0x6F7A6A, 0xA8A38D, new Item.Properties()));
 
+    /** Pele grossa dos animais da era do gelo: vira a roupa que segura o frio. */
+    public static final DeferredItem<Item> PELT = ITEMS.registerSimpleItem("pelt");
+
+    public static final DeferredItem<ArmorItem> FUR_HELMET = furArmor("fur_helmet", ArmorItem.Type.HELMET);
+    public static final DeferredItem<ArmorItem> FUR_CHESTPLATE = furArmor("fur_chestplate", ArmorItem.Type.CHESTPLATE);
+    public static final DeferredItem<ArmorItem> FUR_LEGGINGS = furArmor("fur_leggings", ArmorItem.Type.LEGGINGS);
+    public static final DeferredItem<ArmorItem> FUR_BOOTS = furArmor("fur_boots", ArmorItem.Type.BOOTS);
+
     public static final DeferredItem<TranqArrowItem> TRANQ_ARROW =
             ITEMS.register("tranq_arrow", () -> new TranqArrowItem(new Item.Properties()));
 
@@ -72,6 +81,14 @@ public final class ModItems {
     private ModItems() {
     }
 
+    /** Durabilidade de couro × 1,6: mais grossa, dura mais. */
+    private static final int FUR_DURABILITY_MULTIPLIER = 8;
+
+    private static DeferredItem<ArmorItem> furArmor(String name, ArmorItem.Type type) {
+        return ITEMS.register(name, () -> new ArmorItem(ModArmorMaterials.FUR, type,
+                new Item.Properties().durability(type.getDurability(FUR_DURABILITY_MULTIPLIER))));
+    }
+
     public static void addToCreativeTabs(BuildCreativeModeTabContentsEvent event) {
         if (event.getTabKey() == CreativeModeTabs.SPAWN_EGGS) {
             event.accept(TEST_CREATURE_SPAWN_EGG);
@@ -86,8 +103,13 @@ public final class ModItems {
             event.accept(BRONTOSAURUS_SPAWN_EGG);
         } else if (event.getTabKey() == CreativeModeTabs.COMBAT) {
             event.accept(TRANQ_ARROW);
+            event.accept(FUR_HELMET);
+            event.accept(FUR_CHESTPLATE);
+            event.accept(FUR_LEGGINGS);
+            event.accept(FUR_BOOTS);
         } else if (event.getTabKey() == CreativeModeTabs.INGREDIENTS) {
             event.accept(BLACK_FRUIT);
+            event.accept(PELT);
             event.accept(NARCOTIC);
         } else if (event.getTabKey() == CreativeModeTabs.NATURAL_BLOCKS) {
             event.accept(BLACK_FRUIT_LEAVES);

@@ -10,7 +10,8 @@ package dev.madebyfelipe.iceagesurvival.core.temperature;
  * @param exposedToStorm      se está precipitando e o céu alcança o jogador
  * @param sheltered           se há teto sobre o jogador
  * @param heatProximity       0 (nenhuma fonte de calor por perto) a 1 (dentro de uma)
- * @param insulatingPieces    peças de armadura isolante vestidas
+ * @param insulation          soma do isolamento da roupa vestida (data map {@code iceagesurvival:insulation})
+ * @param wet                 se está na água ou tomando chuva: roupa molhada não segura o calor
  */
 public record ColdReading(
         double biomeTemperature,
@@ -19,5 +20,6 @@ public record ColdReading(
         boolean exposedToStorm,
         boolean sheltered,
         double heatProximity,
-        int insulatingPieces) {
+        double insulation,
+        boolean wet) {
 }

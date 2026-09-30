@@ -1,7 +1,9 @@
 package dev.madebyfelipe.iceagesurvival.client;
 
 import dev.madebyfelipe.iceagesurvival.IceAgeSurvival;
+import dev.madebyfelipe.iceagesurvival.network.ColdStatusPayload;
 import dev.madebyfelipe.iceagesurvival.network.CreatureStatusPayload;
+import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 import dev.madebyfelipe.iceagesurvival.registry.ModEntities;
 import dev.madebyfelipe.iceagesurvival.registry.ModItems;
 import net.neoforged.api.distmarker.Dist;
@@ -32,6 +34,7 @@ public class IceAgeSurvivalClient {
         NeoForge.EVENT_BUS.addListener(CommandInput::onAttackClick);
         NeoForge.EVENT_BUS.addListener(FrozenHearts::onHeartType);
         CreatureStatusPayload.setClientHandler(CreatureStatusScreen::receive);
+        ColdStatusPayload.setClientHandler(Thermometer::receive);
     }
 
     private static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
@@ -52,5 +55,6 @@ public class IceAgeSurvivalClient {
 
     private static void registerGuiLayers(RegisterGuiLayersEvent event) {
         event.registerAboveAll(IceAgeSurvival.id("creature_hud"), CreatureHud::render);
+        event.registerAbove(VanillaGuiLayers.HOTBAR, IceAgeSurvival.id("thermometer"), Thermometer::render);
     }
 }

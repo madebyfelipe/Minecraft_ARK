@@ -1,0 +1,12 @@
+{
+  "values": {
+    "minecraft:leather_helmet": 0.2,
+    "minecraft:leather_chestplate": 0.2,
+    "minecraft:leather_leggings": 0.2,
+    "minecraft:leather_boots": 0.2,
+    "iceagesurvival:fur_helmet": 0.35,
+    "iceagesurvival:fur_chestplate": 0.35,
+    "iceagesurvival:fur_leggings": 0.35,
+    "iceagesurvival:fur_boots": 0.35
+  }
+}

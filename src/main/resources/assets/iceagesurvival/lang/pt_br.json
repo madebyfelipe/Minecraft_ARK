@@ -119,5 +119,11 @@
   "subtitles.iceagesurvival.entity.brontosaurus.ambient": "Brontossauro rosna",
   "subtitles.iceagesurvival.entity.brontosaurus.hurt": "Brontossauro ferido",
   "subtitles.iceagesurvival.entity.brontosaurus.death": "Brontossauro morre",
-  "block.iceagesurvival.black_fruit_sapling": "Muda de Fruta-Negra"
+  "block.iceagesurvival.black_fruit_sapling": "Muda de Fruta-Negra",
+  "item.iceagesurvival.pelt": "Pele",
+  "item.iceagesurvival.fur_helmet": "Capuz de Pele",
+  "item.iceagesurvival.fur_chestplate": "Casaco de Pele",
+  "item.iceagesurvival.fur_leggings": "Calças de Pele",
+  "item.iceagesurvival.fur_boots": "Botas de Pele",
+  "iceagesurvival.thermometer.wet": "Molhado"
 }
