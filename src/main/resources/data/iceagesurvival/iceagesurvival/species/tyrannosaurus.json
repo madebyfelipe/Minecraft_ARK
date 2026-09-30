@@ -73,7 +73,7 @@
     "prey": "#iceagesurvival:large_prey"
   },
   "mount": {
-    "seat_height": 6.2,
+    "seat_height": 7.4,
     "min_affinity": 25,
     "speed_multiplier": 0.8,
     "jump_strength": 0.45
