@@ -13,6 +13,7 @@ import dev.madebyfelipe.iceagesurvival.core.taming.TamingRules;
 import dev.madebyfelipe.iceagesurvival.core.taming.TamingSession;
 import dev.madebyfelipe.iceagesurvival.entity.ai.OrderGoals;
 import dev.madebyfelipe.iceagesurvival.registry.ModItems;
+import dev.madebyfelipe.iceagesurvival.registry.ModTags;
 import dev.madebyfelipe.iceagesurvival.species.BehaviorProfile;
 import dev.madebyfelipe.iceagesurvival.species.BodyProfile;
 import dev.madebyfelipe.iceagesurvival.species.MountProfile;
@@ -165,6 +166,9 @@ public abstract class PrehistoricCreature extends TamableAnimal implements Playe
     @Nullable
     private UUID tamerUUID;
     private boolean breaksLeaves;
+    /** Espreitando o alvo em vez de persegui-lo (só no servidor). */
+    private boolean stalking;
+    private float plowHardness;
     /** Carga do pulo enviada pelo cliente de quem monta, de 0 a 1. */
     private float playerJumpPendingScale;
     /** Se o impulso do pulo já foi aplicado e a criatura ainda não voltou ao chão. */
@@ -373,7 +377,8 @@ public abstract class PrehistoricCreature extends TamableAnimal implements Playe
         setBase(Attributes.KNOCKBACK_RESISTANCE, body.knockbackResistance());
         setBase(Attributes.STEP_HEIGHT, body.stepHeight());
         breaksLeaves = body.breaksLeaves();
-        if (breaksLeaves) {
+        plowHardness = body.plowHardness();
+        if (breaksLeaves || plowHardness > 0.0F) {
             // Sem isto o pathfinder contorna copas que a criatura consegue atravessar.
             setPathfindingMalus(PathType.LEAVES, 0.0F);
         }
@@ -491,9 +496,49 @@ public abstract class PrehistoricCreature extends TamableAnimal implements Playe
     @Override
     public void aiStep() {
         super.aiStep();
-        if (!level().isClientSide && breaksLeaves && horizontalCollision && !isUnconscious()
-                && EventHooks.canEntityGrief(level(), this)) {
+        if (level().isClientSide || !horizontalCollision || isUnconscious()
+                || !EventHooks.canEntityGrief(level(), this)) {
+            return;
+        }
+        if (plowHardness > 0.0F) {
+            plowThroughTheWay();
+        } else if (breaksLeaves) {
             breakLeavesInTheWay();
+        }
+    }
+
+    public boolean isStalking() {
+        return stalking;
+    }
+
+    public void setStalking(boolean stalking) {
+        this.stalking = stalking;
+    }
+
+    /** Se atravessa a vegetação da superfície quebrando. */
+    public boolean plows() {
+        return plowHardness > 0.0F;
+    }
+
+    /**
+     * Quebra, à frente do corpo, os blocos da tag {@code plowable} com dureza até o limite da
+     * espécie. Só vegetação e neve: o chão e as encostas ficam, e a criatura sobe por eles.
+     */
+    private void plowThroughTheWay() {
+        Vec3 motion = getDeltaMovement().multiply(1.0, 0.0, 1.0);
+        Vec3 forward = motion.lengthSqr() > 1.0E-4 ? motion.normalize() : Vec3.directionFromRotation(0.0F, getYRot());
+        AABB box = getBoundingBox().expandTowards(forward.scale(0.8)).inflate(0.1, 0.0, 0.1);
+        for (BlockPos pos : BlockPos.betweenClosed(
+                BlockPos.containing(box.minX, box.minY + 0.01, box.minZ),
+                BlockPos.containing(box.maxX, box.maxY, box.maxZ))) {
+            var state = level().getBlockState(pos);
+            if (!state.is(ModTags.PLOWABLE) || state.hasBlockEntity()) {
+                continue;
+            }
+            float hardness = state.getDestroySpeed(level(), pos);
+            if (hardness >= 0.0F && hardness <= plowHardness && CommonHooks.canEntityDestroy(level(), pos, this)) {
+                level().destroyBlock(pos, true, this);
+            }
         }
     }
 

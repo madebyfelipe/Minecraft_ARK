@@ -1,0 +1,19 @@
+{
+  "values": [
+    "#minecraft:logs",
+    "#minecraft:leaves",
+    "#minecraft:saplings",
+    "#minecraft:flowers",
+    "#minecraft:replaceable_by_trees",
+    "minecraft:snow",
+    "minecraft:powder_snow",
+    "minecraft:sweet_berry_bush",
+    "minecraft:vine",
+    "minecraft:bamboo",
+    "minecraft:cactus",
+    "minecraft:mushroom_stem",
+    "minecraft:brown_mushroom_block",
+    "minecraft:red_mushroom_block",
+    "iceagesurvival:black_fruit_leaves"
+  ]
+}

@@ -1,6 +1,7 @@
 package dev.madebyfelipe.iceagesurvival.entity;
 
 import dev.madebyfelipe.iceagesurvival.core.stats.Stat;
+import dev.madebyfelipe.iceagesurvival.entity.ai.ChaseGoal;
 import dev.madebyfelipe.iceagesurvival.entity.ai.FleeWhenWeakGoal;
 import dev.madebyfelipe.iceagesurvival.entity.ai.FollowHerdGoal;
 import dev.madebyfelipe.iceagesurvival.entity.ai.HuntGoal;
@@ -9,7 +10,6 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
-import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
 import net.minecraft.world.entity.ai.goal.MoveTowardsRestrictionGoal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
 import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
@@ -34,6 +34,7 @@ public class LandCreature extends PrehistoricCreature implements GeoEntity {
     private static final String ATTACK_TRIGGER = "attack";
 
     private static final double CHASE_SPEED = 1.25;
+    private static final int TARGET_MEMORY_TICKS = 200;
     private static final double FLEE_SPEED = 1.4;
     private static final double FOLLOW_SPEED = 1.2;
     /**
@@ -56,7 +57,7 @@ public class LandCreature extends PrehistoricCreature implements GeoEntity {
 
         goalSelector.addGoal(0, new FloatGoal(this));
         goalSelector.addGoal(1, new FleeWhenWeakGoal(this, FLEE_SPEED));
-        goalSelector.addGoal(3, new MeleeAttackGoal(this, CHASE_SPEED, true));
+        goalSelector.addGoal(3, new ChaseGoal(this, CHASE_SPEED));
         addOrderGoals(2, 4, FOLLOW_SPEED);
         if (behavior.herdRadius() > 0) {
             goalSelector.addGoal(5, new FollowHerdGoal(this, calm * 1.5, behavior.herdRadius()));
@@ -67,7 +68,9 @@ public class LandCreature extends PrehistoricCreature implements GeoEntity {
         goalSelector.addGoal(9, new RandomLookAroundGoal(this));
 
         if (behavior.aggressive()) {
-            targetSelector.addGoal(4, new NonTameRandomTargetGoal<>(this, Player.class, true, null));
+            // Lembra do jogador que sumiu atrás das árvores por 10 s, não os 3 s do vanilla.
+            targetSelector.addGoal(4, new NonTameRandomTargetGoal<>(this, Player.class, true, null)
+                    .setUnseenMemoryTicks(TARGET_MEMORY_TICKS));
         }
         behavior.prey().ifPresent(prey -> targetSelector.addGoal(5, new HuntGoal(this, prey)));
     }

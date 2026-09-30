@@ -10,11 +10,12 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.LivingEntity;
 
 /**
- * Painel sob a mira: nome, nível, vida, torpor e andamento da domesticação da criatura
+ * Painel no topo central da tela sobre a criatura sob a mira: nome, nível, vida, torpor e andamento da domesticação da criatura
  * mirada; nas do jogador, também as ordens. A borda diz de quem ela é.
  */
 public final class CreatureHud {
-    private static final int OFFSET_BELOW_CROSSHAIR = 12;
+    /** Distância do topo da tela; abaixo da barra de vida de chefes do vanilla. */
+    private static final int TOP_MARGIN = 6;
     private static final int WIDTH = 150;
     private static final int PADDING = 5;
     private static final int BAR_HEIGHT = 9;
@@ -57,7 +58,7 @@ public final class CreatureHud {
         }
 
         int left = (graphics.guiWidth() - WIDTH) / 2;
-        int top = graphics.guiHeight() / 2 + OFFSET_BELOW_CROSSHAIR;
+        int top = TOP_MARGIN;
         int border = own ? BORDER_OWN : creature.isTame() ? BORDER_OTHER : BORDER_WILD;
         graphics.fill(left - 1, top - 1, left + WIDTH + 1, top + height + 1, border);
         graphics.fill(left, top, left + WIDTH, top + height, PANEL);

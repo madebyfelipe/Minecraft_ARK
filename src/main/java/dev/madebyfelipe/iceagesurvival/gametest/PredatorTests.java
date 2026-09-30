@@ -1,0 +1,119 @@
+package dev.madebyfelipe.iceagesurvival.gametest;
+
+import dev.madebyfelipe.iceagesurvival.IceAgeSurvival;
+import dev.madebyfelipe.iceagesurvival.entity.LandCreature;
+import dev.madebyfelipe.iceagesurvival.registry.ModEntities;
+import net.minecraft.gametest.framework.GameTest;
+import net.minecraft.gametest.framework.GameTestHelper;
+import com.mojang.authlib.GameProfile;
+import io.netty.channel.embedded.EmbeddedChannel;
+import java.util.UUID;
+import net.minecraft.network.Connection;
+import net.minecraft.network.protocol.PacketFlow;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.CommonListenerCookie;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.level.GameType;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.gametest.GameTestHolder;
+import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
+
+/** Predadores selvagens de verdade: com IA, contra um jogador em sobrevivência. */
+@GameTestHolder(IceAgeSurvival.MODID)
+@PrefixGameTestTemplate(false)
+public class PredatorTests {
+    private static final String ARENA = "arena";
+
+    /** Como {@code makeMockServerPlayerInLevel}, mas em sobrevivência: o do vanilla é criativo e nenhum mob o ataca. */
+    static ServerPlayer survivalPlayer(GameTestHelper helper) {
+        CommonListenerCookie cookie = CommonListenerCookie.createInitial(new GameProfile(UUID.randomUUID(), "test-survivor"), false);
+        ServerPlayer player = new ServerPlayer(helper.getLevel().getServer(), helper.getLevel(), cookie.gameProfile(),
+                cookie.clientInformation()) {
+            @Override
+            public boolean isSpectator() {
+                return false;
+            }
+
+            @Override
+            public boolean isCreative() {
+                return false;
+            }
+        };
+        Connection connection = new Connection(PacketFlow.SERVERBOUND);
+        new EmbeddedChannel(connection);
+        helper.getLevel().getServer().getPlayerList().placeNewPlayer(connection, player, cookie);
+        player.setGameMode(GameType.SURVIVAL);
+        return player;
+    }
+
+    private static void huntsThePlayer(GameTestHelper helper, EntityType<LandCreature> type) {
+        huntsThePlayer(helper, type, false);
+    }
+
+    /** @param alreadyHunting o predador já tem o jogador como alvo (a mata tapa a visão para escolhê-lo) */
+    private static void huntsThePlayer(GameTestHelper helper, EntityType<LandCreature> type, boolean alreadyHunting) {
+        LandCreature predator = helper.spawn(type, 6, 0, 4);
+        Player player = survivalPlayer(helper);
+        player.moveTo(helper.absoluteVec(new Vec3(6.5, 0, 14.5)));
+        if (alreadyHunting) {
+            predator.setTarget(player);
+        }
+        float start = player.getHealth();
+        helper.onEachTick(() -> {
+            if (player.getHealth() < start) {
+                helper.succeed();
+            }
+        });
+        helper.runAtTickTime(390, () -> helper.fail(type.getDescriptionId() + " não feriu o jogador; alvo "
+                + predator.getTarget() + ", distância " + predator.distanceTo(player)
+                + ", nav parada " + predator.getNavigation().isDone()
+                + ", dificuldade " + helper.getLevel().getDifficulty()
+                + ", metas " + predator.targetSelector.getAvailableGoals().stream()
+                        .map(g -> g.getGoal().getClass().getSimpleName() + (g.isRunning() ? "*" : "")).toList()
+                + ", pode atacar " + predator.canAttack(player) + ", inimigo " + player.canBeSeenAsEnemy()
+                + ", follow " + predator.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.FOLLOW_RANGE)
+                + ", visto " + predator.getSensing().hasLineOfSight(player)));
+    }
+
+    @GameTest(template = ARENA, timeoutTicks = 400)
+    public static void tyrannosaurusHuntsThePlayer(GameTestHelper helper) {
+        huntsThePlayer(helper, ModEntities.TYRANNOSAURUS.get());
+    }
+
+    /** Mata fechada entre o T-Rex e o jogador: troncos soltos, sem passagem de 3 blocos de largura. */
+    @GameTest(template = ARENA, timeoutTicks = 400)
+    public static void tyrannosaurusHuntsThroughTheForest(GameTestHelper helper) {
+        for (int x = 0; x < 24; x += 2) {
+            for (int y = 0; y < 4; y++) {
+                helper.setBlock(x, y, 9, net.minecraft.world.level.block.Blocks.OAK_LOG);
+            }
+            helper.setBlock(x + 1, 0, 11, net.minecraft.world.level.block.Blocks.STONE);
+        }
+        huntsThePlayer(helper, ModEntities.TYRANNOSAURUS.get(), true);
+    }
+
+    /** Velocidade de corrida do jogador, em blocos por segundo. */
+    private static final double PLAYER_SPRINT = 5.612;
+
+    @GameTest(template = ARENA, timeoutTicks = 100)
+    public static void tyrannosaurusOutrunsASprintingPlayer(GameTestHelper helper) {
+        LandCreature rex = helper.spawn(ModEntities.TYRANNOSAURUS.get(), 6, 0, 2);
+        Player player = survivalPlayer(helper);
+        player.moveTo(helper.absoluteVec(new Vec3(6.5, 0, 22.5)));
+        rex.setTarget(player);
+        Vec3[] start = new Vec3[1];
+        helper.runAtTickTime(15, () -> start[0] = rex.position());
+        helper.runAtTickTime(35, () -> {
+            double speed = rex.position().subtract(start[0]).horizontalDistance();
+            helper.assertTrue(speed > PLAYER_SPRINT, String.format("T-Rex corre %.2f blocos/s; o jogador corre %.2f",
+                    speed, PLAYER_SPRINT));
+            helper.succeed();
+        });
+    }
+
+    @GameTest(template = ARENA, timeoutTicks = 400)
+    public static void smilodonHuntsThePlayer(GameTestHelper helper) {
+        huntsThePlayer(helper, ModEntities.SMILODON.get());
+    }
+}
