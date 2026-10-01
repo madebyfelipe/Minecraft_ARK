@@ -17,6 +17,7 @@ import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
  *       o T-Rex pega o bronto desgarrado, não o do meio do grupo.
  *   <li>Caçador de bando arrasta o bando: ao escolher a presa, os da mesma espécie por perto
  *       partem junto. Por isso um bando pode atacar uma manada.
+ *   <li>Depois de abater uma presa, fica saciado por {@code sated_seconds} e não caça.
  * </ul>
  */
 public class HuntGoal extends NearestAttackableTargetGoal<LivingEntity> {
@@ -47,7 +48,8 @@ public class HuntGoal extends NearestAttackableTargetGoal<LivingEntity> {
 
     @Override
     public boolean canUse() {
-        return !creature.isTame() && !creature.isBaby() && super.canUse();
+        // Recém-alimentado, o predador descansa: a presa por perto não corre perigo por uns minutos.
+        return !creature.isTame() && !creature.isBaby() && !creature.isSated() && super.canUse();
     }
 
     @Override

@@ -53,7 +53,20 @@
     "aggro_radius": 16,
     "herd_radius": 14,
     "migrates": true,
-    "group_defense": true
+    "group_defense": true,
+    "wariness": {
+      "threats": "#iceagesurvival:predators",
+      "alert_radius": 16,
+      "charge_radius": 4,
+      "bluff_chance": 0.6,
+      "retreat_chance": 0.2,
+      "charge_chance": 0.02,
+      "calf_radius": 16,
+      "charge_speed": 1.4,
+      "flee_speed": 1.3,
+      "knockback": 1.2,
+      "lift": 0.3
+    }
   },
   "mount": {
     "seat_height": 3.85,

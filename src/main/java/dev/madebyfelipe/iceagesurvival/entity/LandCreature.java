@@ -7,6 +7,9 @@ import dev.madebyfelipe.iceagesurvival.entity.ai.FollowHerdGoal;
 import dev.madebyfelipe.iceagesurvival.entity.ai.HerdTravelGoal;
 import dev.madebyfelipe.iceagesurvival.entity.ai.HuntGoal;
 import dev.madebyfelipe.iceagesurvival.entity.ai.StalkGoal;
+import dev.madebyfelipe.iceagesurvival.entity.ai.FollowMotherGoal;
+import dev.madebyfelipe.iceagesurvival.entity.ai.WaryGoal;
+import dev.madebyfelipe.iceagesurvival.species.WarinessProfile;
 import dev.madebyfelipe.iceagesurvival.species.BehaviorProfile;
 import dev.madebyfelipe.iceagesurvival.species.PackBonusProfile;
 import com.github.darkpred.morehitboxes.api.EntityHitboxData;
@@ -46,6 +49,8 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 public class LandCreature extends PrehistoricCreature implements GeoEntity, GeckoLibMultiPartEntity<LandCreature> {
     private static final String ATTACK_CONTROLLER = "attack";
     private static final String ATTACK_TRIGGER = "attack";
+    /** Amplitude da passada acima da qual a criatura está correndo, não andando. */
+    private static final float RUN_LIMB_SWING = 0.75F;
 
     private static final double CHASE_SPEED = 1.25;
     private static final double STALK_SPEED = 0.55;
@@ -89,7 +94,13 @@ public class LandCreature extends PrehistoricCreature implements GeoEntity, Geck
         if (behavior.huntStyle() == BehaviorProfile.HuntStyle.STALK) {
             goalSelector.addGoal(2, new StalkGoal(this, STALK_SPEED));
         }
-        goalSelector.addGoal(3, new ChaseGoal(this, CHASE_SPEED));
+        // Espécie cautelosa persegue quem a feriu na velocidade da investida.
+        double chase = behavior.wariness().map(WarinessProfile::chargeSpeed).orElse(CHASE_SPEED);
+        goalSelector.addGoal(3, new ChaseGoal(this, chase));
+        if (behavior.wariness().isPresent()) {
+            goalSelector.addGoal(2, new WaryGoal(this, calm));
+        }
+        goalSelector.addGoal(5, new FollowMotherGoal(this, calm * 1.6));
         addOrderGoals(2, 4, FOLLOW_SPEED);
         if (behavior.herdRadius() > 0) {
             goalSelector.addGoal(5, new FollowHerdGoal(this, calm * 1.5, behavior.herdRadius()));
@@ -149,6 +160,13 @@ public class LandCreature extends PrehistoricCreature implements GeoEntity, Geck
     }
 
     @Override
+    public void threatDisplay() {
+        super.threatDisplay();
+        // O gesto de ameaça é o golpe de cabeça no ar: o rinoceronte balança o chifre e bufa.
+        triggerAnim(ATTACK_CONTROLLER, ATTACK_TRIGGER);
+    }
+
+    @Override
     protected void swingAttack() {
         super.swingAttack();
         triggerAnim(ATTACK_CONTROLLER, ATTACK_TRIGGER);
@@ -166,10 +184,12 @@ public class LandCreature extends PrehistoricCreature implements GeoEntity, Geck
         String attackName = appearance == null ? "attack" : appearance.attack();
         String unconsciousName = appearance == null ? "unconscious" : appearance.unconscious();
         String flyName = appearance == null ? walkName : appearance.fly();
+        String runName = appearance == null ? walkName : appearance.run();
         RawAnimation idle = RawAnimation.begin().thenLoop(prefix + idleName);
         RawAnimation walk = RawAnimation.begin().thenLoop(prefix + walkName);
         RawAnimation unconscious = RawAnimation.begin().thenLoop(prefix + unconsciousName);
         RawAnimation fly = RawAnimation.begin().thenLoop(prefix + flyName);
+        RawAnimation run = RawAnimation.begin().thenLoop(prefix + runName);
         // PLAY_ONCE explícito: o thenPlay usa o "loop" do arquivo, e o ataque do T-Rex e do Elasmotério
         // no Revival vem marcado como loop — o golpe ficava repetindo para sempre.
         RawAnimation attack = RawAnimation.begin().then(prefix + attackName, Animation.LoopType.PLAY_ONCE);
@@ -181,7 +201,11 @@ public class LandCreature extends PrehistoricCreature implements GeoEntity, Geck
             if (isFlying()) {
                 return state.setAndContinue(fly);
             }
-            return state.setAndContinue(state.isMoving() ? walk : idle);
+            if (!state.isMoving()) {
+                return state.setAndContinue(idle);
+            }
+            // Passada larga (investida, fuga): a animação de corrida, se a espécie tiver uma.
+            return state.setAndContinue(state.getLimbSwingAmount() > RUN_LIMB_SWING ? run : walk);
         }));
         controllers.add(new AnimationController<>(this, ATTACK_CONTROLLER, 0, state -> PlayState.STOP)
                 .triggerableAnim(ATTACK_TRIGGER, attack));

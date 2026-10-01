@@ -655,6 +655,14 @@ MVP = Etapas 1–4 + versão mínima de 6, 7 e 9 (mundo frio, temperatura básic
 
 Ver a tabela em [4](#4-decisões). Registro de mudanças estruturais:
 
+- 2026-10-01 — Fauna com "lutar ou fugir" (`core/ecology/ThreatResponse`, bloco `behavior.wariness`):
+  diante de jogador ou de `#iceagesurvival:predators`, o herbívoro encara, se afasta, blefa, investe
+  ou foge; pego de surpresa ou guardando filhote, investe sem blefar; agachado, o jogador é notado de
+  mais perto. Elasmotério passou a solitário como o rinoceronte (às vezes com filhote ou casal +
+  filhote, bloco `spawn.family`); dodô só foge; mamute, Estegossauro e Brontossauro blefam e investem.
+  Filhotes seguem a mãe e predador fica saciado depois de abater (`sated_seconds`). Tags vanilla
+  voltaram às pastas `tags/blocks` e `tags/items` do 1.20.1 — a flecha tranquilizante não saía do arco.
+
 - 2026-10-01 — Correções do primeiro teste em jogo do port Forge: ataque do T-Rex preso em loop
   (animação do Revival com `loop: true`; agora `PLAY_ONCE`), tela de status (V) e inventários
   transparentes (no 1.20.1 o `renderBackground` é chamado pela própria tela), barra de carga de pulo

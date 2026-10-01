@@ -4,9 +4,9 @@
   "spawners": [
     {
       "type": "iceagesurvival:elasmotherium",
-      "weight": 5,
+      "weight": 3,
       "minCount": 1,
-      "maxCount": 3
+      "maxCount": 1
     }
   ]
 }

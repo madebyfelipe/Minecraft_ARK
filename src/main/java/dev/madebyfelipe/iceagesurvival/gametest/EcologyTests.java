@@ -224,7 +224,7 @@ public class EcologyTests {
     public static void repopulationSpawnsOnOpenGround(GameTestHelper helper) {
         // Tag de bioma que contém o bioma do gametest, para exercitar o caminho de posição
         // sem depender de um bioma nevado, que o mundo plano do teste não tem.
-        SpawnProfile anywhere = new SpawnProfile(BiomeTags.IS_OVERWORLD, 10, 1, 1, 4, 0);
+        SpawnProfile anywhere = new SpawnProfile(BiomeTags.IS_OVERWORLD, 10, 1, 1, 4, 0, java.util.Optional.empty());
         BlockPos floor = helper.absolutePos(new BlockPos(1, 2, 1));
         helper.getLevel().setBlockAndUpdate(floor.below(), Blocks.STONE.defaultBlockState());
         var type = ModEntities.DIRE_WOLF.get();
@@ -242,7 +242,7 @@ public class EcologyTests {
 
     @GameTest(template = EMPTY)
     public static void repopulationRefusesTheWrongBiome(GameTestHelper helper) {
-        SpawnProfile jungleOnly = new SpawnProfile(BiomeTags.IS_JUNGLE, 10, 1, 1, 4, 0);
+        SpawnProfile jungleOnly = new SpawnProfile(BiomeTags.IS_JUNGLE, 10, 1, 1, 4, 0, java.util.Optional.empty());
         BlockPos floor = helper.absolutePos(new BlockPos(1, 2, 1));
         helper.assertTrue(!WildSpawner.canSpawnAt(helper.getLevel(), ModEntities.SMILODON.get(), floor, jungleOnly),
                 "a reposição aceitou um bioma fora da tag da espécie");

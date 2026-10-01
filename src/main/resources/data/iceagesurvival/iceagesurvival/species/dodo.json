@@ -55,7 +55,14 @@
     "aggro_radius": 10,
     "flee_health_fraction": 0.99,
     "herd_radius": 8,
-    "group_defense": false
+    "group_defense": false,
+    "wariness": {
+      "threats": "#iceagesurvival:predators",
+      "alert_radius": 8,
+      "charge_radius": 0,
+      "sneak_factor": 0.4,
+      "flee_speed": 1.6
+    }
   },
   "spawn": {
     "biomes": "#iceagesurvival:spawns_dodo",

@@ -64,10 +64,24 @@
   },
   "behavior": {
     "aggressive": false,
-    "aggro_radius": 12,
-    "flee_health_fraction": 0.15,
-    "herd_radius": 10,
-    "group_defense": true
+    "aggro_radius": 16,
+    "flee_health_fraction": 0.1,
+    "herd_radius": 0,
+    "group_defense": false,
+    "wariness": {
+      "threats": "#iceagesurvival:predators",
+      "alert_radius": 14,
+      "charge_radius": 4,
+      "bluff_chance": 0.55,
+      "retreat_chance": 0.35,
+      "charge_chance": 0.04,
+      "sneak_factor": 0.5,
+      "calf_radius": 14,
+      "charge_speed": 1.8,
+      "flee_speed": 1.5,
+      "knockback": 1.4,
+      "lift": 0.45
+    }
   },
   "mount": {
     "seat_height": 2.7,
@@ -80,18 +94,23 @@
   },
   "spawn": {
     "biomes": "#iceagesurvival:spawns_elasmotherium",
-    "weight": 9,
+    "weight": 6,
     "group_min": 1,
-    "group_max": 3,
-    "max_nearby": 5,
-    "min_distance": 0
+    "group_max": 1,
+    "max_nearby": 3,
+    "min_distance": 0,
+    "family": {
+      "calf_chance": 0.2,
+      "mate_chance": 0.25
+    }
   },
   "sounds": {
     "ambient": "fossil:elasmotherium_ambient",
     "hurt": "fossil:elasmotherium_hurt",
     "death": "fossil:elasmotherium_death",
     "attack": "minecraft:entity.hoglin.attack",
-    "volume": 1.2
+    "volume": 1.2,
+    "alert": "minecraft:entity.hoglin.angry"
   },
   "breeding": {
     "offspring": "live",

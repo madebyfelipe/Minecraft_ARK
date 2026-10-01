@@ -27,6 +27,8 @@ import dev.madebyfelipe.iceagesurvival.species.SoundProfile;
 import dev.madebyfelipe.iceagesurvival.species.SpawnProfile;
 import dev.madebyfelipe.iceagesurvival.species.Species;
 import dev.madebyfelipe.iceagesurvival.species.StorageProfile;
+import dev.madebyfelipe.iceagesurvival.species.WarinessProfile;
+import dev.madebyfelipe.iceagesurvival.species.FamilyProfile;
 import dev.madebyfelipe.iceagesurvival.core.mount.FlightModel;
 import dev.madebyfelipe.iceagesurvival.species.TamingProfile;
 import dev.madebyfelipe.iceagesurvival.menu.CreatureStorageMenu;
@@ -65,6 +67,8 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.DifficultyInstance;
+import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.ai.attributes.Attribute;
@@ -208,6 +212,12 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     private boolean breaksLeaves;
     /** Espreitando o alvo em vez de persegui-lo (só no servidor). */
     private boolean stalking;
+    /** Ameaça avisada por outro da manada, para o {@code WaryGoal} pegar; expira sozinha. */
+    @Nullable
+    private LivingEntity noticedThreat;
+    private long noticedThreatUntil;
+    /** Predador que acabou de comer: não caça até este tick. Não é salvo — dura minutos. */
+    private long satedUntil;
     private float plowHardness;
     /** Carga do pulo enviada pelo cliente de quem monta, de 0 a 1. */
     /** Se o impulso do pulo já foi aplicado e a criatura ainda não voltou ao chão. */
@@ -253,6 +263,61 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     public static double distanceFromWorldSpawn(ServerLevel level, BlockPos pos) {
         BlockPos spawn = level.getSharedSpawnPos();
         return DangerZones.horizontalDistance(pos.getX(), pos.getZ(), spawn.getX(), spawn.getZ());
+    }
+
+    /** Marca os parentes criados por {@link #spawnFamily}, para eles não criarem família também. */
+    private static final class FamilyMember implements SpawnGroupData {
+        private static final FamilyMember INSTANCE = new FamilyMember();
+    }
+
+    @Nullable
+    @Override
+    public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, MobSpawnType reason,
+                                        @Nullable SpawnGroupData spawnData, @Nullable CompoundTag dataTag) {
+        if (spawnData == FamilyMember.INSTANCE) {
+            return spawnData;
+        }
+        SpawnGroupData result = super.finalizeSpawn(level, difficulty, reason, spawnData, dataTag);
+        if ((reason == MobSpawnType.NATURAL || reason == MobSpawnType.CHUNK_GENERATION) && !isBaby()) {
+            species().flatMap(Species::spawn).flatMap(SpawnProfile::family)
+                    .ifPresent(family -> spawnFamily(level, difficulty, family));
+        }
+        return result;
+    }
+
+    /**
+     * Espécie solitária às vezes nasce em família: com {@code calf_chance}, um filhote junto; com
+     * filhote, {@code mate_chance} de o outro adulto também estar. Os parentes são selvagens.
+     */
+    private void spawnFamily(ServerLevelAccessor level, DifficultyInstance difficulty, FamilyProfile family) {
+        RandomSource random = level.getRandom();
+        if (random.nextDouble() >= family.calfChance()) {
+            return;
+        }
+        PrehistoricCreature calf = spawnRelative(level, difficulty);
+        if (calf != null) {
+            int maturation = calf.breedingProfile().map(BreedingProfile::maturationSeconds).orElse(1200);
+            // Filhote já crescido em parte: entre um quarto e três quartos do caminho.
+            calf.setAge(-(int) (maturation * 20 * (0.25 + 0.5 * random.nextDouble())));
+            calf.refreshDimensions();
+        }
+        if (random.nextDouble() < family.mateChance()) {
+            spawnRelative(level, difficulty);
+        }
+    }
+
+    @Nullable
+    private PrehistoricCreature spawnRelative(ServerLevelAccessor level, DifficultyInstance difficulty) {
+        if (!(getType().create(level.getLevel()) instanceof PrehistoricCreature relative)) {
+            return null;
+        }
+        double angle = level.getRandom().nextDouble() * Math.PI * 2.0;
+        double offset = getBbWidth() + 0.5;
+        relative.moveTo(getX() + Math.cos(angle) * offset, getY(), getZ() + Math.sin(angle) * offset,
+                level.getRandom().nextFloat() * 360.0F, 0.0F);
+        relative.finalizeSpawn(level, difficulty, MobSpawnType.NATURAL, FamilyMember.INSTANCE, null);
+        level.addFreshEntity(relative);
+        return relative;
     }
 
     /** Atributos que toda criatura precisa ter registrados para os stats serem aplicados. */
@@ -369,7 +434,98 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         if (!attackSwung) {
             swingAttack();
         }
-        return super.doHurtTarget(target);
+        boolean hit = super.doHurtTarget(target);
+        if (hit && target instanceof LivingEntity living) {
+            hornToss(living);
+        }
+        return hit;
+    }
+
+    /** Golpe de chifre/cabeça das espécies cautelosas: empurra e joga para o alto ({@code wariness.knockback/lift}). */
+    private void hornToss(LivingEntity target) {
+        WarinessProfile profile = wariness().orElse(null);
+        if (profile == null || profile.knockback() <= 0.0 && profile.lift() <= 0.0 || isTame()) {
+            return;
+        }
+        Vec3 push = target.position().subtract(position()).multiply(1, 0, 1);
+        push = push.lengthSqr() < 1.0E-4 ? Vec3.directionFromRotation(0.0F, getYRot()) : push.normalize();
+        double resistance = 1.0 - target.getAttributeValue(Attributes.KNOCKBACK_RESISTANCE);
+        target.push(push.x * profile.knockback() * resistance, profile.lift() * resistance,
+                push.z * profile.knockback() * resistance);
+        target.hurtMarked = true;
+    }
+
+    // ---- Ecologia ----
+
+    public Optional<WarinessProfile> wariness() {
+        return behavior().flatMap(BehaviorProfile::wariness);
+    }
+
+    /** Gesto de ameaça: o som de alerta. As subclasses com animação somam o gesto. */
+    public void threatDisplay() {
+        playAlert();
+    }
+
+    /** Outro da manada viu uma ameaça: esta também passa a encará-la. */
+    public void noticeThreat(LivingEntity threat) {
+        noticedThreat = threat;
+        noticedThreatUntil = level().getGameTime() + 40;
+    }
+
+    @Nullable
+    public LivingEntity takeNoticedThreat() {
+        LivingEntity threat = noticedThreat;
+        noticedThreat = null;
+        return threat != null && threat.isAlive() && level().getGameTime() <= noticedThreatUntil ? threat : null;
+    }
+
+    /** O alerta corre pela manada: os do mesmo tipo, selvagens e sem alvo, no raio da manada, encaram também. */
+    public void alertHerdToThreat(LivingEntity threat) {
+        int herdRadius = behavior().map(BehaviorProfile::herdRadius).orElse(0);
+        double radius = Math.max(herdRadius, 8);
+        for (PrehistoricCreature other : level().getEntitiesOfClass(PrehistoricCreature.class,
+                getBoundingBox().inflate(radius), candidate -> candidate != this && candidate.getType() == getType()
+                        && !candidate.isTame() && candidate.getTarget() == null && !candidate.isUnconscious())) {
+            other.noticeThreat(threat);
+        }
+    }
+
+    /** Se há filhote selvagem da espécie a até {@code radius} blocos: a mãe fica bem mais brava. */
+    public boolean hasCalfNearby(double radius) {
+        if (isBaby() || radius <= 0) {
+            return false;
+        }
+        return !level().getEntitiesOfClass(PrehistoricCreature.class, getBoundingBox().inflate(radius),
+                other -> other != this && other.getType() == getType() && other.isBaby() && !other.isTame()
+                        && other.isAlive()).isEmpty();
+    }
+
+    /** Filhote ferido: os adultos selvagens da espécie por perto vão para cima de quem o feriu. */
+    private void callParents(LivingEntity attacker) {
+        double radius = wariness().map(WarinessProfile::calfRadius).orElse(16.0);
+        for (PrehistoricCreature adult : level().getEntitiesOfClass(PrehistoricCreature.class,
+                getBoundingBox().inflate(Math.max(radius, 8.0)), other -> other.getType() == getType()
+                        && !other.isBaby() && !other.isTame() && !other.isUnconscious())) {
+            adult.setTarget(attacker);
+        }
+    }
+
+    /** Predador recém-alimentado: não procura presa. */
+    public boolean isSated() {
+        return level().getGameTime() < satedUntil;
+    }
+
+    @Override
+    public boolean killedEntity(ServerLevel level, LivingEntity victim) {
+        boolean result = super.killedEntity(level, victim);
+        Optional<BehaviorProfile> behavior = behavior();
+        if (!isTame() && behavior.isPresent() && behavior.get().prey().map(victim.getType()::is).orElse(false)) {
+            // Comeu: recupera vida e passa um tempo sem caçar, perto de onde abateu.
+            satedUntil = level.getGameTime() + behavior.get().satedSeconds() * 20L;
+            heal(getMaxHealth() * 0.25F);
+            setTarget(null);
+        }
+        return result;
     }
 
     @Override
@@ -1300,6 +1456,10 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         boolean hurt = super.hurt(source, amount);
         if (hurt && !level().isClientSide && isUnconscious() && !isTame()) {
             tamingSession.recordDamage(amount / getMaxHealth());
+        }
+        if (hurt && !level().isClientSide && isBaby() && !isTame() && source.getEntity() instanceof LivingEntity attacker
+                && !(attacker instanceof Player player && (player.isCreative() || player.isSpectator()))) {
+            callParents(attacker);
         }
         return hurt;
     }

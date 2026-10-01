@@ -1,0 +1,15 @@
+{
+  "replace": false,
+  "values": [
+    "iceagesurvival:dire_wolf",
+    "iceagesurvival:smilodon",
+    "iceagesurvival:direbear",
+    "iceagesurvival:tyrannosaurus",
+    "iceagesurvival:allosaurus",
+    "iceagesurvival:velociraptor",
+    "iceagesurvival:utahraptor",
+    "iceagesurvival:spinosaurus",
+    "minecraft:wolf",
+    "minecraft:polar_bear"
+  ]
+}
