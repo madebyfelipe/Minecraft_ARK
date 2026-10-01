@@ -41,7 +41,7 @@ Fora de escopo: máquinas, árvores tecnológicas, dezenas de armaduras, arsenal
 | D3 | **GeckoLib 4.7.2** | Build Forge para Minecraft 1.20.1, padrão de animação das criaturas e integração com More Hitboxes. | Fechada |
 | D4 | Gameplay, dados e código de criaturas são nossos; F&A Revival só fornece assets carregados em runtime | Não copiar código, modelos, texturas, animações ou sons. A dependência foi aceita após a migração para 1.20.1 Forge, exclusivamente para resolver assets do mod instalado pelo jogador; domesticação, progressão e IA continuam próprias. | Fechada; substitui a decisão inicial de não depender de fauna |
 | D5 | Temperatura: **sistema interno leve**, atrás de uma interface | Cold Sweat é muito mais complexo do que o brief pede ("secundária, sem burocracia"). Ver [15](#15-temperatura). | Fechada na Etapa 6 — `ColdSource` continua de pé |
-| D6 | Mundo glacial por **world preset próprio em datapack**, sem mod de worldgen obrigatório | Um preset com a fonte de biomas restrita a biomas frios resolve "mundo predominantemente congelado" sem dependência. Ver [18](#18-worldgen). | Fechada na Etapa 9 — a fonte troca biomas quentes por frios (`iceagesurvival:remapped`) e usa o ruído `amplified` do vanilla para montanhas e vales dramáticos. Ice Age - Frozen World não entra: para 1.20.1 ele só existe para Fabric, enquanto este pack usa Forge. |
+| D6 | Mundo glacial por **world preset próprio em datapack**, sem mod de worldgen obrigatório | Um preset com a fonte de biomas restrita a biomas frios resolve "mundo predominantemente congelado" sem dependência. Ver [18](#18-worldgen). | Fechada na Etapa 9 — a fonte troca biomas quentes por frios (`iceagesurvival:remapped`) e mantém o relevo vanilla do overworld. Ice Age - Frozen World não entra: para 1.20.1 ele só existe para Fabric, enquanto este pack usa Forge. |
 | D7 | Espécies num **registry de datapack** sincronizado | Permite adicionar espécie por JSON, com validação por Codec e sync automático para o cliente. | Fechada |
 | D8 | Dados da criatura no **NBT da própria entidade**, serializados por Codec | As entidades são nossas; estado de jogador de terceiros fica em capability Forge (D17). | Fechada |
 | D9 | IA com **Goals vanilla** | Suficiente para território e manada; SmartBrainLib fica como opção se os Goals virarem gargalo. | Provisória |
@@ -658,6 +658,10 @@ MVP = Etapas 1–4 + versão mínima de 6, 7 e 9 (mundo frio, temperatura básic
 
 Ver a tabela em [4](#4-decisões). Registro de mudanças estruturais:
 
+- 2026-10-01 — Worldgen restaurado ao v1 da Etapa 9: o preset Era do Gelo volta ao relevo
+  `minecraft:overworld` e ao mapeamento original de biomas frios, removendo a reformulação de
+  tundra aberta e relevo `amplified`. TerraBlender continua somente como dependência transitiva do
+  Revival, não participa do nosso worldgen.
 - 2026-10-01 — Ecologia dinâmica (D24): fome, caçada pelo faro (raio de 40–72 blocos), presa e
   manada que disparam, perseguição com fôlego, estresse com humor no painel, rivais (T-Rex ×
   Alossauro × Espinossauro, Smilodon × lobo-terrível × urso). Raios de alerta das presas dobrados.

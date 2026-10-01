@@ -13,8 +13,6 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.levelgen.presets.WorldPreset;
-import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
-import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
 import net.minecraftforge.gametest.GameTestHolder;
 import net.minecraftforge.gametest.PrefixGameTestTemplate;
 
@@ -27,12 +25,8 @@ public class WorldgenTests {
     private static final Set<ResourceKey<Biome>> CAVES = Set.of(Biomes.LUSH_CAVES, Biomes.DRIPSTONE_CAVES, Biomes.DEEP_DARK,
             // Temperatura base 0,5, mas com o modificador "frozen" do vanilla: a superfície congela.
             Biomes.DEEP_FROZEN_OCEAN);
-    /**
-     * Limite de neve do vanilla ({@code Biome.coldEnoughToSnow}): acima disto chove em vez de nevar.
-     * Taiga (0,25), costa de pedra e morros ventosos (0,2) passavam no limite antigo de 0,3 e o mundo
-     * saía verde em boa parte; agora toda a superfície neva.
-     */
-    private static final float WARMEST_ALLOWED = 0.15F;
+    /** Acima disto nada neva; taigas (0,25) e morros ventosos (0,2) são as regiões frias sem nevasca. */
+    private static final float WARMEST_ALLOWED = 0.3F;
 
     @GameTest(template = EMPTY)
     public static void iceAgePresetOnlyHasColdBiomes(GameTestHelper helper) {
@@ -48,64 +42,12 @@ public class WorldgenTests {
                 .map(biome -> biome.unwrapKey().map(key -> key.location().toString()).orElse("?"))
                 .collect(Collectors.toList());
         helper.assertTrue(warm.isEmpty(), "biomas quentes no mundo glacial: " + warm);
-        for (ResourceKey<Biome> gone : List.of(Biomes.PLAINS, Biomes.DESERT, Biomes.JUNGLE, Biomes.OCEAN, Biomes.RIVER,
-                Biomes.TAIGA, Biomes.STONY_SHORE, Biomes.WINDSWEPT_HILLS, Biomes.OLD_GROWTH_PINE_TAIGA)) {
+        for (ResourceKey<Biome> gone : List.of(Biomes.PLAINS, Biomes.DESERT, Biomes.JUNGLE, Biomes.OCEAN, Biomes.RIVER)) {
             helper.assertTrue(biomes.stream().noneMatch(biome -> biome.is(gone)), gone.location() + " sobrou");
         }
-        for (ResourceKey<Biome> kept : List.of(Biomes.SNOWY_PLAINS, Biomes.SNOWY_SLOPES, Biomes.ICE_SPIKES,
-                Biomes.FROZEN_PEAKS, Biomes.FROZEN_RIVER, Biomes.FROZEN_OCEAN)) {
+        for (ResourceKey<Biome> kept : List.of(Biomes.SNOWY_PLAINS, Biomes.FROZEN_RIVER, Biomes.FROZEN_OCEAN, Biomes.TAIGA)) {
             helper.assertTrue(biomes.stream().anyMatch(biome -> biome.is(kept)), kept.location() + " faltando");
         }
-        helper.assertTrue(((NoiseBasedChunkGenerator) overworld.generator()).generatorSettings()
-                        .is(NoiseGeneratorSettings.AMPLIFIED),
-                "o preset deveria usar relevo amplified");
-        helper.succeed();
-    }
-
-    /**
-     * O preset deve evitar uma estepe inteira de planícies e taiga: terreno amplified, encostas
-     * nevadas e ice spikes dão variedade sem voltar a biomas verdes ou floresta fechada.
-     */
-    @GameTest(template = EMPTY, timeoutTicks = 400)
-    public static void iceAgeHasVariedColdLandscapes(GameTestHelper helper) {
-        var registries = helper.getLevel().registryAccess();
-        WorldPreset preset = registries.registryOrThrow(Registries.WORLD_PRESET).get(IceAgeSurvival.id("ice_age"));
-        var source = preset.createWorldDimensions().dimensions().get(LevelStem.OVERWORLD).generator().getBiomeSource();
-        int land = 0;
-        int plains = 0;
-        int taiga = 0;
-        int rugged = 0;
-        for (long seed : new long[] {1L, 42L, 20261001L}) {
-            var sampler = net.minecraft.world.level.levelgen.RandomState.create(
-                    registries.registryOrThrow(Registries.NOISE_SETTINGS).getHolderOrThrow(NoiseGeneratorSettings.AMPLIFIED).value(),
-                    registries.lookupOrThrow(Registries.NOISE), seed).sampler();
-            for (int x = -32; x < 32; x++) {
-                for (int z = -32; z < 32; z++) {
-                    // Passo de 256 blocos (64 em coordenada de quarto), na altura do nível do mar.
-                    Holder<Biome> biome = source.getNoiseBiome(x * 64, 16, z * 64, sampler);
-                    if (biome.is(net.minecraft.tags.BiomeTags.IS_OCEAN) || biome.is(net.minecraft.tags.BiomeTags.IS_RIVER)
-                            || biome.unwrapKey().map(CAVES::contains).orElse(false)) {
-                        continue;
-                    }
-                    land++;
-                    if (biome.is(Biomes.SNOWY_PLAINS)) {
-                        plains++;
-                    } else if (biome.is(Biomes.SNOWY_TAIGA)) {
-                        taiga++;
-                    }
-                    if (biome.is(Biomes.SNOWY_SLOPES) || biome.is(Biomes.FROZEN_PEAKS) || biome.is(Biomes.ICE_SPIKES)) {
-                        rugged++;
-                    }
-                }
-            }
-        }
-        double plainsShare = (double) plains / land;
-        double taigaShare = (double) taiga / land;
-        double ruggedShare = (double) rugged / land;
-        helper.assertTrue(plainsShare <= 0.35, String.format("planícies nevadas em %.0f%% da terra", plainsShare * 100));
-        helper.assertTrue(taigaShare <= 0.15, String.format("taiga nevada em %.0f%% da terra", taigaShare * 100));
-        helper.assertTrue(ruggedShare >= 0.35,
-                String.format("encostas, picos e gelo em %.0f%% da terra", ruggedShare * 100));
         helper.succeed();
     }
 
