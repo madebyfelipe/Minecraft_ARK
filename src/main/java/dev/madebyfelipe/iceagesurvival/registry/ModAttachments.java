@@ -14,9 +14,12 @@ import net.minecraftforge.common.capabilities.CapabilityToken;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Optional;
 
 /**
  * Dados do mod anexados a entidades que não são nossas. Em Forge 1.20.1, capabilities substituem
@@ -30,8 +33,33 @@ public final class ModAttachments {
     }
 
     public static ColdState coldState(Player player) {
-        return player.getCapability(COLD).orElseThrow(
+        return findColdState(player).orElseThrow(
                 () -> new IllegalStateException("Player cold-state capability is not attached"));
+    }
+
+    /**
+     * Vazio quando o jogador já foi removido: ao renascer, o Forge invalida as capabilities do
+     * corpo antigo, que ainda recebe um último tick.
+     */
+    public static Optional<ColdState> findColdState(Player player) {
+        return player.getCapability(COLD).resolve();
+    }
+
+    /**
+     * O Forge recria o jogador ao renascer e ao voltar do End. Morrer zera o frio; atravessar o
+     * portal não.
+     */
+    private static void copyOnClone(PlayerEvent.Clone event) {
+        if (event.isWasDeath()) {
+            return;
+        }
+        Player original = event.getOriginal();
+        original.reviveCaps();
+        findColdState(original).ifPresent(old -> findColdState(event.getEntity()).ifPresent(fresh -> {
+            fresh.setExposure(old.exposure());
+            fresh.setSeverity(old.severity());
+        }));
+        original.invalidateCaps();
     }
 
     private static void registerCapabilities(RegisterCapabilitiesEvent event) {
@@ -40,9 +68,9 @@ public final class ModAttachments {
 
     private static void attachCapabilities(AttachCapabilitiesEvent<Entity> event) {
         if (event.getObject() instanceof Player) {
-            ColdStateProvider provider = new ColdStateProvider();
-            event.addCapability(IceAgeSurvival.id("cold"), provider);
-            event.addListener(provider::invalidate);
+            // Sem listener de invalidação: o LazyOptional invalidado não volta com reviveCaps(), e o
+            // Clone precisa ler o jogador antigo. Quem barra o acesso ao corpo removido é o provider.
+            event.addCapability(IceAgeSurvival.id("cold"), new ColdStateProvider());
         }
     }
 
@@ -53,6 +81,7 @@ public final class ModAttachments {
         public void register(IEventBus modEventBus) {
             modEventBus.addListener(ModAttachments::registerCapabilities);
             MinecraftForge.EVENT_BUS.addGenericListener(Entity.class, ModAttachments::attachCapabilities);
+            MinecraftForge.EVENT_BUS.addListener(ModAttachments::copyOnClone);
         }
     }
 
@@ -75,10 +104,6 @@ public final class ModAttachments {
         public void deserializeNBT(CompoundTag tag) {
             ColdState.CODEC.parse(NbtOps.INSTANCE, tag).result()
                     .ifPresent(loaded -> state.setExposure(loaded.exposure()));
-        }
-
-        private void invalidate() {
-            optional.invalidate();
         }
     }
 }

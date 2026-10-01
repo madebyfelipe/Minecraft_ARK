@@ -124,4 +124,37 @@ public class TemperatureTests {
         helper.assertTrue(player.getTicksFrozen() == 0, "jogador criativo ficou congelado");
         helper.succeed();
     }
+
+    /**
+     * Ao renascer, o corpo antigo perde as capabilities e ainda recebe um tick; isso derrubava o
+     * servidor ("Player cold-state capability is not attached").
+     */
+    @GameTest(template = EMPTY)
+    public static void removedPlayerTickDoesNotCrash(GameTestHelper helper) {
+        ServerPlayer player = new ServerPlayer(helper.getLevel().getServer(), helper.getLevel(),
+                new GameProfile(java.util.UUID.randomUUID(), "test-respawn"));
+        player.invalidateCaps();
+        helper.assertTrue(ModAttachments.findColdState(player).isEmpty(), "capability seguiu válida");
+
+        ColdExposure.onPlayerTick(new TickEvent.PlayerTickEvent(TickEvent.Phase.END, player));
+        helper.succeed();
+    }
+
+    /** Voltar do End recria o jogador sem morte: o frio acumulado vai junto. */
+    @GameTest(template = EMPTY)
+    public static void coldStateFollowsPortalClone(GameTestHelper helper) {
+        ServerPlayer original = new ServerPlayer(helper.getLevel().getServer(), helper.getLevel(),
+                new GameProfile(java.util.UUID.randomUUID(), "test-portal"));
+        ModAttachments.coldState(original).setExposure(0.6);
+        original.invalidateCaps();
+        ServerPlayer clone = new ServerPlayer(helper.getLevel().getServer(), helper.getLevel(),
+                original.getGameProfile());
+
+        net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(
+                new net.minecraftforge.event.entity.player.PlayerEvent.Clone(clone, original, false));
+
+        double exposure = ModAttachments.coldState(clone).exposure();
+        helper.assertTrue(exposure == 0.6, "frio não acompanhou o jogador pelo portal: " + exposure);
+        helper.succeed();
+    }
 }

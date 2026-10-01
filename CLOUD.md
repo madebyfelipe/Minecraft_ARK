@@ -655,6 +655,11 @@ MVP = Etapas 1–4 + versão mínima de 6, 7 e 9 (mundo frio, temperatura básic
 
 Ver a tabela em [4](#4-decisões). Registro de mudanças estruturais:
 
+- 2026-10-01 — Crash ao renascer: o corpo antigo do jogador recebe um último tick depois que o Forge
+  invalida suas capabilities, e o `ColdExposure` exigia a de frio. O tick agora ignora jogador sem
+  capability, e o `LazyOptional` do frio deixou de ser invalidado por listener (impedia o
+  `reviveCaps()`); voltar do End mantém o frio, morrer zera.
+
 - 2026-10-01 — Fauna com "lutar ou fugir" (`core/ecology/ThreatResponse`, bloco `behavior.wariness`):
   diante de jogador ou de `#iceagesurvival:predators`, o herbívoro encara, se afasta, blefa, investe
   ou foge; pego de surpresa ou guardando filhote, investe sem blefar; agachado, o jogador é notado de

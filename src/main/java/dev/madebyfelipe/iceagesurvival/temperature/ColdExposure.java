@@ -32,7 +32,11 @@ public final class ColdExposure {
         if (!(event.player instanceof ServerPlayer player) || !ServerConfig.COLD_ENABLED.get()) {
             return;
         }
-        ColdState state = ModAttachments.coldState(player);
+        // Corpo removido (renascimento): sem capability e sem nada a fazer.
+        ColdState state = ModAttachments.findColdState(player).orElse(null);
+        if (state == null) {
+            return;
+        }
         if (player.isCreative() || player.isSpectator() || player.isDeadOrDying()) {
             state.setExposure(0.0);
             state.setSeverity(0.0);
