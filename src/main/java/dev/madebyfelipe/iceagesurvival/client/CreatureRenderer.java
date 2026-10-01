@@ -5,7 +5,12 @@ import dev.madebyfelipe.iceagesurvival.entity.LandCreature;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import software.bernie.geckolib.animation.AnimationState;
+import software.bernie.geckolib.animation.state.BoneSnapshot;
+import software.bernie.geckolib.cache.object.GeoBone;
+import software.bernie.geckolib.constant.DataTickets;
+import software.bernie.geckolib.model.data.EntityModelData;
 import software.bernie.geckolib.model.DefaultedEntityGeoModel;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
 
@@ -33,15 +38,24 @@ public class CreatureRenderer extends GeoEntityRenderer<LandCreature> {
 
     private static class Model extends DefaultedEntityGeoModel<LandCreature> {
         Model(ResourceLocation typeId) {
-            super(typeId, true);
+            // Sem o "turnsHead" do GeckoLib: ele SUBSTITUI a rotação do osso pelo olhar e apaga a
+            // inclinação de repouso que o modelo tem (a cabeça do T-Rex fica 32° para cima, a dos
+            // raptores e do espinossauro, mais de 80°).
+            super(typeId, false);
         }
 
         @Override
         public void setCustomAnimations(LandCreature animatable, long instanceId, AnimationState<LandCreature> state) {
+            super.setCustomAnimations(animatable, instanceId, state);
             // A cabeça acompanha o olhar só enquanto a criatura está consciente.
-            if (!animatable.isUnconscious()) {
-                super.setCustomAnimations(animatable, instanceId, state);
+            GeoBone head = getAnimationProcessor().getBone("head");
+            if (head == null || animatable.isUnconscious()) {
+                return;
             }
+            EntityModelData data = state.getData(DataTickets.ENTITY_MODEL_DATA);
+            BoneSnapshot rest = head.getInitialSnapshot();
+            head.setRotX(rest.getRotX() + data.headPitch() * Mth.DEG_TO_RAD);
+            head.setRotY(rest.getRotY() + data.netHeadYaw() * Mth.DEG_TO_RAD);
         }
     }
 }
