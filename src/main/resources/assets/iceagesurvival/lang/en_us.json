@@ -8,6 +8,7 @@
   "item.iceagesurvival.tranq_arrow": "Tranquilizer Arrow",
   "iceagesurvival.hud.torpor": "Torpor %s%%",
   "iceagesurvival.hud.taming": "Taming %s%%",
+  "iceagesurvival.hud.taming_needs_food": "No food! Right-click and put food in its inventory to keep taming",
   "iceagesurvival.taming.not_hungry": "It is not ready to eat again yet",
   "iceagesurvival.configuration.tranqArrowTorpor": "Tranquilizer arrow torpor",
   "iceagesurvival.configuration.tamingBonusLevelFraction": "Taming bonus level fraction",
@@ -175,5 +176,11 @@
   "iceagesurvival.mood.calm": "calm",
   "iceagesurvival.mood.uneasy": "uneasy",
   "iceagesurvival.mood.stressed": "stressed",
-  "iceagesurvival.mood.panicked": "panicked"
+  "iceagesurvival.mood.panicked": "panicked",
+  "key.iceagesurvival.locate": "Locate creature",
+  "iceagesurvival.locator.title": "Locate creature",
+  "iceagesurvival.locator.locate": "Locate",
+  "iceagesurvival.locator.stop": "Stop",
+  "iceagesurvival.locator.empty": "No tamed creatures",
+  "iceagesurvival.locator.other_dimension": "In another dimension"
 }

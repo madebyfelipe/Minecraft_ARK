@@ -84,7 +84,7 @@ public class PredatorTests {
     }
 
     /** Mata fechada entre o T-Rex e o jogador: troncos soltos, sem passagem de 3 blocos de largura. */
-    @GameTest(template = ARENA, timeoutTicks = 400)
+    @GameTest(template = ARENA, batch = "predator_hunt_forest", timeoutTicks = 400)
     public static void tyrannosaurusHuntsThroughTheForest(GameTestHelper helper) {
         for (int x = 0; x < 24; x += 2) {
             for (int y = 0; y < 4; y++) {
@@ -134,13 +134,13 @@ public class PredatorTests {
         helper.succeed();
     }
 
-    @GameTest(template = ARENA, timeoutTicks = 400)
+    @GameTest(template = ARENA, batch = "predator_hunt_raptor", timeoutTicks = 400)
     public static void velociraptorHuntsThePlayer(GameTestHelper helper) {
         huntsThePlayer(helper, ModEntities.VELOCIRAPTOR.get());
     }
 
     /** Um carnívoro saciado não caça o jogador, mas um faminto o considera presa como qualquer animal. */
-    @GameTest(template = ARENA, timeoutTicks = 120)
+    @GameTest(template = ARENA, batch = "predator_hunt_hungry", timeoutTicks = 120)
     public static void carnivoreOnlyHuntsPlayerWhenHungry(GameTestHelper helper) {
         LandCreature predator = helper.spawn(ModEntities.VELOCIRAPTOR.get(), 6, 0, 4);
         var prey = predator.behavior().orElseThrow().prey().orElseThrow();

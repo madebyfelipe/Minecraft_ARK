@@ -44,6 +44,8 @@ public final class CommandInput {
             new KeyMapping("key.iceagesurvival.order_attack", GLFW.GLFW_KEY_G, CATEGORY);
     private static final KeyMapping STATUS =
             new KeyMapping("key.iceagesurvival.status", GLFW.GLFW_KEY_V, CATEGORY);
+    private static final KeyMapping LOCATE =
+            new KeyMapping("key.iceagesurvival.locate", GLFW.GLFW_KEY_O, CATEGORY);
     private static int flightPacketCooldown;
     private static boolean lastSentFlying;
 
@@ -62,6 +64,7 @@ public final class CommandInput {
         WHISTLES.values().forEach(event::register);
         event.register(ORDER_ATTACK);
         event.register(STATUS);
+        event.register(LOCATE);
     }
 
     static boolean isStatusKey(int keyCode, int scanCode) {
@@ -117,6 +120,9 @@ public final class CommandInput {
             } else if (minecraft.player.getVehicle() instanceof PrehistoricCreature mount) {
                 CreatureStatusScreen.request(mount);
             }
+        }
+        while (LOCATE.consumeClick()) {
+            CreatureLocatorScreen.open();
         }
         while (ORDER_ATTACK.consumeClick()) {
             if (aimed != null) {

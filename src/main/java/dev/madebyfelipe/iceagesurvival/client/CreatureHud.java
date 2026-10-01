@@ -1,11 +1,13 @@
 package dev.madebyfelipe.iceagesurvival.client;
 
 import dev.madebyfelipe.iceagesurvival.entity.PrehistoricCreature;
+import java.util.List;
 import java.util.Locale;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraftforge.client.gui.overlay.ForgeGui;
 
@@ -31,6 +33,8 @@ public final class CreatureHud {
     private static final int HEALTH = 0xFFD04848;
     private static final int TORPOR = 0xFF9B59D0;
     private static final int TAMING = 0xFF5FB36B;
+    private static final int WARNING = 0xFFFFB347;
+    private static final int WARNING_DIM = 0xFFC9822E;
 
     private CreatureHud() {
     }
@@ -52,6 +56,13 @@ public final class CreatureHud {
         }
         if (showTaming) {
             height += GAP + BAR_HEIGHT;
+        }
+        // Sem comida, a domesticação para e o torpor continua caindo: o aviso fica logo abaixo da barra.
+        List<FormattedCharSequence> foodWarning = showTaming && creature.needsTamingFood()
+                ? font.split(Component.translatable("iceagesurvival.hud.taming_needs_food"), WIDTH - PADDING * 2)
+                : List.of();
+        if (!foodWarning.isEmpty()) {
+            height += GAP + foodWarning.size() * font.lineHeight;
         }
         if (own) {
             height += GAP + font.lineHeight;
@@ -95,6 +106,15 @@ public final class CreatureHud {
             labeledBar(graphics, font, x, y, right - x, creature.tamingProgress(), TAMING,
                     Component.translatable("iceagesurvival.hud.taming", percent(creature.tamingProgress())).getString());
             y += BAR_HEIGHT;
+        }
+        if (!foodWarning.isEmpty()) {
+            y += GAP;
+            // Pisca devagar para chamar atenção sem ficar ilegível.
+            int color = (minecraft.level.getGameTime() / 10) % 2 == 0 ? WARNING : WARNING_DIM;
+            for (FormattedCharSequence line : foodWarning) {
+                graphics.drawString(font, line, x, y, color);
+                y += font.lineHeight;
+            }
         }
         if (own) {
             y += GAP;

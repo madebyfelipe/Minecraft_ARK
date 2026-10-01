@@ -14,6 +14,7 @@ import java.util.Optional;
 import java.util.random.RandomGenerator;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
+import net.minecraft.gametest.framework.GameTestServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EntityType;
@@ -51,7 +52,10 @@ public final class WildSpawner {
     }
 
     public static void onServerTick(TickEvent.ServerTickEvent event) {
-        if (event.phase != TickEvent.Phase.END || !ServerConfig.WILD_SPAWN_ENABLED.get()) {
+        // No servidor de testes, fauna nascendo sozinha invade as cenas (o Pteranodonte nasce em qualquer
+        // bioma); os testes da reposição chamam trySpawnAround direto.
+        if (event.phase != TickEvent.Phase.END || !ServerConfig.WILD_SPAWN_ENABLED.get()
+                || event.getServer() instanceof GameTestServer) {
             return;
         }
         int interval = ServerConfig.WILD_SPAWN_INTERVAL_SECONDS.get() * 20;

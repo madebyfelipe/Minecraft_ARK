@@ -8,6 +8,7 @@
   "item.iceagesurvival.tranq_arrow": "Flecha Tranquilizante",
   "iceagesurvival.hud.torpor": "Torpor %s%%",
   "iceagesurvival.hud.taming": "Domesticação %s%%",
+  "iceagesurvival.hud.taming_needs_food": "Sem comida! Clique com o botão direito e ponha comida no inventário para continuar a domesticação",
   "iceagesurvival.taming.not_hungry": "Ainda não está pronta para comer de novo",
   "iceagesurvival.configuration.tranqArrowTorpor": "Torpor da flecha tranquilizante",
   "iceagesurvival.configuration.tamingBonusLevelFraction": "Fração de nível bônus da domesticação",
@@ -175,5 +176,11 @@
   "iceagesurvival.mood.calm": "calma",
   "iceagesurvival.mood.uneasy": "inquieta",
   "iceagesurvival.mood.stressed": "estressada",
-  "iceagesurvival.mood.panicked": "em pânico"
+  "iceagesurvival.mood.panicked": "em pânico",
+  "key.iceagesurvival.locate": "Localizar criatura",
+  "iceagesurvival.locator.title": "Localizar criatura",
+  "iceagesurvival.locator.locate": "Localizar",
+  "iceagesurvival.locator.stop": "Parar",
+  "iceagesurvival.locator.empty": "Nenhuma criatura domesticada",
+  "iceagesurvival.locator.other_dimension": "Em outra dimensão"
 }

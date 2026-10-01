@@ -5,6 +5,7 @@ import dev.madebyfelipe.iceagesurvival.registry.ModMenus;
 import net.minecraft.world.item.SpawnEggItem;
 import net.minecraft.client.gui.screens.MenuScreens;
 import dev.madebyfelipe.iceagesurvival.network.ColdStatusPayload;
+import dev.madebyfelipe.iceagesurvival.network.CreatureLocationsPayload;
 import dev.madebyfelipe.iceagesurvival.network.CreatureStatusPayload;
 import dev.madebyfelipe.iceagesurvival.registry.ModEntities;
 import dev.madebyfelipe.iceagesurvival.registry.ModItems;
@@ -33,6 +34,8 @@ public class IceAgeSurvivalClient {
         MinecraftForge.EVENT_BUS.addListener(CommandInput::onAttackClick);
         MinecraftForge.EVENT_BUS.addListener(FrozenHearts::onGuiOverlay);
         CreatureStatusPayload.setClientHandler(CreatureStatusScreen::receive);
+        CreatureLocationsPayload.setClientHandler(CreatureTracker::receive);
+        MinecraftForge.EVENT_BUS.addListener(CreatureTracker::onClientTick);
         ColdStatusPayload.setClientHandler(Thermometer::receive);
     }
 
@@ -68,5 +71,6 @@ public class IceAgeSurvivalClient {
     private static void registerGuiOverlays(RegisterGuiOverlaysEvent event) {
         event.registerAboveAll("creature_hud", CreatureHud::render);
         event.registerAbove(VanillaGuiOverlay.HOTBAR.id(), "thermometer", Thermometer::render);
+        event.registerAbove(VanillaGuiOverlay.HOTBAR.id(), "creature_tracker", CreatureTracker::render);
     }
 }

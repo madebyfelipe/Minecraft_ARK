@@ -12,6 +12,7 @@ import dev.madebyfelipe.iceagesurvival.item.CreatureEggItem;
 import dev.madebyfelipe.iceagesurvival.species.BreedingProfile;
 import dev.madebyfelipe.iceagesurvival.core.spawn.DangerZones;
 import dev.madebyfelipe.iceagesurvival.core.spawn.SpeciesSpacing;
+import dev.madebyfelipe.iceagesurvival.world.CreatureLocator;
 import dev.madebyfelipe.iceagesurvival.world.GroupSpacing;
 import dev.madebyfelipe.iceagesurvival.core.stats.Stat;
 import dev.madebyfelipe.iceagesurvival.core.stats.StatPoints;
@@ -113,6 +114,9 @@ public abstract class PrehistoricCreature extends TamableAnimal {
             SynchedEntityData.defineId(PrehistoricCreature.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Boolean> DATA_UNCONSCIOUS =
             SynchedEntityData.defineId(PrehistoricCreature.class, EntityDataSerializers.BOOLEAN);
+    /** Desmaiada, com quem a derrubou, e sem nada que coma no inventário: a domesticação parou. */
+    private static final EntityDataAccessor<Boolean> DATA_NEEDS_TAMING_FOOD =
+            SynchedEntityData.defineId(PrehistoricCreature.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Float> DATA_TAMING_PROGRESS =
             SynchedEntityData.defineId(PrehistoricCreature.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Byte> DATA_MOVEMENT =
@@ -167,6 +171,8 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     private static final String TAG_GESTATION_CHILD = "GestationChild";
     private static final String TAG_ZONE_CHECKED = "ZoneChecked";
     private static final String TAG_SPACING_CHECKED = "SpacingChecked";
+    /** A cada quanto a domesticada grava onde está, para o menu "localizar criatura", em ticks. */
+    private static final int LOCATOR_UPDATE_INTERVAL = 100;
     /** A cada quanto um indivíduo selvagem renova a marca do grupo dele, em ticks. */
     private static final int SPACING_REPORT_INTERVAL = 600;
     /** Queda máxima, em blocos/tick, de uma espécie voadora fora do voo: ela plana. */
@@ -477,6 +483,7 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         entityData.define(DATA_TORPOR_FRACTION, 0.0F);
         entityData.define(DATA_UNCONSCIOUS, false);
         entityData.define(DATA_TAMING_PROGRESS, 0.0F);
+        entityData.define(DATA_NEEDS_TAMING_FOOD, false);
         entityData.define(DATA_MOVEMENT, (byte) DEFAULT_MOVEMENT.ordinal());
         entityData.define(DATA_STANCE, (byte) DEFAULT_STANCE.ordinal());
         entityData.define(DATA_SADDLED, false);
@@ -1117,6 +1124,7 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         entityData.set(DATA_UNCONSCIOUS, false);
         tamingSession.reset();
         entityData.set(DATA_TAMING_PROGRESS, 0.0F);
+        entityData.set(DATA_NEEDS_TAMING_FOOD, false);
         tamerUUID = null;
     }
 
@@ -1182,6 +1190,9 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         }
         if (level().isClientSide || tickCount % TORPOR_UPDATE_INTERVAL_TICKS != 0) {
             return;
+        }
+        if (isTame() && tickCount % LOCATOR_UPDATE_INTERVAL == 0) {
+            CreatureLocator.update(this);
         }
         if (torpor > 0) {
             double decayPerSecond = tamingProfile().map(TamingProfile::torporDecayPerSecond).orElse(0.0);
@@ -1931,6 +1942,21 @@ public abstract class PrehistoricCreature extends TamableAnimal {
 
     // ---- Domesticação ----
 
+    /** Se há no inventário algo que a espécie come para ser domesticada. */
+    private boolean hasTamingFood(TamingProfile profile) {
+        for (int slot = 0; slot < inventory.getContainerSize(); slot++) {
+            if (profile.foodFor(inventory.getItem(slot)).isPresent()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** A domesticação está parada por falta de comida no inventário; disponível também no cliente. */
+    public boolean needsTamingFood() {
+        return entityData.get(DATA_NEEDS_TAMING_FOOD);
+    }
+
     /** De 0 a 1; disponível também no cliente. */
     public float tamingProgress() {
         return entityData.get(DATA_TAMING_PROGRESS);
@@ -1951,6 +1977,25 @@ public abstract class PrehistoricCreature extends TamableAnimal {
             stressHerd(Stress.Event.HERD_KILLED);
         }
         super.die(source);
+        if (!level().isClientSide && isDeadOrDying()) {
+            CreatureLocator.forget(this);
+        }
+    }
+
+    /**
+     * Saindo do mundo carregado (chunk descarregado, troca de dimensão), a domesticada grava onde ficou
+     * para o menu "localizar criatura"; removida de vez, sai da lista.
+     */
+    @Override
+    public void remove(RemovalReason reason) {
+        if (!level().isClientSide && isTame()) {
+            if (reason == RemovalReason.DISCARDED) {
+                CreatureLocator.forget(this);
+            } else if (reason != RemovalReason.KILLED) {
+                CreatureLocator.update(this);
+            }
+        }
+        super.remove(reason);
     }
 
     @Override
@@ -2074,6 +2119,7 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     /** Inconsciente, come uma unidade do melhor alimento que houver no inventário, respeitando o intervalo. */
     private void eatFromInventory() {
         Optional<TamingProfile> profile = tamingProfile();
+        entityData.set(DATA_NEEDS_TAMING_FOOD, profile.isPresent() && tamerUUID != null && !hasTamingFood(profile.get()));
         long now = level().getGameTime();
         if (profile.isEmpty() || tamerUUID == null || now < nextFeedTime) {
             return;
@@ -2149,6 +2195,7 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         }
         setTorpor(0);
         level().broadcastEntityEvent(this, (byte) 7); // corações de domesticação do TamableAnimal
+        CreatureLocator.update(this);
     }
 
     // ---- Persistência ----

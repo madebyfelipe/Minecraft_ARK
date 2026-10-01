@@ -170,6 +170,31 @@ public class TamingTests {
         });
     }
 
+    /** Sem comida no inventário, a criatura avisa (o painel mostra o alerta); com comida, o aviso some. */
+    @GameTest(template = EMPTY)
+    public static void warnsWhenTamingRunsOutOfFood(GameTestHelper helper) {
+        TestCreature creature = knockedOutBy(helper, helper.makeMockSurvivalPlayer());
+        helper.runAfterDelay(30, () -> {
+            helper.assertTrue(creature.needsTamingFood(), "deveria pedir comida com o inventário vazio");
+            creature.inventory().addItem(new ItemStack(Items.CARROT, 8));
+            creature.inventory().addItem(new ItemStack(Items.STONE, 1));
+            helper.runAfterDelay(30, () -> {
+                helper.assertTrue(!creature.needsTamingFood(), "com cenoura no inventário não deveria pedir comida");
+                helper.succeed();
+            });
+        });
+    }
+
+    @GameTest(template = EMPTY)
+    public static void notWarnedWithoutATamer(GameTestHelper helper) {
+        TestCreature creature = spawn(helper);
+        creature.addTorpor(creature.maxTorpor());
+        helper.runAfterDelay(30, () -> {
+            helper.assertTrue(!creature.needsTamingFood(), "sem quem derrubou, não há domesticação para continuar");
+            helper.succeed();
+        });
+    }
+
     @GameTest(template = EMPTY)
     public static void eatsTheBestFoodFirst(GameTestHelper helper) {
         TestCreature creature = knockedOutBy(helper, helper.makeMockSurvivalPlayer());
@@ -253,5 +278,26 @@ public class TamingTests {
         TestCreature small = spawn(helper);
         helper.assertTrue(small.maxUpStep() == 0.6F, "criatura pequena com degrau alterado");
         helper.succeed();
+    }
+
+    /** O localizador guarda a criatura domesticada com o dono certo, segue a posição e esquece a morta. */
+    @GameTest(template = EMPTY)
+    public static void locatorListsOwnedCreatures(GameTestHelper helper) {
+        Player owner = helper.makeMockSurvivalPlayer();
+        TestCreature creature = spawn(helper);
+        creature.tame(owner);
+        dev.madebyfelipe.iceagesurvival.world.CreatureLocator.update(creature);
+        var server = helper.getLevel().getServer();
+        var mine = dev.madebyfelipe.iceagesurvival.world.CreatureLocator.ownedBy(server, owner.getUUID());
+        helper.assertTrue(mine.stream().anyMatch(entry -> entry.creature().equals(creature.getUUID())
+                        && entry.pos().equals(creature.blockPosition())), "a criatura domesticada deveria estar na lista do dono");
+        helper.assertTrue(dev.madebyfelipe.iceagesurvival.world.CreatureLocator.ownedBy(server, java.util.UUID.randomUUID())
+                .stream().noneMatch(entry -> entry.creature().equals(creature.getUUID())), "nem na de outro jogador");
+        creature.kill();
+        helper.runAfterDelay(2, () -> {
+            helper.assertTrue(dev.madebyfelipe.iceagesurvival.world.CreatureLocator.ownedBy(server, owner.getUUID())
+                    .stream().noneMatch(entry -> entry.creature().equals(creature.getUUID())), "morta, sai da lista");
+            helper.succeed();
+        });
     }
 }
