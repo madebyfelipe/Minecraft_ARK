@@ -741,6 +741,7 @@ Ver a tabela em [4](#4-decisões). Registro de mudanças estruturais:
 - 2026-09-30 — Comandos no esquema do ARK: movimento e postura independentes, assobios por tecla (mirada ou todas ao alcance), painel sob a mira refeito e tela de status (V).
 - 2026-09-30 — Mamute em 1,5x (colisão 3,0×4,65, escala 1,92, assento 3,85, degrau 1,65) e coletor de madeira pela mordida montada.
 - 2026-09-30 — Tyrannosaurus reduzido de 2x para 1,5x: colisão 2,7×5,4, escala do modelo 4,25, assento 5,6 (osso `rider_pos` × escala), degrau 2,1.
+- 2026-10-01 — Preset Era do Gelo mais aberto: florestas temperadas, pântanos e selvas viram `snowy_plains` (antes `snowy_taiga`, que cobria ~73% da terra); taiga nevada fica para taigas e floresta escura. GameTest `iceAgeIsMostlyOpenTundra` exige ≥40% de tundra aberta e ≤30% de taiga.
 
 ## 25. Riscos
 

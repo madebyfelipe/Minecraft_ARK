@@ -56,6 +56,49 @@ public class WorldgenTests {
         helper.succeed();
     }
 
+    /**
+     * A Era do Gelo é a estepe do mamute: tundra aberta, com manchas de floresta. As florestas
+     * temperadas viravam todas taiga nevada, e ~75% da terra saía floresta de pinheiro fechada —
+     * árvores demais e bicho grande sem espaço para nascer. Amostra o ruído real do preset numa
+     * área de ~16 mil blocos de lado, com três sementes.
+     */
+    @GameTest(template = EMPTY, timeoutTicks = 400)
+    public static void iceAgeIsMostlyOpenTundra(GameTestHelper helper) {
+        var registries = helper.getLevel().registryAccess();
+        WorldPreset preset = registries.registryOrThrow(Registries.WORLD_PRESET).get(IceAgeSurvival.id("ice_age"));
+        var source = preset.createWorldDimensions().dimensions().get(LevelStem.OVERWORLD).generator().getBiomeSource();
+        var settings = registries.registryOrThrow(Registries.NOISE_SETTINGS)
+                .getOrThrow(net.minecraft.world.level.levelgen.NoiseGeneratorSettings.OVERWORLD);
+        int land = 0;
+        int plains = 0;
+        int taiga = 0;
+        for (long seed : new long[] {1L, 42L, 20261001L}) {
+            var sampler = net.minecraft.world.level.levelgen.RandomState.create(settings,
+                    registries.lookupOrThrow(Registries.NOISE), seed).sampler();
+            for (int x = -32; x < 32; x++) {
+                for (int z = -32; z < 32; z++) {
+                    // Passo de 256 blocos (64 em coordenada de quarto), na altura do nível do mar.
+                    Holder<Biome> biome = source.getNoiseBiome(x * 64, 16, z * 64, sampler);
+                    if (biome.is(net.minecraft.tags.BiomeTags.IS_OCEAN) || biome.is(net.minecraft.tags.BiomeTags.IS_RIVER)
+                            || biome.unwrapKey().map(CAVES::contains).orElse(false)) {
+                        continue;
+                    }
+                    land++;
+                    if (biome.is(Biomes.SNOWY_PLAINS)) {
+                        plains++;
+                    } else if (biome.is(Biomes.SNOWY_TAIGA)) {
+                        taiga++;
+                    }
+                }
+            }
+        }
+        double plainsShare = (double) plains / land;
+        double taigaShare = (double) taiga / land;
+        helper.assertTrue(plainsShare >= 0.40, String.format("tundra aberta só em %.0f%% da terra", plainsShare * 100));
+        helper.assertTrue(taigaShare <= 0.30, String.format("taiga nevada em %.0f%% da terra", taigaShare * 100));
+        helper.succeed();
+    }
+
     /** Do Revival só entram os assets: minérios, estátua moai e estruturas dele não são gerados. */
     @GameTest(template = EMPTY)
     public static void revivalWorldgenIsDisabled(GameTestHelper helper) {
