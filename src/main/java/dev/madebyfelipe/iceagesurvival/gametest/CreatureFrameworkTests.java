@@ -98,6 +98,17 @@ public class CreatureFrameworkTests {
     }
 
     @GameTest(template = EMPTY)
+    public static void direbearIsTerritorialAndSolitary(GameTestHelper helper) {
+        LandCreature direbear = helper.spawnWithNoFreeWill(ModEntities.DIREBEAR.get(), 1, 2, 1);
+        BehaviorProfile behavior = direbear.behavior().orElseThrow();
+
+        helper.assertTrue(direbear.hasRestriction(), "direbear selvagem sem território");
+        helper.assertTrue(behavior.territoryRadius() == 64, "direbear deveria defender 64 blocos");
+        helper.assertTrue(behavior.herdRadius() == 0, "direbear não deveria formar manada");
+        helper.succeed();
+    }
+
+    @GameTest(template = EMPTY)
     public static void territorySurvivesSaveAndLoad(GameTestHelper helper) {
         LandCreature original = helper.spawnWithNoFreeWill(ModEntities.SMILODON.get(), 1, 2, 1);
         LandCreature loaded = ModEntities.SMILODON.get().create(helper.getLevel());

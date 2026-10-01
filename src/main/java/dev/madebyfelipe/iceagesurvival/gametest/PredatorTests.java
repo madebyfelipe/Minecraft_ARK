@@ -143,6 +143,11 @@ public class PredatorTests {
     }
 
     @GameTest(template = ARENA, timeoutTicks = 400)
+    public static void direbearHuntsThePlayer(GameTestHelper helper) {
+        huntsThePlayer(helper, ModEntities.DIREBEAR.get());
+    }
+
+    @GameTest(template = ARENA, timeoutTicks = 400)
     public static void spinosaurusHuntsThePlayer(GameTestHelper helper) {
         huntsThePlayer(helper, ModEntities.SPINOSAURUS.get());
     }

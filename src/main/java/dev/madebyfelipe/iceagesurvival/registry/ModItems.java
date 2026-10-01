@@ -55,6 +55,10 @@ public final class ModItems {
             "brontosaurus_spawn_egg",
             () -> new DeferredSpawnEggItem(ModEntities.BRONTOSAURUS, 0x6F7A6A, 0xA8A38D, new Item.Properties()));
 
+    public static final DeferredItem<DeferredSpawnEggItem> DIREBEAR_SPAWN_EGG = ITEMS.register(
+            "direbear_spawn_egg",
+            () -> new DeferredSpawnEggItem(ModEntities.DIREBEAR, 0x684428, 0xA67E52, new Item.Properties()));
+
     /** Pele grossa dos animais da era do gelo: vira a roupa que segura o frio. */
     public static final DeferredItem<Item> PELT = ITEMS.registerSimpleItem("pelt");
 
@@ -112,6 +116,7 @@ public final class ModItems {
             event.accept(SPINOSAURUS_SPAWN_EGG);
             event.accept(ALLOSAURUS_SPAWN_EGG);
             event.accept(BRONTOSAURUS_SPAWN_EGG);
+            event.accept(DIREBEAR_SPAWN_EGG);
         } else if (event.getTabKey() == CreativeModeTabs.COMBAT) {
             event.accept(TRANQ_ARROW);
             event.accept(FUR_HELMET);

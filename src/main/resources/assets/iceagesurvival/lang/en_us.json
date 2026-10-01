@@ -116,6 +116,8 @@
   "subtitles.iceagesurvival.entity.allosaurus.death": "Allosaurus dies",
   "entity.iceagesurvival.brontosaurus": "Brontosaurus",
   "item.iceagesurvival.brontosaurus_spawn_egg": "Brontosaurus Spawn Egg",
+  "entity.iceagesurvival.direbear": "Direbear",
+  "item.iceagesurvival.direbear_spawn_egg": "Direbear Spawn Egg",
   "subtitles.iceagesurvival.entity.brontosaurus.ambient": "Brontosaurus growls",
   "subtitles.iceagesurvival.entity.brontosaurus.hurt": "Brontosaurus hurts",
   "subtitles.iceagesurvival.entity.brontosaurus.death": "Brontosaurus dies",

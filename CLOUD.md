@@ -251,6 +251,7 @@ Todas as espécies terrestres usam a mesma classe (`LandCreature`); o que as dif
 |---|---|---|---|---|
 | **Lobo-terrível** (`dire_wolf`) | Primeira domesticação; predador de matilha | 0,8 × 1,2 | Agressivo, matilha de 2–4, defesa em grupo, caça presas pequenas, recua com 20% de vida | taiga, taiga nevada, taigas antigas, grove, planície nevada |
 | **Smilodon** (`smilodon`) | Predador territorial solitário, rápido | 1,3 × 2,3 | Agressivo e **espreita** (`hunt_style: stalk`): aproxima-se devagar pelas costas e só dá o bote, rugindo, a 4,5 blocos, ao ser ferido ou quando o jogador o vê. Território de 32 blocos, caça presas grandes, recua com 25% de vida | taiga, taiga nevada, taigas antigas, grove, encostas nevadas |
+| **Urso-terrível** (`direbear`) | Predador territorial solitário, resistente | 2,0 × 3,0 | Agressivo, território de 64 blocos, caça presas grandes e recua com 15% de vida | taiga, taiga nevada, taigas antigas, grove, encostas nevadas |
 | **Mamute-lanoso** (`mammoth`) | Herbívoro de manada, tanque; montado, coletor de madeira | 3,0 × 4,65 | Pacífico até ser provocado; manada de 2–4 que se defende junta | planície nevada, ice spikes, taiga nevada |
 | **Tyrannosaurus rex** (`tyrannosaurus`) | Primeiro dinossauro; predador de topo solitário, raro | 2,7 × 5,4 | Agressivo, raio de percepção 24, território de 48 blocos, caça presas grandes, recua com 10% de vida | taiga, taiga nevada, taigas antigas, planície nevada (peso 1) |
 | **Velociraptor** (`velociraptor`) | Predador pequeno de bando | 0,7 × 1,1 | Agressivo, bando de 3–5 com defesa em grupo, caça presas pequenas | taiga, taiga nevada, grove |
@@ -260,7 +261,7 @@ Todas as espécies terrestres usam a mesma classe (`LandCreature`); o que as dif
 | **Brontossauro** (`brontosaurus`) | Saurópode gigante de manada, montável, coletor de madeira | 4,0 × 8,0 | Pacífico, manada de 1–3 que se defende junta, atravessa o mato | planície nevada, grove, taiga nevada |
 | Criatura de teste (`test_creature`) | Só para testes automáticos; usa o modelo do porco | 0,9 × 0,9 | Passiva | não nasce |
 
-Montáveis: Smilodon, mamute, Tyrannosaurus, Utahraptor, Espinossauro, Alossauro e Brontossauro. Os modelos do Utahraptor e do Brontossauro são placeholders do Revival de parentes próximos (Deinonychus, Diplodoco), porque o Revival não tem essas espécies; o Alossauro tem modelo e sons próprios do Revival.
+Montáveis: Smilodon, urso-terrível, mamute, Tyrannosaurus, Utahraptor, Espinossauro, Alossauro e Brontossauro. Os modelos do Utahraptor e do Brontossauro são placeholders do Revival de parentes próximos (Deinonychus, Diplodoco), porque o Revival não tem essas espécies; o Alossauro tem modelo e sons próprios do Revival.
 
 **Ecologia (presas):** cada predador caça uma tag de tipos (`behavior.prey`): o T-Rex `tyrannosaurus_prey` (brontos, mamutes e os grandes do vanilla), o Alossauro `allosaurus_prey` (idem), o lobo-terrível `dire_wolf_prey` (mamutes e os pequenos do vanilla). Regras do `HuntGoal`: nunca caça criatura domesticada; caçador solitário (sem `herd_radius`) só ataca presa de manada **desgarrada** — o T-Rex pega o bronto isolado, não o do meio do grupo; caçador de bando chama o bando (`rallyPack`) e pode atacar a manada, que se defende junta. O T-Rex vagueia por um território de 160 blocos.
 
@@ -643,6 +644,8 @@ MVP = Etapas 1–4 + versão mínima de 6, 7 e 9 (mundo frio, temperatura básic
 
 Ver a tabela em [4](#4-decisões). Registro de mudanças estruturais:
 
+- 2026-10-01 — Urso-terrível integrado pela receita de espécie terrestre: modelo original, predador
+  solitário com território de 64 blocos, spawn raro nos biomas frios do Smilodon e montaria.
 - 2026-09-30 — Arte do Revival passou do resource pack local para o repositório (D21), com guarda em
   `modelgen` contra regeração e `ASSET_LICENSES.md` ao lado dos assets. O jar fica não distribuível
   até a arte ser substituída.

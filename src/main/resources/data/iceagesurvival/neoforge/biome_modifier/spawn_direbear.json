@@ -1,0 +1,12 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": "#iceagesurvival:spawns_direbear",
+  "spawners": [
+    {
+      "type": "iceagesurvival:direbear",
+      "weight": 1,
+      "minCount": 1,
+      "maxCount": 1
+    }
+  ]
+}
