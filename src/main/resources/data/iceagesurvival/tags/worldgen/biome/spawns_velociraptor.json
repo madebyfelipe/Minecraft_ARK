@@ -6,6 +6,10 @@
     "minecraft:snowy_taiga",
     "minecraft:grove",
     "minecraft:ice_spikes",
-    "minecraft:snowy_slopes"
+    "minecraft:snowy_slopes",
+    "minecraft:savanna",
+    "minecraft:plains",
+    "minecraft:badlands",
+    "minecraft:wooded_badlands"
   ]
 }

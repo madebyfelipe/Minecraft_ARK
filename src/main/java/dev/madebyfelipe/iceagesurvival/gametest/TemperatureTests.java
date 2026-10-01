@@ -157,4 +157,38 @@ public class TemperatureTests {
         helper.assertTrue(exposure == 0.6, "frio não acompanhou o jogador pelo portal: " + exposure);
         helper.succeed();
     }
+
+    /** Mundo normal (o do GameTest não é o preset): sem frio, nem para quem está em sobrevivência. */
+    @GameTest(template = EMPTY)
+    public static void noColdOutsideTheIceAgeMode(GameTestHelper helper) {
+        var server = helper.getLevel().getServer();
+        helper.assertTrue(!dev.madebyfelipe.iceagesurvival.world.IceAgeMode.isIceAgePreset(server),
+                "o mundo do GameTest não é Era do Gelo");
+        helper.assertTrue(!dev.madebyfelipe.iceagesurvival.world.IceAgeMode.isActive(server), "frio ligado em mundo normal");
+        ServerPlayer player = PredatorTests.survivalPlayer(helper);
+        ModAttachments.coldState(player).setExposure(0.8);
+        ColdExposure.onPlayerTick(new TickEvent.PlayerTickEvent(TickEvent.Phase.END, player));
+        helper.assertTrue(ModAttachments.coldState(player).exposure() == 0.0, "frio acumulado em mundo normal");
+
+        // Forçado na config, vale em qualquer mundo.
+        var config = dev.madebyfelipe.iceagesurvival.config.ServerConfig.ICE_AGE_MODE;
+        var previous = config.get();
+        config.set(dev.madebyfelipe.iceagesurvival.world.IceAgeMode.Setting.ON);
+        try {
+            helper.assertTrue(dev.madebyfelipe.iceagesurvival.world.IceAgeMode.isActive(server), "iceAgeMode=ON não ligou o frio");
+        } finally {
+            config.set(previous);
+        }
+        helper.succeed();
+    }
+
+    /** O preset Era do Gelo é reconhecido pela fonte de biomas própria. */
+    @GameTest(template = EMPTY)
+    public static void iceAgePresetIsRecognisedByItsBiomeSource(GameTestHelper helper) {
+        var normal = helper.getLevel().getChunkSource().getGenerator().getBiomeSource();
+        helper.assertTrue(!dev.madebyfelipe.iceagesurvival.world.IceAgeMode.isIceAgeSource(normal), "fonte normal");
+        var iceAge = new dev.madebyfelipe.iceagesurvival.world.RemappedBiomeSource(normal, java.util.Map.of());
+        helper.assertTrue(dev.madebyfelipe.iceagesurvival.world.IceAgeMode.isIceAgeSource(iceAge), "fonte do preset");
+        helper.succeed();
+    }
 }

@@ -7,6 +7,10 @@
     "minecraft:old_growth_spruce_taiga",
     "minecraft:grove",
     "minecraft:snowy_plains",
-    "minecraft:snowy_slopes"
+    "minecraft:snowy_slopes",
+    "minecraft:forest",
+    "minecraft:windswept_forest",
+    "minecraft:windswept_hills",
+    "minecraft:meadow"
   ]
 }

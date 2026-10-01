@@ -85,6 +85,11 @@ public final class ServerConfig {
             .comment("Chance de uma criatura selvagem já carregar o gene de mutação de vida.")
             .defineInRange("wildHealthGeneChance", 0.05, 0.0, 1.0);
 
+    public static final ForgeConfigSpec.EnumValue<dev.madebyfelipe.iceagesurvival.world.IceAgeMode.Setting> ICE_AGE_MODE = BUILDER
+            .comment("Modo Era do Gelo (frio e termômetro). AUTO: só em mundo criado com o preset Era do Gelo;"
+                    + " ON: em qualquer mundo; OFF: nunca. As criaturas nascem em qualquer mundo de todo jeito.")
+            .defineEnum("iceAgeMode", dev.madebyfelipe.iceagesurvival.world.IceAgeMode.Setting.AUTO);
+
     public static final ForgeConfigSpec.BooleanValue COLD_ENABLED = BUILDER
             .comment("Se o frio afeta os jogadores. Desligar entrega a mecânica de temperatura a outro mod.")
             .define("coldEnabled", true);

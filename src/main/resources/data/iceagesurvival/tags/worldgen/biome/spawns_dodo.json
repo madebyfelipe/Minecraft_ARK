@@ -7,6 +7,12 @@
     "minecraft:snowy_beach",
     "minecraft:taiga",
     "minecraft:ice_spikes",
-    "minecraft:snowy_slopes"
+    "minecraft:snowy_slopes",
+    "minecraft:plains",
+    "minecraft:sunflower_plains",
+    "minecraft:meadow",
+    "minecraft:forest",
+    "minecraft:birch_forest",
+    "minecraft:beach"
   ]
 }

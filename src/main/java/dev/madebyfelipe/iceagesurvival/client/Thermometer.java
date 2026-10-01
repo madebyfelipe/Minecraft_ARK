@@ -44,6 +44,11 @@ public final class Thermometer {
         status = payload;
     }
 
+    /** Ao sair do mundo: a leitura era daquele mundo, e num mundo normal nenhuma outra chega. */
+    public static void onLoggingOut(net.minecraftforge.client.event.ClientPlayerNetworkEvent.LoggingOut event) {
+        status = null;
+    }
+
     public static void render(ForgeGui gui, GuiGraphics graphics, float partialTick, int screenWidth, int screenHeight) {
         Minecraft minecraft = Minecraft.getInstance();
         if (status == null || minecraft.options.hideGui || minecraft.player == null

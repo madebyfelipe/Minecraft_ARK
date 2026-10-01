@@ -3,6 +3,7 @@ package dev.madebyfelipe.iceagesurvival.temperature;
 import dev.madebyfelipe.iceagesurvival.config.ServerConfig;
 import dev.madebyfelipe.iceagesurvival.core.temperature.Coldness;
 import dev.madebyfelipe.iceagesurvival.network.ColdStatusPayload;
+import dev.madebyfelipe.iceagesurvival.world.IceAgeMode;
 import dev.madebyfelipe.iceagesurvival.network.ModPayloads;
 import dev.madebyfelipe.iceagesurvival.registry.ModAttachments;
 import net.minecraft.server.level.ServerPlayer;
@@ -37,7 +38,10 @@ public final class ColdExposure {
         if (state == null) {
             return;
         }
-        if (player.isCreative() || player.isSpectator() || player.isDeadOrDying()) {
+        // Fora do modo Era do Gelo (mundo normal) não há frio: o termômetro nem aparece, porque nenhuma
+        // leitura é enviada.
+        if (player.isCreative() || player.isSpectator() || player.isDeadOrDying()
+                || !IceAgeMode.isActive(player.server)) {
             state.setExposure(0.0);
             state.setSeverity(0.0);
             return;

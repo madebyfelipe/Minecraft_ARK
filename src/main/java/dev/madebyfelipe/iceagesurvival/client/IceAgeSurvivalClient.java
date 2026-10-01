@@ -36,6 +36,7 @@ public class IceAgeSurvivalClient {
         CreatureStatusPayload.setClientHandler(CreatureStatusScreen::receive);
         CreatureLocationsPayload.setClientHandler(CreatureTracker::receive);
         MinecraftForge.EVENT_BUS.addListener(CreatureTracker::onClientTick);
+        MinecraftForge.EVENT_BUS.addListener(Thermometer::onLoggingOut);
         ColdStatusPayload.setClientHandler(Thermometer::receive);
     }
 

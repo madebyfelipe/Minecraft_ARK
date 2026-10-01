@@ -5,6 +5,10 @@
     "minecraft:taiga",
     "minecraft:snowy_taiga",
     "minecraft:old_growth_pine_taiga",
-    "minecraft:snowy_slopes"
+    "minecraft:snowy_slopes",
+    "minecraft:plains",
+    "minecraft:savanna",
+    "minecraft:savanna_plateau",
+    "minecraft:forest"
   ]
 }

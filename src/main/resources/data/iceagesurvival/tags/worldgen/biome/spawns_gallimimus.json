@@ -5,6 +5,10 @@
     "minecraft:ice_spikes",
     "minecraft:snowy_taiga",
     "minecraft:taiga",
-    "minecraft:grove"
+    "minecraft:grove",
+    "minecraft:plains",
+    "minecraft:savanna",
+    "minecraft:desert",
+    "minecraft:sunflower_plains"
   ]
 }

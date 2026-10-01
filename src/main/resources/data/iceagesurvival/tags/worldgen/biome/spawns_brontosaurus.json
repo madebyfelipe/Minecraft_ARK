@@ -4,6 +4,10 @@
     "minecraft:snowy_plains",
     "minecraft:grove",
     "minecraft:snowy_taiga",
-    "minecraft:snowy_slopes"
+    "minecraft:snowy_slopes",
+    "minecraft:plains",
+    "minecraft:savanna",
+    "minecraft:meadow",
+    "minecraft:sunflower_plains"
   ]
 }

@@ -6,6 +6,8 @@
     "minecraft:old_growth_pine_taiga",
     "minecraft:old_growth_spruce_taiga",
     "minecraft:grove",
-    "minecraft:snowy_slopes"
+    "minecraft:snowy_slopes",
+    "minecraft:forest",
+    "minecraft:dark_forest"
   ]
 }

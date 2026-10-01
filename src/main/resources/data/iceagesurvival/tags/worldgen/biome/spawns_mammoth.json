@@ -4,6 +4,9 @@
     "minecraft:snowy_plains",
     "minecraft:ice_spikes",
     "minecraft:snowy_taiga",
-    "minecraft:snowy_slopes"
+    "minecraft:snowy_slopes",
+    "minecraft:meadow",
+    "minecraft:windswept_hills",
+    "minecraft:plains"
   ]
 }

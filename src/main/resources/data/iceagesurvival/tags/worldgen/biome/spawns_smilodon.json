@@ -8,6 +8,10 @@
     "minecraft:grove",
     "minecraft:snowy_slopes",
     "minecraft:snowy_plains",
-    "minecraft:ice_spikes"
+    "minecraft:ice_spikes",
+    "minecraft:savanna",
+    "minecraft:savanna_plateau",
+    "minecraft:forest",
+    "minecraft:windswept_savanna"
   ]
 }

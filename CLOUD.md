@@ -513,6 +513,8 @@ Escala das ferramentas: arco < besta < rifle. Hoje a besta ganha só ~5% pela ve
 
 ## 15. Temperatura
 
+**Modo Era do Gelo (2026-10-01):** o frio é uma "DLC" do mod. Só vale num mundo criado com o preset Era do Gelo, reconhecido pela fonte de biomas do Overworld (`RemappedBiomeSource`, em `world/IceAgeMode`); em mundo normal não há frio nem termômetro. `iceAgeMode` na config do mundo força (`ON` em qualquer mundo, `OFF` nunca; padrão `AUTO`). As criaturas nascem nos dois: cada `spawns_<especie>` lista os biomas frios e os equivalentes de um mundo normal (planícies, savana, florestas, deserto para o Galimimo, rios e pântanos para o Espinossauro); no preset os biomas normais são trocados por frios e não aparecem.
+
 Implementado. Mecânica secundária: a pergunta do jogador é *"tenho recursos para essa viagem?"*.
 
 Um único valor por jogador, a **exposição** (0 a 1), no servidor. A cada tick ela anda conforme o **frio líquido** do lugar, relido do mundo uma vez por segundo:
@@ -811,6 +813,7 @@ Ver a tabela em [4](#4-decisões). Registro de mudanças estruturais:
 - 2026-09-30 — Mamute em 1,5x (colisão 3,0×4,65, escala 1,92, assento 3,85, degrau 1,65) e coletor de madeira pela mordida montada.
 - 2026-09-30 — Tyrannosaurus reduzido de 2x para 1,5x: colisão 2,7×5,4, escala do modelo 4,25, assento 5,6 (osso `rider_pos` × escala), degrau 2,1.
 - 2026-10-01 — O preset Era do Gelo troca `minecraft:overworld` por `minecraft:amplified` no overworld e remapeia biomas planos/florestais para encostas nevadas e ice spikes. GameTest amostra três sementes e exige planícies nevadas ≤35%, taiga ≤15% e encostas/picos/gelo ≥35% da terra.
+- 2026-10-01 — Modo Era do Gelo como "DLC": criaturas em mundo normal (tags de bioma estendidas) e frio/termômetro só no preset Era do Gelo ou com `iceAgeMode=ON` (§15).
 - 2026-10-01 — Tricerátopo (Revival em runtime, escala 3,0, hitbox própria).
 - 2026-10-01 — Galimimo (Revival em runtime, hitbox própria). Estegossauro não aparecia: só a 300+ blocos e com peso 6, perdia as vagas do teto para dodôs, raptores e Pteranodontes; agora nasce desde o spawn com peso 12 (9 na geração do terreno).
 - 2026-10-01 — Interface: aviso piscando sob a barra de domesticação quando a criatura desmaiada fica sem comida no inventário (`DATA_NEEDS_TAMING_FOOD`); menu "Localizar criatura" (tecla O) com as domesticadas do jogador, da mais perto à mais longe, com nível, seta, distância e coordenadas — a posição vem de `CreatureLocator` (dados do Overworld, gravada a cada 5 s e ao descarregar, então acha criatura em chunk descarregado); "Localizar" liga uma bússola acima da barra de itens e faz a criatura brilhar 15 s se estiver carregada. Plugin opcional do Jade (`compat/JadeCompat`, `compileOnly`) esconde a caixa dele sobre as nossas criaturas, que já têm painel próprio. A reposição de fauna não roda no servidor de GameTest (o Pteranodonte em qualquer bioma invadia as cenas) e três cenas de caça ganharam lote próprio.

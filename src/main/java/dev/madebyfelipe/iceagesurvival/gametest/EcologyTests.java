@@ -203,16 +203,15 @@ public class EcologyTests {
     }
 
     @GameTest(template = EMPTY)
-    public static void warmBiomesDoNotListTheNewFauna(GameTestHelper helper) {
-        Biome desert = helper.getLevel().registryAccess().registryOrThrow(Registries.BIOME).getOrThrow(Biomes.DESERT);
-        for (var creature : ModEntities.LAND_CREATURES) {
-            if (creature.get() == ModEntities.PTERANODON.get()) {
-                continue; // o Pteranodonte voa em qualquer bioma
-            }
-            boolean listed = desert.getMobSettings().getMobs(MobCategory.CREATURE).unwrap().stream()
-                    .anyMatch(spawner -> spawner.type == creature.get());
-            helper.assertTrue(!listed, creature.getId() + " nasce no deserto");
-        }
+    public static void normalWorldBiomesListTheFauna(GameTestHelper helper) {
+        // As criaturas nascem em mundo normal; o preset Era do Gelo troca esses biomas por frios.
+        assertSpawnsIn(helper, Biomes.PLAINS, ModEntities.DODO.get());
+        assertSpawnsIn(helper, Biomes.PLAINS, ModEntities.BRONTOSAURUS.get());
+        assertSpawnsIn(helper, Biomes.SAVANNA, ModEntities.TYRANNOSAURUS.get());
+        assertSpawnsIn(helper, Biomes.SAVANNA, ModEntities.TRICERATOPS.get());
+        assertSpawnsIn(helper, Biomes.FOREST, ModEntities.STEGOSAURUS.get());
+        assertSpawnsIn(helper, Biomes.DESERT, ModEntities.GALLIMIMUS.get());
+        assertSpawnsIn(helper, Biomes.RIVER, ModEntities.SPINOSAURUS.get());
         helper.succeed();
     }
 
@@ -283,12 +282,17 @@ public class EcologyTests {
 
     @GameTest(template = EMPTY)
     public static void repopulationRespectsTheBiomeOfTheSpecies(GameTestHelper helper) {
-        // O mundo do gametest é de bioma temperado: só o Pteranodonte, que nasce em qualquer lugar, vale aqui.
+        // Só as espécies cuja tag inclui o bioma do lugar entram no sorteio.
         ServerPlayer player = PredatorTests.survivalPlayer(helper);
+        var biome = helper.getLevel().getBiome(player.blockPosition());
         List<WildSpawner.Report> reports = WildSpawner.survey(helper.getLevel(), player);
-        helper.assertTrue(reports.stream().allMatch(report -> report.type() == ModEntities.PTERANODON.get()),
-                "reposição ofereceu fauna do frio em bioma temperado: " + reports.size() + " espécie(s)");
-        helper.assertTrue(!reports.isEmpty(), "o Pteranodonte deveria poder nascer em bioma temperado");
+        helper.assertTrue(!reports.isEmpty(), "nenhuma espécie no bioma do mundo de teste");
+        for (WildSpawner.Report report : reports) {
+            helper.assertTrue(biome.is(report.profile().biomes()), report.type() + " oferecida fora do bioma");
+        }
+        helper.assertTrue(reports.stream().noneMatch(report -> report.type() == ModEntities.SPINOSAURUS.get())
+                        || biome.is(net.minecraft.tags.BiomeTags.IS_RIVER) || biome.is(net.minecraft.tags.BiomeTags.IS_BEACH),
+                "Espinossauro oferecido longe da água");
         helper.succeed();
     }
 

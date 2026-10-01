@@ -4,6 +4,10 @@
     "minecraft:snowy_taiga",
     "minecraft:taiga",
     "minecraft:old_growth_spruce_taiga",
-    "minecraft:snowy_slopes"
+    "minecraft:snowy_slopes",
+    "minecraft:forest",
+    "minecraft:birch_forest",
+    "minecraft:sparse_jungle",
+    "minecraft:jungle"
   ]
 }

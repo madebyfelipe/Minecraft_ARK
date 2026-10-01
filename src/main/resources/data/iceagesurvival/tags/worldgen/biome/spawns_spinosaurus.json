@@ -3,6 +3,10 @@
   "values": [
     "minecraft:frozen_river",
     "minecraft:snowy_beach",
-    "minecraft:frozen_ocean"
+    "minecraft:frozen_ocean",
+    "minecraft:river",
+    "minecraft:swamp",
+    "minecraft:mangrove_swamp",
+    "minecraft:beach"
   ]
 }
