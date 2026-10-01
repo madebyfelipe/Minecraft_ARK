@@ -644,6 +644,8 @@ MVP = Etapas 1–4 + versão mínima de 6, 7 e 9 (mundo frio, temperatura básic
 
 Ver a tabela em [4](#4-decisões). Registro de mudanças estruturais:
 
+- 2026-10-01 — Rig original do urso-terrível passou de 10 para 21 ossos: patas com segmentos,
+  orelhas e cauda articuladas; animações próprias de respiração, marcha e golpe de duas patas.
 - 2026-10-01 — Urso-terrível integrado pela receita de espécie terrestre: modelo original, predador
   solitário com território de 64 blocos, spawn raro nos biomas frios do Smilodon e montaria.
 - 2026-09-30 — Arte do Revival passou do resource pack local para o repositório (D21), com guarda em

@@ -197,11 +197,14 @@ def animations(species, gait):
     }
 
 
-def build(species, bones, palette, gait, tex_size, scale=1.0, details=None, seed=1):
+def build(species, bones, palette, gait, tex_size, scale=1.0, details=None, seed=1, animation_factory=None):
     """Gera e grava geometria, textura e animações da espécie.
 
     `details(texture, cube_name, faces)` é chamado para cada cubo distinto depois da
     pintura base, para olhos, focinho, faixas etc.
+
+    `animation_factory(species)` pode substituir as animações padrão para rigs com
+    articulações próprias.
     """
     if hand_authored(species) and not os.environ.get("IAS_FORCE_GEN"):
         raise SystemExit(
@@ -234,7 +237,8 @@ def build(species, bones, palette, gait, tex_size, scale=1.0, details=None, seed
         path.parent.mkdir(parents=True, exist_ok=True)
     paths["geo"].write_text(json.dumps(geometry(species, bones, uvs, tex_w, tex_h), indent=2) + "\n")
     texture.image.save(paths["texture"])
-    paths["animations"].write_text(json.dumps(animations(species, gait), indent=2) + "\n")
+    animation_data = animation_factory(species) if animation_factory else animations(species, gait)
+    paths["animations"].write_text(json.dumps(animation_data, indent=2) + "\n")
     paths["settings"].write_text(json.dumps({"scale": scale}, indent=2) + "\n")
     cubes = sum(len(b.cubes) for b in bones)
     print(f"{species}: {len(bones)} ossos, {cubes} cubos, textura {tex_w}x{tex_h}, escala {scale}")
