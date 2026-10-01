@@ -644,6 +644,8 @@ MVP = Etapas 1–4 + versão mínima de 6, 7 e 9 (mundo frio, temperatura básic
 
 Ver a tabela em [4](#4-decisões). Registro de mudanças estruturais:
 
+- 2026-10-01 — Direbear: marcha plantígrada original em quatro tempos, com transferência de peso
+  do tronco e apoios alternados; rosto ganhou focinho em três volumes e sobrancelhas próprias.
 - 2026-10-01 — Rig original do urso-terrível passou de 10 para 21 ossos: patas com segmentos,
   orelhas e cauda articuladas; animações próprias de respiração, marcha e golpe de duas patas.
 - 2026-10-01 — Urso-terrível integrado pela receita de espécie terrestre: modelo original, predador

@@ -27,6 +27,9 @@ BONES = [
     Bone("head", "neck", (0, 19, -14), [
         Cube("skull", (-6, 15, -21), (12, 9, 8)),
         Cube("muzzle", (-5, 14, -26), (10, 6, 6)),
+        Cube("nose", (-3, 16, -28), (6, 3, 2)),
+        Cube("brow", (2, 20, -22), (3, 2, 2)),
+        Cube("brow", (-5, 20, -22), (3, 2, 2), mirror=True),
     ]),
     Bone("jaw", "head", (0, 15, -19), [
         Cube("jaw", (-4, 13, -26), (8, 2, 7)),
@@ -90,7 +93,6 @@ def details(texture, name, faces):
         texture.pixel(x0 + 3, y0 + 2, PUPIL)
         texture.pixel(x1 - 4, y0 + 2, PUPIL)
     elif name == "muzzle":
-        texture.fill((x0 + 3, y0, x1 - 3, y0 + 2), NOSE, noise=3)
         texture.fill((x0, y1 - 2, x1, y1), BELLY)
     elif name == "ear":
         texture.fill(faces["front"], EAR_INNER, noise=4)
@@ -107,34 +109,42 @@ def rotation(keys):
     return {"rotation": {str(time): values for time, values in keys.items()}}
 
 
-def leg_cycle(upper, lower, paw, forward):
+def cycle(values, phase):
+    """Desloca uma sequência cíclica para distribuir os apoios das quatro patas."""
+    values = values[phase:] + values[:phase]
+    return {time: value for time, value in zip((0.0, 0.25, 0.5, 0.75, 1.0), values + values[:1])}
+
+
+def plantigrade_cycle(upper, lower, paw, phase, stride):
+    """Marcha de urso: a pata inteira pousa antes de o ombro/quadril avançar."""
     return {
-        upper: rotation({0.0: [forward, 0, 0], 0.25: [0, 0, 0], 0.5: [-forward, 0, 0],
-                         0.75: [0, 0, 0], 1.0: [forward, 0, 0]}),
-        lower: rotation({0.0: [-forward * 0.55, 0, 0], 0.25: [-forward * 0.8, 0, 0],
-                         0.5: [forward * 0.45, 0, 0], 0.75: [forward * 0.7, 0, 0],
-                         1.0: [-forward * 0.55, 0, 0]}),
-        paw: rotation({0.0: [forward * 0.25, 0, 0], 0.25: [forward * 0.65, 0, 0],
-                       0.5: [-forward * 0.2, 0, 0], 0.75: [-forward * 0.45, 0, 0],
-                       1.0: [forward * 0.25, 0, 0]}),
+        upper: rotation(cycle([[stride, 0, 0], [stride * 0.35, 0, 0],
+                               [-stride, 0, 0], [-stride * 0.45, 0, 0]], phase)),
+        lower: rotation(cycle([[-stride * 0.25, 0, 0], [-stride * 0.7, 0, 0],
+                               [stride * 0.45, 0, 0], [stride * 0.8, 0, 0]], phase)),
+        paw: rotation(cycle([[stride * 0.1, 0, 0], [stride * 0.7, 0, 0],
+                             [-stride * 0.35, 0, 0], [-stride * 0.55, 0, 0]], phase)),
     }
 
 
 def bear_animations(species):
     prefix = f"animation.{species}."
     walk_bones = {
-        "body": rotation({0.0: [0, -1.5, 0], 0.5: [0, 1.5, 0], 1.0: [0, -1.5, 0]}),
-        "neck": rotation({0.0: [2, 0, 0], 0.5: [-2, 0, 0], 1.0: [2, 0, 0]}),
-        "head": rotation({0.0: [-1, 0, 0], 0.5: [1, 0, 0], 1.0: [-1, 0, 0]}),
-        "tail_base": rotation({0.0: [0, -4, 0], 0.5: [0, 4, 0], 1.0: [0, -4, 0]}),
-        "tail_tip": rotation({0.0: [0, -7, 0], 0.5: [0, 7, 0], 1.0: [0, -7, 0]}),
+        "body": {
+            "rotation": cycle([[0, -2, 0], [0, 1, 0], [0, 2, 0], [0, -1, 0]], 0),
+            "position": cycle([[0, 0.2, 0], [0, 0, 0], [0, 0.35, 0], [0, 0, 0]], 0),
+        },
+        "neck": rotation(cycle([[2, 0, 0], [0, 0, 0], [-2, 0, 0], [0, 0, 0]], 0)),
+        "head": rotation(cycle([[-1, 0, 0], [0, 0, 0], [1, 0, 0], [0, 0, 0]], 0)),
+        "tail_base": rotation(cycle([[0, -5, 0], [0, 1, 0], [0, 5, 0], [0, -1, 0]], 0)),
+        "tail_tip": rotation(cycle([[0, -8, 0], [0, 2, 0], [0, 8, 0], [0, -2, 0]], 0)),
     }
-    for upper, lower, paw, forward in (
-            ("front_left_upper", "front_left_lower", "front_left_paw", 22),
-            ("front_right_upper", "front_right_lower", "front_right_paw", -22),
-            ("hind_left_upper", "hind_left_lower", "hind_left_paw", -18),
-            ("hind_right_upper", "hind_right_lower", "hind_right_paw", 18)):
-        walk_bones.update(leg_cycle(upper, lower, paw, forward))
+    for upper, lower, paw, phase, stride in (
+            ("front_left_upper", "front_left_lower", "front_left_paw", 0, 20),
+            ("hind_right_upper", "hind_right_lower", "hind_right_paw", 1, 17),
+            ("front_right_upper", "front_right_lower", "front_right_paw", 2, 20),
+            ("hind_left_upper", "hind_left_lower", "hind_left_paw", 3, 17)):
+        walk_bones.update(plantigrade_cycle(upper, lower, paw, phase, stride))
 
     return {
         "format_version": "1.8.0",
@@ -184,7 +194,8 @@ def bear_animations(species):
 if __name__ == "__main__":
     build(
         "direbear", BONES,
-        Palette(fur=FUR, top=FUR_DARK, belly=BELLY, overrides={"muzzle": MUZZLE}),
+        Palette(fur=FUR, top=FUR_DARK, belly=BELLY,
+                overrides={"muzzle": MUZZLE, "nose": NOSE, "brow": FUR_DARK}),
         Gait(
             legs_a=("leg_front_left", "leg_hind_right"),
             legs_b=("leg_front_right", "leg_hind_left"),
