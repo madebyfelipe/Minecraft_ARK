@@ -182,6 +182,26 @@ public class EarlyGameTests {
         helper.succeed();
     }
 
+    /** Todo carnívoro (quem come carne de vaca) aceita a carne de dodô, crua e assada. */
+    @GameTest(template = EMPTY)
+    public static void carnivoresAcceptDodoMeat(GameTestHelper helper) {
+        var registries = helper.getLevel().registryAccess();
+        int carnivores = 0;
+        for (var creature : ModEntities.LAND_CREATURES) {
+            var taming = Species.of(registries, creature.get()).flatMap(Species::taming);
+            if (taming.isEmpty() || taming.get().foodFor(new ItemStack(Items.BEEF)).isEmpty()) {
+                continue;
+            }
+            carnivores++;
+            helper.assertTrue(taming.get().foodFor(new ItemStack(ModItems.DODO_MEAT.get())).isPresent(),
+                    creature.getId() + " recusa carne de dodô crua");
+            helper.assertTrue(taming.get().foodFor(new ItemStack(ModItems.COOKED_DODO_MEAT.get())).isPresent(),
+                    creature.getId() + " recusa carne de dodô assada");
+        }
+        helper.assertTrue(carnivores >= 8, "carnívoros encontrados: " + carnivores);
+        helper.succeed();
+    }
+
     private static void dress(Player player, net.minecraft.world.item.Item... pieces) {
         EquipmentSlot[] slots = {EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET};
         for (int i = 0; i < slots.length; i++) {

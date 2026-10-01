@@ -43,7 +43,8 @@
         "items": [
           "minecraft:beef",
           "minecraft:mutton",
-          "minecraft:porkchop"
+          "minecraft:porkchop",
+          "iceagesurvival:dodo_meat"
         ],
         "value": 30,
         "quality": 0.7
@@ -51,7 +52,8 @@
       {
         "items": [
           "minecraft:cooked_salmon",
-          "minecraft:cooked_cod"
+          "minecraft:cooked_cod",
+          "iceagesurvival:cooked_dodo_meat"
         ],
         "value": 15,
         "quality": 0.4

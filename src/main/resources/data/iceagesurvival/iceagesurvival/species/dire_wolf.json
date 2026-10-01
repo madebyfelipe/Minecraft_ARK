@@ -37,7 +37,8 @@
       {
         "items": [
           "minecraft:chicken",
-          "minecraft:rabbit"
+          "minecraft:rabbit",
+          "iceagesurvival:dodo_meat"
         ],
         "value": 15,
         "quality": 0.7
@@ -48,7 +49,8 @@
           "minecraft:cooked_mutton",
           "minecraft:cooked_porkchop",
           "minecraft:cooked_chicken",
-          "minecraft:cooked_rabbit"
+          "minecraft:cooked_rabbit",
+          "iceagesurvival:cooked_dodo_meat"
         ],
         "value": 15,
         "quality": 0.4
