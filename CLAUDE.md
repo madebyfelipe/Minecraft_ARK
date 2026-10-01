@@ -1,5 +1,13 @@
 # Ice Age Survival — instruções para o Claude
 
+## REGRA Nº 1 — prioridade máxima, acima de todas as outras
+
+**Caso algo não fique claro, não hesite em perguntar e questionar o Felipe. Não faça as coisas de
+maneira ambígua.** Diante de um pedido com mais de uma leitura possível, de uma decisão de design
+que ele não tomou ou de um número que ele não deu, pergunte antes de implementar — não escolha uma
+interpretação em silêncio. Isso vale também para "rodar sozinho" (roadmap autônomo): a autonomia é
+para executar o que está claro, não para decidir o que está ambíguo.
+
 Mod Forge 1.20.1 de criaturas pré-históricas (domesticação, torpor, frio, montaria). O
 projeto e a documentação são em **português**; o roadmap e as decisões técnicas ficam em
 [CLOUD.md](CLOUD.md). Leia o CLOUD.md antes de qualquer etapa.
