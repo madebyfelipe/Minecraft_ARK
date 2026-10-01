@@ -14,6 +14,11 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
+import dev.madebyfelipe.iceagesurvival.entity.PrehistoricCreature;
+import dev.madebyfelipe.iceagesurvival.species.BodyProfile;
+import dev.madebyfelipe.iceagesurvival.species.Species;
 
 /** Mede o frio a partir do bioma, do céu, da roupa e das fontes de calor por perto. */
 public final class EnvironmentColdSource implements ColdSource {
@@ -32,7 +37,7 @@ public final class EnvironmentColdSource implements ColdSource {
                 level.isRaining() && !sheltered,
                 sheltered,
                 heatProximity(level, pos, ServerConfig.COLD_HEAT_RADIUS.get()),
-                insulation(player),
+                insulation(player) + bodyHeat(player),
                 player.isInWaterOrRain());
         return Coldness.severity(reading, tuning());
     }
@@ -74,7 +79,40 @@ public final class EnvironmentColdSource implements ColdSource {
         return Math.max(0.0, 1.0 - Math.sqrt(nearestSqr) / radius);
     }
 
-    /** Soma do isolamento do couro vanilla e da roupa de pele do mod. */
+    /** Maior alcance de calor do corpo que uma espécie pode declarar ({@code body.body_heat_radius}). */
+    private static final double MAX_BODY_HEAT_RADIUS = 16.0;
+
+    /**
+     * Calor do corpo de criaturas (o Elasmotério): montado, o calor inteiro da montaria; a pé, o da
+     * criatura mais quente por perto, caindo com a distância. Não soma várias — encostar em três
+     * não aquece três vezes.
+     */
+    public static double bodyHeat(LivingEntity player) {
+        double best = 0.0;
+        if (player.getVehicle() instanceof PrehistoricCreature mount) {
+            best = mount.species().flatMap(Species::body).map(BodyProfile::bodyHeat).orElse(0.0);
+        }
+        var nearby = player.level().getEntitiesOfClass(PrehistoricCreature.class,
+                player.getBoundingBox().inflate(MAX_BODY_HEAT_RADIUS), PrehistoricCreature::isAlive);
+        for (PrehistoricCreature creature : nearby) {
+            BodyProfile body = creature.species().flatMap(Species::body).orElse(null);
+            if (body == null || body.bodyHeat() <= 0.0) {
+                continue;
+            }
+            double distance = Math.sqrt(distanceSqr(creature.getBoundingBox(), player.position()));
+            best = Math.max(best, Coldness.bodyHeat(body.bodyHeat(), distance, body.bodyHeatRadius()));
+        }
+        return best;
+    }
+
+    private static double distanceSqr(AABB box, Vec3 point) {
+        double dx = Math.max(Math.max(box.minX - point.x, point.x - box.maxX), 0.0);
+        double dy = Math.max(Math.max(box.minY - point.y, point.y - box.maxY), 0.0);
+        double dz = Math.max(Math.max(box.minZ - point.z, point.z - box.maxZ), 0.0);
+        return dx * dx + dy * dy + dz * dz;
+    }
+
+    /** Soma do isolamento do couro vanilla e das roupas de pena e de pele do mod. */
     public static double insulation(LivingEntity player) {
         double total = 0.0;
         for (EquipmentSlot slot : ARMOR_SLOTS) {
@@ -91,6 +129,11 @@ public final class EnvironmentColdSource implements ColdSource {
         if (item == ModItems.FUR_HELMET.get() || item == ModItems.FUR_CHESTPLATE.get()
                 || item == ModItems.FUR_LEGGINGS.get() || item == ModItems.FUR_BOOTS.get()) {
             return 0.35;
+        }
+        // Pena: completa (1,0) segura o frio do dia nos biomas nevados, mas não o da noite (§15).
+        if (item == ModItems.FEATHER_HELMET.get() || item == ModItems.FEATHER_CHESTPLATE.get()
+                || item == ModItems.FEATHER_LEGGINGS.get() || item == ModItems.FEATHER_BOOTS.get()) {
+            return 0.25;
         }
         return 0.0;
     }

@@ -1,10 +1,24 @@
 {
   "stats": {
-    "health": { "base": 55, "per_point": 0.08 },
-    "attack": { "base": 8, "per_point": 0.04 },
-    "speed": { "base": 0.32 },
-    "torpor": { "base": 110, "per_point": 0.06 },
-    "armor": { "base": 2, "per_point": 0.03 }
+    "health": {
+      "base": 55,
+      "per_point": 0.08
+    },
+    "attack": {
+      "base": 8,
+      "per_point": 0.04
+    },
+    "speed": {
+      "base": 0.32
+    },
+    "torpor": {
+      "base": 110,
+      "per_point": 0.06
+    },
+    "armor": {
+      "base": 2,
+      "per_point": 0.03
+    }
   },
   "body": {
     "knockback_resistance": 0.7,
@@ -16,9 +30,19 @@
     "required_food_per_level": 0.02,
     "feed_interval_seconds": 7,
     "foods": [
-      { "items": "minecraft:cod", "value": 25 },
-      { "items": "minecraft:salmon", "value": 30 },
-      { "items": "minecraft:rotten_flesh", "value": 4, "quality": 0.2 }
+      {
+        "items": "minecraft:cod",
+        "value": 25
+      },
+      {
+        "items": "minecraft:salmon",
+        "value": 30
+      },
+      {
+        "items": "minecraft:rotten_flesh",
+        "value": 4,
+        "quality": 0.2
+      }
     ]
   },
   "behavior": {
@@ -30,8 +54,8 @@
     "seat_height": 1.9,
     "min_affinity": 25,
     "speed_multiplier": 0.9,
-    "jump_strength": 0.0,
-    "flying": true
+    "flying": true,
+    "flight_speed": 0.85
   },
   "spawn": {
     "biomes": "#iceagesurvival:spawns_pteranodon",

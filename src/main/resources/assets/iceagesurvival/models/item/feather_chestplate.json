@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "iceagesurvival:item/feather_chestplate"
+  }
+}

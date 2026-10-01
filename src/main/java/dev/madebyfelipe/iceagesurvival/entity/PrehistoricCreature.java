@@ -27,6 +27,7 @@ import dev.madebyfelipe.iceagesurvival.species.SoundProfile;
 import dev.madebyfelipe.iceagesurvival.species.SpawnProfile;
 import dev.madebyfelipe.iceagesurvival.species.Species;
 import dev.madebyfelipe.iceagesurvival.species.StorageProfile;
+import dev.madebyfelipe.iceagesurvival.core.mount.FlightModel;
 import dev.madebyfelipe.iceagesurvival.species.TamingProfile;
 import dev.madebyfelipe.iceagesurvival.menu.CreatureStorageMenu;
 import java.util.Optional;
@@ -64,7 +65,6 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobSpawnType;
-import net.minecraft.world.entity.PlayerRideableJumping;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.ai.attributes.Attribute;
@@ -95,7 +95,7 @@ import net.minecraftforge.network.NetworkHooks;
  * reaproveita o modelo de veículo do vanilla ({@code travelRidden}): o cliente de quem
  * monta simula o movimento e o servidor valida, como num cavalo.
  */
-public abstract class PrehistoricCreature extends TamableAnimal implements PlayerRideableJumping {
+public abstract class PrehistoricCreature extends TamableAnimal {
     private static final EntityDataAccessor<Integer> DATA_LEVEL =
             SynchedEntityData.defineId(PrehistoricCreature.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Float> DATA_TORPOR_FRACTION =
@@ -210,11 +210,13 @@ public abstract class PrehistoricCreature extends TamableAnimal implements Playe
     private boolean stalking;
     private float plowHardness;
     /** Carga do pulo enviada pelo cliente de quem monta, de 0 a 1. */
-    private float playerJumpPendingScale;
     /** Se o impulso do pulo já foi aplicado e a criatura ainda não voltou ao chão. */
-    private boolean ridingJump;
-    private boolean flightAscend;
-    private int flightInputExpiresAt;
+    /** Teclas de quem monta, lidas no cliente dele: o movimento da montaria é simulado lá (D18). */
+    private boolean riderJumpHeld;
+    private boolean riderJumpWasHeld;
+    private boolean riderBoost;
+    /** Velocidade escalar do voo montado, em blocos/tick; só no cliente de quem monta. */
+    private double flightSpeed;
     private final SimpleContainer inventory;
 
     protected PrehistoricCreature(EntityType<? extends PrehistoricCreature> type, Level level) {
@@ -298,12 +300,23 @@ public abstract class PrehistoricCreature extends TamableAnimal implements Playe
         return entityData.get(DATA_FLYING);
     }
 
-    public void setFlightInput(boolean ascend) {
-        flightAscend = ascend;
-        flightInputExpiresAt = tickCount + 8;
-        if (ascend && isFlightMount() && isSaddled() && isVehicle() && !isUnconscious()) {
-            entityData.set(DATA_FLYING, true);
-            setNoGravity(true);
+    /** Teclas de pulo e de impulso (correr) de quem monta, a cada tick, no cliente dele. */
+    public void setRiderInput(boolean jump, boolean boost) {
+        riderJumpHeld = jump;
+        riderBoost = boost;
+    }
+
+    /**
+     * Liga ou desliga o voo montado. No cliente de quem monta, é a física de voo que decide; o
+     * servidor recebe o estado ({@code FlightInputPayload}) só para tirar a gravidade e não tratar a
+     * montaria como "flutuando" — a posição já vem do cliente, como a de qualquer veículo.
+     */
+    public void setFlying(boolean flying) {
+        boolean allowed = flying && isFlightMount() && isRideReady() && isVehicle() && !isUnconscious();
+        entityData.set(DATA_FLYING, allowed);
+        setNoGravity(allowed);
+        if (!allowed) {
+            flightSpeed = 0.0;
         }
     }
 
@@ -583,18 +596,13 @@ public abstract class PrehistoricCreature extends TamableAnimal implements Playe
     @Override
     public void tick() {
         if (isFlightMount()) {
-            if (tickCount > flightInputExpiresAt) {
-                flightAscend = false;
+            if (isFlying() && (!isVehicle() || isUnconscious() || !isRideReady())) {
+                setFlying(false);
             }
-            boolean flying = entityData.get(DATA_FLYING);
-            if (!isVehicle() || isUnconscious() || flying && onGround() && !flightAscend) {
-                entityData.set(DATA_FLYING, false);
-                flying = false;
-            } else if (flightAscend && isSaddled() && isVehicle()) {
-                entityData.set(DATA_FLYING, true);
-                flying = true;
+            setNoGravity(isFlying());
+            if (isFlying()) {
+                resetFallDistance();
             }
-            setNoGravity(flying);
         } else {
             setNoGravity(false);
         }
@@ -1007,7 +1015,17 @@ public abstract class PrehistoricCreature extends TamableAnimal implements Playe
 
     /** Se a espécie aceita sela; disponível também no cliente (vem dos dados sincronizados). */
     public boolean canBeSaddled() {
+        return mountProfile().map(MountProfile::requiresSaddle).orElse(false) && !isBaby();
+    }
+
+    /** Se a espécie é montável por um adulto (com ou sem sela). */
+    public boolean isMountable() {
         return mountProfile().isPresent() && !isBaby();
+    }
+
+    /** Pronta para levar alguém: selada, ou de uma espécie que se monta sem sela. */
+    public boolean isRideReady() {
+        return isSaddled() || mountProfile().map(mount -> !mount.requiresSaddle()).orElse(false) && !isBaby();
     }
 
     /** Disponível também no cliente. */
@@ -1029,7 +1047,7 @@ public abstract class PrehistoricCreature extends TamableAnimal implements Playe
     public boolean canBeRiddenBy(Player player) {
         Optional<MountProfile> mount = mountProfile();
         return mount.isPresent()
-                && isSaddled()
+                && isRideReady()
                 && isAlive()
                 && !isUnconscious()
                 && isOwner(player)
@@ -1154,7 +1172,7 @@ public abstract class PrehistoricCreature extends TamableAnimal implements Playe
     @Nullable
     @Override
     public LivingEntity getControllingPassenger() {
-        if (isSaddled() && !isUnconscious() && getFirstPassenger() instanceof Player player && isOwner(player)) {
+        if (isRideReady() && !isUnconscious() && getFirstPassenger() instanceof Player player && isOwner(player)) {
             return player;
         }
         return super.getControllingPassenger();
@@ -1162,24 +1180,21 @@ public abstract class PrehistoricCreature extends TamableAnimal implements Playe
 
     @Override
     protected Vec3 getRiddenInput(Player player, Vec3 travelVector) {
+        if (isFlying()) {
+            // No voo a velocidade é posta inteira por tickFlight; o travel do vanilla só a aplica.
+            return Vec3.ZERO;
+        }
         float strafe = player.xxa * RIDDEN_STRAFE_FACTOR;
         float forward = player.zza;
         if (forward <= 0.0F) {
             forward *= RIDDEN_BACKWARD_FACTOR;
         }
-        double vertical = 0.0;
-        if (isFlightMount() && isFlying()) {
-            vertical = flightAscend ? 1.0 : -Mth.sin(player.getXRot() * Mth.DEG_TO_RAD);
-        }
-        return new Vec3(strafe, vertical, forward);
+        return new Vec3(strafe, 0.0, forward);
     }
 
     @Override
     protected float getRiddenSpeed(Player player) {
         double multiplier = mountProfile().map(MountProfile::speedMultiplier).orElse(1.0);
-        if (isFlightMount() && isFlying() && player.isSprinting()) {
-            multiplier *= 1.35;
-        }
         return (float) (getAttributeValue(Attributes.MOVEMENT_SPEED) * multiplier);
     }
 
@@ -1193,59 +1208,63 @@ public abstract class PrehistoricCreature extends TamableAnimal implements Playe
         if (!isControlledByLocalInstance()) {
             return;
         }
-        if (onGround()) {
-            ridingJump = false;
-            if (playerJumpPendingScale > 0.0F) {
-                executeRidersJump(playerJumpPendingScale, travelVector);
-            }
-            playerJumpPendingScale = 0.0F;
+        boolean jumpPressed = riderJumpHeld && !riderJumpWasHeld;
+        riderJumpWasHeld = riderJumpHeld;
+        if (isFlightMount()) {
+            tickFlight(player, jumpPressed);
+        } else if (jumpPressed && onGround()) {
+            riderJump();
         }
     }
 
-    private void executeRidersJump(float scale, Vec3 travelVector) {
-        double strength = mountProfile().map(MountProfile::jumpStrength).orElse(0.0) * scale * getBlockJumpFactor();
-        if (strength <= 0.0) {
+    /**
+     * Pulo na hora, sem a barra de carga do cavalo. A altura e o avanço vêm da espécie: as grandes
+     * não pulam ({@code jump_strength} 0) e o Smilodon dá um bote longo e baixo.
+     */
+    private void riderJump() {
+        MountProfile mount = mountProfile().orElse(null);
+        if (mount == null || mount.jumpStrength() <= 0.0) {
             return;
         }
+        Vec3 forward = Vec3.directionFromRotation(0.0F, getYRot());
         Vec3 movement = getDeltaMovement();
-        setDeltaMovement(movement.x, strength, movement.z);
-        ridingJump = true;
+        setDeltaMovement(movement.x + forward.x * mount.jumpForward(),
+                mount.jumpStrength() * getBlockJumpFactor(),
+                movement.z + forward.z * mount.jumpForward());
         hasImpulse = true;
         ForgeHooks.onLivingJump(this);
-        if (travelVector.z > 0.0) {
-            // Pulo para frente ganha um empurrão na direção em que a criatura olha.
-            float sin = Mth.sin(getYRot() * (float) (Math.PI / 180.0));
-            float cos = Mth.cos(getYRot() * (float) (Math.PI / 180.0));
-            setDeltaMovement(getDeltaMovement().add(-0.4F * sin * scale, 0.0, 0.4F * cos * scale));
-        }
     }
 
-    @Override
-    public void onPlayerJump(int jumpPower) {
-        if (isFlightMount()) {
+    /** Voo montado, no cliente de quem monta ({@link FlightModel}). */
+    private void tickFlight(Player player, boolean jumpPressed) {
+        double maxSpeed = mountProfile().map(MountProfile::flightSpeed).orElse(MountProfile.DEFAULT.flightSpeed());
+        FlightModel.Tuning tuning = FlightModel.Tuning.forMaxSpeed(maxSpeed);
+        if (!isFlying()) {
+            if (jumpPressed && isRideReady()) {
+                setFlying(true);
+                flightSpeed = maxSpeed * FlightModel.TAKEOFF_SPEED_FRACTION;
+                Vec3 movement = getDeltaMovement();
+                setDeltaMovement(movement.x, FlightModel.TAKEOFF_LIFT, movement.z);
+            }
             return;
         }
-        if (!canJump()) {
-            return;
-        }
-        playerJumpPendingScale = jumpPower >= 90 ? 1.0F : 0.4F + 0.4F * Math.max(jumpPower, 0) / 90.0F;
-    }
-
-    @Override
-    public boolean canJump() {
-        return isSaddled() && (isFlightMount()
-                || mountProfile().map(mount -> mount.jumpStrength() > 0).orElse(false));
-    }
-
-    @Override
-    public void handleStartJump(int jumpPower) {
-        if (!isFlightMount()) {
-            playSound(SoundEvents.HORSE_JUMP, 0.4F, 1.0F);
+        FlightModel.Input input = new FlightModel.Input(player.zza, player.xxa, riderJumpHeld, riderBoost);
+        flightSpeed = FlightModel.nextSpeed(flightSpeed, input, tuning);
+        FlightModel.Velocity velocity = FlightModel.velocity(flightSpeed, getYRot(), player.getXRot(), input, tuning);
+        setDeltaMovement(velocity.x(), velocity.y(), velocity.z());
+        resetFallDistance();
+        if (FlightModel.shouldLand(onGround(), riderJumpHeld, player.getXRot())) {
+            setFlying(false);
         }
     }
 
+    /** Sem ninguém no controle, a montaria aérea não fica parada no ar. */
     @Override
-    public void handleStopJump() {
+    protected void removePassenger(net.minecraft.world.entity.Entity passenger) {
+        super.removePassenger(passenger);
+        if (isFlying() && !isVehicle()) {
+            setFlying(false);
+        }
     }
 
     /** Onde quem monta se senta. Fica nos dados da espécie, junto do resto do corpo. */
@@ -1335,7 +1354,7 @@ public abstract class PrehistoricCreature extends TamableAnimal implements Playe
                 }
                 return InteractionResult.sidedSuccess(level().isClientSide);
             }
-            if (canBeSaddled()) {
+            if (isMountable()) {
                 if (ride(player)) {
                     return InteractionResult.sidedSuccess(level().isClientSide);
                 }
@@ -1350,7 +1369,7 @@ public abstract class PrehistoricCreature extends TamableAnimal implements Playe
 
     /** Por que a criatura não deixou montar, para dizer a quem tentou. */
     private Component mountRefusal() {
-        if (!isSaddled()) {
+        if (!isRideReady()) {
             return Component.translatable("iceagesurvival.mount.needs_saddle", getName());
         }
         float required = mountProfile().map(MountProfile::minAffinity).orElse(0.0F);

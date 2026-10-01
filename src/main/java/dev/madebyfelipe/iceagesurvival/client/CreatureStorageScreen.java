@@ -63,6 +63,8 @@ public class CreatureStorageScreen extends AbstractContainerScreen<CreatureStora
 
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        // No 1.20.1 o fundo escurecido não vem do super.render: cada tela o desenha.
+        renderBackground(graphics);
         super.render(graphics, mouseX, mouseY, partialTick);
         renderTooltip(graphics, mouseX, mouseY);
     }

@@ -15,16 +15,21 @@ import net.minecraft.world.level.block.Block;
  * @param seatForward     quanto o assento fica à frente do centro, em blocos (à frente da vela do espinossauro)
  * @param minAffinity     afinidade mínima para deixar montar (0 a {@code MAX_AFFINITY})
  * @param speedMultiplier multiplicador da velocidade quando montada
- * @param jumpStrength     impulso de pulo em blocos/tick; 0 = não pula
+ * @param jumpStrength     impulso vertical do pulo em blocos/tick; 0 = não pula (padrão: criaturas grandes não pulam)
+ * @param jumpForward      impulso horizontal do pulo, para a frente, em blocos/tick — o bote do Smilodon
  * @param breakHardness    dureza máxima dos blocos que a mordida de quem monta quebra; 0 = não quebra
  *                         (terra 0,5; pedra 1,5; tronco e pedregulho 2)
  * @param breakBlocks      se presente, a mordida só quebra blocos desta tag — é o que faz do mamute um
  *                         coletor de madeira sem que ele cave pedra
+ * @param flying           voo montado ({@link dev.madebyfelipe.iceagesurvival.core.mount.FlightModel})
+ * @param flightSpeed      velocidade máxima de cruzeiro no voo, em blocos/tick (o impulso multiplica)
+ * @param requiresSaddle   falso = monta sem sela, como uma montaria de início de jogo
  */
 public record MountProfile(double seatHeight, double seatForward, float minAffinity, double speedMultiplier, double jumpStrength,
-                           float breakHardness, Optional<TagKey<Block>> breakBlocks, boolean flying) {
+                           double jumpForward, float breakHardness, Optional<TagKey<Block>> breakBlocks, boolean flying,
+                           double flightSpeed, boolean requiresSaddle) {
     public static final MountProfile DEFAULT =
-            new MountProfile(0.0, 0.0, 25.0F, 1.0, 0.5, 0.0F, Optional.empty(), false);
+            new MountProfile(0.0, 0.0, 25.0F, 1.0, 0.0, 0.0, 0.0F, Optional.empty(), false, 0.8, true);
 
     public static final Codec<MountProfile> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.doubleRange(0, 16).optionalFieldOf("seat_height", DEFAULT.seatHeight())
@@ -37,11 +42,17 @@ public record MountProfile(double seatHeight, double seatForward, float minAffin
                     .forGetter(MountProfile::speedMultiplier),
             Codec.doubleRange(0, 2).optionalFieldOf("jump_strength", DEFAULT.jumpStrength())
                     .forGetter(MountProfile::jumpStrength),
+            Codec.doubleRange(0, 3).optionalFieldOf("jump_forward", DEFAULT.jumpForward())
+                    .forGetter(MountProfile::jumpForward),
             Codec.floatRange(0, 50).optionalFieldOf("break_hardness", DEFAULT.breakHardness())
                     .forGetter(MountProfile::breakHardness),
             TagKey.hashedCodec(Registries.BLOCK).optionalFieldOf("break_blocks")
                     .forGetter(MountProfile::breakBlocks),
-            Codec.BOOL.optionalFieldOf("flying", DEFAULT.flying()).forGetter(MountProfile::flying)
+            Codec.BOOL.optionalFieldOf("flying", DEFAULT.flying()).forGetter(MountProfile::flying),
+            Codec.doubleRange(0.05, 4).optionalFieldOf("flight_speed", DEFAULT.flightSpeed())
+                    .forGetter(MountProfile::flightSpeed),
+            Codec.BOOL.optionalFieldOf("requires_saddle", DEFAULT.requiresSaddle())
+                    .forGetter(MountProfile::requiresSaddle)
     ).apply(instance, MountProfile::new));
 
     /** Altura do assento para uma criatura com esta caixa de colisão. */

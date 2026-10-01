@@ -45,6 +45,7 @@ public final class CommandInput {
     private static final KeyMapping STATUS =
             new KeyMapping("key.iceagesurvival.status", GLFW.GLFW_KEY_V, CATEGORY);
     private static int flightPacketCooldown;
+    private static boolean lastSentFlying;
 
     /** Entidade viva sob a mira neste tick, até {@link CreatureCommands#TARGET_RANGE}. */
     @Nullable
@@ -87,16 +88,20 @@ public final class CommandInput {
             return;
         }
         if (minecraft.player.getVehicle() instanceof PrehistoricCreature mount
-                && mount.getControllingPassenger() == minecraft.player
-                && mount.isFlightMount()) {
-            boolean ascend = minecraft.options.keyJump.isDown();
-            mount.setFlightInput(ascend);
-            if (--flightPacketCooldown <= 0) {
-                flightPacketCooldown = 4;
-                ModPayloads.sendToServer(new FlightInputPayload(mount.getId(), ascend));
+                && mount.getControllingPassenger() == minecraft.player) {
+            // Pulo e voo sem a barra de carga do cavalo: a criatura lê as teclas direto.
+            mount.setRiderInput(minecraft.options.keyJump.isDown(), minecraft.options.keySprint.isDown());
+            if (mount.isFlightMount()) {
+                boolean flying = mount.isFlying();
+                if (flying != lastSentFlying || --flightPacketCooldown <= 0) {
+                    flightPacketCooldown = 20;
+                    lastSentFlying = flying;
+                    ModPayloads.sendToServer(new FlightInputPayload(mount.getId(), flying));
+                }
             }
         } else {
             flightPacketCooldown = 0;
+            lastSentFlying = false;
         }
         for (Map.Entry<Whistle, KeyMapping> entry : WHISTLES.entrySet()) {
             while (entry.getValue().consumeClick()) {

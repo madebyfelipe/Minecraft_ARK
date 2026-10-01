@@ -1,0 +1,16 @@
+{
+  "type": "forge:remove_features",
+  "biomes": {
+    "type": "forge:any"
+  },
+  "features": [
+    "fossil:ore_amber",
+    "fossil:ore_amber_buried",
+    "fossil:ore_fossil_block_deep",
+    "fossil:ore_fossil_block_middle",
+    "fossil:ore_fossil_block_no_sandstone_upper",
+    "fossil:ore_permafrost_block",
+    "fossil:ore_volcanic_rock",
+    "fossil:moai_statue"
+  ]
+}

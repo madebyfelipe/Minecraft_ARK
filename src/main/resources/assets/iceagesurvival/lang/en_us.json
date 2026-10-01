@@ -159,5 +159,16 @@
   "iceagesurvival.status.mutations_gene": "%s · health gene",
   "iceagesurvival.status.gestation": "Gestation",
   "iceagesurvival.status.maturation": "Growth",
-  "generator.iceagesurvival.ice_age": "Ice Age"
+  "generator.iceagesurvival.ice_age": "Ice Age",
+  "entity.iceagesurvival.dodo": "Dodo",
+  "item.iceagesurvival.dodo_spawn_egg": "Dodo Spawn Egg",
+  "entity.iceagesurvival.elasmotherium": "Elasmotherium",
+  "item.iceagesurvival.elasmotherium_spawn_egg": "Elasmotherium Spawn Egg",
+  "item.iceagesurvival.dodo_feather": "Dodo Feather",
+  "item.iceagesurvival.dodo_meat": "Raw Dodo",
+  "item.iceagesurvival.cooked_dodo_meat": "Cooked Dodo",
+  "item.iceagesurvival.feather_helmet": "Feather Hood",
+  "item.iceagesurvival.feather_chestplate": "Feather Cloak",
+  "item.iceagesurvival.feather_leggings": "Feather Leggings",
+  "item.iceagesurvival.feather_boots": "Feather Boots"
 }

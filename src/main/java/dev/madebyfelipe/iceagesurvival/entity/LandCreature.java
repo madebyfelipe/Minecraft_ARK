@@ -32,6 +32,7 @@ import java.util.UUID;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.core.animation.AnimatableManager;
+import software.bernie.geckolib.core.animation.Animation;
 import software.bernie.geckolib.core.animation.AnimationController;
 import software.bernie.geckolib.core.animation.RawAnimation;
 import software.bernie.geckolib.core.object.PlayState;
@@ -164,16 +165,23 @@ public class LandCreature extends PrehistoricCreature implements GeoEntity, Geck
         String walkName = appearance == null ? "walk" : appearance.walk();
         String attackName = appearance == null ? "attack" : appearance.attack();
         String unconsciousName = appearance == null ? "unconscious" : appearance.unconscious();
+        String flyName = appearance == null ? walkName : appearance.fly();
         RawAnimation idle = RawAnimation.begin().thenLoop(prefix + idleName);
         RawAnimation walk = RawAnimation.begin().thenLoop(prefix + walkName);
         RawAnimation unconscious = RawAnimation.begin().thenLoop(prefix + unconsciousName);
-        RawAnimation attack = RawAnimation.begin().thenPlay(prefix + attackName);
+        RawAnimation fly = RawAnimation.begin().thenLoop(prefix + flyName);
+        // PLAY_ONCE explícito: o thenPlay usa o "loop" do arquivo, e o ataque do T-Rex e do Elasmotério
+        // no Revival vem marcado como loop — o golpe ficava repetindo para sempre.
+        RawAnimation attack = RawAnimation.begin().then(prefix + attackName, Animation.LoopType.PLAY_ONCE);
 
         controllers.add(new AnimationController<>(this, "movement", 5, state -> {
             if (isUnconscious()) {
                 return state.setAndContinue(unconscious);
             }
-            return state.setAndContinue(state.isMoving() || isFlightMount() && isFlying() ? walk : idle);
+            if (isFlying()) {
+                return state.setAndContinue(fly);
+            }
+            return state.setAndContinue(state.isMoving() ? walk : idle);
         }));
         controllers.add(new AnimationController<>(this, ATTACK_CONTROLLER, 0, state -> PlayState.STOP)
                 .triggerableAnim(ATTACK_TRIGGER, attack));

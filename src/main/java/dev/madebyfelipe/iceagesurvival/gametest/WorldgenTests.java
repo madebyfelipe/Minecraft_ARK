@@ -25,8 +25,12 @@ public class WorldgenTests {
     private static final Set<ResourceKey<Biome>> CAVES = Set.of(Biomes.LUSH_CAVES, Biomes.DRIPSTONE_CAVES, Biomes.DEEP_DARK,
             // Temperatura base 0,5, mas com o modificador "frozen" do vanilla: a superfície congela.
             Biomes.DEEP_FROZEN_OCEAN);
-    /** Acima disto nada neva; taigas (0,25) e morros ventosos (0,2) são as regiões frias sem nevasca. */
-    private static final float WARMEST_ALLOWED = 0.3F;
+    /**
+     * Limite de neve do vanilla ({@code Biome.coldEnoughToSnow}): acima disto chove em vez de nevar.
+     * Taiga (0,25), costa de pedra e morros ventosos (0,2) passavam no limite antigo de 0,3 e o mundo
+     * saía verde em boa parte; agora toda a superfície neva.
+     */
+    private static final float WARMEST_ALLOWED = 0.15F;
 
     @GameTest(template = EMPTY)
     public static void iceAgePresetOnlyHasColdBiomes(GameTestHelper helper) {
@@ -42,12 +46,36 @@ public class WorldgenTests {
                 .map(biome -> biome.unwrapKey().map(key -> key.location().toString()).orElse("?"))
                 .collect(Collectors.toList());
         helper.assertTrue(warm.isEmpty(), "biomas quentes no mundo glacial: " + warm);
-        for (ResourceKey<Biome> gone : List.of(Biomes.PLAINS, Biomes.DESERT, Biomes.JUNGLE, Biomes.OCEAN, Biomes.RIVER)) {
+        for (ResourceKey<Biome> gone : List.of(Biomes.PLAINS, Biomes.DESERT, Biomes.JUNGLE, Biomes.OCEAN, Biomes.RIVER,
+                Biomes.TAIGA, Biomes.STONY_SHORE, Biomes.WINDSWEPT_HILLS, Biomes.OLD_GROWTH_PINE_TAIGA)) {
             helper.assertTrue(biomes.stream().noneMatch(biome -> biome.is(gone)), gone.location() + " sobrou");
         }
-        for (ResourceKey<Biome> kept : List.of(Biomes.SNOWY_PLAINS, Biomes.FROZEN_RIVER, Biomes.FROZEN_OCEAN, Biomes.TAIGA)) {
+        for (ResourceKey<Biome> kept : List.of(Biomes.SNOWY_PLAINS, Biomes.FROZEN_RIVER, Biomes.FROZEN_OCEAN, Biomes.SNOWY_TAIGA)) {
             helper.assertTrue(biomes.stream().anyMatch(biome -> biome.is(kept)), kept.location() + " faltando");
         }
+        helper.succeed();
+    }
+
+    /** Do Revival só entram os assets: minérios, estátua moai e estruturas dele não são gerados. */
+    @GameTest(template = EMPTY)
+    public static void revivalWorldgenIsDisabled(GameTestHelper helper) {
+        var registries = helper.getLevel().registryAccess();
+        var structureSets = registries.registryOrThrow(Registries.STRUCTURE_SET);
+        for (String name : List.of("fossil_site", "tar_site", "aztec_temple", "aztec_weapon_shop", "egyptian_academy", "hell_boat")) {
+            var set = structureSets.get(new net.minecraft.resources.ResourceLocation("fossil", name));
+            helper.assertTrue(set != null, "conjunto fossil:" + name + " sumiu (o Revival mudou?)");
+            helper.assertTrue(set.structures().isEmpty(), "fossil:" + name + " ainda gera estruturas");
+        }
+        var modifiers = registries.registryOrThrow(net.minecraftforge.registries.ForgeRegistries.Keys.BIOME_MODIFIERS);
+        helper.assertTrue(modifiers.containsKey(IceAgeSurvival.id("remove_revival_features")),
+                "biome modifier que tira os minérios do Revival não carregou");
+        var oreKey = net.minecraft.resources.ResourceKey.create(Registries.PLACED_FEATURE,
+                new net.minecraft.resources.ResourceLocation("fossil", "ore_fossil_block_middle"));
+        var plains = registries.registryOrThrow(Registries.BIOME).getHolderOrThrow(Biomes.SNOWY_PLAINS);
+        boolean hasOre = plains.value().getGenerationSettings().features().stream()
+                .flatMap(net.minecraft.core.HolderSet::stream)
+                .anyMatch(feature -> feature.is(oreKey));
+        helper.assertFalse(hasOre, "minério de fóssil do Revival continua na planície nevada");
         helper.succeed();
     }
 }

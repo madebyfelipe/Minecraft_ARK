@@ -5,11 +5,15 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent;
 import java.util.function.Supplier;
 
-public record FlightInputPayload(int mountId, boolean ascend) {
+/**
+ * Cliente → servidor: o estado de voo da montaria aérea, decidido pela física de voo no cliente de
+ * quem monta. O servidor só valida e espelha (tira a gravidade); a posição chega como a de qualquer veículo.
+ */
+public record FlightInputPayload(int mountId, boolean flying) {
 
     public static void encode(FlightInputPayload message, FriendlyByteBuf buf) {
         buf.writeVarInt(message.mountId);
-        buf.writeBoolean(message.ascend);
+        buf.writeBoolean(message.flying);
     }
 
     public static FlightInputPayload decode(FriendlyByteBuf buf) {
@@ -24,9 +28,9 @@ public record FlightInputPayload(int mountId, boolean ascend) {
                     && mount.getId() == message.mountId()
                     && mount.getControllingPassenger() == player
                     && mount.isOwner(player)
-                    && mount.isSaddled()
+                    && mount.isRideReady()
                     && mount.isFlightMount()) {
-                mount.setFlightInput(message.ascend());
+                mount.setFlying(message.flying());
             }
         });
         context.setPacketHandled(true);

@@ -159,5 +159,16 @@
   "iceagesurvival.status.mutations_gene": "%s · gene de vida",
   "iceagesurvival.status.gestation": "Gestação",
   "iceagesurvival.status.maturation": "Crescimento",
-  "generator.iceagesurvival.ice_age": "Era do Gelo"
+  "generator.iceagesurvival.ice_age": "Era do Gelo",
+  "entity.iceagesurvival.dodo": "Dodô",
+  "item.iceagesurvival.dodo_spawn_egg": "Ovo Gerador de Dodô",
+  "entity.iceagesurvival.elasmotherium": "Elasmotério",
+  "item.iceagesurvival.elasmotherium_spawn_egg": "Ovo Gerador de Elasmotério",
+  "item.iceagesurvival.dodo_feather": "Pena de Dodô",
+  "item.iceagesurvival.dodo_meat": "Carne de Dodô Crua",
+  "item.iceagesurvival.cooked_dodo_meat": "Carne de Dodô Assada",
+  "item.iceagesurvival.feather_helmet": "Capuz de Penas",
+  "item.iceagesurvival.feather_chestplate": "Manto de Penas",
+  "item.iceagesurvival.feather_leggings": "Calças de Penas",
+  "item.iceagesurvival.feather_boots": "Botas de Penas"
 }

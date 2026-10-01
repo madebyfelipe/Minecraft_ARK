@@ -1,0 +1,102 @@
+{
+  "stats": {
+    "health": {
+      "base": 45,
+      "per_point": 0.08
+    },
+    "attack": {
+      "base": 6,
+      "per_point": 0.04
+    },
+    "speed": {
+      "base": 0.26
+    },
+    "torpor": {
+      "base": 90,
+      "per_point": 0.06
+    },
+    "armor": {
+      "base": 3,
+      "per_point": 0.03
+    }
+  },
+  "body": {
+    "knockback_resistance": 1.0,
+    "step_height": 1.1,
+    "breaks_leaves": true,
+    "body_heat": 0.6,
+    "body_heat_radius": 4
+  },
+  "taming": {
+    "torpor_decay_per_second": 1.0,
+    "required_food": 70,
+    "required_food_per_level": 0.012,
+    "feed_interval_seconds": 6,
+    "foods": [
+      {
+        "items": "minecraft:hay_block",
+        "value": 30
+      },
+      {
+        "items": [
+          "minecraft:wheat",
+          "minecraft:sweet_berries",
+          "iceagesurvival:black_fruit"
+        ],
+        "value": 12,
+        "quality": 0.8
+      },
+      {
+        "items": [
+          "minecraft:carrot",
+          "minecraft:beetroot",
+          "minecraft:potato"
+        ],
+        "value": 10,
+        "quality": 0.7
+      },
+      {
+        "items": "#minecraft:leaves",
+        "value": 4,
+        "quality": 0.4
+      }
+    ]
+  },
+  "behavior": {
+    "aggressive": false,
+    "aggro_radius": 12,
+    "flee_health_fraction": 0.15,
+    "herd_radius": 10,
+    "group_defense": true
+  },
+  "mount": {
+    "seat_height": 2.7,
+    "min_affinity": 10,
+    "speed_multiplier": 0.85,
+    "requires_saddle": false
+  },
+  "storage": {
+    "slots": 9
+  },
+  "spawn": {
+    "biomes": "#iceagesurvival:spawns_elasmotherium",
+    "weight": 9,
+    "group_min": 1,
+    "group_max": 3,
+    "max_nearby": 5,
+    "min_distance": 0
+  },
+  "sounds": {
+    "ambient": "fossil:elasmotherium_ambient",
+    "hurt": "fossil:elasmotherium_hurt",
+    "death": "fossil:elasmotherium_death",
+    "attack": "minecraft:entity.hoglin.attack",
+    "volume": 1.2
+  },
+  "breeding": {
+    "offspring": "live",
+    "incubation_seconds": 480,
+    "maturation_seconds": 1800,
+    "cooldown_seconds": 900
+  }
+}

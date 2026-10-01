@@ -7,6 +7,7 @@ import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.food.FoodProperties;
 import net.minecraftforge.common.ForgeSpawnEggItem;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.registries.DeferredRegister;
@@ -68,6 +69,14 @@ public final class ModItems {
             "direbear_spawn_egg",
             () -> new ForgeSpawnEggItem(ModEntities.DIREBEAR, 0x684428, 0xA67E52, new Item.Properties()));
 
+    public static final RegistryObject<ForgeSpawnEggItem> DODO_SPAWN_EGG = ITEMS.register(
+            "dodo_spawn_egg",
+            () -> new ForgeSpawnEggItem(ModEntities.DODO, 0x8E8A7C, 0xD9C27A, new Item.Properties()));
+
+    public static final RegistryObject<ForgeSpawnEggItem> ELASMOTHERIUM_SPAWN_EGG = ITEMS.register(
+            "elasmotherium_spawn_egg",
+            () -> new ForgeSpawnEggItem(ModEntities.ELASMOTHERIUM, 0x5E4632, 0xB89A74, new Item.Properties()));
+
     /** Pele grossa dos animais da era do gelo: vira a roupa que segura o frio. */
     public static final RegistryObject<Item> PELT = simpleItem("pelt");
 
@@ -75,6 +84,20 @@ public final class ModItems {
     public static final RegistryObject<ArmorItem> FUR_CHESTPLATE = furArmor("fur_chestplate", ArmorItem.Type.CHESTPLATE);
     public static final RegistryObject<ArmorItem> FUR_LEGGINGS = furArmor("fur_leggings", ArmorItem.Type.LEGGINGS);
     public static final RegistryObject<ArmorItem> FUR_BOOTS = furArmor("fur_boots", ArmorItem.Type.BOOTS);
+
+    /** Pena de dodô: a primeira roupa contra o frio, um degrau abaixo da pele. */
+    public static final RegistryObject<Item> DODO_FEATHER = simpleItem("dodo_feather");
+
+    public static final RegistryObject<ArmorItem> FEATHER_HELMET = featherArmor("feather_helmet", ArmorItem.Type.HELMET);
+    public static final RegistryObject<ArmorItem> FEATHER_CHESTPLATE = featherArmor("feather_chestplate", ArmorItem.Type.CHESTPLATE);
+    public static final RegistryObject<ArmorItem> FEATHER_LEGGINGS = featherArmor("feather_leggings", ArmorItem.Type.LEGGINGS);
+    public static final RegistryObject<ArmorItem> FEATHER_BOOTS = featherArmor("feather_boots", ArmorItem.Type.BOOTS);
+
+    /** Carne de dodô: a comida fácil do começo, como o frango (sem o risco de intoxicação). */
+    public static final RegistryObject<Item> DODO_MEAT = ITEMS.register("dodo_meat", () -> new Item(new Item.Properties()
+            .food(new FoodProperties.Builder().nutrition(3).saturationMod(0.3F).meat().build())));
+    public static final RegistryObject<Item> COOKED_DODO_MEAT = ITEMS.register("cooked_dodo_meat", () -> new Item(new Item.Properties()
+            .food(new FoodProperties.Builder().nutrition(7).saturationMod(0.7F).meat().build())));
 
     public static final RegistryObject<TranqArrowItem> TRANQ_ARROW =
             ITEMS.register("tranq_arrow", () -> new TranqArrowItem(new Item.Properties()));
@@ -113,6 +136,11 @@ public final class ModItems {
                 new Item.Properties().durability(ModArmorMaterials.FUR.getDurabilityForType(type))));
     }
 
+    private static RegistryObject<ArmorItem> featherArmor(String name, ArmorItem.Type type) {
+        return ITEMS.register(name, () -> new ArmorItem(ModArmorMaterials.FEATHER, type,
+                new Item.Properties().durability(ModArmorMaterials.FEATHER.getDurabilityForType(type))));
+    }
+
     private static RegistryObject<Item> simpleItem(String name) {
         return ITEMS.register(name, () -> new Item(new Item.Properties()));
     }
@@ -136,8 +164,14 @@ public final class ModItems {
             event.accept(STEGOSAURUS_SPAWN_EGG);
             event.accept(PTERANODON_SPAWN_EGG);
             event.accept(DIREBEAR_SPAWN_EGG);
+            event.accept(DODO_SPAWN_EGG);
+            event.accept(ELASMOTHERIUM_SPAWN_EGG);
         } else if (event.getTabKey() == CreativeModeTabs.COMBAT) {
             event.accept(TRANQ_ARROW);
+            event.accept(FEATHER_HELMET);
+            event.accept(FEATHER_CHESTPLATE);
+            event.accept(FEATHER_LEGGINGS);
+            event.accept(FEATHER_BOOTS);
             event.accept(FUR_HELMET);
             event.accept(FUR_CHESTPLATE);
             event.accept(FUR_LEGGINGS);
@@ -145,8 +179,12 @@ public final class ModItems {
         } else if (event.getTabKey() == CreativeModeTabs.INGREDIENTS) {
             event.accept(BLACK_FRUIT);
             event.accept(PELT);
+            event.accept(DODO_FEATHER);
             event.accept(STIMULANT);
             event.accept(NARCOTIC);
+        } else if (event.getTabKey() == CreativeModeTabs.FOOD_AND_DRINKS) {
+            event.accept(DODO_MEAT);
+            event.accept(COOKED_DODO_MEAT);
         } else if (event.getTabKey() == CreativeModeTabs.FUNCTIONAL_BLOCKS) {
             event.accept(INCUBATOR);
             event.accept(CHEMISTRY_BENCH);

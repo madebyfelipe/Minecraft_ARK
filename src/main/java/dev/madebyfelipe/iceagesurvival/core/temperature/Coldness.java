@@ -51,6 +51,17 @@ public final class Coldness {
     }
 
     /**
+     * Calor que o corpo de uma criatura dá a quem está a {@code distance} blocos da colisão dela:
+     * inteiro encostado (ou montado), caindo em linha reta até 0 na borda do {@code radius}.
+     */
+    public static double bodyHeat(double heat, double distance, double radius) {
+        if (heat <= 0.0 || radius <= 0.0 || distance >= radius) {
+            return 0.0;
+        }
+        return heat * (1.0 - Math.max(0.0, distance) / radius);
+    }
+
+    /**
      * Frio líquido, de −1 (calor de sobra) a 1 (frio extremo). Positivo esfria o jogador e negativo
      * o aquece, na mesma velocidade.
      */

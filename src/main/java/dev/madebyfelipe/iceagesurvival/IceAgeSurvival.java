@@ -1,5 +1,7 @@
 package dev.madebyfelipe.iceagesurvival;
 
+import dev.madebyfelipe.iceagesurvival.compat.RevivalCleanup;
+import net.minecraftforge.eventbus.api.EventPriority;
 import com.mojang.logging.LogUtils;
 import dev.madebyfelipe.iceagesurvival.command.DebugCommands;
 import dev.madebyfelipe.iceagesurvival.client.IceAgeSurvivalClient;
@@ -49,6 +51,7 @@ public class IceAgeSurvival {
         modEventBus.addListener(ModEntities::registerAttributes);
         modEventBus.addListener(ModEntities::registerSpawnPlacements);
         modEventBus.addListener(ModItems::addToCreativeTabs);
+        modEventBus.addListener(EventPriority.LOWEST, RevivalCleanup::hideRevivalItems);
         ModPayloads.register();
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT,
                 () -> () -> IceAgeSurvivalClient.init(modEventBus, modContainer));

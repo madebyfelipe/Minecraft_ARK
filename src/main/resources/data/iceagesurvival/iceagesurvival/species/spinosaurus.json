@@ -70,7 +70,6 @@
     "seat_forward": 2.4,
     "min_affinity": 25,
     "speed_multiplier": 0.8,
-    "jump_strength": 0.4,
     "break_hardness": 1.5
   },
   "spawn": {

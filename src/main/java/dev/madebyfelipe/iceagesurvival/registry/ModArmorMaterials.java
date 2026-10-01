@@ -61,6 +61,55 @@ public final class ModArmorMaterials {
         }
     };
 
+    /**
+     * Pena de dodô: um degrau abaixo da pele. Defesa e durabilidade menores que as do couro; a
+     * proteção contra o frio fica em {@code EnvironmentColdSource}.
+     */
+    public static final ArmorMaterial FEATHER = new ArmorMaterial() {
+        @Override
+        public int getDurabilityForType(ArmorItem.Type type) {
+            return durabilityFactor(type) * 4;
+        }
+
+        @Override
+        public int getDefenseForType(ArmorItem.Type type) {
+            return switch (type) {
+                case HELMET, LEGGINGS, BOOTS -> 1;
+                case CHESTPLATE -> 2;
+            };
+        }
+
+        @Override
+        public int getEnchantmentValue() {
+            return 15;
+        }
+
+        @Override
+        public net.minecraft.sounds.SoundEvent getEquipSound() {
+            return SoundEvents.ARMOR_EQUIP_LEATHER;
+        }
+
+        @Override
+        public Ingredient getRepairIngredient() {
+            return Ingredient.of(ModItems.DODO_FEATHER.get());
+        }
+
+        @Override
+        public String getName() {
+            return IceAgeSurvival.MODID + ":feather";
+        }
+
+        @Override
+        public float getToughness() {
+            return 0.0F;
+        }
+
+        @Override
+        public float getKnockbackResistance() {
+            return 0.0F;
+        }
+    };
+
     private ModArmorMaterials() {
     }
 

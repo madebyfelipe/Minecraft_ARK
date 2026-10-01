@@ -153,4 +153,26 @@ class ColdnessTest {
         assertEquals(Coldness.Trend.STABLE, Coldness.trend(0.0, -0.8), "já aquecido não sobe mais");
         assertEquals(Coldness.Trend.STABLE, Coldness.trend(1.0, 0.8), "já congelado não cai mais");
     }
+
+    @Test
+    void bodyHeatFadesWithDistance() {
+        assertEquals(0.6, Coldness.bodyHeat(0.6, 0.0, 4.0), 1e-9);
+        assertEquals(0.3, Coldness.bodyHeat(0.6, 2.0, 4.0), 1e-9);
+        assertEquals(0.0, Coldness.bodyHeat(0.6, 4.0, 4.0), 1e-9);
+        assertEquals(0.0, Coldness.bodyHeat(0.0, 0.0, 4.0), 1e-9);
+    }
+
+    /** Pena completa (1,0): segura o dia na taiga nevada, não a noite; abrigo ou o Elasmotério resolvem. */
+    @Test
+    void featherCoversSnowyTaigaByDayButNotByNight() {
+        double feather = 1.0;
+        ColdReading day = new ColdReading(SNOWY_TAIGA, 0, false, false, false, 0.0, feather, false);
+        ColdReading night = new ColdReading(SNOWY_TAIGA, 0, true, false, false, 0.0, feather, false);
+        ColdReading nightSheltered = new ColdReading(SNOWY_TAIGA, 0, true, false, true, 0.0, feather, false);
+        ColdReading nightRiding = new ColdReading(SNOWY_TAIGA, 0, true, false, false, 0.0, feather + 0.6, false);
+        assertTrue(Coldness.severity(day, TUNING) <= 0.0);
+        assertTrue(Coldness.severity(night, TUNING) > 0.0);
+        assertTrue(Coldness.severity(nightSheltered, TUNING) <= 0.0);
+        assertTrue(Coldness.severity(nightRiding, TUNING) <= 0.0);
+    }
 }

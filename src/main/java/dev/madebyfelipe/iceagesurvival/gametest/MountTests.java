@@ -56,6 +56,42 @@ public class MountTests {
         helper.succeed();
     }
 
+    /** Sem barra de carga do cavalo; as grandes não pulam e o Smilodon salta mais longe que alto. */
+    @GameTest(template = EMPTY)
+    public static void bigMountsDoNotJumpAndSmilodonLeapsForward(GameTestHelper helper) {
+        var registries = helper.getLevel().registryAccess();
+        for (var big : java.util.List.of(ModEntities.TYRANNOSAURUS, ModEntities.MAMMOTH, ModEntities.BRONTOSAURUS,
+                ModEntities.SPINOSAURUS, ModEntities.ALLOSAURUS, ModEntities.DIREBEAR, ModEntities.ELASMOTHERIUM)) {
+            MountProfile mount = Species.of(registries, big.get()).orElseThrow().mount().orElseThrow();
+            helper.assertTrue(mount.jumpStrength() == 0.0, big.getId() + " não deveria pular");
+        }
+        MountProfile smilodon = Species.of(registries, ModEntities.SMILODON.get()).orElseThrow().mount().orElseThrow();
+        helper.assertTrue(smilodon.jumpForward() > smilodon.jumpStrength(), "o bote do Smilodon deveria ser horizontal");
+        LandCreature rex = helper.spawnWithNoFreeWill(ModEntities.TYRANNOSAURUS.get(), 1, 2, 1);
+        helper.assertFalse(rex instanceof net.minecraft.world.entity.PlayerRideableJumping,
+                "a barra de carga de pulo do cavalo não deveria aparecer");
+        helper.succeed();
+    }
+
+    /** O voo é decidido no cliente de quem monta; o servidor só aceita com sela e alguém em cima. */
+    @GameTest(template = EMPTY)
+    public static void flightStateNeedsRiderAndSaddle(GameTestHelper helper) {
+        Player owner = PredatorTests.survivalPlayer(helper);
+        LandCreature ptero = helper.spawnWithNoFreeWill(ModEntities.PTERANODON.get(), 4, 2, 4);
+        ptero.tame(owner);
+        ptero.setAffinity(PrehistoricCreature.MAX_AFFINITY);
+        ptero.setFlying(true);
+        helper.assertFalse(ptero.isFlying(), "sem ninguém em cima não voa");
+        ptero.setSaddled(true);
+        owner.setPos(ptero.position());
+        helper.assertTrue(ptero.ride(owner), "deveria montar");
+        ptero.setFlying(true);
+        helper.assertTrue(ptero.isFlying() && ptero.isNoGravity(), "montado e selado deveria voar sem gravidade");
+        owner.stopRiding();
+        helper.assertFalse(ptero.isFlying(), "sem condutor deveria parar de voar");
+        helper.succeed();
+    }
+
     @GameTest(template = EMPTY)
     public static void tyrannosaurusCanBeSaddled(GameTestHelper helper) {
         Player owner = helper.makeMockSurvivalPlayer();

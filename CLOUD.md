@@ -3,7 +3,7 @@
 Game Design + Technical Design Document vivo do projeto.
 Atualizar sempre que uma decisão estrutural mudar.
 
-- **Última revisão:** 2026-09-30
+- **Última revisão:** 2026-10-01
 - **Etapa atual:** ver [23. Roadmap](#23-roadmap)
 - **Brief original:** o documento de 43 seções que originou o projeto. Este arquivo é a fonte da verdade a partir daqui; onde divergir do brief, a divergência está justificada em [4. Decisões](#4-decisões).
 
@@ -53,9 +53,11 @@ Fora de escopo: máquinas, árvores tecnológicas, dezenas de armaduras, arsenal
 | D15 | Ordem de ataque vale para **todas** as criaturas do jogador ao alcance | Exigir escolher uma criatura antes de apontar o alvo pediria um estado de "selecionada" escondido. Não é o sistema de grupos do brief (que continua fora). | Fechada |
 | D16 | O frio **é** o `ticksFrozen` do vanilla, não um valor paralelo sincronizado | Sincronização, persistência, vinheta de gelo e lentidão já existem e são de graça; um valor próprio pediria payload, HUD e NBT para o mesmo resultado. Custo: parar em 139/140 e assumir o dano (ver [15](#15-temperatura)). | Fechada |
 | D17 | Estado de frio do jogador em **capability do Forge** | D8 dispensa estado externo para *nossas* entidades; o jogador é de terceiros. A capability é anexada e persistida pelo Forge. | Fechada |
-| D18 | Montaria pelo **modelo de veículo do vanilla** (`travelRidden`, `PlayerRideableJumping`) | É o caminho do cavalo: o cliente de quem monta simula o movimento e manda a posição do veículo, o servidor confere que o remetente é o controlador. Escrever controle próprio seria reinventar a predição e a reconciliação. Ver [11](#11-criaturas). | Fechada na Etapa 7 |
+| D18 | Montaria pelo **modelo de veículo do vanilla** (`travelRidden`) | É o caminho do cavalo: o cliente de quem monta simula o movimento e manda a posição do veículo, o servidor confere que o remetente é o controlador. Escrever controle próprio seria reinventar a predição e a reconciliação. Ver [11](#11-criaturas). | Fechada na Etapa 7; a barra de carga do pulo (`PlayerRideableJumping`) saiu em 2026-10-01 (D23) |
 | D19 | A sela é o **`minecraft:saddle` do vanilla**, com receita nossa | Um item por espécie (como no ARK) seria uma dúzia de itens e texturas para a mesma função; o item do vanilla já é reconhecível e o que gateia a montaria é a espécie ter bloco `mount`. A receita existe porque no vanilla a sela não é craftável, e depender de baú de estrutura num mundo glacial travaria a Fase 4. | Fechada na Etapa 7 |
 | D20 | **Reposição de fauna própria**, em vez de mudar a categoria das criaturas | `CREATURE` do vanilla só nasce na geração do terreno; trocar para `MONSTER` faria a fauna aparecer e *desaparecer* sozinha, contra o design. A reposição repõe no que já existe, com teto de densidade por espécie. Ver [11](#11-criaturas). | Fechada na Etapa 7 |
+| D22 | O conteúdo próprio do Revival **fica desligado**: itens fora das abas do criativo, minérios e estátua moai removidos por biome modifier, estruturas por `structure_set` vazios | Os itens dele duplicam os nossos (ovos de dinossauro, carnes, máquinas) e os minérios/estruturas espalham fósseis, âmbar, piche e templos que não existem na nossa progressão. Desligar por dados e por um evento evita mixin e não exige mexer na config do jogador. Limites: receitas dele continuam válidas; o bioma vulcão (TerraBlender) não aparece no preset Era do Gelo, mas aparece num mundo comum. | Fechada 2026-10-01 |
+| D23 | Pulo e voo montados **sem a barra de carga do cavalo**; o voo é decidido no cliente de quem monta | A barra de carga é do cavalo e não combina com predadores; o pulo sai na hora, com altura e avanço da espécie. O voo segue o Cobblemon (olhar dirige, frente acelera, embalo, Espaço bate as asas, sprint dá impulso) e, como o resto do movimento do veículo (D18), é simulado no cliente; o servidor só recebe o estado para tirar a gravidade. A física fica em `core/mount/FlightModel`, testada por JUnit. | Fechada 2026-10-01; falta sentir em jogo |
 | D21 | Usar assets do F&A Revival **em runtime**, sem copiá-los ao projeto ou ao jar | O Ice Age Survival referencia os recursos registrados pelo mod original, instalado separadamente. Isso preserva a autoria/licença dos assets e mantém o jar do addon sem conteúdo do Revival. Exige a dependência compatível instalada para renderizar as espécies afetadas. | Fechada; decisão atual substitui a escolha de 2026-09-30 |
 
 ## 5. Mods avaliados
@@ -264,10 +266,14 @@ Todas as espécies terrestres usam a mesma classe (`LandCreature`); o que as dif
 | **Alossauro** (`allosaurus`, antes `carnotaurus`) | Predador médio rápido que caça em bando, montável, muito raro | 1,8 × 3,4 | Velocidade-base igual ao Smilodon e superior à do T-Rex; mais forte que o Smilodon; bando concede +25% velocidade e dano, caça brontos e mamutes, atravessa o mato | planície nevada, encostas nevadas, grove (a partir de 1.500 blocos do spawn) |
 | **Brontossauro** (`brontosaurus`) | Saurópode gigante migratório; montável, coletor de madeira e transporte de carga | 4,0 × 8,0 | Pacífico, manada de 1–3 que viaja e se defende junta; 216 espaços de inventário (quatro baús grandes); atravessa o mato | planície nevada, grove, taiga nevada |
 | **Estegossauro** (`stegosaurus`) | Herbívoro defensivo de manada; armazenamento móvel pequeno | conforme o registro | Manada migratória e defesa em grupo; 27 espaços (um baú pequeno) | savanas frias e florestas abertas |
-| **Pteranodonte** (`pteranodon`) | Montaria aérea para exploração | conforme o registro | Montado, Espaço sobe, inclinar a câmera controla a altitude e sprint dá impulso; animação e hitboxes multipartes | biomas abertos definidos pela tag da espécie |
+| **Pteranodonte** (`pteranodon`) | Montaria aérea para exploração | 1,6 × 2,0 | Voo montado no estilo do Cobblemon (ver Montaria); animação de voo separada da de andar; hitboxes multipartes | biomas abertos definidos pela tag da espécie |
+| **Dodô** (`dodo`) | Comida e pena do início de jogo | 0,7 × 0,9 | Passivo, bando de 3–6 que foge ao ser ferido; carne (crua/assada) e pena de dodô; domesticado com frutas e sementes | biomas nevados abertos, desde o spawn (peso 14) |
+| **Elasmotério** (`elasmotherium`) | Primeira montaria: pele, carga pequena e calor | 1,8 × 2,4 | Pacífico até ser provocado, manada de 1–3 com defesa em grupo; **monta sem sela**, 9 espaços de carga, **aquece** quem monta (0,6) e quem está a até 4 blocos; dá pele | planície e taiga nevadas, grove, ice spikes, desde o spawn (peso 9) |
 | Criatura de teste (`test_creature`) | Só para testes automáticos; usa o modelo do porco | 0,9 × 0,9 | Passiva | não nasce |
 
-Montáveis: Smilodon, urso-terrível, mamute, Tyrannosaurus, Utahraptor, Espinossauro, Alossauro, Brontossauro e Pteranodonte. O addon carrega os modelos e sons do Revival em runtime (Deinonychus para Utahraptor e Diplodocus para Brontossauro); nenhum desses arquivos é copiado para o projeto ou para o jar.
+Montáveis: Elasmotério (sem sela), Smilodon, urso-terrível, mamute, Tyrannosaurus, Utahraptor, Espinossauro, Alossauro, Brontossauro e Pteranodonte. O addon carrega os modelos e sons do Revival em runtime (Deinonychus para Utahraptor e Diplodocus para Brontossauro); nenhum desses arquivos é copiado para o projeto ou para o jar.
+
+**Animação de ataque:** toca uma vez (`LoopType.PLAY_ONCE` explícito). O `thenPlay` do GeckoLib 4 usa o `loop` do arquivo, e o `attack_normal_1` do T-Rex e o `attack` do Elasmotério vêm do Revival com `loop: true` — o T-Rex ficava com o golpe preso em loop.
 
 **Ecologia (presas):** cada predador caça uma tag de tipos (`behavior.prey`): o T-Rex `tyrannosaurus_prey` (brontos, mamutes e os grandes do vanilla), o Alossauro `allosaurus_prey` (idem), o lobo-terrível `dire_wolf_prey` (mamutes e os pequenos do vanilla). Regras do `HuntGoal`: nunca caça criatura domesticada; caçador solitário (sem `herd_radius`) só ataca presa de manada **desgarrada** — o T-Rex pega o bronto isolado, não o do meio do grupo; caçador de bando chama o bando (`rallyPack`) e pode atacar a manada, que se defende junta. O T-Rex vagueia por um território de 160 blocos.
 
@@ -318,25 +324,29 @@ As velocidades dos goals são calculadas por espécie para que o passeio ocioso 
 Bloco `mount` do JSON de espécie. **Ausente = espécie não montável**; é isso que deixa o lobo-terrível de fora.
 
 ```json
-"mount": { "seat_height": 2.3, "min_affinity": 25, "speed_multiplier": 0.6, "jump_strength": 0.62 }
+"mount": { "seat_height": 2.3, "min_affinity": 25, "speed_multiplier": 0.6, "jump_strength": 0.42, "jump_forward": 0.95 }
 ```
 
 - `seat_height`: altura do assento em blocos a partir dos pés (0 = 85% da altura da colisão). Fica aqui, e não nos assets, porque é a colisão que manda — trocar o modelo por resource pack não muda onde o jogador senta.
 - `min_affinity` (padrão 25): uma criatura recém-domesticada tem afinidade 50 × eficiência, então uma domesticação ruim precisa ser alimentada antes de aceitar alguém em cima.
 - `speed_multiplier`: a velocidade montada é o atributo `MOVEMENT_SPEED` puro, numa escala diferente da dos goals de IA (que multiplicam o atributo pelo modificador do goal). O Smilodon corre a `speed` 0,4 na IA e monta a 0,24 — sem o multiplicador, montá-lo daria ~17 blocos/s.
-- `jump_strength` em blocos/tick; 0 tira o pulo e a barra de carga.
+- `jump_strength`: impulso vertical do pulo em blocos/tick. **Padrão 0: as espécies grandes não pulam** (T-Rex, mamute, Brontossauro, Espinossauro, Alossauro, urso-terrível, Elasmotério); sobem degraus pelo `step_height`. Pulam o Smilodon e o Utahraptor.
+- `jump_forward`: impulso horizontal, para a frente, no mesmo pulo. O Smilodon dá um bote longo e baixo (0,42 para cima, 0,95 para a frente, ~6 blocos); o Utahraptor pula alto (0,6 / 0,3).
+- `requires_saddle` (padrão verdadeiro): falso monta sem sela — o Elasmotério, a montaria de início de jogo. Essas espécies não aceitam sela.
+- `flying` e `flight_speed` (blocos/tick de cruzeiro, padrão 0,8): voo montado, abaixo.
 
 Como funciona:
 
 - **Selar:** o dono clica com um `minecraft:saddle` na criatura domesticada e acordada. A sela fica na criatura (sincronizada para o cliente, salva no NBT) e volta ao mundo quando ela morre. Receita nossa, em [D19](#4-decisões).
 - **Montar:** clique com a mão livre. Alimentar tem preferência enquanto a criatura estiver com fome, então uma mão cheia de carne não impede montar depois.
-- **Controlar:** `travelRidden` do vanilla ([D18](#4-decisões)). A criatura aponta para onde o jogador olha, ré e passo lateral são reduzidos como no cavalo, e o pulo usa a barra de carga do cavalo (`PlayerRideableJumping`): o cliente de quem monta carrega e aplica o impulso, o servidor toca o som e aceita a posição do veículo.
-- **Recusa:** sem sela, com afinidade abaixo do mínimo, com outra pessoa em cima, ou de quem não é o dono. A criatura diz o motivo.
+- **Controlar:** `travelRidden` do vanilla ([D18](#4-decisões)). A criatura aponta para onde o jogador olha, ré e passo lateral são reduzidos como no cavalo. **Pulo na hora, sem barra de carga** ([D23](#4-decisões)): o cliente de quem monta lê o Espaço (`CommandInput` → `setRiderInput`) e aplica o impulso da espécie; o servidor aceita a posição do veículo.
+- **Voar (Pteranodonte), no estilo do Cobblemon:** Espaço no chão decola. No ar, a montaria vai para onde a câmera aponta — olhar para cima sobe, para baixo mergulha; **frente** acelera até `flight_speed`, **trás** freia, sem tecla ela **plana** e perde embalo devagar; abaixo de 30% da velocidade perde sustentação e afunda; **Espaço segurado** bate as asas e sobe; **correr** (Ctrl) dá impulso de 1,5×; A/D desliza de lado. Pousa ao encostar no chão sem bater as asas e sem olhar para cima. Não leva dano de queda enquanto voa. A física é `core/mount/FlightModel` (lógica pura, JUnit); o estado de voo vai ao servidor por `flight_input` só para tirar a gravidade — sem isso o servidor desconectaria quem monta por "veículo flutuando".
+- **Recusa:** sem sela (nas espécies que pedem sela), com afinidade abaixo do mínimo, com outra pessoa em cima, ou de quem não é o dono. A criatura diz o motivo.
 - **Desce sozinho:** cair inconsciente e tirar a sela ejetam quem estiver montado. Montar uma criatura mandada ficar a solta da ordem.
 
 - **Atacar montado:** o clique de ataque, com o condutor em cima, vira mordida da criatura (`MountAttackPayload`). O ataque do jogador é cancelado no cliente e o clique sempre vale: o servidor confere condutor, criatura acordada e recarga de 1 s, e aí a mordida sai com animação e som (`sounds.attack`) mesmo sem ninguém na mira. Acerta o alvo mirado se estiver a até 3 blocos da colisão, senão a criatura mais próxima na frente (o corpo esticado 3 blocos para a frente); nunca o dono nem criatura dele. O dano é o atributo de ataque da criatura. Espécies com `mount.break_hardness` > 0 quebram, a cada mordida, os blocos na frente do corpo (2 de profundidade, da altura dos pés ao topo) com dureza até esse valor — T-Rex 1,5 (terra, areia, pedra, folhas). Com `mount.break_blocks` (tag de bloco) só quebra o que está na tag: o mamute é o coletor de madeira (dureza 2, tag `iceagesurvival:mammoth_harvestable` = troncos e folhas) e os troncos dropam como se cortados à mão. Respeita `mobGriefing`, proteção do spawn, o evento de quebra de bloco como se fosse quem monta (mods de proteção) e nunca quebra bloco com inventário.
 
-Ainda não existe: tirar a sela em jogo (só `/ias saddle` ou a morte da criatura), carga, montaria de água e voo selvagem. O voo do Pteranodonte é montado e precisa de validação no cliente.
+Ainda não existe: tirar a sela em jogo (só `/ias saddle` ou a morte da criatura), montaria de água e voo selvagem. O voo do Pteranodonte e o pulo novo passam nos testes automáticos, mas a sensação (velocidades, sustentação) precisa ser conferida em jogo.
 
 ### Workflow de assets
 
@@ -351,7 +361,7 @@ do Revival. `ASSET_LICENSES.md` registra a procedência e a separação dos asse
 
 ### Spawn natural (implementado)
 
-Cada espécie tem um `neoforge/biome_modifier/spawn_<especie>.json` do tipo `neoforge:add_spawns`, ligado a uma tag de biomas `spawns_<especie>`, com peso e tamanho de grupo. Regra de posição: chão firme e na superfície (vale neve, gelo e sob copa de árvore; nunca em caverna).
+Cada espécie tem um `forge/biome_modifier/spawn_<especie>.json` do tipo `forge:add_spawns`, ligado a uma tag de biomas `spawns_<especie>`, com peso e tamanho de grupo. Regra de posição: chão firme e na superfície (vale neve, gelo e sob copa de árvore; nunca em caverna).
 
 As criaturas são da categoria `CREATURE` do vanilla: nascem quando o terreno é gerado e não desaparecem. Na prática isso significa que **num mundo já explorado a fauna que morre não volta** — foi o que apareceu em jogo na Etapa 7.
 
@@ -365,19 +375,19 @@ Bloco `spawn` do JSON de espécie, lido pela reposição própria do mod. **Ause
 
 - Uma tentativa por jogador a cada `wildSpawnIntervalSeconds` (padrão 60 s): sorteia uma espécie entre as que podem nascer no bioma do jogador **e ainda têm vaga**, proporcionalmente ao `weight`, e procura posição num anel de `wildSpawnMinDistance` a `wildSpawnMaxDistance` (padrão 40 a 96 blocos) — longe da vista, dentro da distância de simulação.
 - A posição passa pelas checagens de spawn do vanilla (mapa de altura, regra de superfície, colisão e bioma da tag), e o nascimento passa pelos eventos do Forge, então outro mod pode barrar.
-- `max_nearby` é o teto de indivíduos daquela espécie no `wildSpawnDensityRadius` em volta do jogador, e `wildSpawnMaxTotal` (padrão 10) o teto da **soma de todas as espécies**. Criaturas domesticadas não entram na contagem. O raio da contagem é sempre maior que o de spawn (pelo menos `wildSpawnMaxDistance` + 32): antes os dois eram 96, quem nascia na borda saía andando, deixava de contar e abria vaga — com o teto só por espécie, uma base parada juntava mais de 40 criaturas em minutos.
+- `max_nearby` é o teto de indivíduos daquela espécie no `wildSpawnDensityRadius` em volta do jogador, e `wildSpawnMaxTotal` (padrão 18; era 10, que os dodôs sozinhos lotariam) o teto da **soma de todas as espécies**. Criaturas domesticadas não entram na contagem. O raio da contagem é sempre maior que o de spawn (pelo menos `wildSpawnMaxDistance` + 32): antes os dois eram 96, quem nascia na borda saía andando, deixava de contar e abria vaga — com o teto só por espécie, uma base parada juntava mais de 40 criaturas em minutos.
 
 **Zonas de perigo:** `spawn.min_distance` é a distância horizontal mínima do spawn do mundo para a espécie nascer, conferida na regra de colocação — vale para a reposição e para a geração do terreno. E o nível selvagem máximo cresce com a distância: 30% do `maxWildLevel` no spawn, 100% a `fullDangerDistance` (padrão 3.000 blocos).
 
 | Zona | Distância do spawn | Espécies | Raridade |
 |---|---|---|---|
-| Spawn | 0+ | lobo-terrível, mamute, Brontossauro | comuns (peso 8, 8, 6) |
+| Spawn | 0+ | dodô, Elasmotério, lobo-terrível, mamute, Brontossauro | início de jogo abundante (dodô 14, Elasmotério 9); comuns (8, 8, 6) |
 | Meio | 400+ / 600+ / 1.000+ | Velociraptor / Smilodon / Utahraptor | Smilodon raro (peso 2, máx. 1 por perto) |
 | Longe | 1.500+ / 2.000+ | Alossauro, Espinossauro / T-Rex | muito raros (peso 1) |
 - Não trocamos a categoria para `MONSTER` para conseguir spawn contínuo: isso faria a fauna desaparecer sozinha ([D20](#4-decisões)).
 - Tudo desligável em `wildSpawnEnabled`, para quem quiser a fauna só na geração do terreno.
 
-O `neoforge:add_spawns` continua: ele povoa chunk novo, a reposição cuida do que já existe. Os dois usam a mesma tag de biomas.
+O `forge:add_spawns` continua: ele povoa chunk novo, a reposição cuida do que já existe. Os dois usam a mesma tag de biomas.
 
 Ainda não existe: horário de atividade.
 
@@ -501,7 +511,11 @@ frio líquido = clamp(frio − proteção, −1, 1)
 
 Positivo esfria, negativo aquece, na mesma velocidade: `coldSecondsToFreeze` (padrão 120) é o tempo para congelar no frio extremo *e* o tempo para se recuperar no calor. Noite, altitude e tempestade derrubam a **temperatura do lugar** em vez de somar frio direto — assim uma noite de chuva num bioma temperado continua confortável, e só esfria de verdade o que já era frio.
 
-Escala de referência (temperaturas base do vanilla): planície 0,8 → frio 0; taiga 0,25 → 0,25; planície nevada 0 → 0,5; taiga nevada −0,5 → 1,0. Couro completo dá 0,8 de proteção, **pele** completa 1,4 (cobre o frio máximo de dia), um teto 0,25 e estar em cima de uma fogueira 0,8. Molhado (na água ou na chuva) derruba 0,3 da temperatura sentida.
+Escala de referência (temperaturas base do vanilla): planície 0,8 → frio 0; taiga 0,25 → 0,25; planície nevada 0 → 0,5; taiga nevada −0,5 → 1,0 de dia e 1,2 à noite. Couro completo dá 0,8 de proteção, **pena** completa 1,0, **pele** completa 1,4, um teto 0,25, estar em cima de uma fogueira 0,8 e o **calor do Elasmotério** 0,6. Molhado (na água ou na chuva) derruba 0,3 da temperatura sentida.
+
+**Degraus de roupa:** a **pena de dodô** é a primeira — completa, segura o dia em qualquer bioma nevado (taiga nevada 1,0) mas não a noite (1,2): à noite é preciso abrigo, fogo ou ir montado no Elasmotério (1,0 + 0,6). A **pele** segura também a noite. Pena: defesa 1/2/1/1, durabilidade metade da do couro, receitas nos formatos da armadura com pena de dodô; uma pena de dodô também vira uma pena comum.
+
+**Calor do corpo:** bloco `body` da espécie, `body_heat` (proteção) e `body_heat_radius` (blocos). Montado, vale o calor inteiro da montaria; a pé, o da criatura mais quente por perto, caindo em linha reta até 0 na borda do raio (`Coldness.bodyHeat`). Não soma várias criaturas. Hoje só o Elasmotério (0,6 / 4 blocos).
 
 **Roupa de pele:** a **pele** (`pelt`) cai do mamute (2–4), do Smilodon (1–2) e do lobo-terrível (1); com ela se fazem capuz, casaco, calças e botas nos formatos da armadura do vanilla. Defesa de couro, durabilidade 1,6× a do couro. O isolamento é calculado pelo código: 0,2 por peça de couro vanilla e 0,35 por peça de pele do mod.
 
@@ -516,7 +530,7 @@ Escala de referência (temperaturas base do vanilla): planície 0,8 → frio 0; 
 
 Dentro de powder snow o mod sai da frente: o congelamento ali é do vanilla, e disputar o mesmo contador não faria sentido. Criativo e espectador não acumulam frio, e morrer zera a exposição.
 
-**Dados:** `#iceagesurvival:heat_sources` (fogueiras, fogo, lava, magma, tochas, lanternas); isolamento do couro e das peças de pele fica em `EnvironmentColdSource`. Todo o balanceamento está na config de servidor (`coldEnabled`, `coldNightDrop`, `coldHeatRadius`, …).
+**Dados:** `#iceagesurvival:heat_sources` (fogueiras, fogo, lava, magma, tochas, lanternas); isolamento do couro e das peças de pena e de pele fica em `EnvironmentColdSource`. Todo o balanceamento está na config de servidor (`coldEnabled`, `coldNightDrop`, `coldHeatRadius`, …).
 
 **Persistência:** a exposição é uma capability do Forge anexada ao jogador — as criaturas do mod guardam estado no próprio NBT (D8), mas o jogador não é nossa entidade. Não acompanha a morte: renascer aquece.
 
@@ -561,11 +575,13 @@ Implementado na Etapa 8 (`Genome`, `Genetics`). Pontos **e** contagem de mutaç�
 
 Implementado na Etapa 9 (D6). **Não precisa de mod.** O world preset **Era do Gelo** (`iceagesurvival:ice_age`) aparece em *Criar mundo → Tipo de mundo*; num servidor, `level-type=iceagesurvival:ice_age` no `server.properties`.
 
-Ele é o overworld do vanilla — mesmo relevo, cavernas e estruturas — com a fonte de biomas embrulhada por `iceagesurvival:remapped` (`RemappedBiomeSource`), que troca cada bioma por outro segundo uma tabela no JSON do preset: planícies → planície nevada, florestas e pântanos → taigas nevadas, selvas → taiga de pinheiros antiga, desertos e savanas → planície nevada (as badlands erodidas viram ice spikes), prados → grove, picos rochosos → picos congelados, praia → praia nevada, rio → rio congelado, oceanos → oceanos congelados. A neve no chão e a água congelada vêm sozinhas da temperatura dos biomas.
+Ele é o overworld do vanilla — mesmo relevo, cavernas e estruturas — com a fonte de biomas embrulhada por `iceagesurvival:remapped` (`RemappedBiomeSource`), que troca cada bioma por outro segundo uma tabela no JSON do preset: planícies → planície nevada, florestas e pântanos → taigas nevadas, selvas → taiga de pinheiros antiga, desertos e savanas → planície nevada (as badlands erodidas viram ice spikes), prados → grove, picos rochosos → picos congelados, praia e costa de pedra → praia nevada, rio → rio congelado, oceanos → oceanos congelados; taiga, taigas antigas e florestas → taiga nevada, morros ventosos → encostas nevadas (o com floresta → grove). A neve no chão e a água congelada vêm sozinhas da temperatura dos biomas.
 
 A alternativa — listar os ~7 mil pontos climáticos do overworld num `multi_noise` só com biomas frios — daria um JSON de megabytes que precisaria ser regerado a cada versão; a troca é uma tabela de 35 linhas.
 
-**Regiões relativamente seguras:** taigas (0,25), taigas antigas e morros ventosos (0,2) ficam como estão — frias pelo sistema de temperatura, mas sem nevasca. As cavernas guardam a temperatura delas (lush caves 0,5): descer é se abrigar.
+**Toda a superfície neva** (temperatura ≤ 0,15, o limite de neve do vanilla; o gametest confere). Até 2026-10-01 taigas (0,25), taigas antigas, morros ventosos e costa de pedra (0,2) ficavam como estavam, "frias mas sem nevasca" — num mundo de teste eram mais da metade da superfície, que saía verde. As cavernas guardam a temperatura delas (lush caves 0,5): descer é se abrigar.
+
+**Conteúdo do Revival desligado ([D22](#4-decisões)):** o biome modifier `remove_revival_features` tira os minérios (fóssil, âmbar, permafrost, rocha vulcânica) e a estátua moai; `data/fossil/worldgen/structure_set/` vazios desligam sítios de fóssil, poços de piche, templos astecas, academia egípcia e o barco do Nether; os itens dele saem das abas do criativo (`RevivalCleanup`). O TerraBlender só injeta o bioma vulcão em fontes `multi_noise` puras, então ele não aparece no preset (embrulhado pela nossa).
 
 Nether e End são os do vanilla. Mundos já criados não mudam: o preset vale na criação. Relevo mais dramático (Tectonic) fica opcional e fora do escopo; o preset funciona com ele instalado, porque troca só os biomas.
 
@@ -626,9 +642,9 @@ O mundo do GameTest é plano e de bioma temperado, então o frio não chega a su
 | 2 | Core: níveis, atributos, ownership, persistência, registry de espécies | ✅ 2026-09-30 |
 | 3 | Domesticação com criatura de teste | ✅ 2026-09-30 (falta conferir no cliente) |
 | 4 | Smilodon | ✅ 2026-09-30, conferido em jogo pelo Felipe |
-| 5 | Mais criaturas, spawning | 🟡 Estegossauro, Pteranodonte, migração de herbívoros e bônus de bando do Alossauro implementados; build e GameTests passam, falta conferir comportamento em jogo |
+| 5 | Mais criaturas, spawning | 🟡 Estegossauro, Pteranodonte, dodô e Elasmotério (início de jogo), migração de herbívoros e bônus de bando do Alossauro implementados; build e GameTests passam, falta conferir comportamento em jogo |
 | 6 | Temperatura | ✅ 2026-09-30 em testes automáticos; falta sentir o frio em jogo e balancear a primeira hora |
-| 7 | Montaria | 🟡 armazenamento por espécie, voo montado e integração de More Hitboxes implementados; build e GameTests passam, falta conferir controles e hitboxes em jogo |
+| 7 | Montaria | 🟡 armazenamento por espécie, voo no estilo do Cobblemon, pulo sem barra de carga, montaria sem sela e More Hitboxes implementados; build e GameTests passam, falta conferir controles e hitboxes em jogo |
 | 8 | Reprodução e genética | ✅ 2026-09-30 em testes automáticos (genética em JUnit; acasalamento, gestação, ovo, incubadora, mesa química e estimulante em gametests); falta conferir em jogo |
 | 9 | Worldgen | ✅ 2026-09-30 em teste automático (os biomas possíveis do preset são todos frios); falta criar um mundo e andar por ele |
 | 10 | Endgame: rastreador, caverna, arena, boss | — |
@@ -638,6 +654,14 @@ MVP = Etapas 1–4 + versão mínima de 6, 7 e 9 (mundo frio, temperatura básic
 ## 24. Decisões técnicas
 
 Ver a tabela em [4](#4-decisões). Registro de mudanças estruturais:
+
+- 2026-10-01 — Correções do primeiro teste em jogo do port Forge: ataque do T-Rex preso em loop
+  (animação do Revival com `loop: true`; agora `PLAY_ONCE`), tela de status (V) e inventários
+  transparentes (no 1.20.1 o `renderBackground` é chamado pela própria tela), barra de carga de pulo
+  do cavalo removida (D23), grandes sem pulo e bote horizontal do Smilodon, voo do Pteranodonte no
+  estilo do Cobblemon (`FlightModel`), preset Era do Gelo sem taiga/costa de pedra verdes e conteúdo do
+  Revival desligado (D22). Dodô e Elasmotério como criaturas de início de jogo; roupa de pena entre o
+  couro e a pele; Elasmotério monta sem sela, carrega 9 itens e aquece. Teto total da fauna 10 → 18.
 
 - 2026-10-01 — Nova política de assets: Revival e More Hitboxes são dependências externas; seus
   arquivos não são copiados ao repositório nem ao jar. O projeto migrou para Forge 1.20.1:

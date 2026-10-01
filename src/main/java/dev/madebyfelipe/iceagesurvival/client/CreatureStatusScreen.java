@@ -155,6 +155,9 @@ public class CreatureStatusScreen extends Screen {
 
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        // No 1.20.1 o Screen.render não chama renderBackground (só a partir do 1.20.2): sem esta
+        // linha o painel não é pintado e a tela fica transparente.
+        renderBackground(graphics);
         super.render(graphics, mouseX, mouseY, partialTick);
 
         // Título: nome e nível.

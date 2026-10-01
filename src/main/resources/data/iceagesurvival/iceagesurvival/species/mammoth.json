@@ -59,7 +59,6 @@
     "seat_height": 3.85,
     "min_affinity": 25,
     "speed_multiplier": 0.8,
-    "jump_strength": 0.42,
     "break_hardness": 2.0,
     "break_blocks": "#iceagesurvival:mammoth_harvestable"
   },

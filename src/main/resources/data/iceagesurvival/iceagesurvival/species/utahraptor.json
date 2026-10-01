@@ -78,7 +78,8 @@
     "seat_height": 2.6,
     "min_affinity": 25,
     "speed_multiplier": 0.9,
-    "jump_strength": 0.6
+    "jump_strength": 0.6,
+    "jump_forward": 0.3
   },
   "spawn": {
     "biomes": "#iceagesurvival:spawns_utahraptor",

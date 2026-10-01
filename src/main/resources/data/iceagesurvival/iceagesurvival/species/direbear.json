@@ -75,8 +75,7 @@
   "mount": {
     "seat_height": 3.1,
     "min_affinity": 25,
-    "speed_multiplier": 0.8,
-    "jump_strength": 0.45
+    "speed_multiplier": 0.8
   },
   "spawn": {
     "biomes": "#iceagesurvival:spawns_direbear",

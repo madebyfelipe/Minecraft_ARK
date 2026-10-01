@@ -85,7 +85,6 @@
     "seat_height": 3.1,
     "min_affinity": 25,
     "speed_multiplier": 0.95,
-    "jump_strength": 0.5,
     "break_hardness": 1.5
   },
   "spawn": {

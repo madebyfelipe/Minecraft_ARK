@@ -1,0 +1,12 @@
+{
+  "type": "forge:add_spawns",
+  "biomes": "#iceagesurvival:spawns_elasmotherium",
+  "spawners": [
+    {
+      "type": "iceagesurvival:elasmotherium",
+      "weight": 5,
+      "minCount": 1,
+      "maxCount": 3
+    }
+  ]
+}
