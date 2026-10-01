@@ -28,8 +28,8 @@ import net.minecraft.world.phys.Vec3;
  *       segue brigando — o imprevisível. Espécies de manada com defesa em grupo chamam a manada.</li>
  * </ul>
  *
- * Filhote sempre foge. Domesticada, inconsciente, montada ou já com alvo (ferida: quem manda é o
- * revide), não roda.
+ * Filhote sempre foge. Domesticada, inconsciente ou montada, não roda. Com alvo, só reage a uma
+ * ameaça selvagem que esteja investindo; a fuga interrompe a caça em curso.
  */
 public class WaryGoal extends Goal {
     private static final int SCAN_INTERVAL = 10;
@@ -73,7 +73,7 @@ public class WaryGoal extends Goal {
 
     private boolean able() {
         return !creature.isTame() && !creature.isUnconscious() && !creature.isVehicle()
-                && creature.getTarget() == null && profile() != null;
+                && profile() != null;
     }
 
     @Override
@@ -89,7 +89,7 @@ public class WaryGoal extends Goal {
             scanCooldown = SCAN_INTERVAL + creature.getRandom().nextInt(5);
             noticed = nearestThreat(profile());
         }
-        if (noticed == null) {
+        if (noticed == null || (creature.getTarget() != null && !isActivelyThreatening(noticed))) {
             return false;
         }
         threat = noticed;
@@ -202,7 +202,12 @@ public class WaryGoal extends Goal {
                 creature.playAlert();
                 aimCharge();
             }
-            case RETREAT, FLEE -> moveAway(reaction == Reaction.FLEE ? profile().fleeSpeed() : RETREAT_SPEED * calmSpeed);
+            case RETREAT, FLEE -> {
+                if (creature.isHunting()) {
+                    creature.setTarget(null);
+                }
+                moveAway(reaction == Reaction.FLEE ? profile().fleeSpeed() : RETREAT_SPEED * calmSpeed);
+            }
             default -> {
                 creature.setAggressive(false);
                 creature.getNavigation().stop();
@@ -324,7 +329,7 @@ public class WaryGoal extends Goal {
             if (creature.isTame()) {
                 return false;
             }
-            boolean activeThreat = creature.isAggressive() && creature.wariness().isPresent();
+            boolean activeThreat = isActivelyThreatening(creature);
             if (isHunter(creature)) {
                 boolean thisIsPrey = this.creature.behavior()
                         .map(behavior -> behavior.prey().isEmpty()).orElse(true);
@@ -340,6 +345,12 @@ public class WaryGoal extends Goal {
     private boolean isHunter(LivingEntity entity) {
         return entity instanceof PrehistoricCreature hunter && !hunter.isTame() && !hunter.isUnconscious()
                 && hunter.behavior().flatMap(BehaviorProfile::prey).isPresent();
+    }
+
+    private boolean isActivelyThreatening(LivingEntity entity) {
+        return entity instanceof PrehistoricCreature wild && wild.isAlive() && !wild.isBaby()
+                && !wild.isTame() && !wild.isUnconscious() && wild.isAggressive()
+                && wild.wariness().isPresent();
     }
 
     /** Adult wild group size, used to estimate whether the predator or the herd has the advantage. */

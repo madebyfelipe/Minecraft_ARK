@@ -158,6 +158,34 @@ public class WildlifeTests {
         largeHerbivoreDrivesOffSatedVelociraptor(helper, ModEntities.BRONTOSAURUS.get());
     }
 
+    @GameTest(template = ARENA, batch = BATCH + "_hunted", timeoutTicks = 220)
+    public static void largeHerbivoreDrivesOffPredatorThatIsAlreadyHunting(GameTestHelper helper) {
+        HuntTests.clearStrays(helper);
+        LandCreature utahraptor = helper.spawn(ModEntities.UTAHRAPTOR.get(), 8, 0, 9);
+        Pig pig = helper.spawnWithNoFreeWill(EntityType.PIG, 14, 0, 9);
+        utahraptor.setTicksSinceMeal(20L * 3600);
+        LandCreature[] mammoth = {null};
+        Vec3[] predatorStart = {null};
+        boolean[] sawCharge = {false};
+
+        helper.onEachTick(() -> {
+            if (mammoth[0] == null && utahraptor.getTarget() == pig) {
+                predatorStart[0] = utahraptor.position();
+                mammoth[0] = helper.spawn(ModEntities.MAMMOTH.get(), 8, 0, 4);
+            } else if (mammoth[0] != null) {
+                sawCharge[0] |= mammoth[0].isAggressive();
+                if (sawCharge[0] && utahraptor.getTarget() != pig
+                        && utahraptor.position().distanceTo(predatorStart[0]) > 3.0) {
+                    helper.succeed();
+                }
+            }
+        });
+        helper.runAtTickTime(200, () -> helper.fail("o Mamute não interrompeu a caça do Utahraptor; alvo="
+                + utahraptor.getTarget() + ", distância="
+                + (mammoth[0] == null ? "sem encontro" : utahraptor.distanceTo(mammoth[0]))
+                + ", agressivo=" + (mammoth[0] != null && mammoth[0].isAggressive())));
+    }
+
     @GameTest(template = ARENA, batch = BATCH + "_stegosaurus", timeoutTicks = 160)
     public static void stegosaurusDrivesOffSatedVelociraptor(GameTestHelper helper) {
         largeHerbivoreDrivesOffSatedVelociraptor(helper, ModEntities.STEGOSAURUS.get());
