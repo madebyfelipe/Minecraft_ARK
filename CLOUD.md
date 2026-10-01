@@ -351,6 +351,23 @@ conta por que mudou. Duas consequências que valem ser lembradas:
 Rodar o instalador de novo sobrescreve edições manuais — ao começar a editar um modelo à mão, tirar
 a espécie de `SPECIES` no script.
 
+**Modelos do Unusual Prehistory (a partir de 2026-09-30, a pedido do Felipe):** primeira escolha
+de modelo. `tools/install-unusual-prehistory.py` baixa o repositório do Peeko32213 (branch
+`main-final`, GeckoLib 4, Forge 1.20.1) para o cache e instala T-Rex, Velociraptor, Smilodon (textura
+`smilodon_cold`), mamute, e — por parentes próximos, já que o mod não tem as nossas — Brontossauro
+(braquiossauro), Carnotauro (majungassauro) e Utahraptor (austroraptor). O Revival fica com o
+espinossauro e com os sons de todos; o lobo-terrível segue com o gerador próprio. Mesma licença do
+Revival: arte All Rights Reserved.
+
+A escala do Unusual Prehistory é escolhida pelo corpo, não pela altura total (o braquiossauro tem
+25 blocos, quase tudo pescoço): o script imprime a altura do dorso na escala, que vira o
+`mount.seat_height`. O `creature_models/<especie>.json` ganhou `look_bone` (o osso que o modelo de
+origem gira para olhar: `neck_control` no T-Rex, `neck` no braquiossauro, `Head` nos de nome
+maiúsculo) e `baby_hidden_bones` (as presas do mamute filhote).
+
+Os mods mais novos dos mesmos autores (Unusual Prehistory 2, Opposing Force, Reptile House…) usam
+modelos em Java, não GeckoLib — aproveitá-los exigiria converter modelo e animação.
+
 ### Spawn natural (implementado)
 
 Cada espécie tem um `neoforge/biome_modifier/spawn_<especie>.json` do tipo `neoforge:add_spawns`, ligado a uma tag de biomas `spawns_<especie>`, com peso e tamanho de grupo. Regra de posição: chão firme e na superfície (vale neve, gelo e sob copa de árvore; nunca em caverna).
@@ -656,6 +673,7 @@ Ver a tabela em [4](#4-decisões). Registro de mudanças estruturais:
 - 2026-09-30 — Tyrannosaurus em dobro (colisão 3,6×7,2; escala do modelo 5,66; assento 6,2; degrau 2,8) e ataque de quem monta.
 - 2026-09-30 — Assento do Tyrannosaurus de 6,2 para 7,4: o jogador montado ficava dentro do corpo; 7,4 é a altura do osso `rider_pos` (21 px) na escala 5,66.
 - 2026-09-30 — Sons do F&A Revival (All Rights Reserved, mesmo caso dos modelos) para Smilodon, mamute e T-Rex: bloco opcional `sounds` no JSON de espécie (`ambient`, `hurt`, `death`, `alert` ao escolher alvo, `volume`), instalados por `tools/install-revival-placeholders.py`. O lobo-terrível segue mudo: o Revival não tem ele.
+- 2026-09-30 — Modelos do Unusual Prehistory para 7 espécies; `look_bone` e `baby_hidden_bones` em `creature_models`.
 - 2026-09-30 — Etapa 9: world preset Era do Gelo com `RemappedBiomeSource` (D6 fechada, sem mod de worldgen).
 - 2026-09-30 — Etapa 8: genética, sexo, acasalamento, gestação e ovo, incubadora, mesa química e estimulante.
 - 2026-09-30 — Comandos no esquema do ARK: movimento e postura independentes, assobios por tecla (mirada ou todas ao alcance), painel sob a mira refeito e tela de status (V).

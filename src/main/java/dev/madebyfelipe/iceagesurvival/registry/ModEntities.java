@@ -37,7 +37,7 @@ public final class ModEntities {
     public static final DeferredHolder<EntityType<?>, EntityType<LandCreature>> UTAHRAPTOR = landCreature("utahraptor", 1.2F, 2.3F);
     public static final DeferredHolder<EntityType<?>, EntityType<LandCreature>> SPINOSAURUS = landCreature("spinosaurus", 2.7F, 5.6F);
     public static final DeferredHolder<EntityType<?>, EntityType<LandCreature>> CARNOTAURUS = landCreature("carnotaurus", 1.8F, 3.4F);
-    public static final DeferredHolder<EntityType<?>, EntityType<LandCreature>> BRONTOSAURUS = landCreature("brontosaurus", 4.0F, 8.0F);
+    public static final DeferredHolder<EntityType<?>, EntityType<LandCreature>> BRONTOSAURUS = landCreature("brontosaurus", 3.5F, 8.0F);
 
     public static final DeferredHolder<EntityType<?>, EntityType<TestCreature>> TEST_CREATURE =
             ENTITY_TYPES.register("test_creature", () -> EntityType.Builder.of(TestCreature::new, MobCategory.CREATURE)

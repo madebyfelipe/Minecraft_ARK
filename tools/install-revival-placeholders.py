@@ -57,6 +57,10 @@ SOUNDS = {
     "carnotaurus": ({"ambient": "ceratosaurus_ambient", "hurt": "ceratosaurus_hurt", "death": "ceratosaurus_death"}, 2.0),
     "brontosaurus": ({"ambient": "diplodocus_ambient", "hurt": "diplodocus_hurt", "death": "diplodocus_death"}, 4.0),
 }
+# Desde 2026-09-30 os modelos destas espécies vêm de tools/install-unusual-prehistory.py; daqui
+# saem só os sons delas. As entradas em SPECIES ficam como alternativa.
+MODELS_FROM_UNUSUAL_PREHISTORY = {"smilodon", "mammoth", "tyrannosaurus", "velociraptor", "utahraptor",
+                                  "carnotaurus", "brontosaurus"}
 SPECIES_DATA = PROJECT / "src" / "main" / "resources" / "data" / "iceagesurvival" / "iceagesurvival" / "species"
 
 
@@ -188,6 +192,8 @@ def main():
         (ASSETS / sub).mkdir(parents=True, exist_ok=True)
 
     for ours, (theirs, texture, mapping, height) in SPECIES.items():
+        if ours in MODELS_FROM_UNUSUAL_PREHISTORY:
+            continue
         geometry = adult_only(json.loads((source / "geo" / "entity" / f"{theirs}.geo.json").read_text()))
         # Indentado, ao contrário do pack local que isto substituiu: agora estes arquivos
         # vivem no git e são abertos à mão no Blockbench.
@@ -202,7 +208,7 @@ def main():
         print(f"{ours}: modelo do Revival, escala {scale}")
 
     install_sounds(source)
-    mark_hand_authored(SPECIES)
+    mark_hand_authored([s for s in SPECIES if s not in MODELS_FROM_UNUSUAL_PREHISTORY])
     print(f"Assets em {ASSETS}")
     print("Arte All Rights Reserved: substituir antes de distribuir o mod (ver ASSET_LICENSES.md).")
 

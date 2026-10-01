@@ -1,3 +1,8 @@
 {
-  "scale": 1.92
+  "scale": 1.0,
+  "look_bone": "Head",
+  "baby_hidden_bones": [
+    "Tusk1",
+    "Tusk2"
+  ]
 }

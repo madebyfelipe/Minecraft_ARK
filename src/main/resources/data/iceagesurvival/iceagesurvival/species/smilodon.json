@@ -74,7 +74,7 @@
     "hunt_style": "stalk"
   },
   "mount": {
-    "seat_height": 2.3,
+    "seat_height": 2.4,
     "min_affinity": 25,
     "speed_multiplier": 0.6,
     "jump_strength": 0.62

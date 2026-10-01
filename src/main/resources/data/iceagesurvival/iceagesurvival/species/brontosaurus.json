@@ -56,7 +56,7 @@
     "group_defense": true
   },
   "mount": {
-    "seat_height": 8.4,
+    "seat_height": 4.5,
     "min_affinity": 25,
     "speed_multiplier": 0.7,
     "jump_strength": 0.0,
