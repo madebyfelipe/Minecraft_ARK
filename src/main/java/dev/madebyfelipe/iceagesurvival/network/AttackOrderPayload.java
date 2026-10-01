@@ -1,30 +1,30 @@
 package dev.madebyfelipe.iceagesurvival.network;
 
-import dev.madebyfelipe.iceagesurvival.IceAgeSurvival;
 import dev.madebyfelipe.iceagesurvival.command.CreatureCommands;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.LivingEntity;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
+import net.minecraftforge.network.NetworkEvent;
+import java.util.function.Supplier;
 
 /** Cliente → servidor: o jogador quer que suas criaturas ataquem um alvo. */
-public record AttackOrderPayload(int targetId) implements CustomPacketPayload {
-    public static final Type<AttackOrderPayload> TYPE = new Type<>(IceAgeSurvival.id("attack_order"));
+public record AttackOrderPayload(int targetId) {
 
-    public static final StreamCodec<RegistryFriendlyByteBuf, AttackOrderPayload> STREAM_CODEC = StreamCodec.composite(
-            ByteBufCodecs.VAR_INT, AttackOrderPayload::targetId,
-            AttackOrderPayload::new);
-
-    @Override
-    public Type<AttackOrderPayload> type() {
-        return TYPE;
+    public static void encode(AttackOrderPayload message, FriendlyByteBuf buf) {
+        buf.writeVarInt(message.targetId);
     }
 
-    public static void handle(AttackOrderPayload payload, IPayloadContext context) {
-        if (context.player().level().getEntity(payload.targetId()) instanceof LivingEntity target) {
-            CreatureCommands.orderAttack(context.player(), target);
-        }
+    public static AttackOrderPayload decode(FriendlyByteBuf buf) {
+        return new AttackOrderPayload(buf.readVarInt());
+    }
+
+    public static void handle(AttackOrderPayload message, Supplier<NetworkEvent.Context> supplier) {
+        NetworkEvent.Context context = supplier.get();
+        context.enqueueWork(() -> {
+            if (context.getSender() != null
+                    && context.getSender().level().getEntity(message.targetId()) instanceof LivingEntity target) {
+                CreatureCommands.orderAttack(context.getSender(), target);
+            }
+        });
+        context.setPacketHandled(true);
     }
 }

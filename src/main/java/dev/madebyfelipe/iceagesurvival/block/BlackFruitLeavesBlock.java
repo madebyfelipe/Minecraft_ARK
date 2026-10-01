@@ -1,12 +1,12 @@
 package dev.madebyfelipe.iceagesurvival.block;
 
-import com.mojang.serialization.MapCodec;
 import dev.madebyfelipe.iceagesurvival.registry.ModItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -24,7 +24,6 @@ import net.minecraft.world.phys.BlockHitResult;
  * tempo; maduras, soltam frutas ao clique direito e voltam a amadurecer.
  */
 public class BlackFruitLeavesBlock extends LeavesBlock {
-    public static final MapCodec<BlackFruitLeavesBlock> CODEC = simpleCodec(BlackFruitLeavesBlock::new);
     public static final BooleanProperty RIPE = BooleanProperty.create("ripe");
     /** Em média, um bloco amadurece após este número de ticks aleatórios (um a cada ~68 s). */
     private static final int RIPEN_CHANCE = 12;
@@ -34,11 +33,6 @@ public class BlackFruitLeavesBlock extends LeavesBlock {
     public BlackFruitLeavesBlock(Properties properties) {
         super(properties);
         registerDefaultState(defaultBlockState().setValue(RIPE, false));
-    }
-
-    @Override
-    public MapCodec<BlackFruitLeavesBlock> codec() {
-        return CODEC;
     }
 
     @Override
@@ -53,12 +47,12 @@ public class BlackFruitLeavesBlock extends LeavesBlock {
     }
 
     @Override
-    protected boolean isRandomlyTicking(BlockState state) {
+    public boolean isRandomlyTicking(BlockState state) {
         return super.isRandomlyTicking(state) || canRipen(state);
     }
 
     @Override
-    protected void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
+    public void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
         super.randomTick(state, level, pos, random);
         // O super remove o bloco quando a folha apodrece longe de um tronco.
         if (level.getBlockState(pos) == state && canRipen(state) && random.nextInt(RIPEN_CHANCE) == 0) {
@@ -67,7 +61,8 @@ public class BlackFruitLeavesBlock extends LeavesBlock {
     }
 
     @Override
-    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
+    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand,
+            BlockHitResult hit) {
         if (!state.getValue(RIPE)) {
             return InteractionResult.PASS;
         }

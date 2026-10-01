@@ -12,7 +12,7 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.EntityType;
-import net.neoforged.neoforge.registries.DataPackRegistryEvent;
+import net.minecraftforge.registries.DataPackRegistryEvent;
 
 /**
  * Definição de uma espécie, carregada de
@@ -28,7 +28,9 @@ public record Species(
         Optional<MountProfile> mount,
         Optional<SpawnProfile> spawn,
         Optional<SoundProfile> sounds,
-        Optional<BreedingProfile> breeding) {
+        Optional<BreedingProfile> breeding,
+        Optional<StorageProfile> storage,
+        Optional<PackBonusProfile> packBonus) {
     public static final ResourceKey<Registry<Species>> REGISTRY_KEY =
             ResourceKey.createRegistryKey(IceAgeSurvival.id("species"));
 
@@ -56,7 +58,9 @@ public record Species(
             MountProfile.CODEC.optionalFieldOf("mount").forGetter(Species::mount),
             SpawnProfile.CODEC.optionalFieldOf("spawn").forGetter(Species::spawn),
             SoundProfile.CODEC.optionalFieldOf("sounds").forGetter(Species::sounds),
-            BreedingProfile.CODEC.optionalFieldOf("breeding").forGetter(Species::breeding)
+            BreedingProfile.CODEC.optionalFieldOf("breeding").forGetter(Species::breeding),
+            StorageProfile.CODEC.optionalFieldOf("storage").forGetter(Species::storage),
+            PackBonusProfile.CODEC.optionalFieldOf("pack_bonus").forGetter(Species::packBonus)
     ).apply(instance, Species::new));
 
     public static void registerRegistry(DataPackRegistryEvent.NewRegistry event) {

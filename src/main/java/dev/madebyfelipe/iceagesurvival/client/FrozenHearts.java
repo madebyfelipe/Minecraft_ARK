@@ -1,14 +1,15 @@
 package dev.madebyfelipe.iceagesurvival.client;
 
-import net.minecraft.client.gui.Gui;
-import net.neoforged.neoforge.event.entity.player.PlayerHeartTypeEvent;
+import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.Component;
+import net.minecraftforge.client.event.RenderGuiOverlayEvent;
+import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
 
 /**
- * Corações azuis enquanto o jogador está congelado.
+ * Indicador de congelamento ao lado da barra de vida.
  *
- * <p>O vanilla só os desenha quando o contador de congelamento chega ao máximo, e o nosso frio para
- * um tick antes disso de propósito (ver {@code ColdExposure}). Aqui olhamos a fração, que o
- * congelamento do vanilla já sincroniza, e devolvemos o sinal que o teto tirava.
+ * <p>O vanilla só desenha corações congelados quando o contador de congelamento chega ao máximo,
+ * e o nosso frio para um tick antes disso de propósito (ver {@code ColdExposure}).
  */
 final class FrozenHearts {
     /** 139 de 140 ticks. */
@@ -17,9 +18,15 @@ final class FrozenHearts {
     private FrozenHearts() {
     }
 
-    static void onHeartType(PlayerHeartTypeEvent event) {
-        if (event.getType() == Gui.HeartType.NORMAL && event.getEntity().getPercentFrozen() >= FROZEN_FRACTION) {
-            event.setType(Gui.HeartType.FROZEN);
+    static void onGuiOverlay(RenderGuiOverlayEvent.Post event) {
+        if (event.getOverlay() != VanillaGuiOverlay.PLAYER_HEALTH.type()) {
+            return;
+        }
+        Minecraft minecraft = Minecraft.getInstance();
+        if (minecraft.player != null && minecraft.player.getPercentFrozen() >= FROZEN_FRACTION) {
+            int x = minecraft.getWindow().getGuiScaledWidth() / 2 - 99;
+            int y = minecraft.getWindow().getGuiScaledHeight() - 39;
+            event.getGuiGraphics().drawString(minecraft.font, Component.literal("❄"), x, y, 0xFF4FA8E8);
         }
     }
 }

@@ -1,0 +1,12 @@
+{
+  "type": "forge:add_spawns",
+  "biomes": "#iceagesurvival:spawns_mammoth",
+  "spawners": [
+    {
+      "type": "iceagesurvival:mammoth",
+      "weight": 3,
+      "minCount": 2,
+      "maxCount": 4
+    }
+  ]
+}

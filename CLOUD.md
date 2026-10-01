@@ -36,14 +36,14 @@ Fora de escopo: máquinas, árvores tecnológicas, dezenas de armaduras, arsenal
 
 | # | Decisão | Motivo | Estado |
 |---|---|---|---|
-| D1 | Minecraft **1.21.1** | É a versão em que todos os candidatos de infraestrutura têm build estável para NeoForge (GeckoLib, Lithostitched, Tectonic, Cold Sweat, SmartBrainLib) e a versão LTS de fato do ecossistema NeoForge. | Fechada |
-| D2 | Loader **NeoForge 21.1.252** | Registries de datapack, data maps, payloads tipados e GameTest nativos; ver [8](#8-versões). Fabric só traria vantagem para Frostiful, que foi rejeitado como dependência. | Fechada |
-| D3 | **GeckoLib** como única dependência obrigatória | MIT, release estável para 1.21.1, padrão do ecossistema para criaturas animadas. | Fechada |
-| D4 | **Não** depender de nenhum mod de fauna | Todos os mods de fauna relevantes são All Rights Reserved ou licença custom; nenhum asset pode ser incorporado. Além disso o brief exige que progressão/domesticação sejam nossas. | Fechada |
-| D5 | Temperatura: **sistema interno leve**, atrás de uma interface | Frostiful no NeoForge é alpha e exige Forgified Fabric API; Cold Sweat é estável mas muito mais complexo do que o brief pede ("secundária, sem burocracia"). Ver [15](#15-temperatura). | Fechada na Etapa 6 — o sistema interno cabe em ~200 linhas e não precisou de HUD próprio; a costura `ColdSource` continua de pé |
+| D1 | Minecraft **1.20.1** | Escolhida para compatibilidade com o Fossils and Archaeology: Revival e More Hitboxes como dependências externas, sem copiar os assets deles. | Fechada; substitui o alvo inicial 1.21.1 |
+| D2 | Loader **Forge 47.4.3** | Compatível com as dependências externas e com a API multipartes do More Hitboxes; o projeto usa capacidades, `SimpleChannel` e GameTest do Forge. | Fechada |
+| D3 | **GeckoLib 4.7.2** | Build Forge para Minecraft 1.20.1, padrão de animação das criaturas e integração com More Hitboxes. | Fechada |
+| D4 | Gameplay, dados e código de criaturas são nossos; F&A Revival só fornece assets carregados em runtime | Não copiar código, modelos, texturas, animações ou sons. A dependência foi aceita após a migração para 1.20.1 Forge, exclusivamente para resolver assets do mod instalado pelo jogador; domesticação, progressão e IA continuam próprias. | Fechada; substitui a decisão inicial de não depender de fauna |
+| D5 | Temperatura: **sistema interno leve**, atrás de uma interface | Cold Sweat é muito mais complexo do que o brief pede ("secundária, sem burocracia"). Ver [15](#15-temperatura). | Fechada na Etapa 6 — `ColdSource` continua de pé |
 | D6 | Mundo glacial por **world preset próprio em datapack**, sem mod de worldgen obrigatório | Um preset com a fonte de biomas restrita a biomas frios resolve "mundo predominantemente congelado" sem dependência. Ver [18](#18-worldgen). | Fechada na Etapa 9 — o preset embrulha o overworld do vanilla numa fonte de biomas que troca os quentes pelos frios (`iceagesurvival:remapped`); Primal Winter e Ice Age não entram |
 | D7 | Espécies num **registry de datapack** sincronizado | Permite adicionar espécie por JSON, com validação por Codec e sync automático para o cliente. | Fechada |
-| D8 | Dados da criatura no **NBT da própria entidade**, serializados por Codec | As entidades são nossas; não precisamos de attachments para anexar dados a entidades alheias. | Fechada |
+| D8 | Dados da criatura no **NBT da própria entidade**, serializados por Codec | As entidades são nossas; estado de jogador de terceiros fica em capability Forge (D17). | Fechada |
 | D9 | IA com **Goals vanilla** | Suficiente para território e manada; SmartBrainLib fica como opção se os Goals virarem gargalo. | Provisória |
 | D10 | Lógica pura (stats, genética, torpor) **sem dependência de classes do Minecraft** | Permite testes JUnit rápidos, sem subir o jogo. | Fechada |
 | D11 | Repositório GitHub **privado** | Pode ser aberto depois; publicar é irreversível. | Fechada até o Felipe decidir o contrário |
@@ -52,15 +52,15 @@ Fora de escopo: máquinas, árvores tecnológicas, dezenas de armaduras, arsenal
 | D14 | Sem pacote `network/` até existir o primeiro payload | O registry de espécies já sincroniza sozinho. O pacote nasceu na Etapa 4, com os comandos. | Cumprida |
 | D15 | Ordem de ataque vale para **todas** as criaturas do jogador ao alcance | Exigir escolher uma criatura antes de apontar o alvo pediria um estado de "selecionada" escondido. Não é o sistema de grupos do brief (que continua fora). | Fechada |
 | D16 | O frio **é** o `ticksFrozen` do vanilla, não um valor paralelo sincronizado | Sincronização, persistência, vinheta de gelo e lentidão já existem e são de graça; um valor próprio pediria payload, HUD e NBT para o mesmo resultado. Custo: parar em 139/140 e assumir o dano (ver [15](#15-temperatura)). | Fechada |
-| D17 | Estado de frio do jogador em **attachment do NeoForge** | D8 dispensa attachments para *nossas* entidades; o jogador é de terceiros, e é exatamente o caso que os attachments existem para resolver. | Fechada |
+| D17 | Estado de frio do jogador em **capability do Forge** | D8 dispensa estado externo para *nossas* entidades; o jogador é de terceiros. A capability é anexada e persistida pelo Forge. | Fechada |
 | D18 | Montaria pelo **modelo de veículo do vanilla** (`travelRidden`, `PlayerRideableJumping`) | É o caminho do cavalo: o cliente de quem monta simula o movimento e manda a posição do veículo, o servidor confere que o remetente é o controlador. Escrever controle próprio seria reinventar a predição e a reconciliação. Ver [11](#11-criaturas). | Fechada na Etapa 7 |
 | D19 | A sela é o **`minecraft:saddle` do vanilla**, com receita nossa | Um item por espécie (como no ARK) seria uma dúzia de itens e texturas para a mesma função; o item do vanilla já é reconhecível e o que gateia a montaria é a espécie ter bloco `mount`. A receita existe porque no vanilla a sela não é craftável, e depender de baú de estrutura num mundo glacial travaria a Fase 4. | Fechada na Etapa 7 |
 | D20 | **Reposição de fauna própria**, em vez de mudar a categoria das criaturas | `CREATURE` do vanilla só nasce na geração do terreno; trocar para `MONSTER` faria a fauna aparecer e *desaparecer* sozinha, contra o design. A reposição repõe no que já existe, com teto de densidade por espécie. Ver [11](#11-criaturas). | Fechada na Etapa 7 |
-| D21 | Arte do F&A Revival **no repositório** (e portanto no jar), como placeholder | A pedido do Felipe: os modelos ficam abertos para edição no Blockbench sem depender de um resource pack local, e o jogo funciona logo depois de clonar. Custo aceito: a arte é *All Rights Reserved*, então **o jar deixa de ser distribuível** até ser substituída; o repositório é privado. | Provisória, por escolha — reverter ao substituir a arte |
+| D21 | Usar assets do F&A Revival **em runtime**, sem copiá-los ao projeto ou ao jar | O Ice Age Survival referencia os recursos registrados pelo mod original, instalado separadamente. Isso preserva a autoria/licença dos assets e mantém o jar do addon sem conteúdo do Revival. Exige a dependência compatível instalada para renderizar as espécies afetadas. | Fechada; decisão atual substitui a escolha de 2026-09-30 |
 
 ## 5. Mods avaliados
 
-Fonte: API do Modrinth, consultada em 2026-09-30, filtrando pela combinação exata `1.21.1` + `neoforge`. Downloads e datas são os daquele dia.
+**Registro histórico do alvo inicial:** API do Modrinth consultada em 2026-09-30 para `1.21.1` + `neoforge`. Em 2026-10-01, o alvo mudou para Forge 1.20.1 para integrar o Revival como dependência de assets; ver §8 e D21. Downloads e datas abaixo são os daquela pesquisa.
 
 **Limites desta pesquisa:** o CurseForge não foi consultado (a API exige chave) e nenhum código-fonte dos mods foi lido — a avaliação é de metadados, licença e descrição. "Primal Era" não existe no Modrinth; pode existir só no CurseForge.
 
@@ -129,7 +129,7 @@ Compatibilidade opcional a avaliar mais tarde, sem dependência em código: Tect
 ## 7. Mods rejeitados
 
 - **Frostiful / Thermoo** — alpha no NeoForge e dependente de Forgified Fabric API. Risco alto demais para uma mecânica de sobrevivência, mesmo secundária.
-- **Todos os mods de fauna como dependência** — licenças fechadas e, principalmente, fariam do projeto "Minecraft com vários mods de dinossauro" (seção 42 do brief).
+- **Outros mods de fauna como dependência de gameplay** — continuam fora de escopo. A exceção deliberada é o F&A Revival como provedor externo de assets em runtime; código e mecânicas permanecem próprios.
 - **Tough As Nails, Legendary Survival Overhaul, Homeostatic** — trazem sede e outros sistemas fora do escopo.
 - **TerraBlender, Terralith, Citadel** — desnecessários para a abordagem escolhida.
 - **Primal Winter como dependência** — sem manutenção desde 2024-10. Fica como *referência de design* (MIT, código aberto) para a Etapa 9.
@@ -138,28 +138,32 @@ Compatibilidade opcional a avaliar mais tarde, sem dependência em código: Tect
 
 | Componente | Versão | Fonte |
 |---|---|---|
-| Minecraft | 1.21.1 | — |
-| NeoForge | 21.1.252 | maven.neoforged.net (última 21.1.x em 2026-09-30) |
-| ModDevGradle | 2.0.148 | template oficial `MDK-1.21.1-ModDevGradle` |
-| Parchment | 2024.11.17 (para 1.21.1) | maven.parchmentmc.org |
-| Gradle | 9.2.1 (wrapper) | template oficial |
-| Java | 21 | exigido pelo Minecraft 1.21.1 |
-| GeckoLib | 4.9.3 (`geckolib-neoforge-1.21.1`) | Cloudsmith do GeckoLib |
+| Minecraft | 1.20.1 | — |
+| Forge | 47.4.3 | Forge Maven |
+| ForgeGradle | 6.x | Forge Maven |
+| Gradle | 8.8 (wrapper) | wrapper do ForgeGradle |
+| Java | 17 | exigido pelo Minecraft 1.20.1 |
+| GeckoLib | 4.7.2 (`geckolib-forge-1.20.1`) | Cloudsmith do GeckoLib |
+| Fossils and Archaeology: Revival | 9.3.4.0 | dependência externa, não empacotada |
+| More Hitboxes | 1.9.2 | dependência externa, não empacotada |
+| TerraBlender | 3.0.1.10 | dependência runtime exigida pelo Revival |
+| Architectury | 9.2.14 | dependência runtime exigida pelo Revival |
 
-Por que não uma versão mais nova do Minecraft: GeckoLib, Tectonic e Lithostitched existem em versões mais recentes, mas 1.21.1 é onde o ecossistema de mods de conteúdo para NeoForge está concentrado, e onde Cold Sweat (nosso plano B de temperatura) tem release estável.
+O alvo 1.20.1 permite resolver os recursos do Revival no namespace `fossil` e usar More Hitboxes; não transportar código nem assets desses mods.
 
 ## 9. Licenças
 
 - **Nosso código:** licença ainda não definida (ver [26](#26-ainda-não-decidido)). Enquanto isso, `All Rights Reserved` no metadata e repositório privado.
 - **GeckoLib (MIT):** usado como dependência, não redistribuído dentro do nosso jar.
-- **Template MDK do NeoForge:** base do build; licença do template em `TEMPLATE_LICENSE.txt`.
-- **Assets:** a regra de chegada é que todo modelo, textura, animação e som seja original ou de licença compatível — e é a regra para o mod ser distribuível. Hoje há uma exceção consciente e temporária, abaixo.
+- **More Hitboxes (MIT):** biblioteca Forge 1.20.1, usada como dependência para hitboxes multipartes; não redistribuída dentro do nosso jar.
+- **Fossils and Archaeology: Revival:** dependência externa obrigatória para os assets/runtime usados por várias espécies. Seu código e seus assets não são copiados para o projeto ou empacotados no nosso jar; instale o mod original de um canal oficial.
+- **ForgeGradle:** base do build Forge.
+- **Assets próprios:** todo modelo, textura, animação e som incluído no jar deve ser original ou ter licença compatível.
 
-**Assets de criatura.** A arte de mamute, smilodon e tyrannosaurus é do *Fossils and
-Archeology: Revival* e é **All Rights Reserved**. Desde 2026-09-30 ela fica no repositório
-(privado) e, por consequência, dentro do jar — ver [D21](#4-decisões) e
-`src/main/resources/assets/iceagesurvival/ASSET_LICENSES.md`. **O jar não pode ser
-distribuído** até essas espécies terem arte nossa ou licenciada.
+**Assets externos de criatura.** Algumas espécies carregam modelos, texturas, animações e sons
+registrados pelo *Fossils and Archaeology: Revival* em runtime. O repositório e o jar do Ice Age
+Survival não contêm esses arquivos. A instância de jogo precisa instalar o Revival compatível;
+detalhes em `src/main/resources/assets/iceagesurvival/ASSET_LICENSES.md`.
 
 ## 10. Arquitetura
 
@@ -176,7 +180,7 @@ dev.madebyfelipe.iceagesurvival
 ├── temperature/            leitura do ambiente e congelamento do jogador
 ├── item/                   flechas tranquilizantes, rifle, implante, rastreador
 ├── network/                payloads (comandos, UI)
-├── registry/               DeferredRegisters, tags usadas em código, attachments
+├── registry/               DeferredRegisters, tags usadas em código, capabilities
 ├── config/                 configuração comum e de servidor
 └── client/                 renderers, HUD, telas (só client)
 ```
@@ -186,7 +190,7 @@ Princípios:
 - **Servidor decide tudo.** Cliente envia intenção (payload), servidor valida dono, distância e estado.
 - **`core/` não importa `net.minecraft`.** A entidade é uma casca fina que alimenta e consome a lógica pura.
 - **Dados antes de código.** Número de balanceamento vive no JSON da espécie ou na config, nunca espalhado em classes.
-- **Sem mixins** enquanto um evento ou API do NeoForge resolver.
+- **Sem mixins** enquanto um evento ou API do Forge resolver.
 
 ### Espécie por dados
 
@@ -252,16 +256,18 @@ Todas as espécies terrestres usam a mesma classe (`LandCreature`); o que as dif
 | **Lobo-terrível** (`dire_wolf`) | Primeira domesticação; predador de matilha | 0,8 × 1,2 | Agressivo, matilha de 2–4, defesa em grupo, caça presas pequenas, recua com 20% de vida | taiga, taiga nevada, taigas antigas, grove, planície nevada |
 | **Smilodon** (`smilodon`) | Predador territorial solitário, rápido | 1,3 × 2,3 | Agressivo e **espreita** (`hunt_style: stalk`): aproxima-se devagar pelas costas e só dá o bote, rugindo, a 4,5 blocos, ao ser ferido ou quando o jogador o vê. Território de 32 blocos, caça presas grandes, recua com 25% de vida | taiga, taiga nevada, taigas antigas, grove, encostas nevadas |
 | **Urso-terrível** (`direbear`) | Predador territorial solitário, resistente | 2,0 × 3,0 | Agressivo, território de 64 blocos, caça presas grandes e recua com 15% de vida | taiga, taiga nevada, taigas antigas, grove, encostas nevadas |
-| **Mamute-lanoso** (`mammoth`) | Herbívoro de manada, tanque; montado, coletor de madeira | 3,0 × 4,65 | Pacífico até ser provocado; manada de 2–4 que se defende junta | planície nevada, ice spikes, taiga nevada |
+| **Mamute-lanoso** (`mammoth`) | Herbívoro de manada, tanque; montado, coletor de madeira | 3,0 × 4,65 | Pacífico até ser provocado; manada migratória de 2–4 que se defende junta | planície nevada, ice spikes, taiga nevada |
 | **Tyrannosaurus rex** (`tyrannosaurus`) | Primeiro dinossauro; predador de topo solitário, raro | 2,7 × 5,4 | Agressivo, raio de percepção 24, território de 48 blocos, caça presas grandes, recua com 10% de vida | taiga, taiga nevada, taigas antigas, planície nevada (peso 1) |
 | **Velociraptor** (`velociraptor`) | Predador pequeno de bando | 0,7 × 1,1 | Agressivo, bando de 3–5 com defesa em grupo, caça presas pequenas | taiga, taiga nevada, grove |
 | **Utahraptor** (`utahraptor`) | Raptor grande, montável (o "raptor" do ARK) | 1,2 × 2,3 | Agressivo, bando de 2–3, caça presas grandes | taigas nevadas e de abetos |
 | **Espinossauro** (`spinosaurus`) | Predador de topo das águas geladas, montável | 2,7 × 5,6 | Agressivo, atravessa o mato, domesticado com peixe; assento à frente da vela (`seat_forward`) | rio congelado, praia nevada, oceano congelado |
-| **Alossauro** (`allosaurus`, antes `carnotaurus`) | Predador médio que caça em bando, montável, muito raro | 1,8 × 3,4 | Agressivo, bando de 2–3 com defesa em grupo, caça brontos e mamutes, atravessa o mato | planície nevada, encostas nevadas, grove (a partir de 1.500 blocos do spawn) |
-| **Brontossauro** (`brontosaurus`) | Saurópode gigante de manada, montável, coletor de madeira | 4,0 × 8,0 | Pacífico, manada de 1–3 que se defende junta, atravessa o mato | planície nevada, grove, taiga nevada |
+| **Alossauro** (`allosaurus`, antes `carnotaurus`) | Predador médio rápido que caça em bando, montável, muito raro | 1,8 × 3,4 | Velocidade-base igual ao Smilodon e superior à do T-Rex; mais forte que o Smilodon; bando concede +25% velocidade e dano, caça brontos e mamutes, atravessa o mato | planície nevada, encostas nevadas, grove (a partir de 1.500 blocos do spawn) |
+| **Brontossauro** (`brontosaurus`) | Saurópode gigante migratório; montável, coletor de madeira e transporte de carga | 4,0 × 8,0 | Pacífico, manada de 1–3 que viaja e se defende junta; 216 espaços de inventário (quatro baús grandes); atravessa o mato | planície nevada, grove, taiga nevada |
+| **Estegossauro** (`stegosaurus`) | Herbívoro defensivo de manada; armazenamento móvel pequeno | conforme o registro | Manada migratória e defesa em grupo; 27 espaços (um baú pequeno) | savanas frias e florestas abertas |
+| **Pteranodonte** (`pteranodon`) | Montaria aérea para exploração | conforme o registro | Montado, Espaço sobe, inclinar a câmera controla a altitude e sprint dá impulso; animação e hitboxes multipartes | biomas abertos definidos pela tag da espécie |
 | Criatura de teste (`test_creature`) | Só para testes automáticos; usa o modelo do porco | 0,9 × 0,9 | Passiva | não nasce |
 
-Montáveis: Smilodon, urso-terrível, mamute, Tyrannosaurus, Utahraptor, Espinossauro, Alossauro e Brontossauro. Os modelos do Utahraptor e do Brontossauro são placeholders do Revival de parentes próximos (Deinonychus, Diplodoco), porque o Revival não tem essas espécies; o Alossauro tem modelo e sons próprios do Revival.
+Montáveis: Smilodon, urso-terrível, mamute, Tyrannosaurus, Utahraptor, Espinossauro, Alossauro, Brontossauro e Pteranodonte. O addon carrega os modelos e sons do Revival em runtime (Deinonychus para Utahraptor e Diplodocus para Brontossauro); nenhum desses arquivos é copiado para o projeto ou para o jar.
 
 **Ecologia (presas):** cada predador caça uma tag de tipos (`behavior.prey`): o T-Rex `tyrannosaurus_prey` (brontos, mamutes e os grandes do vanilla), o Alossauro `allosaurus_prey` (idem), o lobo-terrível `dire_wolf_prey` (mamutes e os pequenos do vanilla). Regras do `HuntGoal`: nunca caça criatura domesticada; caçador solitário (sem `herd_radius`) só ataca presa de manada **desgarrada** — o T-Rex pega o bronto isolado, não o do meio do grupo; caçador de bando chama o bando (`rallyPack`) e pode atacar a manada, que se defende junta. O T-Rex vagueia por um território de 160 blocos.
 
@@ -272,10 +278,10 @@ Montáveis: Smilodon, urso-terrível, mamute, Tyrannosaurus, Utahraptor, Espinos
 1. `tools/gen_<especie>.py` — ossos, cores e detalhes; gera geometria, textura e as quatro animações (`idle`, `walk`, `attack`, `unconscious`).
 2. Uma linha em `ModEntities` (id e caixa de colisão) e um ovo gerador em `ModItems`.
 3. `data/iceagesurvival/iceagesurvival/species/<especie>.json` — atributos, corpo, domesticação, comportamento.
-4. Opcional: `neoforge/biome_modifier/spawn_<especie>.json` + tag de biomas, para nascer no mundo.
+4. Opcional: biome modifier + tag de biomas, para nascer no mundo.
 5. Traduções.
 
-Nenhuma classe Java nova, nenhuma mudança no núcleo. Espécies com mecânica própria (voar, nadar, o boss) vão precisar de classe.
+Nenhuma classe Java nova para espécies cobertas pelos perfis existentes. Um comportamento realmente novo (por exemplo, voo selvagem ou boss) pode exigir extensão do núcleo; o voo montado atual usa o perfil genérico de montaria.
 
 Pendentes do brief — Era do Gelo: rinoceronte-lanoso, megaloceros, megatherium, urso-das-cavernas, bisão, auroque, mastodonte. Dinossauros: ~~tyrannosaurus~~, ~~velociraptor~~, ~~spinosaurus~~, ~~utahraptor~~, ~~allosaurus~~, ~~brontosaurus~~ (feitos; o carnotaurus virou allosaurus), triceratops, ankylosaurus, giganotosaurus (boss).
 
@@ -290,6 +296,7 @@ Bloco `behavior` do JSON de espécie (ausente = passiva, sem território):
   "territory_radius": 32,
   "flee_health_fraction": 0.25,
   "herd_radius": 10,
+  "migrates": true,
   "group_defense": true,
   "prey": "#iceagesurvival:small_prey"
 }
@@ -300,6 +307,7 @@ Bloco `behavior` do JSON de espécie (ausente = passiva, sem território):
 - Abaixo de `flee_health_fraction` de vida, recua de quem a feriu em vez de lutar até morrer.
 - Domesticada, perde o território.
 - `herd_radius` > 0 faz a espécie andar em **manada**: o líder é o indivíduo selvagem de menor id por perto, e os outros voltam para junto dele quando passam do raio. Não há estado compartilhado nem registro de manadas; cada membro procura o líder a cada ~5–7 s.
+- `migrates: true` habilita viagens longas periódicas no líder; os demais acompanham pelo comportamento de manada. Aplicado aos herbívoros migratórios; evitar combiná-lo com um território pequeno.
 - `group_defense`: quando uma é ferida, as selvagens da mesma espécie por perto que estejam sem alvo atacam o agressor. Uma varredura por agressão.
 - `prey`: tag de tipos de entidade que a espécie caça. A procura acontece em média a cada 30 s por predador, para ser barata e não zerar a fauna. Tags atuais: `small_prey` (coelho, galinha, ovelha, porco, raposa) e `large_prey` (vaca, ovelha, porco, cabra, cavalo, burro, lhama).
 
@@ -328,31 +336,18 @@ Como funciona:
 
 - **Atacar montado:** o clique de ataque, com o condutor em cima, vira mordida da criatura (`MountAttackPayload`). O ataque do jogador é cancelado no cliente e o clique sempre vale: o servidor confere condutor, criatura acordada e recarga de 1 s, e aí a mordida sai com animação e som (`sounds.attack`) mesmo sem ninguém na mira. Acerta o alvo mirado se estiver a até 3 blocos da colisão, senão a criatura mais próxima na frente (o corpo esticado 3 blocos para a frente); nunca o dono nem criatura dele. O dano é o atributo de ataque da criatura. Espécies com `mount.break_hardness` > 0 quebram, a cada mordida, os blocos na frente do corpo (2 de profundidade, da altura dos pés ao topo) com dureza até esse valor — T-Rex 1,5 (terra, areia, pedra, folhas). Com `mount.break_blocks` (tag de bloco) só quebra o que está na tag: o mamute é o coletor de madeira (dureza 2, tag `iceagesurvival:mammoth_harvestable` = troncos e folhas) e os troncos dropam como se cortados à mão. Respeita `mobGriefing`, proteção do spawn, o evento de quebra de bloco como se fosse quem monta (mods de proteção) e nunca quebra bloco com inventário.
 
-Ainda não existe: tirar a sela em jogo (só `/ias saddle` ou a morte da criatura), carga, e montaria de água ou ar.
+Ainda não existe: tirar a sela em jogo (só `/ias saddle` ou a morte da criatura), carga, montaria de água e voo selvagem. O voo do Pteranodonte é montado e precisa de validação no cliente.
 
 ### Workflow de assets
 
-Modelos são gerados por script em `tools/` (um `gen_<especie>.py` por espécie, sobre a biblioteca `modelgen.py`), que escreve geometria Bedrock, textura e animações direto em `src/main/resources/assets/iceagesurvival/{geo,textures,animations}/entity/`. Os arquivos abrem no Blockbench para conferência e ajuste.
+Modelos autorais são gerados por script em `tools/` (um `gen_<especie>.py` por espécie, sobre a biblioteca `modelgen.py`), que escreve geometria Bedrock, textura e animações em `src/main/resources/assets/iceagesurvival/{geo,textures,animations}/entity/`. Os arquivos abrem no Blockbench para conferência e ajuste.
 
 O tamanho do modelo no jogo fica em `assets/iceagesurvival/creature_models/<especie>.json` (`{ "scale": 2.0 }`), junto do modelo e não nos dados da espécie: quem troca o modelo por resource pack também acerta a escala. A caixa de colisão é definida no registro do tipo de entidade e precisa acompanhar.
 
-**Placeholders do F&A Revival (no repositório desde 2026-09-30):** por decisão do Felipe, a arte
-de mamute, smilodon e tyrannosaurus vem do mod *Fossils and Archeology: Revival* enquanto não há
-modelos definitivos. `tools/install-revival-placeholders.py` baixa o Revival para um cache fora do
-projeto e escreve geometria, textura, as quatro animações e a escala direto em
-`src/main/resources/assets/`. O script não contém arte.
-
-Antes essa arte ficava num resource pack dentro da instância do Prism, fora do git; [D21](#4-decisões)
-conta por que mudou. Duas consequências que valem ser lembradas:
-
-- A arte é **All Rights Reserved** e agora vai dentro do jar: **o jar não pode ser distribuído** até
-  ela ser substituída. Ver `ASSET_LICENSES.md` ao lado dos assets, com as três saídas possíveis.
-- As espécies com arte de fora ficam listadas em `tools/hand_authored.txt` e o `modelgen` **recusa**
-  regerá-las, para um `gen_<especie>.py` distraído não apagar o modelo em uso. Para voltar ao
-  placeholder de blocagem, que é nosso: `IAS_FORCE_GEN=1 python3 tools/gen_<especie>.py`.
-
-Rodar o instalador de novo sobrescreve edições manuais — ao começar a editar um modelo à mão, tirar
-a espécie de `SPECIES` no script.
+**Assets do Revival em runtime:** o renderer busca os recursos registrados pelo mod externo
+*Fossils and Archaeology: Revival*, sem baixar, extrair ou copiar arquivos. O mod original precisa
+estar instalado; o addon não o embute nem redistribui. Não voltar a usar scripts que extraiam arte
+do Revival. `ASSET_LICENSES.md` registra a procedência e a separação dos assets próprios.
 
 ### Spawn natural (implementado)
 
@@ -369,7 +364,7 @@ Bloco `spawn` do JSON de espécie, lido pela reposição própria do mod. **Ause
 ```
 
 - Uma tentativa por jogador a cada `wildSpawnIntervalSeconds` (padrão 60 s): sorteia uma espécie entre as que podem nascer no bioma do jogador **e ainda têm vaga**, proporcionalmente ao `weight`, e procura posição num anel de `wildSpawnMinDistance` a `wildSpawnMaxDistance` (padrão 40 a 96 blocos) — longe da vista, dentro da distância de simulação.
-- A posição passa pelas mesmas checagens do spawn natural do vanilla (mapa de altura, tipo de colocação, colisão, regra de superfície da espécie) mais o bioma da tag, e o nascimento passa pelos eventos do NeoForge, então outro mod pode barrar.
+- A posição passa pelas checagens de spawn do vanilla (mapa de altura, regra de superfície, colisão e bioma da tag), e o nascimento passa pelos eventos do Forge, então outro mod pode barrar.
 - `max_nearby` é o teto de indivíduos daquela espécie no `wildSpawnDensityRadius` em volta do jogador, e `wildSpawnMaxTotal` (padrão 10) o teto da **soma de todas as espécies**. Criaturas domesticadas não entram na contagem. O raio da contagem é sempre maior que o de spawn (pelo menos `wildSpawnMaxDistance` + 32): antes os dois eram 96, quem nascia na borda saía andando, deixava de contar e abria vaga — com o teto só por espécie, uma base parada juntava mais de 40 criaturas em minutos.
 
 **Zonas de perigo:** `spawn.min_distance` é a distância horizontal mínima do spawn do mundo para a espécie nascer, conferida na regra de colocação — vale para a reposição e para a geração do terreno. E o nível selvagem máximo cresce com a distância: 30% do `maxWildLevel` no spawn, 100% a `fullDangerDistance` (padrão 3.000 blocos).
@@ -403,7 +398,7 @@ Ainda não existe: horário de atividade.
 Implementado na criatura de teste.
 
 1. Flechas tranquilizantes acumulam torpor; ao atingir o máximo a criatura cai inconsciente.
-2. Inconsciente, clique direito abre o **inventário da criatura** (9 espaços). Ela come sozinha dali: uma unidade por vez, sempre o alimento de maior `quality` disponível. Cada unidade soma o `value` do alimento ao progresso.
+2. Inconsciente, clique direito abre o **inventário da criatura** (9 espaços por padrão; 27 no Estegossauro e 216 no Brontossauro, em páginas). Ela come sozinha dali: uma unidade por vez, sempre o alimento de maior `quality` disponível. Cada unidade soma o `value` do alimento ao progresso.
 3. Entre uma refeição e outra há uma espera (`feed_interval_seconds`) — é o tempo em que o jogador precisa proteger a criatura.
 4. O torpor continua caindo. Se zerar antes do progresso completar, ela acorda e **o progresso é perdido**. Mais flechas mantêm o torpor, mas o dano delas reduz a eficiência.
 5. Progresso completo → domesticada. **O dono é quem a derrubou** (o autor do torpor que a fez cair); só essa pessoa abre o inventário enquanto ela está caída. Se ninguém a derrubou (dispensador, por exemplo), vale quem abrir o inventário primeiro. Acordar libera a criatura de novo.
@@ -508,7 +503,7 @@ Positivo esfria, negativo aquece, na mesma velocidade: `coldSecondsToFreeze` (pa
 
 Escala de referência (temperaturas base do vanilla): planície 0,8 → frio 0; taiga 0,25 → 0,25; planície nevada 0 → 0,5; taiga nevada −0,5 → 1,0. Couro completo dá 0,8 de proteção, **pele** completa 1,4 (cobre o frio máximo de dia), um teto 0,25 e estar em cima de uma fogueira 0,8. Molhado (na água ou na chuva) derruba 0,3 da temperatura sentida.
 
-**Roupa de pele:** a **pele** (`pelt`) cai do mamute (2–4), do Smilodon (1–2) e do lobo-terrível (1); com ela se fazem capuz, casaco, calças e botas nos formatos da armadura do vanilla. Defesa de couro, durabilidade 1,6× a do couro. O isolamento de cada peça é o data map `iceagesurvival:insulation` (couro 0,2, pele 0,35), então outro mod ou datapack pode dar isolamento às roupas dele.
+**Roupa de pele:** a **pele** (`pelt`) cai do mamute (2–4), do Smilodon (1–2) e do lobo-terrível (1); com ela se fazem capuz, casaco, calças e botas nos formatos da armadura do vanilla. Defesa de couro, durabilidade 1,6× a do couro. O isolamento é calculado pelo código: 0,2 por peça de couro vanilla e 0,35 por peça de pele do mod.
 
 **Tremer gasta comida:** no frio, cada tick soma `frio líquido × coldShiverExhaustion` de cansaço (padrão: um ponto de fome a cada 40 s no frio máximo).
 
@@ -521,9 +516,9 @@ Escala de referência (temperaturas base do vanilla): planície 0,8 → frio 0; 
 
 Dentro de powder snow o mod sai da frente: o congelamento ali é do vanilla, e disputar o mesmo contador não faria sentido. Criativo e espectador não acumulam frio, e morrer zera a exposição.
 
-**Dados:** `#iceagesurvival:heat_sources` (fogueiras, fogo, lava, magma, tochas, lanternas) e o data map `iceagesurvival:insulation`. Todo o balanceamento está na config de servidor (`coldEnabled`, `coldNightDrop`, `coldHeatRadius`, …).
+**Dados:** `#iceagesurvival:heat_sources` (fogueiras, fogo, lava, magma, tochas, lanternas); isolamento do couro e das peças de pele fica em `EnvironmentColdSource`. Todo o balanceamento está na config de servidor (`coldEnabled`, `coldNightDrop`, `coldHeatRadius`, …).
 
-**Persistência:** a exposição é um attachment do NeoForge no jogador — as criaturas do mod guardam estado no próprio NBT (D8), mas o jogador não é nossa entidade. Não acompanha a morte: renascer aquece.
+**Persistência:** a exposição é uma capability do Forge anexada ao jogador — as criaturas do mod guardam estado no próprio NBT (D8), mas o jogador não é nossa entidade. Não acompanha a morte: renascer aquece.
 
 **Isolamento (D5):** a medida de frio vem de uma interface, `ColdSource`. Trocar o sistema interno por Cold Sweat é escrever outra implementação e apontar `ColdExposure` para ela; `coldEnabled = false` desliga o nosso sem desinstalar nada.
 
@@ -591,7 +586,7 @@ Pontos de atenção: validação de dono em todo payload, montaria (autoridade d
 ### Testes
 
 - **JUnit** (`./gradlew test`, roda no `build`): lógica pura de `core/`.
-- **GameTest** (`./gradlew runGameTestServer`): comportamento em servidor real — carregamento da espécie, sorteio e aplicação de atributos, persistência de atributos e dono, tags e attachments.
+- **GameTest** (`./gradlew runGameTestServer`): comportamento em servidor real — carregamento da espécie, sorteio e aplicação de atributos, persistência de atributos e dono, tags e capabilities.
 - **Manual:** `runClient` e sessão multiplayer de verdade (dois clientes) — não automatizados.
 
 **Comandos de teste (`/ias`, permissão 2).** Existem para não refazer a cadeia torpor → alimentar → domesticar a cada recompilação. Sem seletor agem na criatura sob a mira (ou na mais próxima); com `<criaturas>` agem no seletor inteiro.
@@ -611,7 +606,7 @@ Pontos de atenção: validação de dono em todo payload, montaria (autoridade d
 
 Nenhuma mecânica vive nos comandos: cada subcomando só chama o sistema correspondente. Em jogo, é por `/ias spawns` e `/ias repopulate` que se investiga fauna que não aparece.
 
-O mundo do GameTest é plano e de bioma temperado, então o frio não chega a subir lá: a curva de temperatura é coberta por JUnit e o que o gametest confere é a tubulação (tags carregadas, attachment anexado e salvo, criativo imune).
+O mundo do GameTest é plano e de bioma temperado, então o frio não chega a subir lá: a curva de temperatura é coberta por JUnit e o que o gametest confere é a tubulação (tags carregadas, capability anexada e salva, criativo imune).
 
 ## 22. Performance
 
@@ -619,7 +614,7 @@ O mundo do GameTest é plano e de bioma temperado, então o frio não chega a su
 - Manada com líder e raio limitado, não N×N.
 - IA reduzida longe de jogadores.
 - Estado de domesticação seguro a descarregamento de chunk (baseado em game time, não em contadores por tick).
-- O frio roda a cada tick por jogador, mas só com aritmética: a leitura do mundo (que varre blocos procurando fonte de calor) acontece uma vez por segundo e fica em cache no attachment.
+- O frio roda a cada tick por jogador, mas só com aritmética: a leitura do mundo (que varre blocos procurando fonte de calor) acontece uma vez por segundo e fica em cache na capability.
 - A reposição de fauna é uma varredura de entidades por jogador a cada 45 s, e uma só para todas as espécies (as contagens saem da mesma lista). A procura por posição não carrega chunk: coluna em chunk descarregado é descartada.
 
 ## 23. Roadmap
@@ -631,9 +626,9 @@ O mundo do GameTest é plano e de bioma temperado, então o frio não chega a su
 | 2 | Core: níveis, atributos, ownership, persistência, registry de espécies | ✅ 2026-09-30 |
 | 3 | Domesticação com criatura de teste | ✅ 2026-09-30 (falta conferir no cliente) |
 | 4 | Smilodon | ✅ 2026-09-30, conferido em jogo pelo Felipe |
-| 5 | Mais criaturas, spawning | ✅ 2026-09-30 em testes automáticos (mamute, lobo-terrível, manada, caça, spawn); falta conferir em jogo |
+| 5 | Mais criaturas, spawning | 🟡 Estegossauro, Pteranodonte, migração de herbívoros e bônus de bando do Alossauro implementados; build e GameTests passam, falta conferir comportamento em jogo |
 | 6 | Temperatura | ✅ 2026-09-30 em testes automáticos; falta sentir o frio em jogo e balancear a primeira hora |
-| 7 | Montaria | ✅ 2026-09-30 em testes automáticos (sela, controle, pulo, recusas) + reposição de fauna e comandos `/ias`; falta conferir em jogo |
+| 7 | Montaria | 🟡 armazenamento por espécie, voo montado e integração de More Hitboxes implementados; build e GameTests passam, falta conferir controles e hitboxes em jogo |
 | 8 | Reprodução e genética | ✅ 2026-09-30 em testes automáticos (genética em JUnit; acasalamento, gestação, ovo, incubadora, mesa química e estimulante em gametests); falta conferir em jogo |
 | 9 | Worldgen | ✅ 2026-09-30 em teste automático (os biomas possíveis do preset são todos frios); falta criar um mundo e andar por ele |
 | 10 | Endgame: rastreador, caverna, arena, boss | — |
@@ -644,6 +639,17 @@ MVP = Etapas 1–4 + versão mínima de 6, 7 e 9 (mundo frio, temperatura básic
 
 Ver a tabela em [4](#4-decisões). Registro de mudanças estruturais:
 
+- 2026-10-01 — Nova política de assets: Revival e More Hitboxes são dependências externas; seus
+  arquivos não são copiados ao repositório nem ao jar. O projeto migrou para Forge 1.20.1:
+  Estegossauro com inventário de 27 slots, Brontossauro com 216, Pteranodonte com voo montado,
+  hitboxes multipartes e viagens periódicas de manadas herbívoras. Alossauro iguala a velocidade
+  do Smilodon, supera o T-Rex e recebe bônus de dano/velocidade em bando. Build e GameTests passam;
+  falta conferir voo, montarias, hitboxes e balanceamento em jogo.
+- 2026-10-01 — Corrigidos recursos e testes Forge 1.20.1: fixtures SNBT do GameTest, caminhos e
+  formatos de datapack, persistência do frio, dimensões dos filhotes, combustível via ForgeHooks
+  e isolamento dos mocks de jogador. `./gradlew build` e `./gradlew runGameTestServer` passam.
+- 2026-10-01 — D21 substitui a decisão anterior de incluir assets do Revival no repositório: as
+  espécies resolvem os recursos do mod original em runtime; os 84 arquivos extraídos foram removidos.
 - 2026-10-01 — Direbear: marcha plantígrada original em quatro tempos, com transferência de peso
   do tronco e apoios alternados; rosto ganhou focinho em três volumes e sobrancelhas próprias.
 - 2026-10-01 — Rig original do urso-terrível passou de 10 para 21 ossos: patas com segmentos,
@@ -684,7 +690,7 @@ Ver a tabela em [4](#4-decisões). Registro de mudanças estruturais:
 
 | Risco | Impacto | Mitigação |
 |---|---|---|
-| **Assets de criaturas.** Não há artista no projeto e nenhum asset externo é reutilizável. | Médio — a arte em uso é do F&A Revival, que resolve o visual mas é *All Rights Reserved* e **trava a distribuição do jar** ([D21](#4-decisões)). Os geradores por script seguem como a alternativa nossa, de qualidade de blocagem. | Editar os modelos no Blockbench a partir daqui até serem nossos, ou licenciar. Enquanto isso, não entregar o jar a ninguém. |
+| **Assets de criaturas.** Parte dos modelos usa recursos externos do F&A Revival em runtime. | Médio — jogador precisa instalar a versão Forge compatível do Revival; mudanças internas no mod upstream podem renomear recursos e quebrar a aparência. Os assets do Revival não são empacotados nem distribuídos pelo addon. | Fixar e documentar a versão compatível, testar com Revival instalado e substituir gradualmente por arte original. |
 | Escopo: dez etapas, vários sistemas grandes. | Alto | MVP estreito; não avançar com etapa instável. |
 | Balanceamento de torpor/níveis/genética. | Médio | Tudo em dados e config; testes de lógica pura. |
 | O frio matar o jogador na primeira hora, antes de haver couro ou fogueira. | Médio | Curva e tempos todos em config; medir em jogo e afrouxar `coldSecondsToFreeze` ou a temperatura de conforto. |

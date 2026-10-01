@@ -83,9 +83,9 @@
   },
   "sounds": {
     "attack": "minecraft:entity.ravager.attack",
-    "ambient": "iceagesurvival:entity.spinosaurus.ambient",
-    "hurt": "iceagesurvival:entity.spinosaurus.hurt",
-    "death": "iceagesurvival:entity.spinosaurus.death",
+    "ambient": "fossil:spinosaurus_ambient",
+    "hurt": "fossil:spinosaurus_hurt",
+    "death": "fossil:spinosaurus_death",
     "volume": 3.0
   },
   "breeding": {

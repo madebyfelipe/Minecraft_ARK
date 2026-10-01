@@ -1,33 +1,33 @@
 package dev.madebyfelipe.iceagesurvival.network;
 
-import dev.madebyfelipe.iceagesurvival.IceAgeSurvival;
 import dev.madebyfelipe.iceagesurvival.command.CreatureCommands;
 import dev.madebyfelipe.iceagesurvival.entity.PrehistoricCreature;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
+import java.util.function.Supplier;
 
 /** Cliente → servidor: o dono liga ou desliga o acasalamento de uma criatura (tela de status). */
-public record ToggleMatingPayload(int creatureId) implements CustomPacketPayload {
-    public static final Type<ToggleMatingPayload> TYPE = new Type<>(IceAgeSurvival.id("toggle_mating"));
+public record ToggleMatingPayload(int creatureId) {
 
-    public static final StreamCodec<RegistryFriendlyByteBuf, ToggleMatingPayload> STREAM_CODEC = StreamCodec.composite(
-            ByteBufCodecs.VAR_INT, ToggleMatingPayload::creatureId,
-            ToggleMatingPayload::new);
-
-    @Override
-    public Type<ToggleMatingPayload> type() {
-        return TYPE;
+    public static void encode(ToggleMatingPayload message, FriendlyByteBuf buf) {
+        buf.writeVarInt(message.creatureId);
     }
 
-    public static void handle(ToggleMatingPayload payload, IPayloadContext context) {
-        var player = context.player();
-        if (player.level().getEntity(payload.creatureId()) instanceof PrehistoricCreature creature
-                && creature.isOwner(player) && !creature.isBaby() && creature.breedingProfile().isPresent()
-                && creature.distanceToSqr(player) <= CreatureCommands.COMMAND_RANGE * CreatureCommands.COMMAND_RANGE) {
-            creature.setMatingEnabled(!creature.isMatingEnabled());
-        }
+    public static ToggleMatingPayload decode(FriendlyByteBuf buf) {
+        return new ToggleMatingPayload(buf.readVarInt());
+    }
+
+    public static void handle(ToggleMatingPayload message, Supplier<NetworkEvent.Context> supplier) {
+        NetworkEvent.Context context = supplier.get();
+        context.enqueueWork(() -> {
+            var player = context.getSender();
+            if (player != null
+                    && player.level().getEntity(message.creatureId()) instanceof PrehistoricCreature creature
+                    && creature.isOwner(player) && !creature.isBaby() && creature.breedingProfile().isPresent()
+                    && creature.distanceToSqr(player) <= CreatureCommands.COMMAND_RANGE * CreatureCommands.COMMAND_RANGE) {
+                creature.setMatingEnabled(!creature.isMatingEnabled());
+            }
+        });
+        context.setPacketHandled(true);
     }
 }

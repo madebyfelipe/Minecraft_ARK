@@ -1,6 +1,6 @@
 # Ice Age Survival — instruções para o Claude
 
-Mod NeoForge 1.21.1 de criaturas pré-históricas (domesticação, torpor, frio, montaria). O
+Mod Forge 1.20.1 de criaturas pré-históricas (domesticação, torpor, frio, montaria). O
 projeto e a documentação são em **português**; o roadmap e as decisões técnicas ficam em
 [CLOUD.md](CLOUD.md). Leia o CLOUD.md antes de qualquer etapa.
 
@@ -24,7 +24,7 @@ do principal limpo e acelera etapas com muitos arquivos.
 
 Funções típicas (ajuste ao que a etapa pede):
 
-- **Assets** — `tools/gen_<especie>.py`, geometria, textura, animações, placeholder do Revival.
+- **Assets** — `tools/gen_<especie>.py`, geometria, textura e animações autorais.
 - **Dados** — JSON de espécie, biome modifier, tag de biomas, traduções.
 - **Núcleo/Java** — registros, código novo em `core/` e `entity/`, só quando a receita não basta.
 - **Testes** — JUnit de lógica pura e GameTest; escreve os testes a partir da especificação,
@@ -66,11 +66,11 @@ Regras:
 - Verificar antes de dizer que terminou: `./gradlew build` (JUnit) e
   `./gradlew runGameTestServer` (servidor real). `runClient` e multiplayer são manuais.
 - Testar no jogo: `tools/deploy-prism.sh` copia o jar para a instância `IceAgeSurvival` do
-  Prism (usa cópia, não atalho). Placeholders de modelo: `tools/install-revival-placeholders.py`.
-- **Licença:** a arte do F&A Revival é *All Rights Reserved* e **está no repositório** por
-  decisão do Felipe (2026-09-30), logo também vai no jar. Consequência: o jar não pode ser
-  distribuído a ninguém enquanto isso. Espécies afetadas em `tools/hand_authored.txt`;
-  detalhes e as três saídas em `src/main/resources/assets/iceagesurvival/ASSET_LICENSES.md`.
-  Não regerar essas espécies com `tools/gen_*.py` — o `modelgen` recusa de propósito.
+  Prism (usa cópia, não atalho). A instância de teste precisa ter o Fossils and Archaeology:
+  Revival instalado separadamente; os modelos, texturas, animações e sons dele são carregados
+  em runtime e nunca copiados para este projeto ou para o jar.
+- **Assets/licença:** não extrair nem versionar assets do Revival. O jar do Ice Age Survival não
+  inclui a arte nem o binário do Revival; mantenha a dependência externa documentada em
+  `src/main/resources/assets/iceagesurvival/ASSET_LICENSES.md`.
 - Ao fechar uma etapa ou decisão estrutural: atualizar o roadmap (§23) e o registro de
   mudanças (§24) do CLOUD.md.

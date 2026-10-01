@@ -1,15 +1,16 @@
 package dev.madebyfelipe.iceagesurvival.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import dev.madebyfelipe.iceagesurvival.entity.CreatureAppearance;
 import dev.madebyfelipe.iceagesurvival.entity.LandCreature;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
-import software.bernie.geckolib.animation.AnimationState;
-import software.bernie.geckolib.animation.state.BoneSnapshot;
-import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.constant.DataTickets;
+import software.bernie.geckolib.core.animatable.model.CoreGeoBone;
+import software.bernie.geckolib.core.animation.AnimationState;
+import software.bernie.geckolib.core.state.BoneSnapshot;
 import software.bernie.geckolib.model.data.EntityModelData;
 import software.bernie.geckolib.model.DefaultedEntityGeoModel;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
@@ -45,10 +46,35 @@ public class CreatureRenderer extends GeoEntityRenderer<LandCreature> {
         }
 
         @Override
+        public ResourceLocation getModelResource(LandCreature animatable) {
+            return CreatureAppearance.forEntity(typeId(animatable))
+                    .map(CreatureAppearance::modelResource)
+                    .orElseGet(() -> super.getModelResource(animatable));
+        }
+
+        @Override
+        public ResourceLocation getTextureResource(LandCreature animatable) {
+            return CreatureAppearance.forEntity(typeId(animatable))
+                    .map(CreatureAppearance::textureResource)
+                    .orElseGet(() -> super.getTextureResource(animatable));
+        }
+
+        @Override
+        public ResourceLocation getAnimationResource(LandCreature animatable) {
+            return CreatureAppearance.forEntity(typeId(animatable))
+                    .map(CreatureAppearance::animationResource)
+                    .orElseGet(() -> super.getAnimationResource(animatable));
+        }
+
+        private ResourceLocation typeId(LandCreature animatable) {
+            return net.minecraft.core.registries.BuiltInRegistries.ENTITY_TYPE.getKey(animatable.getType());
+        }
+
+        @Override
         public void setCustomAnimations(LandCreature animatable, long instanceId, AnimationState<LandCreature> state) {
             super.setCustomAnimations(animatable, instanceId, state);
             // A cabeça acompanha o olhar só enquanto a criatura está consciente.
-            GeoBone head = getAnimationProcessor().getBone("head");
+            CoreGeoBone head = getAnimationProcessor().getBone("head");
             if (head == null || animatable.isUnconscious()) {
                 return;
             }

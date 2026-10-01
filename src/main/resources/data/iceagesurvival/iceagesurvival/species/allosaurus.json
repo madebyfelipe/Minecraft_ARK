@@ -5,11 +5,11 @@
       "per_point": 0.08
     },
     "attack": {
-      "base": 20,
+      "base": 24,
       "per_point": 0.04
     },
     "speed": {
-      "base": 0.36
+      "base": 0.4
     },
     "torpor": {
       "base": 320,
@@ -75,6 +75,12 @@
     "herd_radius": 12,
     "group_defense": true
   },
+  "pack_bonus": {
+    "radius": 16,
+    "minimum_allies": 1,
+    "speed_multiplier": 0.25,
+    "attack_multiplier": 0.25
+  },
   "mount": {
     "seat_height": 3.1,
     "min_affinity": 25,
@@ -92,9 +98,9 @@
   },
   "sounds": {
     "attack": "minecraft:entity.ravager.attack",
-    "ambient": "iceagesurvival:entity.allosaurus.ambient",
-    "hurt": "iceagesurvival:entity.allosaurus.hurt",
-    "death": "iceagesurvival:entity.allosaurus.death",
+    "ambient": "fossil:allosaurus_ambient",
+    "hurt": "fossil:allosaurus_hurt",
+    "death": "fossil:allosaurus_death",
     "volume": 2.0
   },
   "breeding": {

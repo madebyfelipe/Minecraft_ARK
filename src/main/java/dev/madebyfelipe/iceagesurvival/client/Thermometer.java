@@ -4,12 +4,12 @@ import dev.madebyfelipe.iceagesurvival.core.temperature.Coldness;
 import dev.madebyfelipe.iceagesurvival.network.ColdStatusPayload;
 import java.util.Locale;
 import javax.annotation.Nullable;
-import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
+import net.minecraftforge.client.gui.overlay.ForgeGui;
 
 /**
  * Termômetro à esquerda da hotbar: a temperatura do corpo em °C (37 aquecido, 30 congelado) e
@@ -44,7 +44,7 @@ public final class Thermometer {
         status = payload;
     }
 
-    public static void render(GuiGraphics graphics, DeltaTracker deltaTracker) {
+    public static void render(ForgeGui gui, GuiGraphics graphics, float partialTick, int screenWidth, int screenHeight) {
         Minecraft minecraft = Minecraft.getInstance();
         if (status == null || minecraft.options.hideGui || minecraft.player == null
                 || minecraft.player.isCreative() || minecraft.player.isSpectator()) {
@@ -55,8 +55,8 @@ public final class Thermometer {
         float fraction = (float) ((shown - Coldness.FROZEN_BODY_TEMPERATURE)
                 / (Coldness.NORMAL_BODY_TEMPERATURE - Coldness.FROZEN_BODY_TEMPERATURE));
 
-        int x = graphics.guiWidth() / 2 - LEFT_OF_HOTBAR;
-        int bottom = graphics.guiHeight() - 4;
+        int x = screenWidth / 2 - LEFT_OF_HOTBAR;
+        int bottom = screenHeight - 4;
         int bulbTop = bottom - BULB;
         int tubeTop = bulbTop - TUBE_HEIGHT;
         int color = lerpColor(fraction, COLD, WARM);

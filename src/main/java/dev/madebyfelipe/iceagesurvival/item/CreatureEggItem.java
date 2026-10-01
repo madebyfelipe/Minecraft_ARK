@@ -8,7 +8,6 @@ import java.util.Optional;
 import java.util.UUID;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -17,7 +16,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.level.Level;
 
 /**
  * Ovo fecundado de uma criatura do mod: carrega a espécie, o genoma do filhote e o dono. Só
@@ -40,12 +39,13 @@ public class CreatureEggItem extends Item {
             tag.putUUID(OWNER, owner);
         }
         ItemStack stack = new ItemStack(ModItems.CREATURE_EGG.get());
-        stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
+        stack.getOrCreateTag().merge(tag);
         return stack;
     }
 
     private static CompoundTag data(ItemStack stack) {
-        return stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
+        CompoundTag tag = stack.getTag();
+        return tag == null ? new CompoundTag() : tag.copy();
     }
 
     public static Optional<EntityType<?>> species(ItemStack stack) {
@@ -71,7 +71,7 @@ public class CreatureEggItem extends Item {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
+    public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
         if (species(stack).isEmpty()) {
             return;
         }

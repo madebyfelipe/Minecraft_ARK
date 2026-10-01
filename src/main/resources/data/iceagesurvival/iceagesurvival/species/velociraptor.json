@@ -80,9 +80,9 @@
   },
   "sounds": {
     "attack": "minecraft:entity.fox.bite",
-    "ambient": "iceagesurvival:entity.velociraptor.ambient",
-    "hurt": "iceagesurvival:entity.velociraptor.hurt",
-    "death": "iceagesurvival:entity.velociraptor.death",
+    "ambient": "fossil:velociraptor_ambient",
+    "hurt": "fossil:velociraptor_hurt",
+    "death": "fossil:velociraptor_death",
     "volume": 1.0
   },
   "breeding": {

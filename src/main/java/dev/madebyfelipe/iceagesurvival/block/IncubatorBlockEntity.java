@@ -9,7 +9,6 @@ import dev.madebyfelipe.iceagesurvival.registry.ModTags;
 import dev.madebyfelipe.iceagesurvival.species.BreedingProfile;
 import dev.madebyfelipe.iceagesurvival.species.Species;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -23,6 +22,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.common.ForgeHooks;
 
 /**
  * Choca o ovo do espaço 0. O ovo só avança aquecido: por uma fonte de calor
@@ -137,7 +137,7 @@ public class IncubatorBlockEntity extends StationBlockEntity {
 
     private void igniteFuel() {
         ItemStack fuel = getItem(FUEL_SLOT);
-        int duration = fuel.getBurnTime(RecipeType.SMELTING);
+        int duration = ForgeHooks.getBurnTime(fuel, RecipeType.SMELTING);
         if (duration <= 0) {
             return;
         }
@@ -169,7 +169,8 @@ public class IncubatorBlockEntity extends StationBlockEntity {
 
     @Override
     public boolean canPlaceItem(int slot, ItemStack stack) {
-        return slot == EGG_SLOT ? stack.is(ModItems.CREATURE_EGG.get()) : stack.getBurnTime(RecipeType.SMELTING) > 0;
+        return slot == EGG_SLOT ? stack.is(ModItems.CREATURE_EGG.get())
+                : ForgeHooks.getBurnTime(stack, RecipeType.SMELTING) > 0;
     }
 
     @Override
@@ -183,16 +184,16 @@ public class IncubatorBlockEntity extends StationBlockEntity {
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.saveAdditional(tag, registries);
+    protected void saveAdditional(CompoundTag tag) {
+        super.saveAdditional(tag);
         tag.putInt("Progress", progress);
         tag.putInt("BurnTime", burnTime);
         tag.putInt("BurnDuration", burnDuration);
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
+    public void load(CompoundTag tag) {
+        super.load(tag);
         progress = tag.getInt("Progress");
         burnTime = tag.getInt("BurnTime");
         burnDuration = tag.getInt("BurnDuration");

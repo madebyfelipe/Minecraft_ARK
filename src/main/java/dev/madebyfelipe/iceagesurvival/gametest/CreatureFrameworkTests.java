@@ -14,9 +14,8 @@ import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.GameType;
-import net.neoforged.neoforge.gametest.GameTestHolder;
-import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
+import net.minecraftforge.gametest.GameTestHolder;
+import net.minecraftforge.gametest.PrefixGameTestTemplate;
 
 /** Só são registrados quando o jogo sobe com {@code neoforge.enabledGameTestNamespaces}. */
 @GameTestHolder(IceAgeSurvival.MODID)
@@ -67,7 +66,7 @@ public class CreatureFrameworkTests {
     @GameTest(template = EMPTY)
     public static void statsAndOwnerSurviveSaveAndLoad(GameTestHelper helper) {
         TestCreature original = helper.spawnWithNoFreeWill(ModEntities.TEST_CREATURE.get(), 1, 2, 1);
-        Player owner = helper.makeMockPlayer(GameType.SURVIVAL);
+        Player owner = helper.makeMockSurvivalPlayer();
         original.tame(owner);
         original.setHealth(original.getMaxHealth() / 2);
 
@@ -92,7 +91,7 @@ public class CreatureFrameworkTests {
         helper.assertTrue(smilodon.getRestrictCenter().equals(smilodon.blockPosition()), "território fora do ponto de origem");
         assertClose(helper, "raio de percepção", behavior.aggroRadius(), smilodon.getAttributeValue(Attributes.FOLLOW_RANGE));
 
-        smilodon.tame(helper.makeMockPlayer(GameType.SURVIVAL));
+        smilodon.tame(helper.makeMockSurvivalPlayer());
         helper.assertTrue(!smilodon.hasRestriction(), "domesticado continua preso ao território");
         helper.succeed();
     }

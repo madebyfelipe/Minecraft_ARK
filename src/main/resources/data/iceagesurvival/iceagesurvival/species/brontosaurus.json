@@ -51,8 +51,8 @@
   "behavior": {
     "aggressive": false,
     "aggro_radius": 20,
-    "territory_radius": 64,
     "herd_radius": 18,
+    "migrates": true,
     "group_defense": true
   },
   "mount": {
@@ -62,6 +62,9 @@
     "jump_strength": 0.0,
     "break_hardness": 2.0,
     "break_blocks": "#iceagesurvival:mammoth_harvestable"
+  },
+  "storage": {
+    "slots": 216
   },
   "spawn": {
     "biomes": "#iceagesurvival:spawns_brontosaurus",
@@ -73,9 +76,9 @@
   },
   "sounds": {
     "attack": "minecraft:entity.ravager.step",
-    "ambient": "iceagesurvival:entity.brontosaurus.ambient",
-    "hurt": "iceagesurvival:entity.brontosaurus.hurt",
-    "death": "iceagesurvival:entity.brontosaurus.death",
+    "ambient": "fossil:diplodocus_ambient",
+    "hurt": "fossil:diplodocus_hurt",
+    "death": "fossil:diplodocus_death",
     "volume": 4.0
   },
   "breeding": {

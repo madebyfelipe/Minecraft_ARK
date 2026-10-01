@@ -20,13 +20,12 @@ import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.SpawnPlacements;
 import net.minecraft.world.entity.animal.Pig;
-import net.minecraft.world.level.GameType;
 import net.minecraft.tags.BiomeTags;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.block.Blocks;
-import net.neoforged.neoforge.gametest.GameTestHolder;
-import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
+import net.minecraftforge.gametest.GameTestHolder;
+import net.minecraftforge.gametest.PrefixGameTestTemplate;
 
 @GameTestHolder(IceAgeSurvival.MODID)
 @PrefixGameTestTemplate(false)
@@ -69,7 +68,7 @@ public class EcologyTests {
     public static void groupDefenseDoesNotCrossSpeciesOrReachTamedOnes(GameTestHelper helper) {
         LandCreature mammoth = helper.spawnWithNoFreeWill(ModEntities.MAMMOTH.get(), 1, 2, 1);
         LandCreature tamedMammoth = helper.spawnWithNoFreeWill(ModEntities.MAMMOTH.get(), 1, 2, 1);
-        tamedMammoth.tame(helper.makeMockPlayer(GameType.SURVIVAL));
+        tamedMammoth.tame(helper.makeMockSurvivalPlayer());
         LandCreature wolf = helper.spawnWithNoFreeWill(ModEntities.DIRE_WOLF.get(), 1, 2, 1);
         Pig attacker = helper.spawnWithNoFreeWill(EntityType.PIG, 1, 2, 1);
 
@@ -101,7 +100,7 @@ public class EcologyTests {
         helper.succeed();
     }
 
-    @GameTest(template = EMPTY, skyAccess = true)
+    @GameTest(template = EMPTY)
     public static void spawnRuleAcceptsOpenGround(GameTestHelper helper) {
         BlockPos onFloor = helper.absolutePos(new BlockPos(1, 2, 1));
         helper.assertTrue(SpawnPlacements.checkSpawnRules(ModEntities.MAMMOTH.get(), helper.getLevel(),
@@ -181,16 +180,18 @@ public class EcologyTests {
     /** Num lote próprio: o raio da contagem (128) pegaria as criaturas dos testes vizinhos. */
     @GameTest(template = "arena", batch = "population_cap")
     public static void populationCapCountsEverySpeciesBeyondTheSpawnRing(GameTestHelper helper) {
-        ServerPlayer player = helper.makeMockServerPlayerInLevel();
+        ServerPlayer player = PredatorTests.survivalPlayer(helper);
         player.moveTo(helper.absoluteVec(new net.minecraft.world.phys.Vec3(2.5, 1, 2.5)));
         helper.assertTrue(WildSpawner.densityRadius() > ServerConfig.WILD_SPAWN_MAX_DISTANCE.get(),
                 "o raio da contagem precisa passar de onde a reposição faz nascer");
+        int before = WildSpawner.totalWildNearby(helper.getLevel(), player);
         helper.spawnWithNoFreeWill(ModEntities.DIRE_WOLF.get(), 4, 1, 4);
         helper.spawnWithNoFreeWill(ModEntities.MAMMOTH.get(), 12, 1, 12);
         LandCreature tamed = helper.spawnWithNoFreeWill(ModEntities.SMILODON.get(), 8, 1, 8);
         tamed.tame(player);
-        helper.assertTrue(WildSpawner.totalWildNearby(helper.getLevel(), player) == 2,
-                "esperava 2 selvagens (lobo e mamute; a domesticada não conta), contei "
+        helper.assertTrue(WildSpawner.totalWildNearby(helper.getLevel(), player) == before + 2,
+                "esperava contar os 2 selvagens (lobo e mamute; a domesticada não conta), antes "
+                        + before + ", agora "
                         + WildSpawner.totalWildNearby(helper.getLevel(), player));
         helper.succeed();
     }
@@ -212,33 +213,34 @@ public class EcologyTests {
     @GameTest(template = EMPTY)
     public static void repopulationRespectsTheBiomeOfTheSpecies(GameTestHelper helper) {
         // O mundo do gametest é de bioma temperado: nenhuma espécie do mod nasce aqui.
-        ServerPlayer player = helper.makeMockServerPlayerInLevel();
+        ServerPlayer player = PredatorTests.survivalPlayer(helper);
         List<WildSpawner.Report> reports = WildSpawner.survey(helper.getLevel(), player);
         helper.assertTrue(reports.isEmpty(), "reposição ofereceu " + reports.size() + " espécie(s) em bioma temperado");
         helper.assertTrue(WildSpawner.trySpawnAround(helper.getLevel(), player) == 0, "repôs fauna em bioma temperado");
         helper.succeed();
     }
 
-    @GameTest(template = EMPTY, skyAccess = true)
+    @GameTest(template = EMPTY)
     public static void repopulationSpawnsOnOpenGround(GameTestHelper helper) {
         // Tag de bioma que contém o bioma do gametest, para exercitar o caminho de posição
         // sem depender de um bioma nevado, que o mundo plano do teste não tem.
         SpawnProfile anywhere = new SpawnProfile(BiomeTags.IS_OVERWORLD, 10, 1, 1, 4, 0);
         BlockPos floor = helper.absolutePos(new BlockPos(1, 2, 1));
-        var type = ModEntities.SMILODON.get();
+        helper.getLevel().setBlockAndUpdate(floor.below(), Blocks.STONE.defaultBlockState());
+        var type = ModEntities.DIRE_WOLF.get();
 
         helper.assertTrue(WildSpawner.canSpawnAt(helper.getLevel(), type, floor, anywhere),
                 "posição de chão firme a céu aberto recusada pela reposição");
         helper.assertTrue(WildSpawner.spawnAt(helper.getLevel(), type, floor), "a reposição não fez nascer nada");
 
         LandCreature spawned = helper.getLevel().getEntitiesOfClass(LandCreature.class,
-                new net.minecraft.world.phys.AABB(floor).inflate(2.0)).getFirst();
+                new net.minecraft.world.phys.AABB(floor).inflate(2.0)).get(0);
         helper.assertTrue(spawned.creatureLevel() >= 10, "nasceu sem nível: " + spawned.creatureLevel());
         helper.assertTrue(!spawned.isTame(), "a reposição nasceu domesticada");
         helper.succeed();
     }
 
-    @GameTest(template = EMPTY, skyAccess = true)
+    @GameTest(template = EMPTY)
     public static void repopulationRefusesTheWrongBiome(GameTestHelper helper) {
         SpawnProfile jungleOnly = new SpawnProfile(BiomeTags.IS_JUNGLE, 10, 1, 1, 4, 0);
         BlockPos floor = helper.absolutePos(new BlockPos(1, 2, 1));
@@ -247,7 +249,7 @@ public class EcologyTests {
         helper.succeed();
     }
 
-    @GameTest(template = EMPTY, skyAccess = true)
+    @GameTest(template = EMPTY)
     public static void repopulationFindsTheSurfaceOfTheColumn(GameTestHelper helper) {
         BlockPos floor = helper.absolutePos(new BlockPos(1, 2, 1));
         BlockPos found = WildSpawner.surfacePos(helper.getLevel(), floor.getX(), floor.getZ(),

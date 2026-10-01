@@ -24,10 +24,9 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.GameType;
 import net.minecraft.world.phys.AABB;
-import net.neoforged.neoforge.gametest.GameTestHolder;
-import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
+import net.minecraftforge.gametest.GameTestHolder;
+import net.minecraftforge.gametest.PrefixGameTestTemplate;
 
 /** Etapa 8: acasalamento, gestação, ovo, incubadora, mesa química e o genoma salvo. */
 @GameTestHolder(IceAgeSurvival.MODID)
@@ -48,7 +47,7 @@ public class BreedingTests {
 
     @GameTest(template = ARENA, timeoutTicks = MATING_TICKS + 40)
     public static void mammalPairConceivesALiveBirth(GameTestHelper helper) {
-        Player owner = helper.makeMockPlayer(GameType.SURVIVAL);
+        Player owner = helper.makeMockSurvivalPlayer();
         LandCreature mother = parent(helper, ModEntities.SMILODON.get(), owner, true, 4);
         parent(helper, ModEntities.SMILODON.get(), owner, false, 6);
         helper.runAtTickTime(MATING_TICKS, () -> {
@@ -60,14 +59,14 @@ public class BreedingTests {
 
     @GameTest(template = ARENA, timeoutTicks = MATING_TICKS + 40)
     public static void dinosaurPairLaysAnEgg(GameTestHelper helper) {
-        Player owner = helper.makeMockPlayer(GameType.SURVIVAL);
+        Player owner = helper.makeMockSurvivalPlayer();
         LandCreature mother = parent(helper, ModEntities.VELOCIRAPTOR.get(), owner, true, 4);
         parent(helper, ModEntities.VELOCIRAPTOR.get(), owner, false, 6);
         helper.runAtTickTime(MATING_TICKS, () -> {
             List<ItemEntity> eggs = helper.getLevel().getEntitiesOfClass(ItemEntity.class,
                     mother.getBoundingBox().inflate(4.0), item -> item.getItem().is(ModItems.CREATURE_EGG.get()));
             helper.assertTrue(eggs.size() == 1, "esperava um ovo, achei " + eggs.size());
-            ItemStack egg = eggs.getFirst().getItem();
+            ItemStack egg = eggs.get(0).getItem();
             helper.assertTrue(CreatureEggItem.species(egg).orElse(null) == ModEntities.VELOCIRAPTOR.get(), "ovo sem espécie");
             helper.assertTrue(owner.getUUID().equals(CreatureEggItem.owner(egg)), "ovo sem dono");
             helper.assertFalse(mother.isPregnant(), "dinossauro não fica prenhe");
@@ -77,8 +76,8 @@ public class BreedingTests {
 
     @GameTest(template = ARENA, timeoutTicks = MATING_TICKS + 40)
     public static void sameSexOrStrangersDoNotMate(GameTestHelper helper) {
-        Player owner = helper.makeMockPlayer(GameType.SURVIVAL);
-        Player stranger = helper.makeMockPlayer(GameType.SURVIVAL);
+        Player owner = helper.makeMockSurvivalPlayer();
+        Player stranger = helper.makeMockSurvivalPlayer();
         LandCreature female = parent(helper, ModEntities.SMILODON.get(), owner, true, 4);
         parent(helper, ModEntities.SMILODON.get(), owner, true, 6);
         parent(helper, ModEntities.SMILODON.get(), stranger, false, 8);
@@ -90,7 +89,7 @@ public class BreedingTests {
 
     @GameTest(template = ARENA)
     public static void offspringIsATamedBabyWithTheGivenGenome(GameTestHelper helper) {
-        Player owner = helper.makeMockPlayer(GameType.SURVIVAL);
+        Player owner = helper.makeMockSurvivalPlayer();
         Genome genome = new Genome(StatPoints.NONE.with(Stat.ATTACK, 6), new int[]{0, 3, 2, 0, 0}, true);
         PrehistoricCreature baby = PrehistoricCreature.spawnOffspring(helper.getLevel(), ModEntities.SMILODON.get(),
                 genome, owner.getUUID(), helper.absoluteVec(new net.minecraft.world.phys.Vec3(4.5, 1, 4.5)));
@@ -136,7 +135,7 @@ public class BreedingTests {
         BlockPos pos = new BlockPos(4, 1, 4);
         helper.setBlock(pos, ModBlocks.INCUBATOR.get());
         IncubatorBlockEntity incubator = (IncubatorBlockEntity) helper.getBlockEntity(pos);
-        Player owner = helper.makeMockPlayer(GameType.SURVIVAL);
+        Player owner = helper.makeMockSurvivalPlayer();
         Genome genome = Genome.wild(StatPoints.NONE.with(Stat.ARMOR, 3), false);
         incubator.setItem(IncubatorBlockEntity.EGG_SLOT, CreatureEggItem.create(ModEntities.VELOCIRAPTOR.get(), genome, owner.getUUID()));
         incubator.setItem(IncubatorBlockEntity.FUEL_SLOT, new ItemStack(Items.COAL, 8));
@@ -145,11 +144,15 @@ public class BreedingTests {
         for (int tick = 0; tick <= incubation + 1 && !incubator.getItem(IncubatorBlockEntity.EGG_SLOT).isEmpty(); tick++) {
             incubator.serverTick();
         }
-        helper.assertTrue(incubator.getItem(IncubatorBlockEntity.EGG_SLOT).isEmpty(), "o ovo não chocou");
+        helper.assertTrue(incubator.getItem(IncubatorBlockEntity.EGG_SLOT).isEmpty(),
+                "o ovo não chocou; heated=" + incubator.isHeated() + ", combustível="
+                        + incubator.getItem(IncubatorBlockEntity.FUEL_SLOT).getCount()
+                        + ", tempo de queima=" + incubator.getItem(IncubatorBlockEntity.FUEL_SLOT)
+                                .getBurnTime(net.minecraft.world.item.crafting.RecipeType.SMELTING));
         List<LandCreature> babies = helper.getLevel().getEntitiesOfClass(LandCreature.class,
                 new AABB(helper.absolutePos(pos)).inflate(2.0), LandCreature::isBaby);
         helper.assertTrue(babies.size() == 1, "esperava um filhote, achei " + babies.size());
-        helper.assertTrue(babies.getFirst().genome().equals(genome) && owner.getUUID().equals(babies.getFirst().getOwnerUUID()),
+        helper.assertTrue(babies.get(0).genome().equals(genome) && owner.getUUID().equals(babies.get(0).getOwnerUUID()),
                 "filhote sem o genoma ou o dono do ovo");
         helper.assertTrue(incubator.getItem(IncubatorBlockEntity.FUEL_SLOT).getCount() < 8, "não gastou combustível");
         helper.succeed();
@@ -191,7 +194,7 @@ public class BreedingTests {
         LandCreature smilodon = helper.spawnWithNoFreeWill(ModEntities.SMILODON.get(), 4, 1, 4);
         smilodon.setTorpor(smilodon.maxTorpor() * 0.5);
         double before = smilodon.torpor();
-        Player player = helper.makeMockPlayer(GameType.SURVIVAL);
+        Player player = helper.makeMockSurvivalPlayer();
         player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(ModItems.STIMULANT.get()));
         smilodon.mobInteract(player, InteractionHand.MAIN_HAND);
         helper.assertTrue(smilodon.torpor() < before, "torpor não caiu: " + smilodon.torpor());

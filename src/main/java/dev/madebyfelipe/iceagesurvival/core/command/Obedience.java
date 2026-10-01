@@ -11,8 +11,8 @@ public final class Obedience {
      * Chance de obedecer a um comando, de {@code minimum} (afinidade zero) a 1 (afinidade máxima).
      */
     public static double chance(double affinity, double maxAffinity, double minimum) {
-        double floor = Math.clamp(minimum, 0.0, 1.0);
-        double fraction = maxAffinity <= 0 ? 1.0 : Math.clamp(affinity / maxAffinity, 0.0, 1.0);
+        double floor = Math.max(0.0, Math.min(1.0, minimum));
+        double fraction = maxAffinity <= 0 ? 1.0 : Math.max(0.0, Math.min(1.0, affinity / maxAffinity));
         return floor + (1.0 - floor) * fraction;
     }
 

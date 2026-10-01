@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "VVV",
+    "PCP",
+    "P P"
+  ],
+  "key": {
+    "V": {
+      "item": "minecraft:glass_bottle"
+    },
+    "C": {
+      "item": "minecraft:cauldron"
+    },
+    "P": {
+      "tag": "minecraft:planks"
+    }
+  },
+  "result": {
+    "count": 1,
+    "item": "iceagesurvival:chemistry_bench"
+  }
+}

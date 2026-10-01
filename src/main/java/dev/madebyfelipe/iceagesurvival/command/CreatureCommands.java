@@ -51,8 +51,8 @@ public final class CreatureCommands {
             message = Component.translatable("iceagesurvival.whistle.none", command);
         } else if (hearing.size() == 1) {
             message = obeyed == 1
-                    ? Component.translatable("iceagesurvival.whistle.one", hearing.getFirst().getName(), command)
-                    : Component.translatable("iceagesurvival.command.ignored", hearing.getFirst().getName());
+                    ? Component.translatable("iceagesurvival.whistle.one", hearing.get(0).getName(), command)
+                    : Component.translatable("iceagesurvival.command.ignored", hearing.get(0).getName());
         } else {
             message = Component.translatable("iceagesurvival.whistle.many", command, obeyed, hearing.size());
         }

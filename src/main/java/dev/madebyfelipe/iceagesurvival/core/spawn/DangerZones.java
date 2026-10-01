@@ -30,9 +30,9 @@ public final class DangerZones {
      * Arredondado para baixo a um múltiplo de {@code step}, nunca menor que {@code step}.
      */
     public static int levelCap(int maxLevel, int step, double distanceFromSpawn, int fullDangerDistance) {
-        double progress = fullDangerDistance <= 0 ? 1.0 : Math.clamp(distanceFromSpawn / fullDangerDistance, 0.0, 1.0);
+        double progress = fullDangerDistance <= 0 ? 1.0 : Math.max(0.0, Math.min(1.0, distanceFromSpawn / fullDangerDistance));
         double fraction = LEVEL_FRACTION_AT_SPAWN + (1.0 - LEVEL_FRACTION_AT_SPAWN) * progress;
         int cap = (int) (maxLevel * fraction) / step * step;
-        return Math.clamp(cap, step, maxLevel / step * step);
+        return Math.max(step, Math.min(maxLevel / step * step, cap));
     }
 }

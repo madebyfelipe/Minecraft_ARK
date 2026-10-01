@@ -22,8 +22,8 @@ import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.SpawnPlacements;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.AABB;
-import net.neoforged.neoforge.event.EventHooks;
-import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.minecraftforge.event.ForgeEventFactory;
+import net.minecraftforge.event.TickEvent;
 
 /**
  * Reposição de fauna selvagem em chunks já gerados.
@@ -50,8 +50,8 @@ public final class WildSpawner {
     public record Report(EntityType<?> type, SpawnProfile profile, int nearby) {
     }
 
-    public static void onServerTick(ServerTickEvent.Post event) {
-        if (!ServerConfig.WILD_SPAWN_ENABLED.get()) {
+    public static void onServerTick(TickEvent.ServerTickEvent event) {
+        if (event.phase != TickEvent.Phase.END || !ServerConfig.WILD_SPAWN_ENABLED.get()) {
             return;
         }
         int interval = ServerConfig.WILD_SPAWN_INTERVAL_SECONDS.get() * 20;
@@ -187,7 +187,7 @@ public final class WildSpawner {
         }
         Heightmap.Types heightmap = SpawnPlacements.getHeightmapType(type);
         BlockPos top = new BlockPos(x, level.getHeight(heightmap, x, z), z);
-        return SpawnPlacements.getPlacementType(type).adjustSpawnPosition(level, top);
+        return top;
     }
 
     @Nullable
@@ -207,14 +207,14 @@ public final class WildSpawner {
     /** As mesmas checagens do spawn natural do vanilla, mais o bioma da espécie. */
     public static boolean canSpawnAt(ServerLevel level, EntityType<?> type, BlockPos pos, SpawnProfile profile) {
         return level.getBiome(pos).is(profile.biomes())
-                && SpawnPlacements.isSpawnPositionOk(type, level, pos)
                 && SpawnPlacements.checkSpawnRules(type, level, MobSpawnType.NATURAL, pos, level.random)
-                && level.noCollision(type.getSpawnAABB(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5));
+                && level.noCollision(type.getDimensions().makeBoundingBox(
+                        pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5));
     }
 
     /**
      * Faz nascer um indivíduo selvagem nesta posição, pelo mesmo caminho do spawn natural
-     * (inclusive os eventos do NeoForge, para outros mods poderem barrar).
+     * (inclusive os eventos do Forge, para outros mods poderem barrar).
      *
      * @return se nasceu
      */
@@ -223,11 +223,12 @@ public final class WildSpawner {
             return false;
         }
         mob.moveTo(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, level.random.nextFloat() * 360.0F, 0.0F);
-        if (!EventHooks.checkSpawnPosition(mob, level, MobSpawnType.NATURAL)) {
+        if (!ForgeEventFactory.checkSpawnPosition(mob, level, MobSpawnType.NATURAL)) {
             mob.discard();
             return false;
         }
-        EventHooks.finalizeMobSpawn(mob, level, level.getCurrentDifficultyAt(pos), MobSpawnType.NATURAL, null);
+        ForgeEventFactory.onFinalizeSpawn(
+                mob, level, level.getCurrentDifficultyAt(pos), MobSpawnType.NATURAL, null, null);
         return level.addFreshEntity(mob);
     }
 }

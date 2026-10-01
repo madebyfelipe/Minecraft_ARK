@@ -1,0 +1,6 @@
+{
+  "type": "forge:add_features",
+  "biomes": "#iceagesurvival:has_black_fruit_tree",
+  "features": "iceagesurvival:black_fruit_tree",
+  "step": "vegetal_decoration"
+}

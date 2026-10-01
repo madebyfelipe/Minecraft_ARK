@@ -45,7 +45,7 @@ public final class Coldness {
 
     /** Proteção contra o frio, na mesma escala de {@link #chill}. */
     public static double warmth(ColdReading reading, ColdTuning tuning) {
-        double warmth = Math.clamp(reading.heatProximity(), 0.0, 1.0) * tuning.heatWarmth()
+        double warmth = Math.max(0.0, Math.min(1.0, reading.heatProximity())) * tuning.heatWarmth()
                 + Math.max(0.0, reading.insulation());
         return reading.sheltered() ? warmth + tuning.shelterWarmth() : warmth;
     }
@@ -55,7 +55,7 @@ public final class Coldness {
      * o aquece, na mesma velocidade.
      */
     public static double severity(ColdReading reading, ColdTuning tuning) {
-        return Math.clamp(chill(reading, tuning) - warmth(reading, tuning), -1.0, 1.0);
+        return Math.max(-1.0, Math.min(1.0, chill(reading, tuning) - warmth(reading, tuning)));
     }
 
     /** Quanto a exposição (0 a 1) muda num tick, para que o frio máximo leve {@code secondsToFreeze}. */
@@ -69,12 +69,13 @@ public final class Coldness {
      * ao fim, e o dano do frio é nosso.
      */
     public static int frozenTicks(double exposure, int ticksRequiredToFreeze) {
-        return (int) (Math.clamp(exposure, 0.0, 1.0) * (ticksRequiredToFreeze - 1));
+        return (int) (Math.max(0.0, Math.min(1.0, exposure)) * (ticksRequiredToFreeze - 1));
     }
 
     /** Temperatura do corpo, em °C, para o termômetro: 37 aquecido, 30 congelado. */
     public static double bodyTemperature(double exposure) {
-        return NORMAL_BODY_TEMPERATURE - Math.clamp(exposure, 0.0, 1.0) * (NORMAL_BODY_TEMPERATURE - FROZEN_BODY_TEMPERATURE);
+        return NORMAL_BODY_TEMPERATURE - Math.max(0.0, Math.min(1.0, exposure))
+                * (NORMAL_BODY_TEMPERATURE - FROZEN_BODY_TEMPERATURE);
     }
 
     /** Para onde a temperatura do corpo está indo. */

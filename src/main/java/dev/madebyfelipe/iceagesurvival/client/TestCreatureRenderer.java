@@ -18,8 +18,8 @@ public class TestCreatureRenderer extends MobRenderer<TestCreature, PigModel<Tes
     }
 
     @Override
-    protected void setupRotations(TestCreature entity, PoseStack poseStack, float bob, float yBodyRot, float partialTick, float scale) {
-        super.setupRotations(entity, poseStack, bob, yBodyRot, partialTick, scale);
+    protected void setupRotations(TestCreature entity, PoseStack poseStack, float bob, float yBodyRot, float partialTick) {
+        super.setupRotations(entity, poseStack, bob, yBodyRot, partialTick);
         if (entity.isUnconscious()) {
             // Tomba de lado, no chão.
             poseStack.translate(0.0F, 0.5F, 0.0F);

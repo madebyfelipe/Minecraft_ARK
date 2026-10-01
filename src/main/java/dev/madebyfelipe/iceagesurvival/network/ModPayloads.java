@@ -1,23 +1,68 @@
 package dev.madebyfelipe.iceagesurvival.network;
 
-import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
-import net.neoforged.neoforge.network.registration.PayloadRegistrar;
+import dev.madebyfelipe.iceagesurvival.IceAgeSurvival;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraftforge.network.NetworkDirection;
+import net.minecraftforge.network.NetworkRegistry;
+import net.minecraftforge.network.PacketDistributor;
+import net.minecraftforge.network.simple.SimpleChannel;
 
 public final class ModPayloads {
-    /** Mudar quando o formato de qualquer payload mudar de forma incompatível. */
-    private static final String PROTOCOL_VERSION = "4";
+    private static final String PROTOCOL_VERSION = "5";
+    private static int nextMessageId;
+
+    public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(
+            ResourceLocation.fromNamespaceAndPath(IceAgeSurvival.MODID, "main"),
+            () -> PROTOCOL_VERSION,
+            PROTOCOL_VERSION::equals,
+            PROTOCOL_VERSION::equals);
+
+    public static void register() {
+        registerServerbound(WhistlePayload.class, WhistlePayload::encode, WhistlePayload::decode,
+                WhistlePayload::handle);
+        registerServerbound(FlightInputPayload.class, FlightInputPayload::encode, FlightInputPayload::decode,
+                FlightInputPayload::handle);
+        registerServerbound(MountAttackPayload.class, MountAttackPayload::encode, MountAttackPayload::decode,
+                MountAttackPayload::handle);
+        registerServerbound(AttackOrderPayload.class, AttackOrderPayload::encode, AttackOrderPayload::decode,
+                AttackOrderPayload::handle);
+        registerServerbound(ToggleMatingPayload.class, ToggleMatingPayload::encode, ToggleMatingPayload::decode,
+                ToggleMatingPayload::handle);
+        registerServerbound(StatusRequestPayload.class, StatusRequestPayload::encode, StatusRequestPayload::decode,
+                StatusRequestPayload::handle);
+        registerClientbound(ColdStatusPayload.class, ColdStatusPayload::encode, ColdStatusPayload::decode,
+                ColdStatusPayload::handle);
+        registerClientbound(CreatureStatusPayload.class, CreatureStatusPayload::encode, CreatureStatusPayload::decode,
+                CreatureStatusPayload::handle);
+    }
 
     private ModPayloads() {
     }
 
-    public static void register(RegisterPayloadHandlersEvent event) {
-        PayloadRegistrar registrar = event.registrar(PROTOCOL_VERSION);
-        registrar.playToServer(WhistlePayload.TYPE, WhistlePayload.STREAM_CODEC, WhistlePayload::handle);
-        registrar.playToServer(MountAttackPayload.TYPE, MountAttackPayload.STREAM_CODEC, MountAttackPayload::handle);
-        registrar.playToServer(AttackOrderPayload.TYPE, AttackOrderPayload.STREAM_CODEC, AttackOrderPayload::handle);
-        registrar.playToServer(ToggleMatingPayload.TYPE, ToggleMatingPayload.STREAM_CODEC, ToggleMatingPayload::handle);
-        registrar.playToServer(StatusRequestPayload.TYPE, StatusRequestPayload.STREAM_CODEC, StatusRequestPayload::handle);
-        registrar.playToClient(ColdStatusPayload.TYPE, ColdStatusPayload.STREAM_CODEC, ColdStatusPayload::handle);
-        registrar.playToClient(CreatureStatusPayload.TYPE, CreatureStatusPayload.STREAM_CODEC, CreatureStatusPayload::handle);
+    private static <T> void registerServerbound(Class<T> type,
+            java.util.function.BiConsumer<T, net.minecraft.network.FriendlyByteBuf> encoder,
+            java.util.function.Function<net.minecraft.network.FriendlyByteBuf, T> decoder,
+            java.util.function.BiConsumer<T, java.util.function.Supplier<net.minecraftforge.network.NetworkEvent.Context>> handler) {
+        CHANNEL.registerMessage(nextMessageId++, type, encoder, decoder, handler,
+                java.util.Optional.of(NetworkDirection.PLAY_TO_SERVER));
+    }
+
+    private static <T> void registerClientbound(Class<T> type,
+            java.util.function.BiConsumer<T, net.minecraft.network.FriendlyByteBuf> encoder,
+            java.util.function.Function<net.minecraft.network.FriendlyByteBuf, T> decoder,
+            java.util.function.BiConsumer<T, java.util.function.Supplier<net.minecraftforge.network.NetworkEvent.Context>> handler) {
+        CHANNEL.registerMessage(nextMessageId++, type, encoder, decoder, handler,
+                java.util.Optional.of(NetworkDirection.PLAY_TO_CLIENT));
+    }
+
+    public static void sendToServer(Object message) {
+        CHANNEL.sendToServer(message);
+    }
+
+    public static void sendToPlayer(ServerPlayer player, Object message) {
+        if (player.connection.connection.channel() != null) {
+            CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), message);
+        }
     }
 }

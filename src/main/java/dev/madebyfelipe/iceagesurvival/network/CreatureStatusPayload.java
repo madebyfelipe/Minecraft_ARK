@@ -1,13 +1,11 @@
 package dev.madebyfelipe.iceagesurvival.network;
 
-import dev.madebyfelipe.iceagesurvival.IceAgeSurvival;
 import dev.madebyfelipe.iceagesurvival.core.stats.Stat;
 import dev.madebyfelipe.iceagesurvival.entity.PrehistoricCreature;
+import java.util.function.Supplier;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
+import net.minecraftforge.network.NetworkEvent;
 
 /**
  * Servidor → cliente: os atributos de uma criatura, para a tela de status. Os pontos de
@@ -24,12 +22,7 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
  */
 public record CreatureStatusPayload(int creatureId, int[] points, double[] values, double[] baseValues,
                                     float health, double torpor, float affinity, String ownerName,
-                                    int mutations, boolean healthGene, float gestation, float maturation)
-        implements CustomPacketPayload {
-    public static final Type<CreatureStatusPayload> TYPE = new Type<>(IceAgeSurvival.id("creature_status"));
-
-    public static final StreamCodec<FriendlyByteBuf, CreatureStatusPayload> STREAM_CODEC =
-            StreamCodec.ofMember(CreatureStatusPayload::write, CreatureStatusPayload::read);
+                                    int mutations, boolean healthGene, float gestation, float maturation) {
 
     /** Quem recebe; o cliente registra aqui como abrir ou atualizar a tela. */
     private static java.util.function.Consumer<CreatureStatusPayload> clientHandler = payload -> { };
@@ -55,7 +48,7 @@ public record CreatureStatusPayload(int creatureId, int[] points, double[] value
                 creature.gestationProgress(), creature.maturationProgress());
     }
 
-    private static CreatureStatusPayload read(FriendlyByteBuf buf) {
+    public static CreatureStatusPayload decode(FriendlyByteBuf buf) {
         int id = buf.readVarInt();
         int count = Stat.values().length;
         int[] points = new int[count];
@@ -71,21 +64,21 @@ public record CreatureStatusPayload(int creatureId, int[] points, double[] value
                 buf.readVarInt(), buf.readBoolean(), buf.readFloat(), buf.readFloat());
     }
 
-    private void write(FriendlyByteBuf buf) {
-        buf.writeVarInt(creatureId);
-        for (int i = 0; i < points.length; i++) {
-            buf.writeVarInt(points[i]);
-            buf.writeDouble(values[i]);
-            buf.writeDouble(baseValues[i]);
+    public static void encode(CreatureStatusPayload message, FriendlyByteBuf buf) {
+        buf.writeVarInt(message.creatureId);
+        for (int i = 0; i < message.points.length; i++) {
+            buf.writeVarInt(message.points[i]);
+            buf.writeDouble(message.values[i]);
+            buf.writeDouble(message.baseValues[i]);
         }
-        buf.writeFloat(health);
-        buf.writeDouble(torpor);
-        buf.writeFloat(affinity);
-        buf.writeUtf(ownerName);
-        buf.writeVarInt(mutations);
-        buf.writeBoolean(healthGene);
-        buf.writeFloat(gestation);
-        buf.writeFloat(maturation);
+        buf.writeFloat(message.health);
+        buf.writeDouble(message.torpor);
+        buf.writeFloat(message.affinity);
+        buf.writeUtf(message.ownerName);
+        buf.writeVarInt(message.mutations);
+        buf.writeBoolean(message.healthGene);
+        buf.writeFloat(message.gestation);
+        buf.writeFloat(message.maturation);
     }
 
     public int points(Stat stat) {
@@ -100,16 +93,13 @@ public record CreatureStatusPayload(int creatureId, int[] points, double[] value
         return baseValues[stat.ordinal()];
     }
 
-    @Override
-    public Type<CreatureStatusPayload> type() {
-        return TYPE;
-    }
-
     public static void setClientHandler(java.util.function.Consumer<CreatureStatusPayload> handler) {
         clientHandler = handler;
     }
 
-    public static void handle(CreatureStatusPayload payload, IPayloadContext context) {
-        clientHandler.accept(payload);
+    public static void handle(CreatureStatusPayload message, Supplier<NetworkEvent.Context> supplier) {
+        NetworkEvent.Context context = supplier.get();
+        context.enqueueWork(() -> clientHandler.accept(message));
+        context.setPacketHandled(true);
     }
 }

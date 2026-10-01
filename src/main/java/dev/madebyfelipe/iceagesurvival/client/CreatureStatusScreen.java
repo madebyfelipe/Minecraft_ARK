@@ -6,6 +6,7 @@ import dev.madebyfelipe.iceagesurvival.core.command.Whistle;
 import dev.madebyfelipe.iceagesurvival.core.stats.Stat;
 import dev.madebyfelipe.iceagesurvival.entity.PrehistoricCreature;
 import dev.madebyfelipe.iceagesurvival.network.CreatureStatusPayload;
+import dev.madebyfelipe.iceagesurvival.network.ModPayloads;
 import dev.madebyfelipe.iceagesurvival.network.StatusRequestPayload;
 import dev.madebyfelipe.iceagesurvival.network.ToggleMatingPayload;
 import dev.madebyfelipe.iceagesurvival.network.WhistlePayload;
@@ -18,7 +19,6 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.network.chat.Component;
-import net.neoforged.neoforge.network.PacketDistributor;
 
 /**
  * Tela de status de uma criatura do jogador: atributos com os pontos de cada um, afinidade,
@@ -59,7 +59,7 @@ public class CreatureStatusScreen extends Screen {
     /** Pede ao servidor o status da criatura; a tela abre quando a resposta chegar. */
     public static void request(PrehistoricCreature creature) {
         pendingId = creature.getId();
-        PacketDistributor.sendToServer(new StatusRequestPayload(creature.getId()));
+        ModPayloads.sendToServer(new StatusRequestPayload(creature.getId()));
     }
 
     /** Chegou um status: atualiza a tela aberta ou abre a que foi pedida. */
@@ -80,7 +80,7 @@ public class CreatureStatusScreen extends Screen {
         top = (height - HEIGHT) / 2;
         buttons.clear();
         mating = addRenderableWidget(Button.builder(matingLabel(),
-                        b -> PacketDistributor.sendToServer(new ToggleMatingPayload(creature.getId())))
+                        b -> ModPayloads.sendToServer(new ToggleMatingPayload(creature.getId())))
                 .bounds(left + 8, top + HEIGHT - 70, WIDTH - 16, 18)
                 .build());
         int y = top + HEIGHT - 48;
@@ -95,7 +95,7 @@ public class CreatureStatusScreen extends Screen {
         int x = left + 8;
         for (Whistle whistle : whistles) {
             Button button = Button.builder(Component.translatable("iceagesurvival.whistle." + whistle.id()),
-                            b -> PacketDistributor.sendToServer(new WhistlePayload(whistle, creature.getId())))
+                            b -> ModPayloads.sendToServer(new WhistlePayload(whistle, creature.getId())))
                     .bounds(x, y, buttonWidth, 18)
                     .build();
             buttons.put(whistle, addRenderableWidget(button));
@@ -127,7 +127,7 @@ public class CreatureStatusScreen extends Screen {
         }
         updateButtons();
         if (++ticks % REFRESH_TICKS == 0) {
-            PacketDistributor.sendToServer(new StatusRequestPayload(creature.getId()));
+            ModPayloads.sendToServer(new StatusRequestPayload(creature.getId()));
         }
     }
 
@@ -147,8 +147,8 @@ public class CreatureStatusScreen extends Screen {
     }
 
     @Override
-    public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        super.renderBackground(graphics, mouseX, mouseY, partialTick);
+    public void renderBackground(GuiGraphics graphics) {
+        super.renderBackground(graphics);
         graphics.fill(left - 1, top - 1, left + WIDTH + 1, top + HEIGHT + 1, BORDER);
         graphics.fill(left, top, left + WIDTH, top + HEIGHT, PANEL);
     }
@@ -175,8 +175,10 @@ public class CreatureStatusScreen extends Screen {
         graphics.fill(x1, y1, x2, y2, 0x30FFFFFF);
         float size = Math.max(creature.getBbHeight(), creature.getBbWidth() * 1.4F);
         int scale = Math.max(4, Math.round((y2 - y1 - 16) / size));
-        InventoryScreen.renderEntityInInventoryFollowsMouse(graphics, x1, y1, x2, y2, scale, 0.0625F,
-                mouseX, mouseY, creature);
+        int centerX = (x1 + x2) / 2;
+        int centerY = (y1 + y2) / 2;
+        InventoryScreen.renderEntityInInventoryFollowsMouse(graphics, centerX, centerY, scale,
+                mouseX - centerX, mouseY - centerY, creature);
     }
 
     private void renderStats(GuiGraphics graphics, int x, int y) {

@@ -4,13 +4,15 @@ import dev.madebyfelipe.iceagesurvival.config.ServerConfig;
 import dev.madebyfelipe.iceagesurvival.core.temperature.ColdReading;
 import dev.madebyfelipe.iceagesurvival.core.temperature.ColdTuning;
 import dev.madebyfelipe.iceagesurvival.core.temperature.Coldness;
-import dev.madebyfelipe.iceagesurvival.registry.ModDataMaps;
+import dev.madebyfelipe.iceagesurvival.registry.ModItems;
 import dev.madebyfelipe.iceagesurvival.registry.ModTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.BlockGetter;
 
 /** Mede o frio a partir do bioma, do céu, da roupa e das fontes de calor por perto. */
@@ -72,15 +74,24 @@ public final class EnvironmentColdSource implements ColdSource {
         return Math.max(0.0, 1.0 - Math.sqrt(nearestSqr) / radius);
     }
 
-    /** Soma do isolamento da roupa vestida, pelo data map {@code iceagesurvival:insulation}. */
+    /** Soma do isolamento do couro vanilla e da roupa de pele do mod. */
     public static double insulation(LivingEntity player) {
         double total = 0.0;
         for (EquipmentSlot slot : ARMOR_SLOTS) {
-            Float value = player.getItemBySlot(slot).getItemHolder().getData(ModDataMaps.INSULATION);
-            if (value != null) {
-                total += value;
-            }
+            total += insulationValue(player.getItemBySlot(slot).getItem());
         }
         return total;
+    }
+
+    private static double insulationValue(Item item) {
+        if (item == Items.LEATHER_HELMET || item == Items.LEATHER_CHESTPLATE
+                || item == Items.LEATHER_LEGGINGS || item == Items.LEATHER_BOOTS) {
+            return 0.2;
+        }
+        if (item == ModItems.FUR_HELMET.get() || item == ModItems.FUR_CHESTPLATE.get()
+                || item == ModItems.FUR_LEGGINGS.get() || item == ModItems.FUR_BOOTS.get()) {
+            return 0.35;
+        }
+        return 0.0;
     }
 }

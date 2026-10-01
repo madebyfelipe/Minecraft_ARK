@@ -35,7 +35,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.event.RegisterCommandsEvent;
+import net.minecraftforge.event.RegisterCommandsEvent;
 
 /**
  * Comandos de teste, em {@code /ias}. Existem para não refazer a cadeia
@@ -135,7 +135,7 @@ public final class DebugCommands {
     /** Domestica, sela, enche a afinidade e monta: o caminho curto para testar montaria. */
     private static int ride(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         ServerPlayer player = context.getSource().getPlayerOrException();
-        PrehistoricCreature creature = aimedOrNearest(context).getFirst();
+        PrehistoricCreature creature = aimedOrNearest(context).get(0);
         if (!creature.isTame()) {
             creature.debugTame(player);
         }
@@ -152,7 +152,7 @@ public final class DebugCommands {
     }
 
     private static int info(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
-        PrehistoricCreature creature = aimedOrNearest(context).getFirst();
+        PrehistoricCreature creature = aimedOrNearest(context).get(0);
         CommandSourceStack source = context.getSource();
         source.sendSuccess(() -> Component.literal(
                 creature.getName().getString() + " · " + EntityType.getKey(creature.getType())), false);

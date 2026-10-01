@@ -17,12 +17,11 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LeavesBlock;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
-import net.neoforged.neoforge.gametest.GameTestHolder;
-import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
+import net.minecraftforge.gametest.GameTestHolder;
+import net.minecraftforge.gametest.PrefixGameTestTemplate;
 
 @GameTestHolder(IceAgeSurvival.MODID)
 @PrefixGameTestTemplate(false)
@@ -52,7 +51,7 @@ public class NarcoticTests {
         creature.addTorpor(creature.maxTorpor());
         creature.setTorpor(1.0);
         float health = creature.getHealth();
-        Player player = helper.makeMockPlayer(GameType.SURVIVAL);
+        Player player = helper.makeMockSurvivalPlayer();
         player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(ModItems.NARCOTIC.get(), 3));
 
         creature.mobInteract(player, InteractionHand.MAIN_HAND);
@@ -67,7 +66,7 @@ public class NarcoticTests {
     @GameTest(template = EMPTY)
     public static void narcoticDoesNothingToAnAwakeCreature(GameTestHelper helper) {
         TestCreature creature = helper.spawnWithNoFreeWill(ModEntities.TEST_CREATURE.get(), 1, 2, 1);
-        Player player = helper.makeMockPlayer(GameType.SURVIVAL);
+        Player player = helper.makeMockSurvivalPlayer();
         player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(ModItems.NARCOTIC.get(), 3));
 
         creature.mobInteract(player, InteractionHand.MAIN_HAND);
@@ -82,7 +81,7 @@ public class NarcoticTests {
         var recipes = helper.getLevel().getRecipeManager();
         helper.assertTrue(recipes.byKey(IceAgeSurvival.id("narcotic")).isPresent(), "receita do narcótico ausente");
         var arrow = recipes.byKey(IceAgeSurvival.id("tranq_arrow")).orElseThrow();
-        boolean usesNarcotic = arrow.value().getIngredients().stream()
+        boolean usesNarcotic = arrow.getIngredients().stream()
                 .anyMatch(ingredient -> ingredient.test(new ItemStack(ModItems.NARCOTIC.get())));
         helper.assertTrue(usesNarcotic, "flecha tranquilizante não usa narcótico");
         helper.succeed();
@@ -95,7 +94,7 @@ public class NarcoticTests {
                 .setValue(BlackFruitLeavesBlock.RIPE, true)
                 .setValue(LeavesBlock.PERSISTENT, true));
 
-        helper.useBlock(pos, helper.makeMockPlayer(GameType.SURVIVAL));
+        helper.useBlock(pos, helper.makeMockSurvivalPlayer());
 
         helper.assertItemEntityPresent(ModItems.BLACK_FRUIT.get(), pos, 2.0);
         helper.assertTrue(!helper.getBlockState(pos).getValue(BlackFruitLeavesBlock.RIPE), "folhas continuam maduras");
@@ -107,12 +106,12 @@ public class NarcoticTests {
         BlockPos pos = new BlockPos(1, 2, 1);
         helper.setBlock(pos, ModBlocks.BLACK_FRUIT_LEAVES.get().defaultBlockState()
                 .setValue(LeavesBlock.PERSISTENT, true));
-        helper.useBlock(pos, helper.makeMockPlayer(GameType.SURVIVAL));
+        helper.useBlock(pos, helper.makeMockSurvivalPlayer());
         helper.assertItemEntityNotPresent(ModItems.BLACK_FRUIT.get(), pos, 2.0);
         helper.succeed();
     }
 
-    @GameTest(template = EMPTY, skyAccess = true)
+    @GameTest(template = EMPTY)
     public static void blackFruitTreeFeatureGrowsATree(GameTestHelper helper) {
         ServerLevel level = helper.getLevel();
         helper.setBlock(1, 1, 1, Blocks.DIRT);

@@ -88,9 +88,9 @@
     "min_distance": 600
   },
   "sounds": {
-    "ambient": "iceagesurvival:entity.smilodon.ambient",
-    "hurt": "iceagesurvival:entity.smilodon.hurt",
-    "death": "iceagesurvival:entity.smilodon.death",
+    "ambient": "fossil:smilodon_ambient",
+    "hurt": "fossil:smilodon_hurt",
+    "death": "fossil:smilodon_death",
     "attack": "minecraft:entity.fox.bite",
     "volume": 1.0
   },

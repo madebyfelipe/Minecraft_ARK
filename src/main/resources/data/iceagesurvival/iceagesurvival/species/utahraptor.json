@@ -90,9 +90,9 @@
   },
   "sounds": {
     "attack": "minecraft:entity.fox.bite",
-    "ambient": "iceagesurvival:entity.utahraptor.ambient",
-    "hurt": "iceagesurvival:entity.utahraptor.hurt",
-    "death": "iceagesurvival:entity.utahraptor.death",
+    "ambient": "fossil:deinonychus_ambient",
+    "hurt": "fossil:deinonychus_hurt",
+    "death": "fossil:deinonychus_death",
     "volume": 1.3
   },
   "breeding": {

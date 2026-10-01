@@ -12,7 +12,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.biome.Climate;
-import net.neoforged.neoforge.registries.DeferredRegister;
+import net.minecraftforge.registries.DeferredRegister;
 
 /**
  * Fonte de biomas que embrulha outra e troca biomas por outros (D6): o world preset
@@ -23,13 +23,13 @@ import net.neoforged.neoforge.registries.DeferredRegister;
  * <pre>{ "type": "iceagesurvival:remapped", "source": {...}, "replacements": { "minecraft:plains": "minecraft:snowy_plains" } }</pre>
  */
 public class RemappedBiomeSource extends BiomeSource {
-    public static final MapCodec<RemappedBiomeSource> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+    public static final Codec<RemappedBiomeSource> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             BiomeSource.CODEC.fieldOf("source").forGetter(source -> source.source),
             Codec.unboundedMap(ResourceKey.codec(Registries.BIOME), Biome.CODEC).fieldOf("replacements")
                     .forGetter(source -> source.replacements)
     ).apply(instance, RemappedBiomeSource::new));
 
-    public static final DeferredRegister<MapCodec<? extends BiomeSource>> BIOME_SOURCES =
+    public static final DeferredRegister<Codec<? extends BiomeSource>> BIOME_SOURCES =
             DeferredRegister.create(Registries.BIOME_SOURCE, IceAgeSurvival.MODID);
 
     static {
@@ -49,7 +49,7 @@ public class RemappedBiomeSource extends BiomeSource {
     }
 
     @Override
-    protected MapCodec<? extends BiomeSource> codec() {
+    protected Codec<? extends BiomeSource> codec() {
         return CODEC;
     }
 

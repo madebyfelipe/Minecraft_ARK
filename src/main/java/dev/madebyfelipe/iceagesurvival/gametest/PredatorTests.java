@@ -13,13 +13,12 @@ import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.network.CommonListenerCookie;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.gametest.GameTestHolder;
-import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
+import net.minecraftforge.gametest.GameTestHolder;
+import net.minecraftforge.gametest.PrefixGameTestTemplate;
 
 /** Predadores selvagens de verdade: com IA, contra um jogador em sobrevivência. */
 @GameTestHolder(IceAgeSurvival.MODID)
@@ -29,9 +28,8 @@ public class PredatorTests {
 
     /** Como {@code makeMockServerPlayerInLevel}, mas em sobrevivência: o do vanilla é criativo e nenhum mob o ataca. */
     static ServerPlayer survivalPlayer(GameTestHelper helper) {
-        CommonListenerCookie cookie = CommonListenerCookie.createInitial(new GameProfile(UUID.randomUUID(), "test-survivor"), false);
-        ServerPlayer player = new ServerPlayer(helper.getLevel().getServer(), helper.getLevel(), cookie.gameProfile(),
-                cookie.clientInformation()) {
+        ServerPlayer player = new ServerPlayer(helper.getLevel().getServer(), helper.getLevel(),
+                new GameProfile(UUID.randomUUID(), "test-survivor")) {
             @Override
             public boolean isSpectator() {
                 return false;
@@ -44,7 +42,7 @@ public class PredatorTests {
         };
         Connection connection = new Connection(PacketFlow.SERVERBOUND);
         new EmbeddedChannel(connection);
-        helper.getLevel().getServer().getPlayerList().placeNewPlayer(connection, player, cookie);
+        helper.getLevel().getServer().getPlayerList().placeNewPlayer(connection, player);
         player.setGameMode(GameType.SURVIVAL);
         return player;
     }
@@ -100,7 +98,7 @@ public class PredatorTests {
     private static final net.minecraft.tags.TagKey<EntityType<?>> WOLF_PREY = net.minecraft.tags.TagKey.create(
             net.minecraft.core.registries.Registries.ENTITY_TYPE, IceAgeSurvival.id("dire_wolf_prey"));
 
-    @GameTest(template = ARENA)
+    @GameTest(template = ARENA, batch = "rex_prey")
     public static void rexOnlyHuntsABrontosaurusOutOfItsHerd(GameTestHelper helper) {
         LandCreature rex = helper.spawnWithNoFreeWill(ModEntities.TYRANNOSAURUS.get(), 2, 0, 2);
         LandCreature bronto = helper.spawnWithNoFreeWill(ModEntities.BRONTOSAURUS.get(), 16, 0, 16);
@@ -127,7 +125,7 @@ public class PredatorTests {
     public static void predatorsLeaveTamedCreaturesAlone(GameTestHelper helper) {
         LandCreature rex = helper.spawnWithNoFreeWill(ModEntities.TYRANNOSAURUS.get(), 2, 0, 2);
         LandCreature mammoth = helper.spawnWithNoFreeWill(ModEntities.MAMMOTH.get(), 14, 0, 14);
-        mammoth.tame(helper.makeMockPlayer(net.minecraft.world.level.GameType.SURVIVAL));
+        mammoth.tame(helper.makeMockPlayer());
         helper.assertFalse(HuntGoal.isPrey(rex, mammoth, REX_PREY), "T-Rex caçando mamute domesticado");
         helper.succeed();
     }
@@ -184,7 +182,7 @@ public class PredatorTests {
     }
 
     /** Jogador de costas: o Smilodon espreita, devagar, e só dá o bote quando chega perto. */
-    @GameTest(template = ARENA, timeoutTicks = 400)
+    @GameTest(template = ARENA, timeoutTicks = 400, batch = "smilodon_stalk")
     public static void smilodonStalksAPlayerWhoIsNotLooking(GameTestHelper helper) {
         LandCreature smilodon = helper.spawn(ModEntities.SMILODON.get(), 6, 0, 2);
         Player player = survivalPlayer(helper);

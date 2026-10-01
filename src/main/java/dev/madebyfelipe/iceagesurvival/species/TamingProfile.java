@@ -51,6 +51,6 @@ public record TamingProfile(
     ).apply(instance, TamingProfile::new));
 
     public Optional<Food> foodFor(ItemStack stack) {
-        return foods.stream().filter(food -> stack.is(food.items())).findFirst();
+        return foods.stream().filter(food -> stack.is(food.items()::contains)).findFirst();
     }
 }

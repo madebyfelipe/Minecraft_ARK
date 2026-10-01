@@ -2,12 +2,12 @@ package dev.madebyfelipe.iceagesurvival.client;
 
 import dev.madebyfelipe.iceagesurvival.entity.PrehistoricCreature;
 import java.util.Locale;
-import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraftforge.client.gui.overlay.ForgeGui;
 
 /**
  * Painel no topo central da tela sobre a criatura sob a mira: nome, nível, vida, torpor e andamento da domesticação da criatura
@@ -35,7 +35,7 @@ public final class CreatureHud {
     private CreatureHud() {
     }
 
-    public static void render(GuiGraphics graphics, DeltaTracker deltaTracker) {
+    public static void render(ForgeGui gui, GuiGraphics graphics, float partialTick, int screenWidth, int screenHeight) {
         Minecraft minecraft = Minecraft.getInstance();
         if (minecraft.options.hideGui || minecraft.screen != null || minecraft.player == null
                 || !(CommandInput.aimedEntity() instanceof PrehistoricCreature creature)) {
@@ -57,7 +57,7 @@ public final class CreatureHud {
             height += GAP + font.lineHeight;
         }
 
-        int left = (graphics.guiWidth() - WIDTH) / 2;
+        int left = (screenWidth - WIDTH) / 2;
         int top = TOP_MARGIN;
         int border = own ? BORDER_OWN : creature.isTame() ? BORDER_OTHER : BORDER_WILD;
         graphics.fill(left - 1, top - 1, left + WIDTH + 1, top + height + 1, border);
@@ -128,7 +128,7 @@ public final class CreatureHud {
     /** Barra com fundo escuro; {@code fraction} entre 0 e 1. */
     static void drawBar(GuiGraphics graphics, int x, int y, int width, int height, float fraction, int color) {
         graphics.fill(x, y, x + width, y + height, 0xFF26292E);
-        int filled = Math.round(width * Math.clamp(fraction, 0.0F, 1.0F));
+        int filled = Math.round(width * Math.max(0.0F, Math.min(1.0F, fraction)));
         if (filled > 0) {
             graphics.fill(x, y, x + filled, y + height, color);
         }

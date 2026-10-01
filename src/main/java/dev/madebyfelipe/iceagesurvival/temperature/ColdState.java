@@ -7,7 +7,8 @@ import com.mojang.serialization.Codec;
  * Só existe no servidor; o cliente vê o resultado pelo congelamento do vanilla.
  */
 public final class ColdState {
-    public static final Codec<ColdState> CODEC = Codec.DOUBLE.xmap(ColdState::new, ColdState::exposure);
+    public static final Codec<ColdState> CODEC = Codec.DOUBLE.fieldOf("exposure").codec()
+            .xmap(ColdState::new, ColdState::exposure);
 
     /** De 0 (aquecido) a 1 (congelado). */
     private double exposure;
@@ -18,7 +19,7 @@ public final class ColdState {
     }
 
     private ColdState(double exposure) {
-        this.exposure = Math.clamp(exposure, 0.0, 1.0);
+        this.exposure = Math.max(0.0, Math.min(1.0, exposure));
     }
 
     public double exposure() {
@@ -26,7 +27,7 @@ public final class ColdState {
     }
 
     public void setExposure(double value) {
-        exposure = Math.clamp(value, 0.0, 1.0);
+        exposure = Math.max(0.0, Math.min(1.0, value));
     }
 
     public boolean isFrozen() {

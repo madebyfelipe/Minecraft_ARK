@@ -52,6 +52,7 @@
     "aggressive": false,
     "aggro_radius": 16,
     "herd_radius": 14,
+    "migrates": true,
     "group_defense": true
   },
   "mount": {
@@ -71,9 +72,9 @@
     "min_distance": 0
   },
   "sounds": {
-    "ambient": "iceagesurvival:entity.mammoth.ambient",
-    "hurt": "iceagesurvival:entity.mammoth.hurt",
-    "death": "iceagesurvival:entity.mammoth.death",
+    "ambient": "fossil:mammoth_ambient",
+    "hurt": "fossil:mammoth_hurt",
+    "death": "fossil:mammoth_death",
     "attack": "minecraft:entity.hoglin.attack",
     "volume": 1.5
   },

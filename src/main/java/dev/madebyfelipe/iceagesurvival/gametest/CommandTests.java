@@ -18,9 +18,8 @@ import net.minecraft.world.entity.animal.Pig;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.GameType;
-import net.neoforged.neoforge.gametest.GameTestHolder;
-import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
+import net.minecraftforge.gametest.GameTestHolder;
+import net.minecraftforge.gametest.PrefixGameTestTemplate;
 
 @GameTestHolder(IceAgeSurvival.MODID)
 @PrefixGameTestTemplate(false)
@@ -29,7 +28,7 @@ public class CommandTests {
 
     /** Jogador posicionado na área de teste, para as checagens de distância valerem. */
     private static Player playerAt(GameTestHelper helper, LandCreature near) {
-        Player player = helper.makeMockPlayer(GameType.SURVIVAL);
+        Player player = helper.makeMockSurvivalPlayer();
         player.setPos(near.position());
         return player;
     }

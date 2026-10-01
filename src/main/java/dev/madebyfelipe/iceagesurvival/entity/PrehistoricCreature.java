@@ -26,7 +26,9 @@ import dev.madebyfelipe.iceagesurvival.species.MountProfile;
 import dev.madebyfelipe.iceagesurvival.species.SoundProfile;
 import dev.madebyfelipe.iceagesurvival.species.SpawnProfile;
 import dev.madebyfelipe.iceagesurvival.species.Species;
+import dev.madebyfelipe.iceagesurvival.species.StorageProfile;
 import dev.madebyfelipe.iceagesurvival.species.TamingProfile;
+import dev.madebyfelipe.iceagesurvival.menu.CreatureStorageMenu;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
@@ -63,26 +65,26 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.PlayerRideableJumping;
+import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.ChestMenu;
-import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.LeavesBlock;
 import net.minecraft.world.level.levelgen.Heightmap;
-import net.minecraft.world.level.pathfinder.PathType;
+import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.common.CommonHooks;
-import net.neoforged.neoforge.event.EventHooks;
+import net.minecraftforge.common.ForgeHooks;
+import net.minecraftforge.event.ForgeEventFactory;
+import net.minecraftforge.network.NetworkHooks;
 
 /**
  * Base de toda criatura do mod. Guarda os pontos de atributo do indivíduo e os
@@ -111,6 +113,8 @@ public abstract class PrehistoricCreature extends TamableAnimal implements Playe
     private static final EntityDataAccessor<Boolean> DATA_MATING =
             SynchedEntityData.defineId(PrehistoricCreature.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> DATA_SADDLED =
+            SynchedEntityData.defineId(PrehistoricCreature.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Boolean> DATA_FLYING =
             SynchedEntityData.defineId(PrehistoricCreature.class, EntityDataSerializers.BOOLEAN);
 
     private static final String TAG_STAT_POINTS = "StatPoints";
@@ -209,16 +213,20 @@ public abstract class PrehistoricCreature extends TamableAnimal implements Playe
     private float playerJumpPendingScale;
     /** Se o impulso do pulo já foi aplicado e a criatura ainda não voltou ao chão. */
     private boolean ridingJump;
-    private final SimpleContainer inventory = new SimpleContainer(INVENTORY_SIZE) {
-        @Override
-        public boolean stillValid(Player player) {
-            return canAccessInventory(player)
-                    && player.distanceToSqr(PrehistoricCreature.this) <= INVENTORY_REACH * INVENTORY_REACH;
-        }
-    };
+    private boolean flightAscend;
+    private int flightInputExpiresAt;
+    private final SimpleContainer inventory;
 
     protected PrehistoricCreature(EntityType<? extends PrehistoricCreature> type, Level level) {
         super(type, level);
+        int slots = species().flatMap(Species::storage).map(StorageProfile::slots).orElse(INVENTORY_SIZE);
+        inventory = new SimpleContainer(slots) {
+            @Override
+            public boolean stillValid(Player player) {
+                return canAccessInventory(player)
+                        && player.distanceToSqr(PrehistoricCreature.this) <= INVENTORY_REACH * INVENTORY_REACH;
+            }
+        };
     }
 
     /**
@@ -251,17 +259,18 @@ public abstract class PrehistoricCreature extends TamableAnimal implements Playe
     }
 
     @Override
-    protected void defineSynchedData(SynchedEntityData.Builder builder) {
-        super.defineSynchedData(builder);
-        builder.define(DATA_LEVEL, 1);
-        builder.define(DATA_TORPOR_FRACTION, 0.0F);
-        builder.define(DATA_UNCONSCIOUS, false);
-        builder.define(DATA_TAMING_PROGRESS, 0.0F);
-        builder.define(DATA_MOVEMENT, (byte) DEFAULT_MOVEMENT.ordinal());
-        builder.define(DATA_STANCE, (byte) DEFAULT_STANCE.ordinal());
-        builder.define(DATA_SADDLED, false);
-        builder.define(DATA_FEMALE, false);
-        builder.define(DATA_MATING, false);
+    protected void defineSynchedData() {
+        super.defineSynchedData();
+        entityData.define(DATA_LEVEL, 1);
+        entityData.define(DATA_TORPOR_FRACTION, 0.0F);
+        entityData.define(DATA_UNCONSCIOUS, false);
+        entityData.define(DATA_TAMING_PROGRESS, 0.0F);
+        entityData.define(DATA_MOVEMENT, (byte) DEFAULT_MOVEMENT.ordinal());
+        entityData.define(DATA_STANCE, (byte) DEFAULT_STANCE.ordinal());
+        entityData.define(DATA_SADDLED, false);
+        entityData.define(DATA_FEMALE, false);
+        entityData.define(DATA_MATING, false);
+        entityData.define(DATA_FLYING, false);
     }
 
     public Optional<Species> species() {
@@ -279,6 +288,23 @@ public abstract class PrehistoricCreature extends TamableAnimal implements Playe
     /** Montaria da espécie; vazio se a espécie não pode ser montada. */
     public Optional<MountProfile> mountProfile() {
         return species().flatMap(Species::mount);
+    }
+
+    public boolean isFlightMount() {
+        return mountProfile().map(MountProfile::flying).orElse(false);
+    }
+
+    public boolean isFlying() {
+        return entityData.get(DATA_FLYING);
+    }
+
+    public void setFlightInput(boolean ascend) {
+        flightAscend = ascend;
+        flightInputExpiresAt = tickCount + 8;
+        if (ascend && isFlightMount() && isSaddled() && isVehicle() && !isUnconscious()) {
+            entityData.set(DATA_FLYING, true);
+            setNoGravity(true);
+        }
     }
 
     // ---- Sons ----
@@ -326,6 +352,7 @@ public abstract class PrehistoricCreature extends TamableAnimal implements Playe
 
     @Override
     public boolean doHurtTarget(Entity target) {
+        setStalking(false);
         if (!attackSwung) {
             swingAttack();
         }
@@ -383,8 +410,8 @@ public abstract class PrehistoricCreature extends TamableAnimal implements Playe
     }
 
     @Override
-    public void onAddedToLevel() {
-        super.onAddedToLevel();
+    public void onAddedToWorld() {
+        super.onAddedToWorld();
         if (level().isClientSide) {
             return;
         }
@@ -410,8 +437,8 @@ public abstract class PrehistoricCreature extends TamableAnimal implements Playe
     }
 
     @Override
-    protected void applyTamingSideEffects() {
-        super.applyTamingSideEffects();
+    public void setTame(boolean tame) {
+        super.setTame(tame);
         if (!level().isClientSide) {
             applyBehavior();
         }
@@ -455,16 +482,16 @@ public abstract class PrehistoricCreature extends TamableAnimal implements Playe
 
         BodyProfile body = species.body().orElse(BodyProfile.DEFAULT);
         setBase(Attributes.KNOCKBACK_RESISTANCE, body.knockbackResistance());
-        setBase(Attributes.STEP_HEIGHT, body.stepHeight());
+        setMaxUpStep((float) body.stepHeight());
         breaksLeaves = body.breaksLeaves();
         plowHardness = body.plowHardness();
         if (breaksLeaves || plowHardness > 0.0F) {
             // Sem isto o pathfinder contorna copas que a criatura consegue atravessar.
-            setPathfindingMalus(PathType.LEAVES, 0.0F);
+            setPathfindingMalus(BlockPathTypes.LEAVES, 0.0F);
         }
     }
 
-    private void setBase(Holder<Attribute> attribute, double value) {
+    private void setBase(Attribute attribute, double value) {
         AttributeInstance instance = getAttribute(attribute);
         if (instance != null) {
             instance.setBaseValue(value);
@@ -511,7 +538,7 @@ public abstract class PrehistoricCreature extends TamableAnimal implements Playe
     /** Define o torpor diretamente, derrubando ou acordando a criatura conforme o caso. */
     public void setTorpor(double value) {
         double max = maxTorpor();
-        torpor = Math.clamp(value, 0.0, max);
+        torpor = Mth.clamp(value, 0.0, max);
         entityData.set(DATA_TORPOR_FRACTION, max > 0 ? (float) (torpor / max) : 0.0F);
         if (!isUnconscious() && max > 0 && torpor >= max) {
             knockOut();
@@ -555,6 +582,22 @@ public abstract class PrehistoricCreature extends TamableAnimal implements Playe
 
     @Override
     public void tick() {
+        if (isFlightMount()) {
+            if (tickCount > flightInputExpiresAt) {
+                flightAscend = false;
+            }
+            boolean flying = entityData.get(DATA_FLYING);
+            if (!isVehicle() || isUnconscious() || flying && onGround() && !flightAscend) {
+                entityData.set(DATA_FLYING, false);
+                flying = false;
+            } else if (flightAscend && isSaddled() && isVehicle()) {
+                entityData.set(DATA_FLYING, true);
+                flying = true;
+            }
+            setNoGravity(flying);
+        } else {
+            setNoGravity(false);
+        }
         super.tick();
         if (level().isClientSide || tickCount % TORPOR_UPDATE_INTERVAL_TICKS != 0) {
             return;
@@ -606,7 +649,7 @@ public abstract class PrehistoricCreature extends TamableAnimal implements Playe
             return -1.0F;
         }
         int total = breedingProfile().map(BreedingProfile::incubationSeconds).orElse(1) * 20;
-        return Math.clamp(1.0F - (gestationEnd - level().getGameTime()) / (float) total, 0.0F, 1.0F);
+        return Mth.clamp(1.0F - (gestationEnd - level().getGameTime()) / (float) total, 0.0F, 1.0F);
     }
 
     /** Fração do crescimento cumprida, de 0 a 1 (1 = adulto). Só no servidor. */
@@ -615,7 +658,7 @@ public abstract class PrehistoricCreature extends TamableAnimal implements Playe
             return 1.0F;
         }
         int total = breedingProfile().map(BreedingProfile::maturationSeconds).orElse(1) * 20;
-        return Math.clamp(1.0F + getAge() / (float) total, 0.0F, 1.0F);
+        return Mth.clamp(1.0F + getAge() / (float) total, 0.0F, 1.0F);
     }
 
     public Optional<BreedingProfile> breedingProfile() {
@@ -711,8 +754,9 @@ public abstract class PrehistoricCreature extends TamableAnimal implements Playe
         baby.setHealth(baby.getMaxHealth());
         int maturation = baby.breedingProfile().map(BreedingProfile::maturationSeconds).orElse(1200);
         baby.setAge(-maturation * 20);
+        baby.refreshDimensions();
         if (owner != null) {
-            baby.setTame(true, true);
+            baby.setTame(true);
             baby.setOwnerUUID(owner);
             baby.affinity = MAX_INITIAL_AFFINITY;
         }
@@ -723,16 +767,20 @@ public abstract class PrehistoricCreature extends TamableAnimal implements Playe
         return baby;
     }
 
-    @Override
     public float getAgeScale() {
         return isBaby() ? BABY_SCALE : 1.0F;
+    }
+
+    @Override
+    public EntityDimensions getDimensions(Pose pose) {
+        return super.getDimensions(pose).scale(getAgeScale());
     }
 
     @Override
     public void aiStep() {
         super.aiStep();
         if (level().isClientSide || !horizontalCollision || isUnconscious()
-                || !EventHooks.canEntityGrief(level(), this)) {
+                || !ForgeEventFactory.getMobGriefingEvent(level(), this)) {
             return;
         }
         if (plowHardness > 0.0F) {
@@ -771,7 +819,8 @@ public abstract class PrehistoricCreature extends TamableAnimal implements Playe
                 continue;
             }
             float hardness = state.getDestroySpeed(level(), pos);
-            if (hardness >= 0.0F && hardness <= plowHardness && CommonHooks.canEntityDestroy(level(), pos, this)) {
+            if (hardness >= 0.0F && hardness <= plowHardness
+                    && ForgeEventFactory.onEntityDestroyBlock(this, pos, state)) {
                 level().destroyBlock(pos, true, this);
             }
         }
@@ -871,10 +920,21 @@ public abstract class PrehistoricCreature extends TamableAnimal implements Playe
         if (!isTame() && tamerUUID == null) {
             tamerUUID = player.getUUID();
         }
-        player.openMenu(new SimpleMenuProvider(
-                (containerId, playerInventory, opener) ->
-                        new ChestMenu(MenuType.GENERIC_9x1, containerId, playerInventory, inventory, 1),
-                getDisplayName()));
+        int rows = Mth.clamp((inventory.getContainerSize() + 8) / 9, 1, 6);
+        int pages = Math.max(1, (inventory.getContainerSize() + 53) / 54);
+        if (!(player instanceof ServerPlayer serverPlayer)) {
+            return;
+        }
+        NetworkHooks.openScreen(serverPlayer, new SimpleMenuProvider(
+                        (containerId, playerInventory, opener) ->
+                                new CreatureStorageMenu(containerId, playerInventory, this),
+                        getDisplayName()),
+                buffer -> {
+                    buffer.writeVarInt(getId());
+                    buffer.writeVarInt(inventory.getContainerSize());
+                    buffer.writeVarInt(rows);
+                    buffer.writeVarInt(pages);
+                });
     }
 
     @Override
@@ -928,7 +988,7 @@ public abstract class PrehistoricCreature extends TamableAnimal implements Playe
     }
 
     public void setAffinity(float value) {
-        affinity = Math.clamp(value, 0.0F, MAX_AFFINITY);
+        affinity = Mth.clamp(value, 0.0F, MAX_AFFINITY);
     }
 
     /**
@@ -1059,7 +1119,7 @@ public abstract class PrehistoricCreature extends TamableAnimal implements Playe
      */
     private void breakBlocksInBite(ServerPlayer rider) {
         MountProfile mount = mountProfile().orElse(null);
-        if (mount == null || mount.breakHardness() <= 0.0F || !EventHooks.canEntityGrief(level(), this)) {
+        if (mount == null || mount.breakHardness() <= 0.0F || !ForgeEventFactory.getMobGriefingEvent(level(), this)) {
             return;
         }
         float maxHardness = mount.breakHardness();
@@ -1083,7 +1143,8 @@ public abstract class PrehistoricCreature extends TamableAnimal implements Playe
             if (state.isAir() || hardness < 0.0F || hardness > maxHardness || state.hasBlockEntity()
                     || mount.breakBlocks().isPresent() && !state.is(mount.breakBlocks().get())
                     || !level().mayInteract(rider, pos)
-                    || CommonHooks.fireBlockBreak(level(), rider.gameMode.getGameModeForPlayer(), rider, pos, state).isCanceled()) {
+                    || rider.connection.connection.channel() != null
+                            && ForgeHooks.onBlockBreakEvent(level(), rider.gameMode.getGameModeForPlayer(), rider, pos) < 0) {
                 continue;
             }
             level().destroyBlock(pos, true, this);
@@ -1106,12 +1167,19 @@ public abstract class PrehistoricCreature extends TamableAnimal implements Playe
         if (forward <= 0.0F) {
             forward *= RIDDEN_BACKWARD_FACTOR;
         }
-        return new Vec3(strafe, 0.0, forward);
+        double vertical = 0.0;
+        if (isFlightMount() && isFlying()) {
+            vertical = flightAscend ? 1.0 : -Mth.sin(player.getXRot() * Mth.DEG_TO_RAD);
+        }
+        return new Vec3(strafe, vertical, forward);
     }
 
     @Override
     protected float getRiddenSpeed(Player player) {
         double multiplier = mountProfile().map(MountProfile::speedMultiplier).orElse(1.0);
+        if (isFlightMount() && isFlying() && player.isSprinting()) {
+            multiplier *= 1.35;
+        }
         return (float) (getAttributeValue(Attributes.MOVEMENT_SPEED) * multiplier);
     }
 
@@ -1143,7 +1211,7 @@ public abstract class PrehistoricCreature extends TamableAnimal implements Playe
         setDeltaMovement(movement.x, strength, movement.z);
         ridingJump = true;
         hasImpulse = true;
-        CommonHooks.onLivingJump(this);
+        ForgeHooks.onLivingJump(this);
         if (travelVector.z > 0.0) {
             // Pulo para frente ganha um empurrão na direção em que a criatura olha.
             float sin = Mth.sin(getYRot() * (float) (Math.PI / 180.0));
@@ -1154,6 +1222,9 @@ public abstract class PrehistoricCreature extends TamableAnimal implements Playe
 
     @Override
     public void onPlayerJump(int jumpPower) {
+        if (isFlightMount()) {
+            return;
+        }
         if (!canJump()) {
             return;
         }
@@ -1162,12 +1233,15 @@ public abstract class PrehistoricCreature extends TamableAnimal implements Playe
 
     @Override
     public boolean canJump() {
-        return isSaddled() && mountProfile().map(mount -> mount.jumpStrength() > 0).orElse(false);
+        return isSaddled() && (isFlightMount()
+                || mountProfile().map(mount -> mount.jumpStrength() > 0).orElse(false));
     }
 
     @Override
     public void handleStartJump(int jumpPower) {
-        playSound(SoundEvents.HORSE_JUMP, 0.4F, 1.0F);
+        if (!isFlightMount()) {
+            playSound(SoundEvents.HORSE_JUMP, 0.4F, 1.0F);
+        }
     }
 
     @Override
@@ -1176,11 +1250,8 @@ public abstract class PrehistoricCreature extends TamableAnimal implements Playe
 
     /** Onde quem monta se senta. Fica nos dados da espécie, junto do resto do corpo. */
     @Override
-    protected Vec3 getPassengerAttachmentPoint(Entity entity, EntityDimensions dimensions, float partialTick) {
-        double height = mountProfile().map(mount -> mount.seatHeight(dimensions.height()))
-                .orElseGet(() -> (double) dimensions.height());
-        double forward = mountProfile().map(MountProfile::seatForward).orElse(0.0);
-        return new Vec3(0.0, height, forward).yRot(-yBodyRot * Mth.DEG_TO_RAD);
+    public double getPassengersRidingOffset() {
+        return mountProfile().map(mount -> mount.seatHeight(getBbHeight())).orElse((double) getBbHeight());
     }
 
     @Override
@@ -1217,7 +1288,7 @@ public abstract class PrehistoricCreature extends TamableAnimal implements Playe
     @Override
     public InteractionResult mobInteract(Player player, InteractionHand hand) {
         ItemStack held = player.getItemInHand(hand);
-        if (held.is(ModItems.STIMULANT) && torpor > 0) {
+        if (held.is(ModItems.STIMULANT.get()) && torpor > 0) {
             if (!level().isClientSide) {
                 usePlayerItem(player, hand, held);
                 setTorpor(torpor - ServerConfig.STIMULANT_TORPOR.get());
@@ -1227,7 +1298,7 @@ public abstract class PrehistoricCreature extends TamableAnimal implements Playe
         }
         if (isUnconscious() && !isTame()) {
             ItemStack stack = player.getItemInHand(hand);
-            if (stack.is(ModItems.NARCOTIC)) {
+            if (stack.is(ModItems.NARCOTIC.get())) {
                 if (!level().isClientSide) {
                     usePlayerItem(player, hand, stack);
                     addTorpor(ServerConfig.NARCOTIC_TORPOR.get(), player);
@@ -1376,7 +1447,7 @@ public abstract class PrehistoricCreature extends TamableAnimal implements Playe
             tame(player);
         } else {
             // O dono pode ter saído do servidor enquanto a criatura comia.
-            setTame(true, true);
+            setTame(true);
             setOwnerUUID(owner);
         }
         setTorpor(0);
@@ -1409,7 +1480,7 @@ public abstract class PrehistoricCreature extends TamableAnimal implements Playe
         if (homePos != null) {
             compound.put(TAG_HOME, NbtUtils.writeBlockPos(homePos));
         }
-        compound.put(TAG_INVENTORY, inventory.createTag(registryAccess()));
+        compound.put(TAG_INVENTORY, inventory.createTag());
         if (tamerUUID != null) {
             compound.putUUID(TAG_TAMER, tamerUUID);
         }
@@ -1470,9 +1541,11 @@ public abstract class PrehistoricCreature extends TamableAnimal implements Playe
         tamingSession = new TamingSession(
                 taming.getDouble(TAG_TAMING_FOOD), taming.getDouble(TAG_TAMING_QUALITY), taming.getDouble(TAG_TAMING_DAMAGE));
         nextFeedTime = compound.getLong(TAG_NEXT_FEED_TIME);
-        affinity = Math.clamp(compound.getFloat(TAG_AFFINITY), 0.0F, MAX_AFFINITY);
-        homePos = NbtUtils.readBlockPos(compound, TAG_HOME).orElse(null);
-        inventory.fromTag(compound.getList(TAG_INVENTORY, Tag.TAG_COMPOUND), registryAccess());
+        affinity = Mth.clamp(compound.getFloat(TAG_AFFINITY), 0.0F, MAX_AFFINITY);
+        homePos = compound.contains(TAG_HOME, Tag.TAG_COMPOUND)
+                ? NbtUtils.readBlockPos(compound.getCompound(TAG_HOME))
+                : null;
+        inventory.fromTag(compound.getList(TAG_INVENTORY, Tag.TAG_COMPOUND));
         tamerUUID = compound.hasUUID(TAG_TAMER) ? compound.getUUID(TAG_TAMER) : null;
         entityData.set(DATA_SADDLED, compound.getBoolean(TAG_SADDLED));
         Movement movement = Movement.byId(compound.getString(TAG_MOVEMENT), DEFAULT_MOVEMENT);
@@ -1492,7 +1565,7 @@ public abstract class PrehistoricCreature extends TamableAnimal implements Playe
         entityData.set(DATA_STANCE, (byte) stance.ordinal());
 
         double max = maxTorpor();
-        torpor = Math.clamp(compound.getDouble(TAG_TORPOR), 0.0, max);
+        torpor = Mth.clamp(compound.getDouble(TAG_TORPOR), 0.0, max);
         entityData.set(DATA_TORPOR_FRACTION, max > 0 ? (float) (torpor / max) : 0.0F);
         entityData.set(DATA_UNCONSCIOUS, compound.getBoolean(TAG_UNCONSCIOUS) && torpor > 0);
         entityData.set(DATA_TAMING_PROGRESS, species.flatMap(Species::taming)

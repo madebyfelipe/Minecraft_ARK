@@ -22,8 +22,9 @@ import net.minecraft.world.level.block.Block;
  *                         coletor de madeira sem que ele cave pedra
  */
 public record MountProfile(double seatHeight, double seatForward, float minAffinity, double speedMultiplier, double jumpStrength,
-                           float breakHardness, Optional<TagKey<Block>> breakBlocks) {
-    public static final MountProfile DEFAULT = new MountProfile(0.0, 0.0, 25.0F, 1.0, 0.5, 0.0F, Optional.empty());
+                           float breakHardness, Optional<TagKey<Block>> breakBlocks, boolean flying) {
+    public static final MountProfile DEFAULT =
+            new MountProfile(0.0, 0.0, 25.0F, 1.0, 0.5, 0.0F, Optional.empty(), false);
 
     public static final Codec<MountProfile> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.doubleRange(0, 16).optionalFieldOf("seat_height", DEFAULT.seatHeight())
@@ -39,7 +40,8 @@ public record MountProfile(double seatHeight, double seatForward, float minAffin
             Codec.floatRange(0, 50).optionalFieldOf("break_hardness", DEFAULT.breakHardness())
                     .forGetter(MountProfile::breakHardness),
             TagKey.hashedCodec(Registries.BLOCK).optionalFieldOf("break_blocks")
-                    .forGetter(MountProfile::breakBlocks)
+                    .forGetter(MountProfile::breakBlocks),
+            Codec.BOOL.optionalFieldOf("flying", DEFAULT.flying()).forGetter(MountProfile::flying)
     ).apply(instance, MountProfile::new));
 
     /** Altura do assento para uma criatura com esta caixa de colisão. */

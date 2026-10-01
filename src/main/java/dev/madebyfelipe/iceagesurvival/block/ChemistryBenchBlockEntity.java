@@ -4,7 +4,6 @@ import dev.madebyfelipe.iceagesurvival.menu.ChemistryBenchMenu;
 import dev.madebyfelipe.iceagesurvival.registry.ModBlockEntities;
 import java.util.Optional;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
@@ -64,7 +63,7 @@ public class ChemistryBenchBlockEntity extends StationBlockEntity {
     private boolean fitsOutput(ChemistryRecipe recipe) {
         ItemStack output = getItem(OUTPUT);
         ItemStack result = recipe.output();
-        return output.isEmpty() || ItemStack.isSameItemSameComponents(output, result)
+        return output.isEmpty() || ItemStack.isSameItemSameTags(output, result)
                 && output.getCount() + result.getCount() <= output.getMaxStackSize();
     }
 
@@ -97,14 +96,14 @@ public class ChemistryBenchBlockEntity extends StationBlockEntity {
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.saveAdditional(tag, registries);
+    protected void saveAdditional(CompoundTag tag) {
+        super.saveAdditional(tag);
         tag.putInt("Progress", progress);
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
+    public void load(CompoundTag tag) {
+        super.load(tag);
         progress = tag.getInt("Progress");
     }
 }

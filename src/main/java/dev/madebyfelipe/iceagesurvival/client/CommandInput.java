@@ -4,7 +4,9 @@ import dev.madebyfelipe.iceagesurvival.command.CreatureCommands;
 import dev.madebyfelipe.iceagesurvival.core.command.Whistle;
 import dev.madebyfelipe.iceagesurvival.entity.PrehistoricCreature;
 import dev.madebyfelipe.iceagesurvival.network.AttackOrderPayload;
+import dev.madebyfelipe.iceagesurvival.network.FlightInputPayload;
 import dev.madebyfelipe.iceagesurvival.network.MountAttackPayload;
+import dev.madebyfelipe.iceagesurvival.network.ModPayloads;
 import dev.madebyfelipe.iceagesurvival.network.WhistlePayload;
 import java.util.EnumMap;
 import java.util.Map;
@@ -19,10 +21,9 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.client.event.ClientTickEvent;
-import net.neoforged.neoforge.client.event.InputEvent;
-import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.minecraftforge.client.event.InputEvent;
+import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
+import net.minecraftforge.event.TickEvent;
 import org.lwjgl.glfw.GLFW;
 
 /**
@@ -43,6 +44,7 @@ public final class CommandInput {
             new KeyMapping("key.iceagesurvival.order_attack", GLFW.GLFW_KEY_G, CATEGORY);
     private static final KeyMapping STATUS =
             new KeyMapping("key.iceagesurvival.status", GLFW.GLFW_KEY_V, CATEGORY);
+    private static int flightPacketCooldown;
 
     /** Entidade viva sob a mira neste tick, até {@link CreatureCommands#TARGET_RANGE}. */
     @Nullable
@@ -74,18 +76,33 @@ public final class CommandInput {
         return aimed != null && aimed.isAlive() ? aimed : null;
     }
 
-    public static void onClientTick(ClientTickEvent.Post event) {
+    public static void onClientTick(TickEvent.ClientTickEvent event) {
+        if (event.phase != TickEvent.Phase.END) {
+            return;
+        }
         Minecraft minecraft = Minecraft.getInstance();
         aimed = minecraft.player == null || minecraft.level == null ? null : findAimedEntity(minecraft);
 
         if (minecraft.player == null) {
             return;
         }
+        if (minecraft.player.getVehicle() instanceof PrehistoricCreature mount
+                && mount.getControllingPassenger() == minecraft.player
+                && mount.isFlightMount()) {
+            boolean ascend = minecraft.options.keyJump.isDown();
+            mount.setFlightInput(ascend);
+            if (--flightPacketCooldown <= 0) {
+                flightPacketCooldown = 4;
+                ModPayloads.sendToServer(new FlightInputPayload(mount.getId(), ascend));
+            }
+        } else {
+            flightPacketCooldown = 0;
+        }
         for (Map.Entry<Whistle, KeyMapping> entry : WHISTLES.entrySet()) {
             while (entry.getValue().consumeClick()) {
                 int aimedId = aimed instanceof PrehistoricCreature creature && creature.isOwner(minecraft.player)
                         ? creature.getId() : WhistlePayload.NO_TARGET;
-                PacketDistributor.sendToServer(new WhistlePayload(entry.getKey(), aimedId));
+                ModPayloads.sendToServer(new WhistlePayload(entry.getKey(), aimedId));
             }
         }
         while (STATUS.consumeClick()) {
@@ -98,7 +115,7 @@ public final class CommandInput {
         }
         while (ORDER_ATTACK.consumeClick()) {
             if (aimed != null) {
-                PacketDistributor.sendToServer(new AttackOrderPayload(aimed.getId()));
+                ModPayloads.sendToServer(new AttackOrderPayload(aimed.getId()));
             }
         }
     }
@@ -117,7 +134,7 @@ public final class CommandInput {
         }
         event.setCanceled(true);
         event.setSwingHand(false);
-        PacketDistributor.sendToServer(new MountAttackPayload(
+        ModPayloads.sendToServer(new MountAttackPayload(
                 aimed != null && aimed != mount ? aimed.getId() : MountAttackPayload.NO_TARGET));
     }
 

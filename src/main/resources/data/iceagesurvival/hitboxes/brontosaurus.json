@@ -1,0 +1,10 @@
+{
+  "elements": [
+    { "name": "body", "pos": [0, 0, 0], "width": 27, "height": 30, "ref": "body_hitbox" },
+    { "name": "neck", "pos": [0, 15, 19], "width": 14, "height": 12, "ref": "head1_hitbox" },
+    { "name": "upper_neck", "pos": [0, 26, 34], "width": 12, "height": 12, "ref": "head2_hitbox" },
+    { "name": "head", "pos": [0, 40, 47], "width": 12, "height": 11, "ref": "head3_hitbox" },
+    { "name": "tail_base", "pos": [0, 16, -21], "width": 15, "height": 12, "ref": "tail1_hitbox" },
+    { "name": "tail_tip", "pos": [0, 18, -38], "width": 10, "height": 8, "ref": "tail2_hitbox" }
+  ]
+}

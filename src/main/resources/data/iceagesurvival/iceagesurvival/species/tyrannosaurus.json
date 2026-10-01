@@ -89,10 +89,10 @@
     "min_distance": 2000
   },
   "sounds": {
-    "ambient": "iceagesurvival:entity.tyrannosaurus.ambient",
-    "hurt": "iceagesurvival:entity.tyrannosaurus.hurt",
-    "death": "iceagesurvival:entity.tyrannosaurus.death",
-    "alert": "iceagesurvival:entity.tyrannosaurus.alert",
+    "ambient": "fossil:tyrannosaurus_ambient",
+    "hurt": "fossil:tyrannosaurus_hurt",
+    "death": "fossil:tyrannosaurus_death",
+    "alert": "fossil:tyrannosaurus_roar",
     "attack": "minecraft:entity.ravager.attack",
     "volume": 3.0
   },

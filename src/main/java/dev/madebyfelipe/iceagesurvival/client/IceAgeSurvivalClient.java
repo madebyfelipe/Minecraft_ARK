@@ -1,44 +1,37 @@
 package dev.madebyfelipe.iceagesurvival.client;
 
-import dev.madebyfelipe.iceagesurvival.IceAgeSurvival;
 import dev.madebyfelipe.iceagesurvival.item.CreatureEggItem;
 import dev.madebyfelipe.iceagesurvival.registry.ModMenus;
-import net.minecraft.util.FastColor;
 import net.minecraft.world.item.SpawnEggItem;
-import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
+import net.minecraft.client.gui.screens.MenuScreens;
 import dev.madebyfelipe.iceagesurvival.network.ColdStatusPayload;
 import dev.madebyfelipe.iceagesurvival.network.CreatureStatusPayload;
-import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 import dev.madebyfelipe.iceagesurvival.registry.ModEntities;
 import dev.madebyfelipe.iceagesurvival.registry.ModItems;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.fml.ModContainer;
-import net.neoforged.fml.common.Mod;
-import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.client.event.EntityRenderersEvent;
-import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
-import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
-import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
-import net.neoforged.neoforge.client.gui.ConfigurationScreen;
-import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
+import net.minecraftforge.client.event.EntityRenderersEvent;
+import net.minecraftforge.client.event.RegisterClientReloadListenersEvent;
+import net.minecraftforge.client.event.RegisterColorHandlersEvent;
+import net.minecraftforge.client.event.RegisterGuiOverlaysEvent;
+import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fml.ModContainer;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 
-@Mod(value = IceAgeSurvival.MODID, dist = Dist.CLIENT)
 public class IceAgeSurvivalClient {
     /** Cor da ponta da flecha tranquilizante, aplicada sobre a textura de flecha com ponta do vanilla. */
     private static final int TRANQ_ARROW_TIP_COLOR = 0xFF7A3FA0;
 
-    public IceAgeSurvivalClient(IEventBus modEventBus, ModContainer container) {
-        container.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
+    public static void init(IEventBus modEventBus, ModContainer container) {
         modEventBus.addListener(IceAgeSurvivalClient::registerRenderers);
         modEventBus.addListener(IceAgeSurvivalClient::registerItemColors);
-        modEventBus.addListener(IceAgeSurvivalClient::registerGuiLayers);
+        modEventBus.addListener(IceAgeSurvivalClient::registerGuiOverlays);
         modEventBus.addListener(IceAgeSurvivalClient::registerScreens);
         modEventBus.addListener(IceAgeSurvivalClient::registerReloadListeners);
         modEventBus.addListener(CommandInput::registerKeys);
-        NeoForge.EVENT_BUS.addListener(CommandInput::onClientTick);
-        NeoForge.EVENT_BUS.addListener(CommandInput::onAttackClick);
-        NeoForge.EVENT_BUS.addListener(FrozenHearts::onHeartType);
+        MinecraftForge.EVENT_BUS.addListener(CommandInput::onClientTick);
+        MinecraftForge.EVENT_BUS.addListener(CommandInput::onAttackClick);
+        MinecraftForge.EVENT_BUS.addListener(FrozenHearts::onGuiOverlay);
         CreatureStatusPayload.setClientHandler(CreatureStatusScreen::receive);
         ColdStatusPayload.setClientHandler(Thermometer::receive);
     }
@@ -52,25 +45,28 @@ public class IceAgeSurvivalClient {
     }
 
     private static void registerItemColors(RegisterColorHandlersEvent.Item event) {
-        event.register((stack, tintIndex) -> tintIndex == 0 ? TRANQ_ARROW_TIP_COLOR : -1, ModItems.TRANQ_ARROW);
+        event.register((stack, tintIndex) -> tintIndex == 0 ? TRANQ_ARROW_TIP_COLOR : -1, ModItems.TRANQ_ARROW.get());
         // O ovo tem as cores do ovo gerador da espécie: casca na camada 0, pintas na 1.
         event.register((stack, tintIndex) -> CreatureEggItem.species(stack)
                 .map(SpawnEggItem::byId)
-                .map(egg -> FastColor.ARGB32.opaque(egg.getColor(tintIndex)))
-                .orElse(-1), ModItems.CREATURE_EGG);
+                .map(egg -> 0xFF000000 | egg.getColor(tintIndex) & 0x00FFFFFF)
+                .orElse(-1), ModItems.CREATURE_EGG.get());
     }
 
-    private static void registerScreens(RegisterMenuScreensEvent event) {
-        event.register(ModMenus.INCUBATOR.get(), IncubatorScreen::new);
-        event.register(ModMenus.CHEMISTRY_BENCH.get(), ChemistryBenchScreen::new);
+    private static void registerScreens(FMLClientSetupEvent event) {
+        event.enqueueWork(() -> {
+            MenuScreens.register(ModMenus.INCUBATOR.get(), IncubatorScreen::new);
+            MenuScreens.register(ModMenus.CHEMISTRY_BENCH.get(), ChemistryBenchScreen::new);
+            MenuScreens.register(ModMenus.CREATURE_STORAGE.get(), CreatureStorageScreen::new);
+        });
     }
 
     private static void registerReloadListeners(RegisterClientReloadListenersEvent event) {
         event.registerReloadListener(CreatureModelSettings.INSTANCE);
     }
 
-    private static void registerGuiLayers(RegisterGuiLayersEvent event) {
-        event.registerAboveAll(IceAgeSurvival.id("creature_hud"), CreatureHud::render);
-        event.registerAbove(VanillaGuiLayers.HOTBAR, IceAgeSurvival.id("thermometer"), Thermometer::render);
+    private static void registerGuiOverlays(RegisterGuiOverlaysEvent event) {
+        event.registerAboveAll("creature_hud", CreatureHud::render);
+        event.registerAbove(VanillaGuiOverlay.HOTBAR.id(), "thermometer", Thermometer::render);
     }
 }

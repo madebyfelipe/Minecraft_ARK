@@ -27,7 +27,7 @@ public final class TamingSession {
             throw new IllegalArgumentException("Valor de alimento inválido: " + value);
         }
         foodValue += value;
-        qualityWeighted += value * Math.clamp(quality, 0.0, 1.0);
+        qualityWeighted += value * Math.max(0.0, Math.min(1.0, quality));
     }
 
     /** @param fractionOfMaxHealth dano sofrido, como fração da vida máxima */

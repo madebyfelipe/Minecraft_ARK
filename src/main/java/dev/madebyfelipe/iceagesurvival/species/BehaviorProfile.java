@@ -19,6 +19,7 @@ import net.minecraft.world.entity.EntityType;
  *                           1 = foge assim que é ferida
  * @param herdRadius         distância máxima que se afasta do líder da manada. 0 = solitária
  * @param groupDefense       quando uma é atacada, as outras da mesma espécie por perto revidam juntas
+ * @param migrates           líder faz viagens longas e o restante da manada o acompanha
  * @param prey               tag de tipos de entidade que ela caça
  * @param huntStyle          {@code chase}: vai direto no alvo; {@code stalk}: espreita e só dá o bote
  *                           quando chega perto ou quando o alvo a vê
@@ -30,6 +31,7 @@ public record BehaviorProfile(
         double fleeHealthFraction,
         int herdRadius,
         boolean groupDefense,
+        boolean migrates,
         Optional<TagKey<EntityType<?>>> prey,
         HuntStyle huntStyle) {
 
@@ -52,7 +54,7 @@ public record BehaviorProfile(
 
     /** Espécie sem bloco de comportamento: passiva, solitária, sem território. */
     public static final BehaviorProfile PASSIVE =
-            new BehaviorProfile(false, 16.0, 0, 0.0, 0, false, Optional.empty(), HuntStyle.CHASE);
+            new BehaviorProfile(false, 16.0, 0, 0.0, 0, false, false, Optional.empty(), HuntStyle.CHASE);
 
     public static final Codec<BehaviorProfile> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.BOOL.optionalFieldOf("aggressive", PASSIVE.aggressive()).forGetter(BehaviorProfile::aggressive),
@@ -61,6 +63,7 @@ public record BehaviorProfile(
             Codec.doubleRange(0, 1).optionalFieldOf("flee_health_fraction", PASSIVE.fleeHealthFraction()).forGetter(BehaviorProfile::fleeHealthFraction),
             Codec.intRange(0, 64).optionalFieldOf("herd_radius", PASSIVE.herdRadius()).forGetter(BehaviorProfile::herdRadius),
             Codec.BOOL.optionalFieldOf("group_defense", PASSIVE.groupDefense()).forGetter(BehaviorProfile::groupDefense),
+            Codec.BOOL.optionalFieldOf("migrates", PASSIVE.migrates()).forGetter(BehaviorProfile::migrates),
             TagKey.hashedCodec(Registries.ENTITY_TYPE).optionalFieldOf("prey").forGetter(BehaviorProfile::prey),
             HuntStyle.CODEC.optionalFieldOf("hunt_style", HuntStyle.CHASE).forGetter(BehaviorProfile::huntStyle)
     ).apply(instance, BehaviorProfile::new));

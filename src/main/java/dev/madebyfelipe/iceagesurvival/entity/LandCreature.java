@@ -4,11 +4,22 @@ import dev.madebyfelipe.iceagesurvival.core.stats.Stat;
 import dev.madebyfelipe.iceagesurvival.entity.ai.ChaseGoal;
 import dev.madebyfelipe.iceagesurvival.entity.ai.FleeWhenWeakGoal;
 import dev.madebyfelipe.iceagesurvival.entity.ai.FollowHerdGoal;
+import dev.madebyfelipe.iceagesurvival.entity.ai.HerdTravelGoal;
 import dev.madebyfelipe.iceagesurvival.entity.ai.HuntGoal;
 import dev.madebyfelipe.iceagesurvival.entity.ai.StalkGoal;
 import dev.madebyfelipe.iceagesurvival.species.BehaviorProfile;
+import dev.madebyfelipe.iceagesurvival.species.PackBonusProfile;
+import com.github.darkpred.morehitboxes.api.EntityHitboxData;
+import com.github.darkpred.morehitboxes.api.EntityHitboxDataFactory;
+import com.github.darkpred.morehitboxes.api.GeckoLibMultiPartEntity;
+import com.github.darkpred.morehitboxes.api.MultiPart;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.MoveTowardsRestrictionGoal;
@@ -17,12 +28,13 @@ import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
 import net.minecraft.world.entity.ai.goal.target.NonTameRandomTargetGoal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import java.util.UUID;
 import software.bernie.geckolib.animatable.GeoEntity;
-import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.animation.AnimatableManager;
-import software.bernie.geckolib.animation.AnimationController;
-import software.bernie.geckolib.animation.PlayState;
-import software.bernie.geckolib.animation.RawAnimation;
+import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.core.animation.AnimatableManager;
+import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.animation.RawAnimation;
+import software.bernie.geckolib.core.object.PlayState;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
 /**
@@ -30,7 +42,7 @@ import software.bernie.geckolib.util.GeckoLibUtil;
  * espécie e as animações seguem a convenção {@code animation.<especie>.<idle|walk|attack|unconscious>},
  * então uma espécie nova precisa de um tipo de entidade registrado, um JSON e assets — não de uma classe.
  */
-public class LandCreature extends PrehistoricCreature implements GeoEntity {
+public class LandCreature extends PrehistoricCreature implements GeoEntity, GeckoLibMultiPartEntity<LandCreature> {
     private static final String ATTACK_CONTROLLER = "attack";
     private static final String ATTACK_TRIGGER = "attack";
 
@@ -44,18 +56,32 @@ public class LandCreature extends PrehistoricCreature implements GeoEntity {
      * real cresce com o quadrado desse produto, então o modificador é calculado por espécie.
      */
     private static final double CALM_SPEED_PRODUCT = 0.2;
+    private static final UUID PACK_SPEED_MODIFIER = UUID.fromString("3c9ed6b5-a71d-45d4-8f41-e2be799c4be2");
+    private static final UUID PACK_ATTACK_MODIFIER = UUID.fromString("68cab421-5347-42e2-a707-7f22e330431c");
+    private static final int PACK_CHECK_INTERVAL_TICKS = 20;
 
     private final AnimatableInstanceCache animationCache = GeckoLibUtil.createInstanceCache(this);
+    private final EntityHitboxData<LandCreature> hitboxData = EntityHitboxDataFactory.create(this);
 
     public LandCreature(EntityType<? extends LandCreature> type, Level level) {
         super(type, level);
     }
 
     @Override
+    public EntityHitboxData<LandCreature> getEntityHitboxData() {
+        return hitboxData;
+    }
+
+    @Override
+    public boolean partHurt(MultiPart<LandCreature> part, DamageSource source, float amount) {
+        return hurt(source, amount);
+    }
+
+    @Override
     protected void registerGoals() {
         BehaviorProfile behavior = behavior().orElse(BehaviorProfile.PASSIVE);
         double baseSpeed = species().map(species -> species.stats().entry(Stat.SPEED).base()).orElse(0.25);
-        double calm = Math.clamp(CALM_SPEED_PRODUCT / Math.max(baseSpeed, 0.01), 0.4, 1.0);
+        double calm = Math.max(0.4, Math.min(1.0, CALM_SPEED_PRODUCT / Math.max(baseSpeed, 0.01)));
 
         goalSelector.addGoal(0, new FloatGoal(this));
         goalSelector.addGoal(1, new FleeWhenWeakGoal(this, FLEE_SPEED));
@@ -66,9 +92,15 @@ public class LandCreature extends PrehistoricCreature implements GeoEntity {
         addOrderGoals(2, 4, FOLLOW_SPEED);
         if (behavior.herdRadius() > 0) {
             goalSelector.addGoal(5, new FollowHerdGoal(this, calm * 1.5, behavior.herdRadius()));
+            if (behavior.migrates()) {
+                goalSelector.addGoal(6, new HerdTravelGoal(this, calm, behavior.herdRadius()));
+            } else {
+                goalSelector.addGoal(8, new WaterAvoidingRandomStrollGoal(this, calm));
+            }
+        } else {
+            goalSelector.addGoal(8, new WaterAvoidingRandomStrollGoal(this, calm));
         }
-        goalSelector.addGoal(6, new MoveTowardsRestrictionGoal(this, calm * 1.2));
-        goalSelector.addGoal(7, new WaterAvoidingRandomStrollGoal(this, calm));
+        goalSelector.addGoal(7, new MoveTowardsRestrictionGoal(this, calm * 1.2));
         goalSelector.addGoal(8, new LookAtPlayerGoal(this, Player.class, 8.0F));
         goalSelector.addGoal(9, new RandomLookAroundGoal(this));
 
@@ -81,6 +113,41 @@ public class LandCreature extends PrehistoricCreature implements GeoEntity {
     }
 
     @Override
+    public void tick() {
+        super.tick();
+        if (!level().isClientSide && tickCount % PACK_CHECK_INTERVAL_TICKS == 0) {
+            updatePackBonus();
+        }
+    }
+
+    private void updatePackBonus() {
+        PackBonusProfile bonus = species().flatMap(species -> species.packBonus()).orElse(null);
+        boolean inPack = bonus != null && level().getEntitiesOfClass(
+                        LandCreature.class, getBoundingBox().inflate(bonus.radius()),
+                        other -> other.getType() == getType() && other.isAlive())
+                .size() >= bonus.minimumAllies() + 1;
+        updateModifier(Attributes.MOVEMENT_SPEED, PACK_SPEED_MODIFIER,
+                inPack ? bonus.speedMultiplier() : 0.0);
+        updateModifier(Attributes.ATTACK_DAMAGE, PACK_ATTACK_MODIFIER,
+                inPack ? bonus.attackMultiplier() : 0.0);
+    }
+
+    private void updateModifier(net.minecraft.world.entity.ai.attributes.Attribute attribute,
+                                UUID id, double amount) {
+        AttributeInstance instance = getAttribute(attribute);
+        if (instance == null) {
+            return;
+        }
+        if (amount <= 0.0) {
+            instance.removeModifier(id);
+        } else {
+            instance.removeModifier(id);
+            instance.addTransientModifier(new AttributeModifier(
+                    id, "allosaurus_pack_bonus", amount, AttributeModifier.Operation.MULTIPLY_TOTAL));
+        }
+    }
+
+    @Override
     protected void swingAttack() {
         super.swingAttack();
         triggerAnim(ATTACK_CONTROLLER, ATTACK_TRIGGER);
@@ -88,17 +155,25 @@ public class LandCreature extends PrehistoricCreature implements GeoEntity {
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        String prefix = "animation." + BuiltInRegistries.ENTITY_TYPE.getKey(getType()).getPath() + ".";
-        RawAnimation idle = RawAnimation.begin().thenLoop(prefix + "idle");
-        RawAnimation walk = RawAnimation.begin().thenLoop(prefix + "walk");
-        RawAnimation unconscious = RawAnimation.begin().thenLoop(prefix + "unconscious");
-        RawAnimation attack = RawAnimation.begin().thenPlay(prefix + "attack");
+        ResourceLocation typeId = BuiltInRegistries.ENTITY_TYPE.getKey(getType());
+        CreatureAppearance appearance = CreatureAppearance.forEntity(typeId).orElse(null);
+        String prefix = appearance != null
+                ? appearance.animationPrefix()
+                : "animation." + typeId.getPath() + ".";
+        String idleName = appearance == null ? "idle" : appearance.idle();
+        String walkName = appearance == null ? "walk" : appearance.walk();
+        String attackName = appearance == null ? "attack" : appearance.attack();
+        String unconsciousName = appearance == null ? "unconscious" : appearance.unconscious();
+        RawAnimation idle = RawAnimation.begin().thenLoop(prefix + idleName);
+        RawAnimation walk = RawAnimation.begin().thenLoop(prefix + walkName);
+        RawAnimation unconscious = RawAnimation.begin().thenLoop(prefix + unconsciousName);
+        RawAnimation attack = RawAnimation.begin().thenPlay(prefix + attackName);
 
         controllers.add(new AnimationController<>(this, "movement", 5, state -> {
             if (isUnconscious()) {
                 return state.setAndContinue(unconscious);
             }
-            return state.setAndContinue(state.isMoving() ? walk : idle);
+            return state.setAndContinue(state.isMoving() || isFlightMount() && isFlying() ? walk : idle);
         }));
         controllers.add(new AnimationController<>(this, ATTACK_CONTROLLER, 0, state -> PlayState.STOP)
                 .triggerableAnim(ATTACK_TRIGGER, attack));

@@ -15,10 +15,9 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Blocks;
-import net.neoforged.neoforge.gametest.GameTestHolder;
-import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
+import net.minecraftforge.gametest.GameTestHolder;
+import net.minecraftforge.gametest.PrefixGameTestTemplate;
 
 /** Etapa 7: sela, controle da montaria e o que a impede. */
 @GameTestHolder(IceAgeSurvival.MODID)
@@ -27,7 +26,7 @@ public class MountTests {
     private static final String EMPTY = "empty";
 
     private static Player playerAt(GameTestHelper helper, LandCreature near) {
-        Player player = helper.makeMockPlayer(GameType.SURVIVAL);
+        Player player = helper.makeMockSurvivalPlayer();
         player.setPos(near.position());
         return player;
     }
@@ -59,7 +58,7 @@ public class MountTests {
 
     @GameTest(template = EMPTY)
     public static void tyrannosaurusCanBeSaddled(GameTestHelper helper) {
-        Player owner = helper.makeMockPlayer(GameType.SURVIVAL);
+        Player owner = helper.makeMockSurvivalPlayer();
         LandCreature rex = helper.spawnWithNoFreeWill(ModEntities.TYRANNOSAURUS.get(), 1, 2, 1);
         rex.tame(owner);
         owner.setPos(rex.position());
@@ -90,10 +89,10 @@ public class MountTests {
 
     @GameTest(template = EMPTY)
     public static void riderCommandsTheMountToBite(GameTestHelper helper) {
-        Player owner = helper.makeMockPlayer(GameType.SURVIVAL);
+        Player owner = PredatorTests.survivalPlayer(helper);
         LandCreature rex = mountedRex(helper, owner);
         net.minecraft.world.entity.animal.Pig far = helper.spawnWithNoFreeWill(net.minecraft.world.entity.EntityType.PIG, 1, 2, 14);
-        Player stranger = helper.makeMockPlayer(GameType.SURVIVAL);
+        Player stranger = helper.makeMockSurvivalPlayer();
         helper.assertFalse(rex.attackAsMount(stranger, far), "quem não conduz não manda morder");
         helper.assertTrue(rex.attackAsMount(owner, far), "a mordida sai mesmo com o alvo longe");
         helper.assertTrue(far.getHealth() == far.getMaxHealth(), "alvo longe demais não deveria ser mordido");
@@ -110,7 +109,7 @@ public class MountTests {
 
     @GameTest(template = EMPTY)
     public static void bigMountBiteBreaksTheTerrainInFront(GameTestHelper helper) {
-        Player owner = helper.makeMockServerPlayerInLevel();
+        Player owner = PredatorTests.survivalPlayer(helper);
         LandCreature rex = mountedRex(helper, owner);
         helper.setBlock(4, 2, 6, Blocks.DIRT);
         helper.setBlock(4, 3, 7, Blocks.STONE);
@@ -132,7 +131,7 @@ public class MountTests {
 
     @GameTest(template = EMPTY)
     public static void mammothBiteHarvestsWoodButNotStone(GameTestHelper helper) {
-        Player owner = helper.makeMockServerPlayerInLevel();
+        Player owner = PredatorTests.survivalPlayer(helper);
         LandCreature mammoth = mounted(helper, owner, ModEntities.MAMMOTH.get());
         helper.setBlock(4, 1, 6, Blocks.OAK_LOG);
         helper.setBlock(3, 2, 7, Blocks.OAK_LEAVES);
@@ -151,7 +150,7 @@ public class MountTests {
 
     @GameTest(template = EMPTY)
     public static void smallMountBiteLeavesTheTerrain(GameTestHelper helper) {
-        Player owner = helper.makeMockServerPlayerInLevel();
+        Player owner = helper.makeMockSurvivalPlayer();
         LandCreature smilodon = readyToRide(helper, owner);
         smilodon.setYRot(0.0F);
         owner.setPos(smilodon.position());
@@ -164,11 +163,11 @@ public class MountTests {
 
     @GameTest(template = EMPTY)
     public static void seatComesFromTheSpeciesData(GameTestHelper helper) {
-        Player owner = helper.makeMockPlayer(GameType.SURVIVAL);
+        Player owner = helper.makeMockSurvivalPlayer();
         LandCreature smilodon = readyToRide(helper, owner);
         MountProfile mount = smilodon.mountProfile().orElseThrow();
 
-        double seat = smilodon.getPassengerRidingPosition(owner).y - smilodon.getY();
+        double seat = smilodon.getPassengersRidingOffset();
         helper.assertTrue(Math.abs(seat - mount.seatHeight(smilodon.getBbHeight())) < 0.01,
                 "assento em " + seat + ", esperado " + mount.seatHeight(smilodon.getBbHeight()));
         helper.succeed();
@@ -178,7 +177,7 @@ public class MountTests {
 
     @GameTest(template = EMPTY)
     public static void ownerSaddlesWithASaddleInHand(GameTestHelper helper) {
-        Player owner = helper.makeMockPlayer(GameType.SURVIVAL);
+        Player owner = helper.makeMockSurvivalPlayer();
         LandCreature smilodon = helper.spawnWithNoFreeWill(ModEntities.SMILODON.get(), 1, 2, 1);
         smilodon.tame(owner);
         owner.setPos(smilodon.position());
@@ -206,7 +205,7 @@ public class MountTests {
 
     @GameTest(template = EMPTY)
     public static void unrideableSpeciesNeverAcceptsARider(GameTestHelper helper) {
-        Player owner = helper.makeMockPlayer(GameType.SURVIVAL);
+        Player owner = helper.makeMockSurvivalPlayer();
         LandCreature wolf = helper.spawnWithNoFreeWill(ModEntities.DIRE_WOLF.get(), 1, 2, 1);
         wolf.tame(owner);
         wolf.setAffinity(PrehistoricCreature.MAX_AFFINITY);
@@ -221,7 +220,7 @@ public class MountTests {
 
     @GameTest(template = EMPTY)
     public static void saddleSurvivesSaveAndLoad(GameTestHelper helper) {
-        Player owner = helper.makeMockPlayer(GameType.SURVIVAL);
+        Player owner = helper.makeMockSurvivalPlayer();
         LandCreature original = readyToRide(helper, owner);
 
         LandCreature loaded = ModEntities.SMILODON.get().create(helper.getLevel());
@@ -233,7 +232,7 @@ public class MountTests {
 
     @GameTest(template = EMPTY)
     public static void saddleDropsOnDeath(GameTestHelper helper) {
-        Player owner = helper.makeMockPlayer(GameType.SURVIVAL);
+        Player owner = helper.makeMockSurvivalPlayer();
         LandCreature smilodon = readyToRide(helper, owner);
         smilodon.kill();
         helper.assertItemEntityPresent(Items.SADDLE, new BlockPos(1, 2, 1), 3.0);
@@ -244,7 +243,7 @@ public class MountTests {
 
     @GameTest(template = EMPTY)
     public static void ownerRidesASaddledCreature(GameTestHelper helper) {
-        Player owner = helper.makeMockPlayer(GameType.SURVIVAL);
+        Player owner = helper.makeMockSurvivalPlayer();
         LandCreature smilodon = readyToRide(helper, owner);
         owner.setPos(smilodon.position());
 
@@ -257,7 +256,7 @@ public class MountTests {
 
     @GameTest(template = EMPTY)
     public static void ridingReleasesACreatureToldToStay(GameTestHelper helper) {
-        Player owner = helper.makeMockPlayer(GameType.SURVIVAL);
+        Player owner = helper.makeMockSurvivalPlayer();
         LandCreature smilodon = readyToRide(helper, owner);
         owner.setPos(smilodon.position());
         smilodon.setMovement(Movement.STAY);
@@ -270,7 +269,7 @@ public class MountTests {
 
     @GameTest(template = EMPTY)
     public static void withoutSaddleTheCreatureRefuses(GameTestHelper helper) {
-        Player owner = helper.makeMockPlayer(GameType.SURVIVAL);
+        Player owner = helper.makeMockSurvivalPlayer();
         LandCreature smilodon = helper.spawnWithNoFreeWill(ModEntities.SMILODON.get(), 1, 2, 1);
         smilodon.tame(owner);
         smilodon.setAffinity(PrehistoricCreature.MAX_AFFINITY);
@@ -282,7 +281,7 @@ public class MountTests {
 
     @GameTest(template = EMPTY)
     public static void lowAffinityRefusesTheRider(GameTestHelper helper) {
-        Player owner = helper.makeMockPlayer(GameType.SURVIVAL);
+        Player owner = helper.makeMockSurvivalPlayer();
         LandCreature smilodon = readyToRide(helper, owner);
         owner.setPos(smilodon.position());
         smilodon.setAffinity(smilodon.mountProfile().orElseThrow().minAffinity() - 1.0F);
@@ -294,7 +293,7 @@ public class MountTests {
 
     @GameTest(template = EMPTY)
     public static void strangerCannotRide(GameTestHelper helper) {
-        Player owner = helper.makeMockPlayer(GameType.SURVIVAL);
+        Player owner = helper.makeMockSurvivalPlayer();
         LandCreature smilodon = readyToRide(helper, owner);
         Player stranger = playerAt(helper, smilodon);
 
@@ -305,7 +304,7 @@ public class MountTests {
 
     @GameTest(template = EMPTY)
     public static void onlyOneRiderAtATime(GameTestHelper helper) {
-        Player owner = helper.makeMockPlayer(GameType.SURVIVAL);
+        Player owner = helper.makeMockSurvivalPlayer();
         LandCreature smilodon = readyToRide(helper, owner);
         owner.setPos(smilodon.position());
         helper.assertTrue(smilodon.ride(owner), "montaria recusada");
@@ -319,7 +318,7 @@ public class MountTests {
 
     @GameTest(template = EMPTY)
     public static void knockoutThrowsTheRiderOff(GameTestHelper helper) {
-        Player owner = helper.makeMockPlayer(GameType.SURVIVAL);
+        Player owner = helper.makeMockSurvivalPlayer();
         LandCreature smilodon = readyToRide(helper, owner);
         owner.setPos(smilodon.position());
         helper.assertTrue(smilodon.ride(owner), "montaria recusada");
@@ -334,7 +333,7 @@ public class MountTests {
 
     @GameTest(template = EMPTY)
     public static void removingTheSaddleThrowsTheRiderOff(GameTestHelper helper) {
-        Player owner = helper.makeMockPlayer(GameType.SURVIVAL);
+        Player owner = helper.makeMockSurvivalPlayer();
         LandCreature smilodon = readyToRide(helper, owner);
         owner.setPos(smilodon.position());
         helper.assertTrue(smilodon.ride(owner), "montaria recusada");
@@ -347,7 +346,7 @@ public class MountTests {
 
     @GameTest(template = EMPTY)
     public static void debugTameGivesAUsableCreature(GameTestHelper helper) {
-        Player owner = helper.makeMockPlayer(GameType.SURVIVAL);
+        Player owner = helper.makeMockSurvivalPlayer();
         LandCreature smilodon = helper.spawnWithNoFreeWill(ModEntities.SMILODON.get(), 1, 2, 1);
         owner.setPos(smilodon.position());
         int wildLevel = smilodon.creatureLevel();

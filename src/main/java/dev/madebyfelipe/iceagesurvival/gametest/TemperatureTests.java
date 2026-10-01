@@ -10,15 +10,19 @@ import dev.madebyfelipe.iceagesurvival.temperature.ColdState;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
+import com.mojang.authlib.GameProfile;
+import net.minecraft.network.Connection;
+import net.minecraft.network.protocol.PacketFlow;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.GameType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.GameType;
+import net.minecraftforge.event.TickEvent;
 import net.minecraft.world.level.block.Blocks;
-import net.neoforged.neoforge.event.tick.PlayerTickEvent;
-import net.neoforged.neoforge.gametest.GameTestHolder;
-import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
+import io.netty.channel.embedded.EmbeddedChannel;
+import net.minecraftforge.gametest.GameTestHolder;
+import net.minecraftforge.gametest.PrefixGameTestTemplate;
 
 /**
  * O que dá para conferir sem um bioma frio: as tags, o anexo no jogador e as regras do condutor.
@@ -41,7 +45,7 @@ public class TemperatureTests {
 
     @GameTest(template = EMPTY)
     public static void furInsulatesMoreThanLeatherAndIronNotAtAll(GameTestHelper helper) {
-        Player player = helper.makeMockPlayer(GameType.SURVIVAL);
+        Player player = helper.makeMockSurvivalPlayer();
         helper.assertTrue(EnvironmentColdSource.insulation(player) == 0.0, "nu e isolado");
         dress(player, Items.LEATHER_HELMET, Items.LEATHER_CHESTPLATE, Items.LEATHER_LEGGINGS, Items.LEATHER_BOOTS);
         double leather = EnvironmentColdSource.insulation(player);
@@ -77,8 +81,8 @@ public class TemperatureTests {
 
     @GameTest(template = EMPTY)
     public static void coldStateStartsAtZeroAndStaysInRange(GameTestHelper helper) {
-        Player player = helper.makeMockPlayer(GameType.SURVIVAL);
-        ColdState state = player.getData(ModAttachments.COLD);
+        Player player = helper.makeMockSurvivalPlayer();
+        ColdState state = ModAttachments.coldState(player);
         helper.assertTrue(state.exposure() == 0.0 && !state.isFrozen(), "jogador nasce com frio acumulado");
 
         state.setExposure(5.0);
@@ -91,13 +95,13 @@ public class TemperatureTests {
     /** O frio acumulado é salvo com o jogador: quem sai congelando volta congelando. */
     @GameTest(template = EMPTY)
     public static void coldStateSurvivesSaveAndLoad(GameTestHelper helper) {
-        Player player = helper.makeMockPlayer(GameType.SURVIVAL);
-        player.getData(ModAttachments.COLD).setExposure(0.75);
+        Player player = helper.makeMockSurvivalPlayer();
+        ModAttachments.coldState(player).setExposure(0.75);
 
-        Player reloaded = helper.makeMockPlayer(GameType.SURVIVAL);
+        Player reloaded = helper.makeMockSurvivalPlayer();
         reloaded.load(player.saveWithoutId(new CompoundTag()));
 
-        double exposure = reloaded.getData(ModAttachments.COLD).exposure();
+        double exposure = ModAttachments.coldState(reloaded).exposure();
         helper.assertTrue(exposure == 0.75, "frio acumulado não sobreviveu ao salvamento: " + exposure);
         helper.succeed();
     }
@@ -105,12 +109,17 @@ public class TemperatureTests {
     /** O jogador mock do gametest é criativo, e no criativo o frio não conta. */
     @GameTest(template = EMPTY)
     public static void creativePlayersAreLeftAlone(GameTestHelper helper) {
-        ServerPlayer player = helper.makeMockServerPlayerInLevel();
-        player.getData(ModAttachments.COLD).setExposure(0.8);
+        Connection connection = new Connection(PacketFlow.SERVERBOUND);
+        new EmbeddedChannel(connection);
+        ServerPlayer player = new ServerPlayer(helper.getLevel().getServer(), helper.getLevel(),
+                new GameProfile(java.util.UUID.randomUUID(), "test-creative"));
+        helper.getLevel().getServer().getPlayerList().placeNewPlayer(connection, player);
+        player.setGameMode(GameType.CREATIVE);
+        ModAttachments.coldState(player).setExposure(0.8);
 
-        ColdExposure.onPlayerTick(new PlayerTickEvent.Post(player));
+        ColdExposure.onPlayerTick(new TickEvent.PlayerTickEvent(TickEvent.Phase.END, player));
 
-        helper.assertTrue(player.getData(ModAttachments.COLD).exposure() == 0.0,
+        helper.assertTrue(ModAttachments.coldState(player).exposure() == 0.0,
                 "frio acumulado sobreviveu ao modo criativo");
         helper.assertTrue(player.getTicksFrozen() == 0, "jogador criativo ficou congelado");
         helper.succeed();

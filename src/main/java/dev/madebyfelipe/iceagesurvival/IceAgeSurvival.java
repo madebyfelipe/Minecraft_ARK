@@ -2,11 +2,11 @@ package dev.madebyfelipe.iceagesurvival;
 
 import com.mojang.logging.LogUtils;
 import dev.madebyfelipe.iceagesurvival.command.DebugCommands;
+import dev.madebyfelipe.iceagesurvival.client.IceAgeSurvivalClient;
 import dev.madebyfelipe.iceagesurvival.config.ServerConfig;
 import dev.madebyfelipe.iceagesurvival.network.ModPayloads;
 import dev.madebyfelipe.iceagesurvival.registry.ModArmorMaterials;
 import dev.madebyfelipe.iceagesurvival.registry.ModAttachments;
-import dev.madebyfelipe.iceagesurvival.registry.ModDataMaps;
 import dev.madebyfelipe.iceagesurvival.registry.ModBlockEntities;
 import dev.madebyfelipe.iceagesurvival.registry.ModBlocks;
 import dev.madebyfelipe.iceagesurvival.registry.ModMenus;
@@ -17,11 +17,15 @@ import dev.madebyfelipe.iceagesurvival.temperature.ColdExposure;
 import dev.madebyfelipe.iceagesurvival.world.RemappedBiomeSource;
 import dev.madebyfelipe.iceagesurvival.world.WildSpawner;
 import net.minecraft.resources.ResourceLocation;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.fml.ModContainer;
-import net.neoforged.fml.common.Mod;
-import net.neoforged.fml.config.ModConfig;
-import net.neoforged.neoforge.common.NeoForge;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fml.DistExecutor;
+import net.minecraftforge.fml.ModContainer;
+import net.minecraftforge.fml.ModLoadingContext;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.config.ModConfig;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.slf4j.Logger;
 
 @Mod(IceAgeSurvival.MODID)
@@ -29,7 +33,9 @@ public class IceAgeSurvival {
     public static final String MODID = "iceagesurvival";
     public static final Logger LOGGER = LogUtils.getLogger();
 
-    public IceAgeSurvival(IEventBus modEventBus, ModContainer modContainer) {
+    public IceAgeSurvival() {
+        IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
+        ModContainer modContainer = ModLoadingContext.get().getActiveContainer();
         ModAttachments.ATTACHMENT_TYPES.register(modEventBus);
         ModBlocks.BLOCKS.register(modEventBus);
         ModBlockEntities.BLOCK_ENTITIES.register(modEventBus);
@@ -43,14 +49,15 @@ public class IceAgeSurvival {
         modEventBus.addListener(ModEntities::registerAttributes);
         modEventBus.addListener(ModEntities::registerSpawnPlacements);
         modEventBus.addListener(ModItems::addToCreativeTabs);
-        modEventBus.addListener(ModPayloads::register);
-        modEventBus.addListener(ModDataMaps::register);
+        ModPayloads.register();
+        DistExecutor.unsafeRunWhenOn(Dist.CLIENT,
+                () -> () -> IceAgeSurvivalClient.init(modEventBus, modContainer));
 
-        NeoForge.EVENT_BUS.addListener(ColdExposure::onPlayerTick);
-        NeoForge.EVENT_BUS.addListener(WildSpawner::onServerTick);
-        NeoForge.EVENT_BUS.addListener(DebugCommands::register);
+        MinecraftForge.EVENT_BUS.addListener(ColdExposure::onPlayerTick);
+        MinecraftForge.EVENT_BUS.addListener(WildSpawner::onServerTick);
+        MinecraftForge.EVENT_BUS.addListener(DebugCommands::register);
 
-        modContainer.registerConfig(ModConfig.Type.SERVER, ServerConfig.SPEC);
+        ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, ServerConfig.SPEC);
     }
 
     public static ResourceLocation id(String path) {

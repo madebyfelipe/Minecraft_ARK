@@ -1,36 +1,83 @@
 package dev.madebyfelipe.iceagesurvival.registry;
 
 import dev.madebyfelipe.iceagesurvival.IceAgeSurvival;
-import java.util.EnumMap;
-import java.util.List;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ArmorMaterial;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.neoforged.neoforge.registries.DeferredHolder;
-import net.neoforged.neoforge.registries.DeferredRegister;
+import net.minecraftforge.eventbus.api.IEventBus;
 
 public final class ModArmorMaterials {
-    public static final DeferredRegister<ArmorMaterial> ARMOR_MATERIALS =
-            DeferredRegister.create(Registries.ARMOR_MATERIAL, IceAgeSurvival.MODID);
-
     /**
-     * Pele: defesa de couro, o que ela tem de melhor é o isolamento (data map
-     * {@code iceagesurvival:insulation}), não a proteção contra golpes.
+     * Armor materials are ordinary objects rather than registry entries in Forge 1.20.1.
+     * Keep the registration hook because the mod bootstrap is outside the porting scope.
      */
-    public static final DeferredHolder<ArmorMaterial, ArmorMaterial> FUR = ARMOR_MATERIALS.register("fur", () -> {
-        EnumMap<ArmorItem.Type, Integer> defense = new EnumMap<>(ArmorItem.Type.class);
-        defense.put(ArmorItem.Type.HELMET, 1);
-        defense.put(ArmorItem.Type.CHESTPLATE, 3);
-        defense.put(ArmorItem.Type.LEGGINGS, 2);
-        defense.put(ArmorItem.Type.BOOTS, 1);
-        defense.put(ArmorItem.Type.BODY, 3);
-        return new ArmorMaterial(defense, 12, SoundEvents.ARMOR_EQUIP_LEATHER,
-                () -> Ingredient.of(ModItems.PELT.get()),
-                List.of(new ArmorMaterial.Layer(IceAgeSurvival.id("fur"))), 0.0F, 0.0F);
-    });
+    public static final Registration ARMOR_MATERIALS = new Registration();
+
+    public static final ArmorMaterial FUR = new ArmorMaterial() {
+        @Override
+        public int getDurabilityForType(ArmorItem.Type type) {
+            return durabilityFactor(type) * 8;
+        }
+
+        @Override
+        public int getDefenseForType(ArmorItem.Type type) {
+            return switch (type) {
+                case HELMET -> 1;
+                case CHESTPLATE -> 3;
+                case LEGGINGS -> 2;
+                case BOOTS -> 1;
+            };
+        }
+
+        @Override
+        public int getEnchantmentValue() {
+            return 12;
+        }
+
+        @Override
+        public net.minecraft.sounds.SoundEvent getEquipSound() {
+            return SoundEvents.ARMOR_EQUIP_LEATHER;
+        }
+
+        @Override
+        public Ingredient getRepairIngredient() {
+            return Ingredient.of(ModItems.PELT.get());
+        }
+
+        @Override
+        public String getName() {
+            return IceAgeSurvival.MODID + ":fur";
+        }
+
+        @Override
+        public float getToughness() {
+            return 0.0F;
+        }
+
+        @Override
+        public float getKnockbackResistance() {
+            return 0.0F;
+        }
+    };
 
     private ModArmorMaterials() {
+    }
+
+    private static int durabilityFactor(ArmorItem.Type type) {
+        return switch (type) {
+            case HELMET -> 11;
+            case CHESTPLATE -> 16;
+            case LEGGINGS -> 15;
+            case BOOTS -> 13;
+        };
+    }
+
+    public static final class Registration {
+        private Registration() {
+        }
+
+        public void register(IEventBus eventBus) {
+        }
     }
 }

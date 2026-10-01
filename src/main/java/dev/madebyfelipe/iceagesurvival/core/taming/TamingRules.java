@@ -12,6 +12,6 @@ public final class TamingRules {
 
     /** Pontos de atributo extras que a criatura ganha ao ser domesticada. */
     public static int bonusPoints(int level, double maxFractionOfLevel, double effectiveness) {
-        return (int) Math.floor(level * maxFractionOfLevel * Math.clamp(effectiveness, 0.0, 1.0));
+        return (int) Math.floor(level * maxFractionOfLevel * Math.max(0.0, Math.min(1.0, effectiveness)));
     }
 }

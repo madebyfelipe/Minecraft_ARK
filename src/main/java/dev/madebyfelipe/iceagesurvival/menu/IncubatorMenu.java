@@ -11,6 +11,7 @@ import net.minecraft.world.inventory.SimpleContainerData;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraftforge.common.ForgeHooks;
 
 public class IncubatorMenu extends StationMenu {
     public static final int EGG_X = 80;
@@ -38,7 +39,7 @@ public class IncubatorMenu extends StationMenu {
         addSlot(new Slot(container, IncubatorBlockEntity.FUEL_SLOT, FUEL_X, FUEL_Y) {
             @Override
             public boolean mayPlace(ItemStack stack) {
-                return stack.getBurnTime(RecipeType.SMELTING) > 0;
+                return ForgeHooks.getBurnTime(stack, RecipeType.SMELTING) > 0;
             }
         });
     }

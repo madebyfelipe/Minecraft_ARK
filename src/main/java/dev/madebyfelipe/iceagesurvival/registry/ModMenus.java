@@ -2,21 +2,26 @@ package dev.madebyfelipe.iceagesurvival.registry;
 
 import dev.madebyfelipe.iceagesurvival.IceAgeSurvival;
 import dev.madebyfelipe.iceagesurvival.menu.ChemistryBenchMenu;
+import dev.madebyfelipe.iceagesurvival.menu.CreatureStorageMenu;
 import dev.madebyfelipe.iceagesurvival.menu.IncubatorMenu;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.inventory.MenuType;
-import net.neoforged.neoforge.registries.DeferredHolder;
-import net.neoforged.neoforge.registries.DeferredRegister;
+import net.minecraftforge.common.extensions.IForgeMenuType;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.RegistryObject;
 
 public final class ModMenus {
     public static final DeferredRegister<MenuType<?>> MENUS = DeferredRegister.create(Registries.MENU, IceAgeSurvival.MODID);
 
-    public static final DeferredHolder<MenuType<?>, MenuType<IncubatorMenu>> INCUBATOR =
+    public static final RegistryObject<MenuType<IncubatorMenu>> INCUBATOR =
             MENUS.register("incubator", () -> new MenuType<>(IncubatorMenu::new, FeatureFlags.DEFAULT_FLAGS));
 
-    public static final DeferredHolder<MenuType<?>, MenuType<ChemistryBenchMenu>> CHEMISTRY_BENCH =
+    public static final RegistryObject<MenuType<ChemistryBenchMenu>> CHEMISTRY_BENCH =
             MENUS.register("chemistry_bench", () -> new MenuType<>(ChemistryBenchMenu::new, FeatureFlags.DEFAULT_FLAGS));
+
+    public static final RegistryObject<MenuType<CreatureStorageMenu>> CREATURE_STORAGE =
+            MENUS.register("creature_storage", () -> IForgeMenuType.create(CreatureStorageMenu::new));
 
     private ModMenus() {
     }

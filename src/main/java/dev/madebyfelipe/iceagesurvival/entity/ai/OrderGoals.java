@@ -46,7 +46,7 @@ public final class OrderGoals {
         private final PrehistoricCreature creature;
 
         public Follow(PrehistoricCreature creature, double speedModifier, float startDistance, float stopDistance) {
-            super(creature, speedModifier, startDistance, stopDistance);
+            super(creature, speedModifier, startDistance, stopDistance, true);
             this.creature = creature;
         }
 

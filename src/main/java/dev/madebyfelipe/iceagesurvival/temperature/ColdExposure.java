@@ -3,10 +3,10 @@ package dev.madebyfelipe.iceagesurvival.temperature;
 import dev.madebyfelipe.iceagesurvival.config.ServerConfig;
 import dev.madebyfelipe.iceagesurvival.core.temperature.Coldness;
 import dev.madebyfelipe.iceagesurvival.network.ColdStatusPayload;
-import net.neoforged.neoforge.network.PacketDistributor;
+import dev.madebyfelipe.iceagesurvival.network.ModPayloads;
 import dev.madebyfelipe.iceagesurvival.registry.ModAttachments;
 import net.minecraft.server.level.ServerPlayer;
-import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.minecraftforge.event.TickEvent;
 
 /**
  * Acumula frio no jogador e o transforma em congelamento.
@@ -25,11 +25,14 @@ public final class ColdExposure {
     private ColdExposure() {
     }
 
-    public static void onPlayerTick(PlayerTickEvent.Post event) {
-        if (!(event.getEntity() instanceof ServerPlayer player) || !ServerConfig.COLD_ENABLED.get()) {
+    public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
+        if (event.phase != TickEvent.Phase.END) {
             return;
         }
-        ColdState state = player.getData(ModAttachments.COLD);
+        if (!(event.player instanceof ServerPlayer player) || !ServerConfig.COLD_ENABLED.get()) {
+            return;
+        }
+        ColdState state = ModAttachments.coldState(player);
         if (player.isCreative() || player.isSpectator() || player.isDeadOrDying()) {
             state.setExposure(0.0);
             state.setSeverity(0.0);
@@ -55,7 +58,7 @@ public final class ColdExposure {
             player.hurt(player.damageSources().freeze(), ServerConfig.COLD_DAMAGE.get().floatValue());
         }
         if (player.tickCount % READING_INTERVAL_TICKS == 0) {
-            PacketDistributor.sendToPlayer(player, new ColdStatusPayload(
+            ModPayloads.sendToPlayer(player, new ColdStatusPayload(
                     (float) state.exposure(), (float) state.severity(), player.isInWaterOrRain()));
         }
     }

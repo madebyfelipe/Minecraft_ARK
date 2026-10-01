@@ -45,7 +45,7 @@ public final class CreatureModelSettings extends SimpleJsonResourceReloadListene
         files.forEach((id, json) -> {
             try {
                 float scale = GsonHelper.getAsFloat(GsonHelper.convertToJsonObject(json, DIRECTORY), "scale", DEFAULT_SCALE);
-                loaded.put(id, Math.clamp(scale, MIN_SCALE, MAX_SCALE));
+                loaded.put(id, Math.max(MIN_SCALE, Math.min(MAX_SCALE, scale)));
             } catch (JsonParseException e) {
                 IceAgeSurvival.LOGGER.error("Ajuste de modelo inválido em {}: {}", id, e.getMessage());
             }

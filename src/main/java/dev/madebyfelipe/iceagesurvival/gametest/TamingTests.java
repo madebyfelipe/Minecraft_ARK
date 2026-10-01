@@ -11,15 +11,13 @@ import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantments;
-import net.minecraft.world.level.GameType;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.gametest.GameTestHolder;
-import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
+import net.minecraftforge.gametest.GameTestHolder;
+import net.minecraftforge.gametest.PrefixGameTestTemplate;
 
 @GameTestHolder(IceAgeSurvival.MODID)
 @PrefixGameTestTemplate(false)
@@ -81,7 +79,7 @@ public class TamingTests {
     @GameTest(template = EMPTY)
     public static void tamedCreatureIgnoresTorpor(GameTestHelper helper) {
         TestCreature creature = spawn(helper);
-        creature.tame(helper.makeMockPlayer(GameType.SURVIVAL));
+        creature.tame(helper.makeMockSurvivalPlayer());
         creature.addTorpor(creature.maxTorpor());
         helper.assertTrue(!creature.isUnconscious() && creature.torpor() == 0, "criatura domesticada acumulou torpor");
         helper.succeed();
@@ -104,8 +102,7 @@ public class TamingTests {
         TestCreature plain = helper.spawnWithNoFreeWill(ModEntities.TEST_CREATURE.get(), 0, 2, 1);
         TestCreature boosted = helper.spawnWithNoFreeWill(ModEntities.TEST_CREATURE.get(), 2, 2, 1);
         ItemStack bow = new ItemStack(Items.BOW);
-        bow.enchant(helper.getLevel().registryAccess().registryOrThrow(Registries.ENCHANTMENT)
-                .getHolderOrThrow(Enchantments.POWER), 5);
+        bow.enchant(Enchantments.POWER_ARROWS, 5);
         for (var entry : new Object[][] {{plain, null}, {boosted, bow}}) {
             TestCreature target = (TestCreature) entry[0];
             Vec3 above = target.position().add(0, 1.5, 0);
@@ -126,8 +123,8 @@ public class TamingTests {
 
     @GameTest(template = EMPTY)
     public static void wildInventoryOpensOnlyWhileUnconsciousAndOnlyForTheTamer(GameTestHelper helper) {
-        Player tamer = helper.makeMockPlayer(GameType.SURVIVAL);
-        Player other = helper.makeMockPlayer(GameType.SURVIVAL);
+        Player tamer = helper.makeMockSurvivalPlayer();
+        Player other = helper.makeMockSurvivalPlayer();
         TestCreature creature = spawn(helper);
         helper.assertTrue(!creature.canAccessInventory(tamer), "inventário de criatura acordada acessível");
 
@@ -142,11 +139,11 @@ public class TamingTests {
 
     @GameTest(template = EMPTY)
     public static void tamedInventoryIsOwnerOnly(GameTestHelper helper) {
-        Player owner = helper.makeMockPlayer(GameType.SURVIVAL);
+        Player owner = helper.makeMockSurvivalPlayer();
         TestCreature creature = spawn(helper);
         creature.tame(owner);
         helper.assertTrue(creature.canAccessInventory(owner), "dono sem acesso");
-        helper.assertTrue(!creature.canAccessInventory(helper.makeMockPlayer(GameType.SURVIVAL)), "estranho com acesso");
+        helper.assertTrue(!creature.canAccessInventory(helper.makeMockSurvivalPlayer()), "estranho com acesso");
         helper.succeed();
     }
 
@@ -162,7 +159,7 @@ public class TamingTests {
 
     @GameTest(template = EMPTY)
     public static void eatsOneUnitPerInterval(GameTestHelper helper) {
-        TestCreature creature = knockedOutBy(helper, helper.makeMockPlayer(GameType.SURVIVAL));
+        TestCreature creature = knockedOutBy(helper, helper.makeMockSurvivalPlayer());
         creature.inventory().addItem(new ItemStack(Items.BEETROOT, 8));
         // Intervalo da criatura de teste: 5 s. Em 3 s cabe exatamente uma refeição.
         helper.runAfterDelay(60, () -> {
@@ -175,7 +172,7 @@ public class TamingTests {
 
     @GameTest(template = EMPTY)
     public static void eatsTheBestFoodFirst(GameTestHelper helper) {
-        TestCreature creature = knockedOutBy(helper, helper.makeMockPlayer(GameType.SURVIVAL));
+        TestCreature creature = knockedOutBy(helper, helper.makeMockSurvivalPlayer());
         creature.inventory().addItem(new ItemStack(Items.BEETROOT, 8));
         creature.inventory().addItem(new ItemStack(Items.CARROT, 8));
         helper.runAfterDelay(45, () -> {
@@ -187,7 +184,7 @@ public class TamingTests {
 
     @GameTest(template = EMPTY)
     public static void ignoresItemsThatAreNotFood(GameTestHelper helper) {
-        TestCreature creature = knockedOutBy(helper, helper.makeMockPlayer(GameType.SURVIVAL));
+        TestCreature creature = knockedOutBy(helper, helper.makeMockSurvivalPlayer());
         creature.inventory().addItem(new ItemStack(Items.STONE, 8));
         helper.runAfterDelay(45, () -> {
             helper.assertTrue(creature.inventory().countItem(Items.STONE) == 8, "comeu pedra");
@@ -198,7 +195,7 @@ public class TamingTests {
 
     @GameTest(template = EMPTY, timeoutTicks = 1600)
     public static void eatingPreferredFoodTamesForTheTamerWithBonusLevels(GameTestHelper helper) {
-        Player tamer = helper.makeMockPlayer(GameType.SURVIVAL);
+        Player tamer = helper.makeMockSurvivalPlayer();
         TestCreature creature = knockedOutBy(helper, tamer);
         int wildLevel = creature.creatureLevel();
         creature.inventory().addItem(new ItemStack(Items.CARROT, 64));
@@ -220,7 +217,7 @@ public class TamingTests {
 
     @GameTest(template = EMPTY)
     public static void tamingStateAndInventorySurviveSaveAndLoad(GameTestHelper helper) {
-        Player tamer = helper.makeMockPlayer(GameType.SURVIVAL);
+        Player tamer = helper.makeMockSurvivalPlayer();
         TestCreature original = knockedOutBy(helper, tamer);
         original.inventory().addItem(new ItemStack(Items.BEETROOT, 8));
 
@@ -252,9 +249,9 @@ public class TamingTests {
     @GameTest(template = EMPTY)
     public static void largeSpeciesStepUpFullBlocks(GameTestHelper helper) {
         LandCreature smilodon = helper.spawnWithNoFreeWill(ModEntities.SMILODON.get(), 1, 2, 1);
-        helper.assertTrue(smilodon.getAttributeValue(Attributes.STEP_HEIGHT) >= 1.0, "Smilodon não sobe um bloco");
+        helper.assertTrue(smilodon.maxUpStep() >= 1.0F, "Smilodon não sobe um bloco");
         TestCreature small = spawn(helper);
-        helper.assertTrue(small.getAttributeValue(Attributes.STEP_HEIGHT) == 0.6, "criatura pequena com degrau alterado");
+        helper.assertTrue(small.maxUpStep() == 0.6F, "criatura pequena com degrau alterado");
         helper.succeed();
     }
 }
