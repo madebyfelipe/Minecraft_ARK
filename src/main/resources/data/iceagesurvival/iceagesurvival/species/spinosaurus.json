@@ -95,7 +95,7 @@
     "group_min": 1,
     "group_max": 1,
     "max_nearby": 1,
-    "min_distance": 750
+    "min_distance": 400
   },
   "sounds": {
     "attack": "minecraft:entity.ravager.attack",

@@ -1,5 +1,6 @@
 package dev.madebyfelipe.iceagesurvival.entity.ai;
 
+import dev.madebyfelipe.iceagesurvival.core.ecology.Hunger;
 import dev.madebyfelipe.iceagesurvival.core.ecology.Stress;
 import dev.madebyfelipe.iceagesurvival.core.ecology.ThreatResponse;
 import dev.madebyfelipe.iceagesurvival.core.ecology.ThreatResponse.Reaction;
@@ -29,7 +30,12 @@ import net.minecraft.world.phys.Vec3;
  * </ul>
  *
  * Filhote sempre foge. Domesticada, inconsciente ou montada, não roda. Com alvo, só reage a uma
- * ameaça selvagem que esteja investindo; a fuga interrompe a caça em curso.
+ * ameaça selvagem que esteja investindo ou o encarando; a fuga interrompe a caça em curso.
+ *
+ * <p>Encarar, blefar ou investir contra outra criatura selvagem avisa a ela
+ * ({@link PrehistoricCreature#intimidatedBy}). Sem isso o predador só via o herbívoro como ameaça
+ * durante a investida (quando ele fica agressivo): o gesto de ameaça não o afastava, e ao fim da
+ * investida ele parava de recuar e voltava à presa.
  */
 public class WaryGoal extends Goal {
     private static final int SCAN_INTERVAL = 10;
@@ -82,6 +88,10 @@ public class WaryGoal extends Goal {
             return false;
         }
         LivingEntity noticed = creature.takeNoticedThreat();
+        // O aviso da manada (ou de quem encara) só vale se, para esta criatura, aquilo é ameaça.
+        if (noticed != null && !isThreat(noticed, profile())) {
+            noticed = null;
+        }
         if (noticed == null) {
             if (--scanCooldown > 0) {
                 return false;
@@ -152,6 +162,7 @@ public class WaryGoal extends Goal {
             }
         }
 
+        intimidate(radius, distance);
         switch (state) {
             case CHARGE -> tickCharge(profile, distance);
             case BLUFF -> tickBluff(profile, distance);
@@ -170,16 +181,21 @@ public class WaryGoal extends Goal {
         lastDistance = distance;
         decisionCooldown = DECISION_INTERVAL;
         int attackers = Math.max(creature.huntingPack(),
-                threat instanceof PrehistoricCreature hunter ? groupSize(hunter) : 1);
+                threat instanceof PrehistoricCreature hunter ? hunter.fightingGroup() : 1);
         boolean guardingCalf = creature.hasCalfNearby(profile.calfRadius());
         var situation = new ThreatResponse.Situation(distance, approaching, sneaking(threat), firstContact,
-                guardingCalf, sizeRatio(threat), creature.isHunted(), attackers, creature.stress());
-        int defenders = creature.behavior().map(BehaviorProfile::groupDefense).orElse(false)
-                ? groupSize(creature) : 1;
-        Reaction reaction = isHunter(threat)
-                ? ThreatResponse.reactToHunter(situation, profile.tuning(), defenders,
-                        creature.getRandom()::nextDouble)
-                : ThreatResponse.react(situation, profile.tuning(), creature.getRandom()::nextDouble);
+                guardingCalf, creature.sizeRatioOf(threat), creature.isHunted(), attackers, creature.stress());
+        int defenders = creature.fightingGroup();
+        Reaction reaction;
+        if (isHunter(threat)) {
+            reaction = ThreatResponse.reactToHunter(situation, profile.tuning(), defenders,
+                    creature.getRandom()::nextDouble);
+        } else if (threat instanceof PrehistoricCreature confronter) {
+            reaction = ThreatResponse.reactToIntimidation(situation, defenders, confronter.fightingGroup(),
+                    confronter.isAggressive(), committed());
+        } else {
+            reaction = ThreatResponse.react(situation, profile.tuning(), creature.getRandom()::nextDouble);
+        }
         if (reaction == Reaction.IGNORE) {
             reaction = Reaction.ALERT;
         }
@@ -212,6 +228,21 @@ public class WaryGoal extends Goal {
                 creature.setAggressive(false);
                 creature.getNavigation().stop();
             }
+        }
+    }
+
+    /**
+     * Encarando de perto, blefando ou investindo contra outra criatura selvagem: ela fica sabendo.
+     * Recuando ou fugindo, não.
+     */
+    private void intimidate(double radius, double distance) {
+        if (!(threat instanceof PrehistoricCreature other) || other.isTame() || creature.isBaby()) {
+            return;
+        }
+        boolean confronting = state == Reaction.CHARGE || state == Reaction.BLUFF
+                || state == Reaction.ALERT && distance <= radius * ThreatResponse.CONFRONT_FRACTION;
+        if (confronting) {
+            other.intimidatedBy(creature);
         }
     }
 
@@ -347,22 +378,36 @@ public class WaryGoal extends Goal {
                 && hunter.behavior().flatMap(BehaviorProfile::prey).isPresent();
     }
 
+    /**
+     * Ameaça ativa: um caçador investindo, ou um animal que não caça confrontando esta criatura com
+     * força para afastá-la. Investida de herbívoro contra quem não se impressiona (o bando que pode
+     * abatê-lo, o predador faminto de força parecida) não conta: o porte individual sozinho fazia
+     * cada raptor do bando fugir do Elasmotério.
+     */
     private boolean isActivelyThreatening(LivingEntity entity) {
-        return entity instanceof PrehistoricCreature wild && wild.isAlive() && !wild.isBaby()
-                && !wild.isTame() && !wild.isUnconscious() && wild.isAggressive()
-                && wild.wariness().isPresent();
+        if (!(entity instanceof PrehistoricCreature wild) || !wild.isAlive() || wild.isBaby() || wild.isTame()
+                || wild.isUnconscious() || wild.wariness().isEmpty()) {
+            return false;
+        }
+        if (isHunter(wild)) {
+            return wild.isAggressive();
+        }
+        return (wild.isAggressive() || creature.isIntimidatedBy(wild)) && deterredBy(wild);
     }
 
-    /** Adult wild group size, used to estimate whether the predator or the herd has the advantage. */
-    private int groupSize(PrehistoricCreature member) {
-        int radius = member.behavior().map(BehaviorProfile::herdRadius).orElse(0);
-        if (radius <= 0) {
-            return 1;
-        }
-        return 1 + member.level().getEntitiesOfClass(PrehistoricCreature.class,
-                member.getBoundingBox().inflate(radius), other -> other != member
-                        && other.getType() == member.getType() && !other.isTame()
-                        && !other.isBaby() && !other.isUnconscious()).size();
+    /**
+     * Encarado por um animal que não caça: só conta como ameaça se o afastaria ({@link ThreatResponse#deters}).
+     * Um bando que pode abater o Elasmotério não recua de um bufo.
+     */
+    private boolean deterredBy(PrehistoricCreature confronter) {
+        double power = ThreatResponse.confrontationPower(creature.sizeRatioOf(confronter),
+                confronter.fightingGroup(), creature.fightingGroup());
+        return ThreatResponse.deters(power, confronter.isAggressive(), committed());
+    }
+
+    /** Com fome ou com alvo, o predador não cede fácil. */
+    private boolean committed() {
+        return creature.getTarget() != null || creature.hungerDrive() != Hunger.Drive.SATED;
     }
 
     /** Distância entre as bordas dos corpos: os raios valem igual para um dodô e para um Brontossauro. */
@@ -372,12 +417,5 @@ public class WaryGoal extends Goal {
 
     private static boolean sneaking(LivingEntity threat) {
         return threat instanceof Player player && player.isShiftKeyDown();
-    }
-
-    /** Tamanho relativo: razão dos volumes de colisão elevada a 2/3, a escala de uma área. */
-    private double sizeRatio(LivingEntity threat) {
-        double own = creature.getBbWidth() * creature.getBbWidth() * creature.getBbHeight();
-        double theirs = threat.getBbWidth() * threat.getBbWidth() * threat.getBbHeight();
-        return own <= 0 ? 1.0 : Math.pow(theirs / own, 2.0 / 3.0);
     }
 }

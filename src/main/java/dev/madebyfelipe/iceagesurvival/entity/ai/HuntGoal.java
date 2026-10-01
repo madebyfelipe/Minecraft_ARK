@@ -3,7 +3,6 @@ package dev.madebyfelipe.iceagesurvival.entity.ai;
 import dev.madebyfelipe.iceagesurvival.core.ecology.HuntChoice;
 import dev.madebyfelipe.iceagesurvival.core.ecology.Hunger;
 import dev.madebyfelipe.iceagesurvival.entity.PrehistoricCreature;
-import dev.madebyfelipe.iceagesurvival.species.BehaviorProfile;
 import dev.madebyfelipe.iceagesurvival.species.EcologyProfile;
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -81,7 +80,7 @@ public class HuntGoal extends Goal {
     }
 
     private HuntChoice.Prey prospect(LivingEntity candidate) {
-        return new HuntChoice.Prey(creature.distanceTo(candidate), sizeRatio(candidate), candidate.isBaby(),
+        return new HuntChoice.Prey(creature.distanceTo(candidate), creature.sizeRatioOf(candidate), candidate.isBaby(),
                 candidate.getHealth() / candidate.getMaxHealth(),
                 !(candidate instanceof PrehistoricCreature herdAnimal) || herdAnimal.isIsolated());
     }
@@ -129,21 +128,7 @@ public class HuntGoal extends Goal {
 
     /** Quantos da espécie caçam juntos aqui (1 = sozinho). */
     private int packSize() {
-        int herdRadius = creature.behavior().map(BehaviorProfile::herdRadius).orElse(0);
-        if (herdRadius <= 0) {
-            return 1;
-        }
-        return 1 + creature.level().getEntitiesOfClass(PrehistoricCreature.class,
-                creature.getBoundingBox().inflate(herdRadius), other -> other != creature
-                        && other.getType() == creature.getType() && !other.isTame() && !other.isBaby()
-                        && !other.isUnconscious()).size();
-    }
-
-    /** Tamanho relativo: razão dos volumes de colisão elevada a 2/3, a escala de uma área. */
-    private double sizeRatio(LivingEntity other) {
-        double own = creature.getBbWidth() * creature.getBbWidth() * creature.getBbHeight();
-        double theirs = other.getBbWidth() * other.getBbWidth() * other.getBbHeight();
-        return own <= 0 ? 1.0 : Math.pow(theirs / own, 2.0 / 3.0);
+        return creature.fightingGroup();
     }
 
     @Override

@@ -194,8 +194,11 @@ public class PredatorTests {
         huntsThePlayer(helper, ModEntities.SPINOSAURUS.get());
     }
 
-    /** O Brontossauro é pacífico: não vai atrás do jogador. */
-    @GameTest(template = ARENA, timeoutTicks = 200)
+    /**
+     * O Brontossauro é pacífico: não vai atrás do jogador. Lote próprio: solto na arena comum, ele
+     * encarava os predadores das cenas vizinhas e os tirava do jogador.
+     */
+    @GameTest(template = ARENA, batch = "bronto_player", timeoutTicks = 200)
     public static void brontosaurusLeavesThePlayerAlone(GameTestHelper helper) {
         LandCreature bronto = helper.spawn(ModEntities.BRONTOSAURUS.get(), 6, 0, 4);
         Player player = survivalPlayer(helper);

@@ -98,7 +98,8 @@ public class LandCreature extends PrehistoricCreature implements GeoEntity, Geck
         goalSelector.addGoal(1, new FleeWhenWeakGoal(this, FLEE_SPEED));
         goalSelector.addGoal(1, new YieldGoal(this, FLEE_SPEED));
         if (behavior.huntStyle() == BehaviorProfile.HuntStyle.STALK) {
-            goalSelector.addGoal(2, new StalkGoal(this, STALK_SPEED));
+            // Abaixo do WaryGoal: quem espreita também cede a um herbívoro que o encara.
+            goalSelector.addGoal(3, new StalkGoal(this, STALK_SPEED));
         }
         // Espécie cautelosa persegue quem a feriu na velocidade da investida.
         double chase = behavior.wariness().map(WarinessProfile::chargeSpeed).orElse(CHASE_SPEED);

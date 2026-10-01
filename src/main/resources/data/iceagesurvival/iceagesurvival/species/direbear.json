@@ -100,7 +100,7 @@
     "group_min": 1,
     "group_max": 1,
     "max_nearby": 1,
-    "min_distance": 400
+    "min_distance": 300
   },
   "sounds": {
     "ambient": "minecraft:entity.polar_bear.ambient",

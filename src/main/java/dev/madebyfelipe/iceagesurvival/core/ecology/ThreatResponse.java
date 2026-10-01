@@ -130,6 +130,69 @@ public final class ThreatResponse {
         return Reaction.ALERT;
     }
 
+    /** Com esta desvantagem, ou mais, o predador cede ao confronto de um animal que não caça. */
+    public static final double STARE_DOWN_RATIO = 2.0;
+
+    /**
+     * Se o confronto de um animal que não é caçador (o mamute, o Estegossauro) afasta o predador.
+     * Compara a força dos dois lados como {@link #reactToHunter}. Quem tem metade da força do
+     * outro lado, ou menos, cede só de ser encarado — mesmo com fome ou no meio da caçada. Em forças
+     * parecidas, uma investida (ou blefe) afasta o predador saciado e sem alvo; o faminto, ou o
+     * bando que já escolheu a presa, segura a posição.
+     *
+     * @param relativePower porte do animal ÷ o do predador × manada que confronta ÷ bando do predador
+     * @param charging      o animal está investindo ou blefando agora
+     * @param committed     o predador tem fome ou já tem alvo
+     */
+    public static boolean deters(double relativePower, boolean charging, boolean committed) {
+        return relativePower >= STARE_DOWN_RATIO
+                || charging && !committed && relativePower >= 1.0 / OUTMATCHED_SIZE_RATIO;
+    }
+
+    /**
+     * Raio mínimo em que os da mesma espécie contam como um só grupo num confronto. O raio da manada
+     * do Velociraptor (10) partia o bando em dois quando ele se espalhava um pouco, e a conta da
+     * força virava de lado de um tick para o outro.
+     */
+    public static final double ALLY_RADIUS = 16.0;
+
+    /**
+     * Porte relativo: razão dos volumes de colisão elevada a 2/3, a escala de uma área. O mesmo para
+     * a presa avaliando o caçador, o caçador avaliando a presa e o predador avaliando quem o encara.
+     *
+     * @return porte do outro ÷ o próprio
+     */
+    public static double sizeRatio(double ownWidth, double ownHeight, double otherWidth, double otherHeight) {
+        double own = ownWidth * ownWidth * ownHeight;
+        double other = otherWidth * otherWidth * otherHeight;
+        return own <= 0 ? 1.0 : Math.pow(other / own, 2.0 / 3.0);
+    }
+
+    /** {@code relativePower} de {@link #deters}. */
+    public static double confrontationPower(double sizeRatio, int confronters, int defenders) {
+        return sizeRatio * Math.max(1, confronters) / Math.max(1, defenders);
+    }
+
+    /**
+     * Como um predador reage a um animal que não é caçador e que o está confrontando: se o confronto
+     * o afasta ({@link #deters}), corre (e larga a caça) diante de um lado claramente mais forte, ou
+     * sai andando em forças parecidas; senão, encara de volta.
+     *
+     * @param defenders   quantos do bando do predador estão ali
+     * @param confronters quantos da manada do animal o confrontam
+     * @param charging    o animal está investindo ou blefando agora
+     * @param committed   o predador tem fome ou já tem alvo
+     */
+    public static Reaction reactToIntimidation(Situation situation, int defenders, int confronters,
+                                               boolean charging, boolean committed) {
+        double power = confrontationPower(situation.sizeRatio(), confronters, defenders);
+        if (deters(power, charging, committed)) {
+            return power >= OUTMATCHED_SIZE_RATIO ? Reaction.FLEE : Reaction.RETREAT;
+        }
+        // Não se impressiona: encara de volta. O porte individual não decide aqui — o bando decide.
+        return Reaction.ALERT;
+    }
+
     /**
      * Como uma presa reage a um caçador, comparando a força provável dos grupos. A razão combina
      * porte do caçador, número de atacantes e defensores; vantagem clara permite intimidar, e

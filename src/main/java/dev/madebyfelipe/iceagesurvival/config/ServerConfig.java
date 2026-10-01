@@ -59,7 +59,11 @@ public final class ServerConfig {
 
     public static final ForgeConfigSpec.IntValue FULL_DANGER_DISTANCE = BUILDER
             .comment("Distância do spawn do mundo em que criaturas selvagens já nascem com o nível máximo. No spawn, até 30% dele.")
-            .defineInRange("fullDangerDistance", 3000, 0, 1_000_000);
+            .defineInRange("fullDangerDistance", 300, 0, 1_000_000);
+
+    public static final ForgeConfigSpec.BooleanValue STARTER_APEX_ENABLED = BUILDER
+            .comment("Se um T-Rex mora sempre a menos de 300 blocos do spawn do mundo (volta três dias depois de morrer ou ser domesticado).")
+            .define("starterApexEnabled", true);
 
     public static final ForgeConfigSpec.DoubleValue STIMULANT_TORPOR = BUILDER
             .comment("Torpor que um estimulante tira de uma criatura.")

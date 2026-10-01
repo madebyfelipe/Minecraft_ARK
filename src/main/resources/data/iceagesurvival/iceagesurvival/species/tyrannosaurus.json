@@ -102,7 +102,7 @@
     "group_min": 1,
     "group_max": 1,
     "max_nearby": 1,
-    "min_distance": 1000
+    "min_distance": 300
   },
   "sounds": {
     "ambient": "fossil:tyrannosaurus_ambient",

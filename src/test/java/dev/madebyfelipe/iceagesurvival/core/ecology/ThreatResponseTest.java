@@ -1,6 +1,8 @@
 package dev.madebyfelipe.iceagesurvival.core.ecology;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import dev.madebyfelipe.iceagesurvival.core.ecology.ThreatResponse.Reaction;
 import dev.madebyfelipe.iceagesurvival.core.ecology.ThreatResponse.Situation;
@@ -114,5 +116,40 @@ class ThreatResponseTest {
     void herdCanFaceALargerHunterTogether() {
         assertEquals(Reaction.CHARGE, ThreatResponse.reactToHunter(hunter(8, 1.2, 1),
                 RHINO, 2, UNLUCKY));
+    }
+
+    @Test
+    void predatorFleesAHerbivoreThatOutmatchesIt() {
+        assertEquals(Reaction.FLEE,
+                ThreatResponse.reactToIntimidation(hunter(8, 2.5, 1), 1, 1, false, true),
+                "bem maior, só encarando: corre, mesmo caçando");
+        assertEquals(Reaction.FLEE,
+                ThreatResponse.reactToIntimidation(hunter(8, 0.5, 1), 1, 4, false, true),
+                "manada de quatro contra um predador");
+    }
+
+    @Test
+    void comparableHerbivoreOnlyDetersASatedPredatorWithACharge() {
+        assertEquals(Reaction.ALERT,
+                ThreatResponse.reactToIntimidation(hunter(8, 1.2, 1), 1, 1, false, false),
+                "porte parecido, só bufando: o predador encara de volta");
+        assertEquals(Reaction.RETREAT,
+                ThreatResponse.reactToIntimidation(hunter(8, 1.2, 1), 1, 1, true, false),
+                "saciado, a investida veio: sai andando");
+        assertFalse(ThreatResponse.deters(1.2, true, true), "com fome ou caçando, segura a posição");
+        assertFalse(ThreatResponse.deters(1.62, true, true), "três Alossauros famintos contra dois mamutes");
+    }
+
+    @Test
+    void aStrongPackIsNotDeterredByASingleHerbivore() {
+        // Elasmotério contra quatro Velociraptores: ~5,9 ÷ 4.
+        double power = ThreatResponse.confrontationPower(5.9, 1, 4);
+        assertFalse(ThreatResponse.deters(power, false, false));
+        assertFalse(ThreatResponse.deters(power, true, true));
+        assertTrue(ThreatResponse.deters(power, true, false));
+        assertFalse(ThreatResponse.deters(ThreatResponse.confrontationPower(5.9, 1, 3), false, true),
+                "três ainda seguram o bufo");
+        assertTrue(ThreatResponse.deters(ThreatResponse.confrontationPower(5.9, 1, 2), false, true),
+                "dois, não");
     }
 }

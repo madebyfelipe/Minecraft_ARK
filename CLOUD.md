@@ -259,10 +259,10 @@ Todas as espécies terrestres usam a mesma classe (`LandCreature`); o que as dif
 | Espécie | Papel | Tamanho (colisão) | Comportamento | Nasce em |
 |---|---|---|---|---|
 | **Lobo-terrível** (`dire_wolf`) | Primeira domesticação; predador de matilha | 0,8 × 1,2 | Agressivo, matilha de 2–4, defesa em grupo, caça presas pequenas, recua com 20% de vida | taiga, taiga nevada, taigas antigas, grove, planície nevada |
-| **Smilodon** (`smilodon`) | Predador territorial solitário, rápido | 1,3 × 2,3 | Agressivo e **espreita** (`hunt_style: stalk`): aproxima-se devagar pelas costas e só dá o bote, rugindo, a 4,5 blocos, ao ser ferido ou quando o jogador o vê. Território de 32 blocos, caça presas grandes, recua com 25% de vida | taiga, taiga nevada, taigas antigas, grove, encostas nevadas |
+| **Smilodon** (`smilodon`) | Predador territorial solitário, rápido | 1,3 × 2,3 | Agressivo e **espreita** (`hunt_style: stalk`): aproxima-se devagar pelas costas e só dá o bote, rugindo, a 4,5 blocos, ao ser ferido ou quando o jogador o vê. Território de 32 blocos, caça presas grandes, recua com 25% de vida | taiga, taiga nevada, taigas antigas, grove, encostas nevadas, planície nevada e picos de gelo, desde o spawn; sozinho ou em casal |
 | **Urso-terrível** (`direbear`) | Predador territorial solitário, resistente | 2,0 × 3,0 | Agressivo, território de 64 blocos, caça presas grandes e recua com 15% de vida | taiga, taiga nevada, taigas antigas, grove, encostas nevadas |
 | **Mamute-lanoso** (`mammoth`) | Herbívoro de manada, tanque; montado, coletor de madeira | 3,0 × 4,65 | Pacífico até ser provocado; manada migratória de 2–4 que se defende junta | planície nevada, ice spikes, taiga nevada |
-| **Tyrannosaurus rex** (`tyrannosaurus`) | Primeiro dinossauro; predador de topo solitário, raro | 2,7 × 5,4 | Agressivo, raio de percepção 24, território de 48 blocos, caça presas grandes, recua com 10% de vida | taiga, taiga nevada, taigas antigas, planície nevada (peso 1) |
+| **Tyrannosaurus rex** (`tyrannosaurus`) | Primeiro dinossauro; predador de topo solitário, raro | 2,7 × 5,4 | Agressivo, raio de percepção 24, território de 48 blocos, caça presas grandes, recua com 10% de vida | taiga, taiga nevada, taigas antigas, planície nevada (peso 1, a partir de 300 blocos) e um garantido a 220–297 blocos do spawn |
 | **Velociraptor** (`velociraptor`) | Predador pequeno de bando | 0,7 × 1,1 | Agressivo, bando de 3–5 com defesa em grupo, caça presas pequenas | taiga, taiga nevada, grove |
 | **Utahraptor** (`utahraptor`) | Raptor grande, montável (o "raptor" do ARK) | 1,2 × 2,3 | Agressivo, bando de 2–3, caça presas grandes | taigas nevadas e de abetos |
 | **Espinossauro** (`spinosaurus`) | Predador de topo das águas geladas, montável | 2,7 × 5,6 | Agressivo, atravessa o mato, domesticado com peixe; assento à frente da vela (`seat_forward`) | rio congelado, praia nevada, oceano congelado |
@@ -380,15 +380,17 @@ Bloco `spawn` do JSON de espécie, lido pela reposição própria do mod. **Ause
 - A posição passa pelas checagens de spawn do vanilla (mapa de altura, regra de superfície, colisão e bioma da tag), e o nascimento passa pelos eventos do Forge, então outro mod pode barrar.
 - `max_nearby` é o teto de indivíduos daquela espécie no `wildSpawnDensityRadius` em volta do jogador, e `wildSpawnMaxTotal` (padrão 72; teto efetivo 50 após a redução de aproximadamente 30%) o teto da **soma de todas as espécies**. Criaturas domesticadas não entram na contagem. O raio da contagem é sempre maior que o de spawn (pelo menos `wildSpawnMaxDistance` + 32): antes os dois eram 96, quem nascia na borda saía andando, deixava de contar e abria vaga — com o teto só por espécie, uma base parada juntava mais de 40 criaturas em minutos. Os pesos de `forge:add_spawns` também foram reduzidos em aproximadamente 30% (arredondados para inteiros; espécies de peso 1 ficam no mínimo permitido), para diminuir o fluxo de fauna em chunks novos sem desfazer bandos.
 
-**Zonas de perigo:** `spawn.min_distance` é a distância horizontal mínima do spawn do mundo para a espécie nascer, conferida na regra de colocação — vale para a reposição e para a geração do terreno. E o nível selvagem máximo cresce com a distância: 30% do `maxWildLevel` no spawn, 100% a `fullDangerDistance` (padrão 3.000 blocos).
+**Zonas de perigo:** `spawn.min_distance` é a distância horizontal mínima do spawn do mundo para a espécie nascer, conferida na regra de colocação — vale para a reposição e para a geração do terreno. E o nível selvagem máximo cresce com a distância: 30% do `maxWildLevel` no spawn, 100% a `fullDangerDistance` (padrão 300 blocos; era 3.000). O valor fica no `serverconfig` do mundo: mundos já criados mantêm o antigo até ele ser editado.
 
 | Zona | Distância do spawn | Espécies | Raridade |
 |---|---|---|---|
-| Spawn | 0+ | dodô, Elasmotério, lobo-terrível, mamute, Brontossauro e Smilodon | fauna inicial; Smilodon solitário substitui o bando de Velociraptores |
-| Próximo | 300+ | Estegossauro, Velociraptor e Pteranodonte | bandos de raptores e Pteranodonte começam fora da zona inicial |
-| Médio | 400+ / 500+ | urso-terrível / Utahraptor | predadores ficam acessíveis mais cedo |
-| Longe | 750+ | Alossauro e Espinossauro | raros (peso 1) |
-| Apex | 1.000+ | T-Rex | raro (peso 1, máximo 1 por perto); antes só aparecia a partir de 2.000 blocos |
+| Spawn | 0–300 | dodô, Elasmotério, lobo-terrível, mamute, Brontossauro e Smilodon | o Smilodon é o predador da zona inicial: solitário, às vezes em casal (`family.pair_chance` 0,35), também na planície nevada e nos picos de gelo onde antes nasciam os Velociraptores |
+| Apex garantido | 220–297 | um T-Rex | sempre há um, com território próprio de 32 blocos a 220–265 do spawn; volta três dias depois de morrer ou ser domesticado (`starterApexEnabled`) |
+| Além do spawn | 300+ | Velociraptor, Pteranodonte, Estegossauro, urso-terrível e T-Rex natural | Velociraptor nunca dentro dos 300 blocos |
+| Médio | 350+ | Utahraptor | |
+| Longe | 400+ | Alossauro e Espinossauro | raros (peso 1) |
+- **Fauna fora da zona:** cada criatura selvagem é conferida uma vez contra a distância mínima da espécie. A geração do terreno roda antes de o spawn do mundo estar decidido, e mundos de versões anteriores têm Velociraptores no spawn; a criatura selvagem, sem dono e não presa ao mundo (nome, comando, teste) que estiver dentro do raio proibido some no primeiro tick. Postas por comando, ovo ou reprodução já nascem conferidas.
+- **Apex garantido** (`StarterApexKeeper`, dados do Overworld): nasce quando um jogador já tem aquele trecho do anel carregado, nunca a menos de 48 blocos de alguém; se o jogador chega perto da última posição conhecida e ele não está lá, outro é posto.
 - Não trocamos a categoria para `MONSTER` para conseguir spawn contínuo: isso faria a fauna desaparecer sozinha ([D20](#4-decisões)).
 - Tudo desligável em `wildSpawnEnabled`, para quem quiser a fauna só na geração do terreno.
 
@@ -695,6 +697,26 @@ Ver a tabela em [4](#4-decisões). Registro de mudanças estruturais:
   adultos de bandos diferentes da mesma espécie competindo por espaço; membros da própria manada
   não disputam entre si. Removidas as tags de rivais entre espécies; a disputa não depende de uma
   fêmea próxima.
+- 2026-10-01 — Zona inicial e confronto herbívoro × carnívoro: Velociraptor continua só a partir de 300
+  blocos e o Smilodon (solitário ou casal, peso 4, máx. 2 por perto) passa a nascer também na planície
+  nevada e nos picos de gelo; um T-Rex garantido mora a 220–297 blocos do spawn; T-Rex natural e
+  urso-terrível a 300+, Utahraptor 350+, Alossauro e Espinossauro 400+; nível selvagem máximo a 300
+  blocos (antes 3.000). Carnívoros não cediam a herbívoros porque só viam o herbívoro como ameaça
+  enquanto ele estava agressivo (durante a investida): bufar e encarar não contava, e ao fim da
+  investida o predador parava de recuar e voltava à presa; o Smilodon, ainda, espreitava com a mesma
+  prioridade do `WaryGoal` e nem reagia. Agora quem encara de perto, blefa ou investe avisa o outro
+  (`intimidatedBy`, 3 s), e o predador decide por `ThreatResponse.deters`: cede a quem tem o dobro
+  da força dele (porte × manada ÷ bando) mesmo com fome; em forças parecidas, só o saciado e sem alvo
+  cede a uma investida. A espreita passou para baixo do `WaryGoal`. Os dois lados usam a mesma conta:
+  porte relativo (`ThreatResponse.sizeRatio`, antes copiado em dois goals) e grupo
+  (`fightingGroup`, raio mínimo de 16 blocos — com o raio de manada de 10 o bando de raptores se
+  partia e a decisão virava de lado entre ticks). O porte individual sozinho não decide mais contra
+  quem não caça: cada raptor do bando fugia do Elasmotério. A ameaça avisada pela manada agora passa
+  por `isThreat` antes de valer. Contrato em `ConfrontationTableTest` (portes reais por par de
+  espécies). GameTest do Brontossauro em lote próprio: solto na arena comum, ele afastava os
+  predadores das cenas vizinhas. Calor do Elasmotério e mordida montada limpam a arena antes de
+  medir: bichos soltos de cenas vizinhas davam calor máximo e roubavam a mordida (instáveis já na
+  `main`). Suíte conferida em 4 rodadas seguidas.
 - 2026-10-01 — Defesa durante a caça: o WaryGoal agora pode responder a uma investida ativa mesmo
   quando o predador já tem presa-alvo. Se a reação for recuo/fuga, limpa o alvo para que a caçada
   termine e o carnívoro se afaste; GameTest reproduz Utahraptor caçando enquanto um Mamute o expulsa.

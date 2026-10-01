@@ -93,6 +93,9 @@ public class EarlyGameTests {
     public static void elasmotheriumWarmsRiderAndNeighbours(GameTestHelper helper) {
         Player owner = PredatorTests.survivalPlayer(helper);
         LandCreature elasmo = helper.spawnWithNoFreeWill(ModEntities.ELASMOTHERIUM.get(), 2, 2, 2);
+        // Um Elasmotério solto de uma cena vizinha encostado no jogador "perto" dava o calor máximo.
+        helper.getLevel().getEntitiesOfClass(PrehistoricCreature.class, elasmo.getBoundingBox().inflate(20.0),
+                other -> other != elasmo).forEach(PrehistoricCreature::discard);
         elasmo.tame(owner);
         elasmo.setAffinity(PrehistoricCreature.MAX_AFFINITY);
 

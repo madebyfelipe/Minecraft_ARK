@@ -138,7 +138,9 @@ public class WildlifeTests {
         raptor.setTicksSinceMeal(0);
         double start = raptor.distanceTo(herbivore);
         helper.onEachTick(() -> {
-            if (herbivore.isAggressive() && raptor.distanceTo(herbivore) > start + 3.0) {
+            // Encarar já basta para quem é bem maior: a investida nem sempre chega a vir.
+            if ((herbivore.isAggressive() || raptor.isIntimidatedBy(herbivore))
+                    && raptor.distanceTo(herbivore) > start + 3.0) {
                 helper.succeed();
             }
         });
@@ -158,6 +160,34 @@ public class WildlifeTests {
         largeHerbivoreDrivesOffSatedVelociraptor(helper, ModEntities.BRONTOSAURUS.get());
     }
 
+    /**
+     * O Smilodon caça espreitando, e a espreita tinha a mesma prioridade da reação a ameaças: o
+     * mamute bufando e investindo não o tirava da presa.
+     */
+    @GameTest(template = ARENA, batch = BATCH + "_stalker", timeoutTicks = 240)
+    public static void mammothDrivesOffStalkingSmilodon(GameTestHelper helper) {
+        HuntTests.clearStrays(helper);
+        LandCreature smilodon = helper.spawn(ModEntities.SMILODON.get(), 8, 0, 14);
+        Pig pig = helper.spawnWithNoFreeWill(EntityType.PIG, 8, 0, 4);
+        smilodon.setTicksSinceMeal(20L * 3600);
+        LandCreature[] mammoth = {null};
+        double[] start = {0};
+
+        helper.onEachTick(() -> {
+            if (mammoth[0] == null && smilodon.getTarget() == pig) {
+                mammoth[0] = helper.spawn(ModEntities.MAMMOTH.get(), 8, 0, 9);
+                start[0] = smilodon.distanceTo(mammoth[0]);
+            } else if (mammoth[0] != null && smilodon.getTarget() != pig && smilodon.isIntimidatedBy(mammoth[0])
+                    && smilodon.distanceTo(mammoth[0]) > start[0] + 3.0) {
+                helper.succeed();
+            }
+        });
+        helper.runAtTickTime(220, () -> helper.fail("o Mamute não afastou o Smilodon; alvo=" + smilodon.getTarget()
+                + ", espreitando=" + smilodon.isStalking()
+                + ", intimidado=" + (mammoth[0] != null && smilodon.isIntimidatedBy(mammoth[0]))
+                + ", distância=" + (mammoth[0] == null ? "sem encontro" : smilodon.distanceTo(mammoth[0]))));
+    }
+
     @GameTest(template = ARENA, batch = BATCH + "_hunted", timeoutTicks = 220)
     public static void largeHerbivoreDrivesOffPredatorThatIsAlreadyHunting(GameTestHelper helper) {
         HuntTests.clearStrays(helper);
@@ -166,15 +196,16 @@ public class WildlifeTests {
         utahraptor.setTicksSinceMeal(20L * 3600);
         LandCreature[] mammoth = {null};
         Vec3[] predatorStart = {null};
-        boolean[] sawCharge = {false};
+        boolean[] confronted = {false};
 
         helper.onEachTick(() -> {
             if (mammoth[0] == null && utahraptor.getTarget() == pig) {
                 predatorStart[0] = utahraptor.position();
                 mammoth[0] = helper.spawn(ModEntities.MAMMOTH.get(), 8, 0, 4);
             } else if (mammoth[0] != null) {
-                sawCharge[0] |= mammoth[0].isAggressive();
-                if (sawCharge[0] && utahraptor.getTarget() != pig
+                // Bufar basta: o mamute tem mais que o dobro da força do Utahraptor.
+                confronted[0] |= mammoth[0].isAggressive() || utahraptor.isIntimidatedBy(mammoth[0]);
+                if (confronted[0] && utahraptor.getTarget() != pig
                         && utahraptor.position().distanceTo(predatorStart[0]) > 3.0) {
                     helper.succeed();
                 }

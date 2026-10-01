@@ -151,7 +151,11 @@ public class HuntTests {
                 helper.succeed();
             }
         });
-        helper.runAtTickTime(230, () -> helper.fail("o bando oportunista ignorou o Elasmotério próximo"));
+        helper.runAtTickTime(230, () -> helper.fail("o bando oportunista ignorou o Elasmotério próximo: "
+                + pack.stream().map(raptor -> String.format("[dist %.1f, fome %s, falhou %s, intimidado %s, alvo %s]",
+                        raptor.distanceTo(elasmotherium), raptor.hungerDrive(), raptor.recentlyFailedHunt(),
+                        raptor.isIntimidatedBy(elasmotherium), raptor.getTarget())).toList()
+                + " elasmo agressivo=" + elasmotherium.isAggressive()));
     }
 
     /** Barriga cheia: o predador ignora a presa que passa ao lado. */

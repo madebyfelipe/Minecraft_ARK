@@ -154,7 +154,9 @@ public class EcologyTests {
         assertSpawnWeight(helper, Biomes.SNOWY_PLAINS, ModEntities.DODO.get(), 14);
         assertSpawnWeight(helper, Biomes.SNOWY_PLAINS, ModEntities.VELOCIRAPTOR.get(), 11);
         assertSpawnWeight(helper, Biomes.SNOWY_PLAINS, ModEntities.PTERANODON.get(), 1);
-        assertSpawnWeight(helper, Biomes.TAIGA, ModEntities.SMILODON.get(), 1);
+        assertSpawnWeight(helper, Biomes.TAIGA, ModEntities.SMILODON.get(), 3);
+        // O Smilodon substitui o bando de Velociraptores na planície nevada do spawn.
+        assertSpawnWeight(helper, Biomes.SNOWY_PLAINS, ModEntities.SMILODON.get(), 3);
         helper.succeed();
     }
 
@@ -258,16 +260,16 @@ public class EcologyTests {
                 && min.applyAsInt(ModEntities.BRONTOSAURUS.get()) == 0
                 && min.applyAsInt(ModEntities.SMILODON.get()) == 0,
                 "fauna comum e Smilodon solitário deveriam nascer já no spawn");
-        helper.assertTrue(min.applyAsInt(ModEntities.VELOCIRAPTOR.get()) == 300
-                && min.applyAsInt(ModEntities.PTERANODON.get()) == 300,
-                "raptores e Pteranodonte deveriam começar depois da zona inicial");
-        helper.assertTrue(min.applyAsInt(ModEntities.TYRANNOSAURUS.get()) == 1000,
-                "o raio de exclusão do T-Rex deveria ter diminuído");
-        helper.assertTrue(min.applyAsInt(ModEntities.ALLOSAURUS.get()) == 750
-                        && min.applyAsInt(ModEntities.SPINOSAURUS.get()) == 750,
-                "os predadores grandes deveriam aparecer a partir de 750 blocos");
-        helper.assertTrue(min.applyAsInt(ModEntities.UTAHRAPTOR.get()) == 500
-                        && min.applyAsInt(ModEntities.DIREBEAR.get()) == 400,
+        helper.assertTrue(min.applyAsInt(ModEntities.VELOCIRAPTOR.get()) >= 300
+                && min.applyAsInt(ModEntities.PTERANODON.get()) >= 300,
+                "raptores e Pteranodonte não podem nascer dentro dos 300 blocos do spawn");
+        helper.assertTrue(min.applyAsInt(ModEntities.TYRANNOSAURUS.get()) == 300,
+                "o T-Rex natural deveria começar logo depois da zona inicial (o apex garantido fica dentro)");
+        helper.assertTrue(min.applyAsInt(ModEntities.ALLOSAURUS.get()) == 400
+                        && min.applyAsInt(ModEntities.SPINOSAURUS.get()) == 400,
+                "os predadores grandes deveriam aparecer a partir de 400 blocos");
+        helper.assertTrue(min.applyAsInt(ModEntities.UTAHRAPTOR.get()) == 350
+                        && min.applyAsInt(ModEntities.DIREBEAR.get()) == 300,
                 "os predadores médios deveriam aparecer mais perto do spawn");
         helper.succeed();
     }

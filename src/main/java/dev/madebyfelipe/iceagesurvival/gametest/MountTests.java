@@ -112,6 +112,11 @@ public class MountTests {
 
     private static LandCreature mounted(GameTestHelper helper, Player owner,
                                         net.minecraft.world.entity.EntityType<LandCreature> type) {
+        // A mordida acerta o que estiver na frente: um bicho solto de uma cena vizinha roubava o golpe.
+        var center = helper.absoluteVec(new net.minecraft.world.phys.Vec3(4, 0, 4));
+        helper.getLevel().getEntitiesOfClass(net.minecraft.world.entity.Mob.class,
+                new net.minecraft.world.phys.AABB(center, center).inflate(20.0), mob -> true)
+                .forEach(net.minecraft.world.entity.Entity::discard);
         LandCreature rex = helper.spawnWithNoFreeWill(type, 4, 0, 4);
         rex.tame(owner);
         rex.setAffinity(PrehistoricCreature.MAX_AFFINITY);

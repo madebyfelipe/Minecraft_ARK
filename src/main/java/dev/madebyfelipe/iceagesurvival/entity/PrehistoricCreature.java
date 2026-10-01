@@ -32,6 +32,7 @@ import dev.madebyfelipe.iceagesurvival.species.FamilyProfile;
 import dev.madebyfelipe.iceagesurvival.core.mount.FlightModel;
 import dev.madebyfelipe.iceagesurvival.core.ecology.Hunger;
 import dev.madebyfelipe.iceagesurvival.core.ecology.Stress;
+import dev.madebyfelipe.iceagesurvival.core.ecology.ThreatResponse;
 import dev.madebyfelipe.iceagesurvival.species.EcologyProfile;
 import dev.madebyfelipe.iceagesurvival.core.mount.MountedReach;
 import dev.madebyfelipe.iceagesurvival.species.TamingProfile;
@@ -162,6 +163,10 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     private static final String TAG_NEXT_MATING = "NextMating";
     private static final String TAG_GESTATION_END = "GestationEnd";
     private static final String TAG_GESTATION_CHILD = "GestationChild";
+    private static final String TAG_ZONE_CHECKED = "ZoneChecked";
+    private static final String TAG_TERRITORY = "Territory";
+    /** Por quanto tempo um animal que encarou este predador ainda conta como ameaça para ele. */
+    private static final int INTIMIDATION_TICKS = 60;
 
     /** Segundos juntos, com o acasalamento ligado, até a fêmea conceber. */
     public static final int MATING_SECONDS = 10;
@@ -244,6 +249,17 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     @Nullable
     private LivingEntity yieldingFrom;
     private long yieldUntil;
+    /** Quem está encarando, blefando ou investindo contra esta criatura agora (só no servidor). */
+    @Nullable
+    private LivingEntity intimidator;
+    private long intimidatedUntil;
+    /**
+     * Já conferida contra a zona de perigo da espécie. A geração do terreno roda antes de o spawn do
+     * mundo estar decidido, e mundos de versões anteriores têm fauna que hoje não nasceria ali.
+     */
+    private boolean zoneChecked;
+    /** Raio de território próprio deste indivíduo (o apex inicial); 0 = o da espécie. */
+    private int territoryOverride;
     private float plowHardness;
     /** Carga do pulo enviada pelo cliente de quem monta, de 0 a 1. */
     /** Se o impulso do pulo já foi aplicado e a criatura ainda não voltou ao chão. */
@@ -308,6 +324,32 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         return true;
     }
 
+    /**
+     * Selvagem, solta, e mais perto do spawn do que a espécie nasce hoje: sobra da geração do terreno
+     * com o spawn provisório ou de um mundo de versão anterior. Domesticada, com dono ou presa ao
+     * mundo (nome, comando, teste) fica.
+     */
+    private boolean outsideDangerZone() {
+        if (isTame() || tamerUUID != null || isPersistenceRequired() || isVehicle()
+                || !(level() instanceof ServerLevel serverLevel)) {
+            return false;
+        }
+        int minDistance = species().flatMap(Species::spawn).map(SpawnProfile::minDistance).orElse(0);
+        return minDistance > 0 && !DangerZones.allowed(distanceFromWorldSpawn(serverLevel, blockPosition()), minDistance);
+    }
+
+    /** Marca como já conferida contra a zona de perigo (criaturas postas de propósito). */
+    public void markZoneChecked() {
+        zoneChecked = true;
+    }
+
+    /** Território próprio, no lugar do raio da espécie; centrado onde a criatura está. */
+    public void setTerritory(BlockPos home, int radius) {
+        homePos = home;
+        territoryOverride = Math.max(0, radius);
+        applyBehavior();
+    }
+
     /** Distância horizontal até o spawn do mundo. */
     public static double distanceFromWorldSpawn(ServerLevel level, BlockPos pos) {
         BlockPos spawn = level.getSharedSpawnPos();
@@ -323,6 +365,8 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     @Override
     public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, MobSpawnType reason,
                                         @Nullable SpawnGroupData spawnData, @Nullable CompoundTag dataTag) {
+        // Só a geração do terreno fica para conferir: o spawn do mundo ainda pode mudar.
+        zoneChecked = reason != MobSpawnType.CHUNK_GENERATION;
         if (spawnData == FamilyMember.INSTANCE) {
             return spawnData;
         }
@@ -341,6 +385,9 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     private void spawnFamily(ServerLevelAccessor level, DifficultyInstance difficulty, FamilyProfile family) {
         RandomSource random = level.getRandom();
         if (random.nextDouble() >= family.calfChance()) {
+            if (random.nextDouble() < family.pairChance()) {
+                spawnMate(level, difficulty);
+            }
             return;
         }
         PrehistoricCreature calf = spawnRelative(level, difficulty);
@@ -353,6 +400,27 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         if (random.nextDouble() < family.mateChance()) {
             spawnRelative(level, difficulty);
         }
+    }
+
+    /**
+     * O parceiro do outro sexo, ao lado. Os atributos dos dois são sorteados aqui, antes de entrar no
+     * mundo: na geração do terreno a entidade só é carregada depois, e o sorteio de lá trocaria o sexo.
+     */
+    private void spawnMate(ServerLevelAccessor level, DifficultyInstance difficulty) {
+        if (!statsRolled) {
+            rollWildStats();
+        }
+        if (!(getType().create(level.getLevel()) instanceof PrehistoricCreature mate)) {
+            return;
+        }
+        double angle = level.getRandom().nextDouble() * Math.PI * 2.0;
+        double offset = getBbWidth() + 0.5;
+        mate.moveTo(getX() + Math.cos(angle) * offset, getY(), getZ() + Math.sin(angle) * offset,
+                level.getRandom().nextFloat() * 360.0F, 0.0F);
+        mate.finalizeSpawn(level, difficulty, MobSpawnType.NATURAL, FamilyMember.INSTANCE, null);
+        mate.rollWildStats();
+        mate.setFemale(!isFemale());
+        level.addFreshEntity(mate);
     }
 
     @Nullable
@@ -533,6 +601,23 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         LivingEntity threat = noticedThreat;
         noticedThreat = null;
         return threat != null && threat.isAlive() && level().getGameTime() <= noticedThreatUntil ? threat : null;
+    }
+
+    /**
+     * Outro animal está encarando, blefando ou investindo contra esta criatura: ela passa a vê-lo
+     * como ameaça enquanto durar o confronto, mesmo que ele não ataque — e fica sabendo na hora.
+     */
+    public void intimidatedBy(LivingEntity other) {
+        if (intimidator != other || level().getGameTime() > intimidatedUntil) {
+            noticeThreat(other);
+        }
+        intimidator = other;
+        intimidatedUntil = level().getGameTime() + INTIMIDATION_TICKS;
+    }
+
+    /** Se {@code other} confrontou esta criatura há pouco. */
+    public boolean isIntimidatedBy(LivingEntity other) {
+        return other == intimidator && other.isAlive() && level().getGameTime() <= intimidatedUntil;
     }
 
     /** O alerta corre pela manada: os do mesmo tipo, selvagens e sem alvo, no raio da manada, encaram também. */
@@ -854,7 +939,8 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         behavior.ifPresent(profile -> setBase(Attributes.FOLLOW_RANGE, Math.max(profile.aggroRadius(),
                 Math.max(profile.prey().isPresent() ? profile.ecology().huntRadius() : 0.0,
                         profile.ecology().rivalRadius()))));
-        int territory = behavior.map(BehaviorProfile::territoryRadius).orElse(0);
+        int territory = territoryOverride > 0 ? territoryOverride
+                : behavior.map(BehaviorProfile::territoryRadius).orElse(0);
         if (!isTame() && territory > 0 && homePos != null) {
             restrictTo(homePos, territory);
         } else {
@@ -1020,6 +1106,13 @@ public abstract class PrehistoricCreature extends TamableAnimal {
             setNoGravity(false);
         }
         super.tick();
+        if (!level().isClientSide && !zoneChecked) {
+            zoneChecked = true;
+            if (outsideDangerZone()) {
+                discard();
+                return;
+            }
+        }
         if (level().isClientSide || tickCount % TORPOR_UPDATE_INTERVAL_TICKS != 0) {
             return;
         }
@@ -1288,6 +1381,28 @@ public abstract class PrehistoricCreature extends TamableAnimal {
      * Se esta criatura de manada está desgarrada: nenhum outro da espécie, acordado, no raio da
      * manada. Criaturas solitárias estão sempre isoladas.
      */
+    /**
+     * Quantos da espécie enfrentam algo juntos aqui, contando esta: a manada com defesa em grupo e o
+     * bando de caçadores. Solitárias contam 1. É a mesma conta para os dois lados de um confronto
+     * ({@link dev.madebyfelipe.iceagesurvival.core.ecology.ThreatResponse}) e para a caçada.
+     */
+    public int fightingGroup() {
+        BehaviorProfile behavior = behavior().orElse(null);
+        if (behavior == null || behavior.herdRadius() <= 0
+                || !behavior.groupDefense() && behavior.prey().isEmpty()) {
+            return 1;
+        }
+        double radius = Math.max(behavior.herdRadius(), ThreatResponse.ALLY_RADIUS);
+        return 1 + level().getEntitiesOfClass(PrehistoricCreature.class, getBoundingBox().inflate(radius),
+                other -> other != this && other.getType() == getType() && !other.isTame() && !other.isBaby()
+                        && !other.isUnconscious()).size();
+    }
+
+    /** Porte de {@code other} em relação a esta criatura ({@link ThreatResponse#sizeRatio}). */
+    public double sizeRatioOf(LivingEntity other) {
+        return ThreatResponse.sizeRatio(getBbWidth(), getBbHeight(), other.getBbWidth(), other.getBbHeight());
+    }
+
     public boolean isIsolated() {
         int herdRadius = behavior().map(BehaviorProfile::herdRadius).orElse(0);
         if (herdRadius <= 0) {
@@ -2015,6 +2130,10 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         compound.putBoolean(TAG_FEMALE, isFemale());
         compound.putBoolean(TAG_MATING, isMatingEnabled());
         compound.putLong(TAG_NEXT_MATING, nextMatingTime);
+        compound.putBoolean(TAG_ZONE_CHECKED, zoneChecked);
+        if (territoryOverride > 0) {
+            compound.putInt(TAG_TERRITORY, territoryOverride);
+        }
         if (gestationChild != null) {
             compound.putLong(TAG_GESTATION_END, gestationEnd);
             compound.put(TAG_GESTATION_CHILD, GenomeNbt.write(gestationChild));
@@ -2039,6 +2158,8 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         setFemale(compound.contains(TAG_FEMALE) ? compound.getBoolean(TAG_FEMALE) : random.nextBoolean());
         entityData.set(DATA_MATING, compound.getBoolean(TAG_MATING));
         nextMatingTime = compound.getLong(TAG_NEXT_MATING);
+        zoneChecked = compound.getBoolean(TAG_ZONE_CHECKED);
+        territoryOverride = compound.getInt(TAG_TERRITORY);
         if (compound.contains(TAG_GESTATION_CHILD, Tag.TAG_COMPOUND)) {
             gestationEnd = compound.getLong(TAG_GESTATION_END);
             gestationChild = GenomeNbt.read(compound.getCompound(TAG_GESTATION_CHILD));

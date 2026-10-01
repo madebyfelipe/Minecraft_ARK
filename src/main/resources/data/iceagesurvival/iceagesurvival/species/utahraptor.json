@@ -104,7 +104,7 @@
     "group_min": 2,
     "group_max": 3,
     "max_nearby": 3,
-    "min_distance": 500
+    "min_distance": 350
   },
   "sounds": {
     "attack": "minecraft:entity.fox.bite",
