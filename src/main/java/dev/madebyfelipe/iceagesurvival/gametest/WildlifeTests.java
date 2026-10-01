@@ -287,4 +287,41 @@ public class WildlifeTests {
         helper.assertTrue(GroupSpacing.spacing(level, ModEntities.DODO.get()) == 0, "dodôs sem espaçamento");
         helper.succeed();
     }
+
+    /** Galimimo: o corredor arisco — foge de quem chega perto, a pé ou montado é a montaria terrestre mais rápida. */
+    @GameTest(template = EMPTY)
+    public static void gallimimusIsTheFastestGroundMount(GameTestHelper helper) {
+        var registries = helper.getLevel().registryAccess();
+        Species galli = Species.of(registries, ModEntities.GALLIMIMUS.get()).orElseThrow();
+        double galliRide = galli.stats().entry(dev.madebyfelipe.iceagesurvival.core.stats.Stat.SPEED).base()
+                * galli.mount().orElseThrow().speedMultiplier();
+        for (var creature : ModEntities.LAND_CREATURES) {
+            Species other = Species.of(registries, creature.get()).orElseThrow();
+            if (creature.get() == ModEntities.GALLIMIMUS.get() || other.mount().isEmpty() || other.mount().get().flying()) {
+                continue;
+            }
+            double ride = other.stats().entry(dev.madebyfelipe.iceagesurvival.core.stats.Stat.SPEED).base()
+                    * other.mount().get().speedMultiplier();
+            helper.assertTrue(galliRide > ride, creature.getId() + " montado corre mais que o Galimimo");
+        }
+        BehaviorProfile behavior = galli.behavior().orElseThrow();
+        helper.assertTrue(!behavior.aggressive() && behavior.herdRadius() > 0, "pacífico e de bando");
+        helper.assertTrue(behavior.wariness().orElseThrow().players(), "arisco com gente");
+        helper.assertTrue(galli.spawn().orElseThrow().minDistance() == 0, "nasce já perto do spawn");
+        helper.succeed();
+    }
+
+    @GameTest(template = ARENA, batch = BATCH + "_galli", timeoutTicks = 200)
+    public static void gallimimusRunsFromThePlayer(GameTestHelper helper) {
+        HuntTests.clearStrays(helper);
+        LandCreature galli = helper.spawn(ModEntities.GALLIMIMUS.get(), 8, 0, 10);
+        ServerPlayer player = PredatorTests.survivalPlayer(helper);
+        player.moveTo(helper.absoluteVec(new Vec3(8.5, 0, 6.5)));
+        double start = galli.distanceTo(player);
+        helper.runAtTickTime(160, () -> {
+            helper.assertTrue(galli.distanceTo(player) > start + 4.0,
+                    "o Galimimo deveria ter corrido do jogador: " + start + " → " + galli.distanceTo(player));
+            helper.succeed();
+        });
+    }
 }

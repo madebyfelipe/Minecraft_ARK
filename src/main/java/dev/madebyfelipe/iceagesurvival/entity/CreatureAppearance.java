@@ -52,6 +52,8 @@ public record CreatureAppearance(
                     "idle", "walk", "attack", "sleep", "walk", "run")),
             Map.entry("stegosaurus", new CreatureAppearance("stegosaurus", "stegosaurus/stegosaurus_male.png",
                     "idle", "walk", "attack_back_left", "sleep_1", "walk", "run")),
+            Map.entry("gallimimus", new CreatureAppearance("gallimimus", "gallimimus/gallimimus_male.png",
+                    "idle", "walk", "attack", "sleep/sit", "walk", "run")),
             Map.entry("pteranodon", new CreatureAppearance("pteranodon", "pteranodon/pteranodon_male.png",
                     "idle", "walk", "attack", "sleep", "fly", "walk", "dive"))
     );

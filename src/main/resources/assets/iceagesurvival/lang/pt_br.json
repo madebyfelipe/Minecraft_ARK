@@ -182,5 +182,7 @@
   "iceagesurvival.locator.locate": "Localizar",
   "iceagesurvival.locator.stop": "Parar",
   "iceagesurvival.locator.empty": "Nenhuma criatura domesticada",
-  "iceagesurvival.locator.other_dimension": "Em outra dimensão"
+  "iceagesurvival.locator.other_dimension": "Em outra dimensão",
+  "entity.iceagesurvival.gallimimus": "Galimimo",
+  "item.iceagesurvival.gallimimus_spawn_egg": "Ovo Gerador de Galimimo"
 }

@@ -42,6 +42,7 @@ public final class ModEntities {
     public static final RegistryObject<EntityType<LandCreature>> PTERANODON = landCreature("pteranodon", 1.6F, 2.0F);
     public static final RegistryObject<EntityType<LandCreature>> DIREBEAR = landCreature("direbear", 2.0F, 3.0F);
     public static final RegistryObject<EntityType<LandCreature>> DODO = landCreature("dodo", 0.7F, 0.9F);
+    public static final RegistryObject<EntityType<LandCreature>> GALLIMIMUS = landCreature("gallimimus", 1.2F, 2.3F);
     public static final RegistryObject<EntityType<LandCreature>> ELASMOTHERIUM = landCreature("elasmotherium", 1.8F, 2.4F);
 
     public static final RegistryObject<EntityType<TestCreature>> TEST_CREATURE =

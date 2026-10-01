@@ -1,0 +1,12 @@
+{
+  "type": "forge:add_spawns",
+  "biomes": "#iceagesurvival:spawns_gallimimus",
+  "spawners": [
+    {
+      "type": "iceagesurvival:gallimimus",
+      "weight": 5,
+      "minCount": 3,
+      "maxCount": 5
+    }
+  ]
+}
