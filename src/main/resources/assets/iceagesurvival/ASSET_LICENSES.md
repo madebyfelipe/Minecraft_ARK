@@ -3,18 +3,13 @@
 > **Antes de distribuir o mod para qualquer pessoa, leia isto.**
 
 Nem toda arte deste diretório é nossa. As espécies listadas em
-[`tools/hand_authored.txt`](../../../../../tools/hand_authored.txt) usam arte de dois mods:
+[`tools/hand_authored.txt`](../../../../../tools/hand_authored.txt) usam modelos, texturas,
+animações e sons (`sounds/entity/<especie>/`, com `sounds.json`) do mod **Fossils and Archeology: Revival**
+(<https://github.com/TeamFossilsArcheology/FossilsArcheologyRevival>), instalados por
+`tools/install-revival-placeholders.py`.
 
-| Origem | O que | Espécies | Instalador |
-|---|---|---|---|
-| **Unusual Prehistory** (Peeko32213, <https://github.com/Peeko32213/Unusual-Prehistory>, branch `main-final`) | modelo, textura, animações | tyrannosaurus, velociraptor, smilodon, mammoth, brontosaurus (braquiossauro), carnotaurus (majungassauro), utahraptor (austroraptor) | `tools/install-unusual-prehistory.py` |
-| **Fossils and Archeology: Revival** (<https://github.com/TeamFossilsArcheology/FossilsArcheologyRevival>) | modelo, textura, animações | spinosaurus | `tools/install-revival-placeholders.py` |
-| Revival | sons (`sounds/entity/<especie>/`, com `sounds.json`) | todas as que têm som | `tools/install-revival-placeholders.py` |
-
-Nos dois mods o **código** é MIT e a **arte** é **All Rights Reserved** (no Unusual Prehistory, o
-LICENSE do repositório lista `textures/`, `geo/`, `animations/` e `sounds/music/`): redistribuí-la
-exige permissão dos autores, que não pedimos. No Unusual Prehistory 2 (1.21.1) só texturas e sons
-são All Rights Reserved — geometria e animações são MIT —, mas ele ainda não tem modelos GeckoLib.
+O **código** do Revival é MIT. A **arte** é **All Rights Reserved**: redistribuí-la exige
+permissão dos autores, que não pedimos.
 
 ## O que isso significa na prática
 
@@ -31,7 +26,7 @@ Para destravar a distribuição, uma das três:
 
 1. substituir os modelos dessas espécies por arte nossa (os geradores em `tools/gen_*.py`
    produzem um placeholder de blocagem que é nosso: `IAS_FORCE_GEN=1 python3 tools/gen_<especie>.py`);
-2. licenciar a arte com os autores do Revival e do Unusual Prehistory;
+2. licenciar a arte com os autores do Revival;
 3. voltar a arte para fora do repositório (era um resource pack local, ver o histórico do
    git em `tools/install-revival-placeholders.py`).
 

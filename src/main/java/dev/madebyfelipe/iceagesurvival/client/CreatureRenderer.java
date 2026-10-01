@@ -22,7 +22,7 @@ public class CreatureRenderer extends GeoEntityRenderer<LandCreature> {
     private final ResourceLocation typeId;
 
     public CreatureRenderer(EntityRendererProvider.Context context, ResourceLocation typeId) {
-        super(context, new Model(typeId, typeId));
+        super(context, new Model(typeId));
         this.typeId = typeId;
     }
 
@@ -37,28 +37,18 @@ public class CreatureRenderer extends GeoEntityRenderer<LandCreature> {
     }
 
     private static class Model extends DefaultedEntityGeoModel<LandCreature> {
-        private final ResourceLocation settingsId;
-
-        Model(ResourceLocation typeId, ResourceLocation settingsId) {
+        Model(ResourceLocation typeId) {
             // Sem o "turnsHead" do GeckoLib: ele SUBSTITUI a rotação do osso pelo olhar e apaga a
             // inclinação de repouso que o modelo tem (a cabeça do T-Rex fica 32° para cima, a dos
             // raptores e do espinossauro, mais de 80°).
             super(typeId, false);
-            this.settingsId = settingsId;
         }
 
         @Override
         public void setCustomAnimations(LandCreature animatable, long instanceId, AnimationState<LandCreature> state) {
             super.setCustomAnimations(animatable, instanceId, state);
-            CreatureModelSettings.Settings settings = CreatureModelSettings.INSTANCE.get(settingsId);
-            for (String name : settings.babyHiddenBones()) {
-                GeoBone bone = getAnimationProcessor().getBone(name);
-                if (bone != null) {
-                    bone.setHidden(animatable.isBaby());
-                }
-            }
             // A cabeça acompanha o olhar só enquanto a criatura está consciente.
-            GeoBone head = getAnimationProcessor().getBone(settings.lookBone());
+            GeoBone head = getAnimationProcessor().getBone("head");
             if (head == null || animatable.isUnconscious()) {
                 return;
             }
