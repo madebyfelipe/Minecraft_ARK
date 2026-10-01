@@ -1,4 +1,28 @@
 {
+  "entity.allosaurus.ambient": {
+    "category": "neutral",
+    "sounds": [
+      "iceagesurvival:entity/allosaurus/allosaurus_ambient1",
+      "iceagesurvival:entity/allosaurus/allosaurus_ambient2",
+      "iceagesurvival:entity/allosaurus/allosaurus_ambient3"
+    ],
+    "subtitle": "subtitles.iceagesurvival.entity.allosaurus.ambient"
+  },
+  "entity.allosaurus.death": {
+    "category": "neutral",
+    "sounds": [
+      "iceagesurvival:entity/allosaurus/allosaurus_death1"
+    ],
+    "subtitle": "subtitles.iceagesurvival.entity.allosaurus.death"
+  },
+  "entity.allosaurus.hurt": {
+    "category": "neutral",
+    "sounds": [
+      "iceagesurvival:entity/allosaurus/allosaurus_hurt1",
+      "iceagesurvival:entity/allosaurus/allosaurus_hurt2"
+    ],
+    "subtitle": "subtitles.iceagesurvival.entity.allosaurus.hurt"
+  },
   "entity.brontosaurus.ambient": {
     "category": "neutral",
     "sounds": [
@@ -30,30 +54,6 @@
       "iceagesurvival:entity/brontosaurus/diplodocus_hurt4"
     ],
     "subtitle": "subtitles.iceagesurvival.entity.brontosaurus.hurt"
-  },
-  "entity.carnotaurus.ambient": {
-    "category": "neutral",
-    "sounds": [
-      "iceagesurvival:entity/carnotaurus/ceratosaurus_ambient1",
-      "iceagesurvival:entity/carnotaurus/ceratosaurus_ambient2",
-      "iceagesurvival:entity/carnotaurus/ceratosaurus_ambient3"
-    ],
-    "subtitle": "subtitles.iceagesurvival.entity.carnotaurus.ambient"
-  },
-  "entity.carnotaurus.death": {
-    "category": "neutral",
-    "sounds": [
-      "iceagesurvival:entity/carnotaurus/ceratosaurus_death1"
-    ],
-    "subtitle": "subtitles.iceagesurvival.entity.carnotaurus.death"
-  },
-  "entity.carnotaurus.hurt": {
-    "category": "neutral",
-    "sounds": [
-      "iceagesurvival:entity/carnotaurus/ceratosaurus_hurt1",
-      "iceagesurvival:entity/carnotaurus/ceratosaurus_hurt2"
-    ],
-    "subtitle": "subtitles.iceagesurvival.entity.carnotaurus.hurt"
   },
   "entity.mammoth.ambient": {
     "category": "neutral",

@@ -2,6 +2,7 @@ package dev.madebyfelipe.iceagesurvival.gametest;
 
 import dev.madebyfelipe.iceagesurvival.IceAgeSurvival;
 import dev.madebyfelipe.iceagesurvival.entity.LandCreature;
+import dev.madebyfelipe.iceagesurvival.entity.ai.HuntGoal;
 import dev.madebyfelipe.iceagesurvival.registry.ModEntities;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
@@ -94,14 +95,51 @@ public class PredatorTests {
         huntsThePlayer(helper, ModEntities.TYRANNOSAURUS.get(), true);
     }
 
+    private static final net.minecraft.tags.TagKey<EntityType<?>> REX_PREY = net.minecraft.tags.TagKey.create(
+            net.minecraft.core.registries.Registries.ENTITY_TYPE, IceAgeSurvival.id("tyrannosaurus_prey"));
+    private static final net.minecraft.tags.TagKey<EntityType<?>> WOLF_PREY = net.minecraft.tags.TagKey.create(
+            net.minecraft.core.registries.Registries.ENTITY_TYPE, IceAgeSurvival.id("dire_wolf_prey"));
+
+    @GameTest(template = ARENA)
+    public static void rexOnlyHuntsABrontosaurusOutOfItsHerd(GameTestHelper helper) {
+        LandCreature rex = helper.spawnWithNoFreeWill(ModEntities.TYRANNOSAURUS.get(), 2, 0, 2);
+        LandCreature bronto = helper.spawnWithNoFreeWill(ModEntities.BRONTOSAURUS.get(), 16, 0, 16);
+        helper.assertTrue(HuntGoal.isPrey(rex, bronto, REX_PREY), "bronto desgarrado deveria ser presa");
+        helper.spawnWithNoFreeWill(ModEntities.BRONTOSAURUS.get(), 18, 0, 18);
+        helper.assertFalse(HuntGoal.isPrey(rex, bronto, REX_PREY), "bronto na manada não deveria ser presa do T-Rex");
+        helper.succeed();
+    }
+
+    @GameTest(template = ARENA)
+    public static void wolfPackHuntsAMammothTogether(GameTestHelper helper) {
+        LandCreature first = helper.spawnWithNoFreeWill(ModEntities.DIRE_WOLF.get(), 2, 0, 2);
+        LandCreature second = helper.spawnWithNoFreeWill(ModEntities.DIRE_WOLF.get(), 4, 0, 2);
+        LandCreature mammoth = helper.spawnWithNoFreeWill(ModEntities.MAMMOTH.get(), 14, 0, 14);
+        helper.spawnWithNoFreeWill(ModEntities.MAMMOTH.get(), 16, 0, 14);
+        helper.assertTrue(HuntGoal.isPrey(first, mammoth, WOLF_PREY), "matilha deveria poder caçar mamute de manada");
+        first.setTarget(mammoth);
+        first.rallyPack(mammoth);
+        helper.assertTrue(second.getTarget() == mammoth, "o resto da matilha não partiu atrás da presa");
+        helper.succeed();
+    }
+
+    @GameTest(template = ARENA)
+    public static void predatorsLeaveTamedCreaturesAlone(GameTestHelper helper) {
+        LandCreature rex = helper.spawnWithNoFreeWill(ModEntities.TYRANNOSAURUS.get(), 2, 0, 2);
+        LandCreature mammoth = helper.spawnWithNoFreeWill(ModEntities.MAMMOTH.get(), 14, 0, 14);
+        mammoth.tame(helper.makeMockPlayer(net.minecraft.world.level.GameType.SURVIVAL));
+        helper.assertFalse(HuntGoal.isPrey(rex, mammoth, REX_PREY), "T-Rex caçando mamute domesticado");
+        helper.succeed();
+    }
+
     @GameTest(template = ARENA, timeoutTicks = 400)
     public static void velociraptorHuntsThePlayer(GameTestHelper helper) {
         huntsThePlayer(helper, ModEntities.VELOCIRAPTOR.get());
     }
 
     @GameTest(template = ARENA, timeoutTicks = 400)
-    public static void carnotaurusHuntsThePlayer(GameTestHelper helper) {
-        huntsThePlayer(helper, ModEntities.CARNOTAURUS.get());
+    public static void allosaurusHuntsThePlayer(GameTestHelper helper) {
+        huntsThePlayer(helper, ModEntities.ALLOSAURUS.get());
     }
 
     @GameTest(template = ARENA, timeoutTicks = 400)

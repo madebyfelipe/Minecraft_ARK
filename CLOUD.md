@@ -256,11 +256,13 @@ Todas as espécies terrestres usam a mesma classe (`LandCreature`); o que as dif
 | **Velociraptor** (`velociraptor`) | Predador pequeno de bando | 0,7 × 1,1 | Agressivo, bando de 3–5 com defesa em grupo, caça presas pequenas | taiga, taiga nevada, grove |
 | **Utahraptor** (`utahraptor`) | Raptor grande, montável (o "raptor" do ARK) | 1,2 × 2,3 | Agressivo, bando de 2–3, caça presas grandes | taigas nevadas e de abetos |
 | **Espinossauro** (`spinosaurus`) | Predador de topo das águas geladas, montável | 2,7 × 5,6 | Agressivo, atravessa o mato, domesticado com peixe; assento à frente da vela (`seat_forward`) | rio congelado, praia nevada, oceano congelado |
-| **Carnotauro** (`carnotaurus`) | Predador médio veloz, montável | 1,8 × 3,4 | Agressivo, território de 56 blocos, atravessa o mato | planície nevada, encostas nevadas, grove |
+| **Alossauro** (`allosaurus`, antes `carnotaurus`) | Predador médio que caça em bando, montável, muito raro | 1,8 × 3,4 | Agressivo, bando de 2–3 com defesa em grupo, caça brontos e mamutes, atravessa o mato | planície nevada, encostas nevadas, grove (a partir de 1.500 blocos do spawn) |
 | **Brontossauro** (`brontosaurus`) | Saurópode gigante de manada, montável, coletor de madeira | 4,0 × 8,0 | Pacífico, manada de 1–3 que se defende junta, atravessa o mato | planície nevada, grove, taiga nevada |
 | Criatura de teste (`test_creature`) | Só para testes automáticos; usa o modelo do porco | 0,9 × 0,9 | Passiva | não nasce |
 
-Montáveis: Smilodon, mamute, Tyrannosaurus, Utahraptor, Espinossauro, Carnotauro e Brontossauro. Os modelos do Utahraptor, do Carnotauro e do Brontossauro são placeholders do Revival de parentes próximos (Deinonychus, Ceratossauro, Diplodoco), porque o Revival não tem essas espécies.
+Montáveis: Smilodon, mamute, Tyrannosaurus, Utahraptor, Espinossauro, Alossauro e Brontossauro. Os modelos do Utahraptor e do Brontossauro são placeholders do Revival de parentes próximos (Deinonychus, Diplodoco), porque o Revival não tem essas espécies; o Alossauro tem modelo e sons próprios do Revival.
+
+**Ecologia (presas):** cada predador caça uma tag de tipos (`behavior.prey`): o T-Rex `tyrannosaurus_prey` (brontos, mamutes e os grandes do vanilla), o Alossauro `allosaurus_prey` (idem), o lobo-terrível `dire_wolf_prey` (mamutes e os pequenos do vanilla). Regras do `HuntGoal`: nunca caça criatura domesticada; caçador solitário (sem `herd_radius`) só ataca presa de manada **desgarrada** — o T-Rex pega o bronto isolado, não o do meio do grupo; caçador de bando chama o bando (`rallyPack`) e pode atacar a manada, que se defende junta. O T-Rex vagueia por um território de 160 blocos.
 
 **Grandes animais não ficam presos no mato:** `body.plow_hardness` quebra, ao esbarrar, os blocos da tag `iceagesurvival:plowable` (troncos, folhas, plantas, neve) até essa dureza, e a perseguição (`ChaseGoal`) vai em linha reta quando não há caminho completo até o alvo. O chão e as encostas não são quebrados: sobem por eles. Os agressivos lembram do alvo por 10 s sem vê-lo. O T-Rex persegue a mais de 5,6 blocos/s, o sprint do jogador (gametest). O lobo-terrível é pequeno demais e fica de fora — o que o exclui é não ter bloco `mount` no JSON, não uma regra em código.
 
@@ -274,7 +276,7 @@ Montáveis: Smilodon, mamute, Tyrannosaurus, Utahraptor, Espinossauro, Carnotaur
 
 Nenhuma classe Java nova, nenhuma mudança no núcleo. Espécies com mecânica própria (voar, nadar, o boss) vão precisar de classe.
 
-Pendentes do brief — Era do Gelo: rinoceronte-lanoso, megaloceros, megatherium, urso-das-cavernas, bisão, auroque, mastodonte. Dinossauros: ~~tyrannosaurus~~, ~~velociraptor~~, ~~spinosaurus~~, ~~utahraptor~~, ~~carnotaurus~~, ~~brontosaurus~~ (feitos), triceratops, ankylosaurus, giganotosaurus (boss).
+Pendentes do brief — Era do Gelo: rinoceronte-lanoso, megaloceros, megatherium, urso-das-cavernas, bisão, auroque, mastodonte. Dinossauros: ~~tyrannosaurus~~, ~~velociraptor~~, ~~spinosaurus~~, ~~utahraptor~~, ~~allosaurus~~, ~~brontosaurus~~ (feitos; o carnotaurus virou allosaurus), triceratops, ankylosaurus, giganotosaurus (boss).
 
 ### Comportamento (implementado)
 
@@ -362,18 +364,26 @@ As criaturas são da categoria `CREATURE` do vanilla: nascem quando o terreno é
 Bloco `spawn` do JSON de espécie, lido pela reposição própria do mod. **Ausente = a espécie só nasce com o terreno** (é o caso da criatura de teste).
 
 ```json
-"spawn": { "biomes": "#iceagesurvival:spawns_smilodon", "weight": 2, "group_min": 1, "group_max": 1, "max_nearby": 2 }
+"spawn": { "biomes": "#iceagesurvival:spawns_smilodon", "weight": 2, "group_min": 1, "group_max": 1, "max_nearby": 1, "min_distance": 600 }
 ```
 
-- Uma tentativa por jogador a cada `wildSpawnIntervalSeconds` (padrão 45 s): sorteia uma espécie entre as que podem nascer no bioma do jogador **e ainda têm vaga**, proporcionalmente ao `weight`, e procura posição num anel de `wildSpawnMinDistance` a `wildSpawnMaxDistance` (padrão 40 a 96 blocos) — longe da vista, dentro da distância de simulação.
+- Uma tentativa por jogador a cada `wildSpawnIntervalSeconds` (padrão 60 s): sorteia uma espécie entre as que podem nascer no bioma do jogador **e ainda têm vaga**, proporcionalmente ao `weight`, e procura posição num anel de `wildSpawnMinDistance` a `wildSpawnMaxDistance` (padrão 40 a 96 blocos) — longe da vista, dentro da distância de simulação.
 - A posição passa pelas mesmas checagens do spawn natural do vanilla (mapa de altura, tipo de colocação, colisão, regra de superfície da espécie) mais o bioma da tag, e o nascimento passa pelos eventos do NeoForge, então outro mod pode barrar.
-- `max_nearby` é o teto de indivíduos daquela espécie no `wildSpawnDensityRadius` em volta do jogador. É ele que impede a reposição de encher o mundo: a densidade converge para `max_nearby` por raio de densidade onde o jogador andou, e não cresce além disso. Criaturas domesticadas não entram na contagem.
+- `max_nearby` é o teto de indivíduos daquela espécie no `wildSpawnDensityRadius` em volta do jogador, e `wildSpawnMaxTotal` (padrão 10) o teto da **soma de todas as espécies**. Criaturas domesticadas não entram na contagem. O raio da contagem é sempre maior que o de spawn (pelo menos `wildSpawnMaxDistance` + 32): antes os dois eram 96, quem nascia na borda saía andando, deixava de contar e abria vaga — com o teto só por espécie, uma base parada juntava mais de 40 criaturas em minutos.
+
+**Zonas de perigo:** `spawn.min_distance` é a distância horizontal mínima do spawn do mundo para a espécie nascer, conferida na regra de colocação — vale para a reposição e para a geração do terreno. E o nível selvagem máximo cresce com a distância: 30% do `maxWildLevel` no spawn, 100% a `fullDangerDistance` (padrão 3.000 blocos).
+
+| Zona | Distância do spawn | Espécies | Raridade |
+|---|---|---|---|
+| Spawn | 0+ | lobo-terrível, mamute, Brontossauro | comuns (peso 8, 8, 6) |
+| Meio | 400+ / 600+ / 1.000+ | Velociraptor / Smilodon / Utahraptor | Smilodon raro (peso 2, máx. 1 por perto) |
+| Longe | 1.500+ / 2.000+ | Alossauro, Espinossauro / T-Rex | muito raros (peso 1) |
 - Não trocamos a categoria para `MONSTER` para conseguir spawn contínuo: isso faria a fauna desaparecer sozinha ([D20](#4-decisões)).
 - Tudo desligável em `wildSpawnEnabled`, para quem quiser a fauna só na geração do terreno.
 
 O `neoforge:add_spawns` continua: ele povoa chunk novo, a reposição cuida do que já existe. Os dois usam a mesma tag de biomas.
 
-Ainda não existe: nível variando por região, horário de atividade.
+Ainda não existe: horário de atividade.
 
 ## 12. Progressão
 
@@ -656,6 +666,7 @@ Ver a tabela em [4](#4-decisões). Registro de mudanças estruturais:
 - 2026-09-30 — Tyrannosaurus em dobro (colisão 3,6×7,2; escala do modelo 5,66; assento 6,2; degrau 2,8) e ataque de quem monta.
 - 2026-09-30 — Assento do Tyrannosaurus de 6,2 para 7,4: o jogador montado ficava dentro do corpo; 7,4 é a altura do osso `rider_pos` (21 px) na escala 5,66.
 - 2026-09-30 — Sons do F&A Revival (All Rights Reserved, mesmo caso dos modelos) para Smilodon, mamute e T-Rex: bloco opcional `sounds` no JSON de espécie (`ambient`, `hurt`, `death`, `alert` ao escolher alvo, `volume`), instalados por `tools/install-revival-placeholders.py`. O lobo-terrível segue mudo: o Revival não tem ele.
+- 2026-09-30 — Zonas de perigo por distância do spawn, teto total de população, presas por espécie (T-Rex caça bronto desgarrado, matilha caça mamute, bando chama o bando); Carnotauro vira Alossauro.
 - 2026-09-30 — Etapa 9: world preset Era do Gelo com `RemappedBiomeSource` (D6 fechada, sem mod de worldgen).
 - 2026-09-30 — Etapa 8: genética, sexo, acasalamento, gestação e ovo, incubadora, mesa química e estimulante.
 - 2026-09-30 — Comandos no esquema do ARK: movimento e postura independentes, assobios por tecla (mirada ou todas ao alcance), painel sob a mira refeito e tela de status (V).

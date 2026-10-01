@@ -20,8 +20,10 @@ import net.minecraft.world.level.biome.Biome;
  * @param groupMax  maior número de indivíduos por grupo
  * @param maxNearby quantos indivíduos da espécie podem existir no raio de densidade de um
  *                  jogador; é o que impede a reposição de encher o mundo
+ * @param minDistance distância horizontal mínima do spawn do mundo, em blocos: o mundo fica mais
+ *                    perigoso conforme se afasta dele (o T-Rex não nasce perto do spawn)
  */
-public record SpawnProfile(TagKey<Biome> biomes, int weight, int groupMin, int groupMax, int maxNearby) {
+public record SpawnProfile(TagKey<Biome> biomes, int weight, int groupMin, int groupMax, int maxNearby, int minDistance) {
     public SpawnProfile {
         groupMin = Math.max(1, groupMin);
         groupMax = Math.max(groupMin, groupMax);
@@ -32,6 +34,7 @@ public record SpawnProfile(TagKey<Biome> biomes, int weight, int groupMin, int g
             Codec.intRange(0, 1000).optionalFieldOf("weight", 10).forGetter(SpawnProfile::weight),
             Codec.intRange(1, 16).optionalFieldOf("group_min", 1).forGetter(SpawnProfile::groupMin),
             Codec.intRange(1, 16).optionalFieldOf("group_max", 1).forGetter(SpawnProfile::groupMax),
-            Codec.intRange(0, 64).optionalFieldOf("max_nearby", 4).forGetter(SpawnProfile::maxNearby)
+            Codec.intRange(0, 64).optionalFieldOf("max_nearby", 4).forGetter(SpawnProfile::maxNearby),
+            Codec.intRange(0, 1_000_000).optionalFieldOf("min_distance", 0).forGetter(SpawnProfile::minDistance)
     ).apply(instance, SpawnProfile::new));
 }

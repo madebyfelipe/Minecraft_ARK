@@ -10,6 +10,7 @@ import dev.madebyfelipe.iceagesurvival.core.genetics.Genome;
 import dev.madebyfelipe.iceagesurvival.genetics.GenomeNbt;
 import dev.madebyfelipe.iceagesurvival.item.CreatureEggItem;
 import dev.madebyfelipe.iceagesurvival.species.BreedingProfile;
+import dev.madebyfelipe.iceagesurvival.core.spawn.DangerZones;
 import dev.madebyfelipe.iceagesurvival.core.stats.Stat;
 import dev.madebyfelipe.iceagesurvival.core.stats.StatPoints;
 import dev.madebyfelipe.iceagesurvival.core.stats.StatProfile;
@@ -23,6 +24,7 @@ import dev.madebyfelipe.iceagesurvival.species.BehaviorProfile;
 import dev.madebyfelipe.iceagesurvival.species.BodyProfile;
 import dev.madebyfelipe.iceagesurvival.species.MountProfile;
 import dev.madebyfelipe.iceagesurvival.species.SoundProfile;
+import dev.madebyfelipe.iceagesurvival.species.SpawnProfile;
 import dev.madebyfelipe.iceagesurvival.species.Species;
 import dev.madebyfelipe.iceagesurvival.species.TamingProfile;
 import java.util.Optional;
@@ -228,7 +230,19 @@ public abstract class PrehistoricCreature extends TamableAnimal implements Playe
                                                  BlockPos pos, RandomSource random) {
         BlockPos below = pos.below();
         int surface = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, pos.getX(), pos.getZ());
-        return pos.getY() >= surface && level.getBlockState(below).isValidSpawn(level, below, type);
+        if (pos.getY() < surface || !level.getBlockState(below).isValidSpawn(level, below, type)) {
+            return false;
+        }
+        // Zonas de perigo: cada espécie só nasce a partir de uma distância do spawn do mundo.
+        int minDistance = Species.of(level.registryAccess(), type).flatMap(Species::spawn)
+                .map(SpawnProfile::minDistance).orElse(0);
+        return minDistance <= 0 || DangerZones.allowed(distanceFromWorldSpawn(level.getLevel(), pos), minDistance);
+    }
+
+    /** Distância horizontal até o spawn do mundo. */
+    public static double distanceFromWorldSpawn(ServerLevel level, BlockPos pos) {
+        BlockPos spawn = level.getSharedSpawnPos();
+        return DangerZones.horizontalDistance(pos.getX(), pos.getZ(), spawn.getX(), spawn.getZ());
     }
 
     /** Atributos que toda criatura precisa ter registrados para os stats serem aplicados. */
@@ -415,7 +429,13 @@ public abstract class PrehistoricCreature extends TamableAnimal implements Playe
             return;
         }
         RandomGenerator generator = randomGenerator();
-        int level = WildLevels.roll(ServerConfig.MAX_WILD_LEVEL.get(), ServerConfig.WILD_LEVEL_STEP.get(), generator);
+        // Mais longe do spawn, criaturas de nível mais alto.
+        int step = ServerConfig.WILD_LEVEL_STEP.get();
+        int cap = level() instanceof ServerLevel serverLevel
+                ? DangerZones.levelCap(ServerConfig.MAX_WILD_LEVEL.get(), step,
+                        distanceFromWorldSpawn(serverLevel, blockPosition()), ServerConfig.FULL_DANGER_DISTANCE.get())
+                : ServerConfig.MAX_WILD_LEVEL.get();
+        int level = WildLevels.roll(cap, step, generator);
         healthGene = generator.nextDouble() < ServerConfig.WILD_HEALTH_GENE_CHANCE.get();
         setFemale(generator.nextBoolean());
         setStatPoints(StatPoints.rollWild(level, generator), species.get());
@@ -773,6 +793,37 @@ public abstract class PrehistoricCreature extends TamableAnimal implements Playe
      * Defesa em grupo: faz as criaturas selvagens da mesma espécie por perto, que ainda não
      * tenham alvo, atacarem quem feriu esta. Uma varredura por agressão sofrida.
      */
+    /**
+     * Caça em bando: os da mesma espécie por perto, selvagens e sem alvo, partem atrás da presa
+     * que esta escolheu. Só para espécies de manada (lobos, raptores, alossauros).
+     */
+    public void rallyPack(@Nullable LivingEntity prey) {
+        int herdRadius = behavior().map(BehaviorProfile::herdRadius).orElse(0);
+        if (prey == null || isTame() || herdRadius <= 0) {
+            return;
+        }
+        for (PrehistoricCreature other : level().getEntitiesOfClass(
+                PrehistoricCreature.class, getBoundingBox().inflate(herdRadius),
+                candidate -> candidate != this && candidate.getType() == getType() && !candidate.isTame()
+                        && !candidate.isBaby() && !candidate.isUnconscious() && candidate.getTarget() == null)) {
+            other.setTarget(prey);
+        }
+    }
+
+    /**
+     * Se esta criatura de manada está desgarrada: nenhum outro da espécie, acordado, no raio da
+     * manada. Criaturas solitárias estão sempre isoladas.
+     */
+    public boolean isIsolated() {
+        int herdRadius = behavior().map(BehaviorProfile::herdRadius).orElse(0);
+        if (herdRadius <= 0) {
+            return true;
+        }
+        return level().getEntitiesOfClass(PrehistoricCreature.class, getBoundingBox().inflate(herdRadius),
+                other -> other != this && other.getType() == getType() && other.isAlive() && !other.isUnconscious())
+                .isEmpty();
+    }
+
     public void alertHerd(@Nullable LivingEntity attacker) {
         Optional<BehaviorProfile> behavior = behavior();
         if (attacker == null || isTame() || behavior.isEmpty() || !behavior.get().groupDefense()) {

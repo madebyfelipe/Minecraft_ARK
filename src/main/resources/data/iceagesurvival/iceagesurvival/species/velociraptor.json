@@ -74,8 +74,9 @@
     "biomes": "#iceagesurvival:spawns_velociraptor",
     "weight": 3,
     "group_min": 3,
-    "group_max": 5,
-    "max_nearby": 8
+    "group_max": 4,
+    "max_nearby": 5,
+    "min_distance": 400
   },
   "sounds": {
     "attack": "minecraft:entity.fox.bite",

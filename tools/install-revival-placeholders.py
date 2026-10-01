@@ -39,8 +39,7 @@ SPECIES = {
     # Sem Utahraptor no Revival: o Deinonychus, parente próximo, em tamanho de Utahraptor.
     "utahraptor": ("deinonychus", "deinonychus_male.png", {"idle": "idle", "walk": "walk", "attack": "attack", "unconscious": "sleep"}, 2.6),
     "spinosaurus": ("spinosaurus", "spinosaurus_male.png", {"idle": "idle", "walk": "walk", "attack": "attack", "unconscious": "sleep"}, 6.4),
-    # Sem Carnotauro no Revival: o Ceratossauro, outro terópode de chifres.
-    "carnotaurus": ("ceratosaurus", "ceratosaurus_male.png", {"idle": "idle", "walk": "walk", "attack": "attack", "unconscious": "sleep"}, 3.8),
+    "allosaurus": ("allosaurus", "allosaurus_male.png", {"idle": "idle", "walk": "walk", "attack": "attack", "unconscious": "sleep"}, 3.8),
     # Sem Brontossauro no Revival: o Diplodoco, da mesma família.
     "brontosaurus": ("diplodocus", "diplodocus_male.png", {"idle": "idle", "walk": "walk", "attack": "attack", "unconscious": "sleep"}, 9.0),
 }
@@ -54,7 +53,7 @@ SOUNDS = {
     "velociraptor": ({"ambient": "velociraptor_ambient", "hurt": "velociraptor_hurt", "death": "velociraptor_death"}, 1.0),
     "utahraptor": ({"ambient": "deinonychus_ambient", "hurt": "deinonychus_hurt", "death": "deinonychus_death"}, 1.3),
     "spinosaurus": ({"ambient": "spinosaurus_ambient", "hurt": "spinosaurus_hurt", "death": "spinosaurus_death"}, 3.0),
-    "carnotaurus": ({"ambient": "ceratosaurus_ambient", "hurt": "ceratosaurus_hurt", "death": "ceratosaurus_death"}, 2.0),
+    "allosaurus": ({"ambient": "allosaurus_ambient", "hurt": "allosaurus_hurt", "death": "allosaurus_death"}, 2.0),
     "brontosaurus": ({"ambient": "diplodocus_ambient", "hurt": "diplodocus_hurt", "death": "diplodocus_death"}, 4.0),
 }
 SPECIES_DATA = PROJECT / "src" / "main" / "resources" / "data" / "iceagesurvival" / "iceagesurvival" / "species"

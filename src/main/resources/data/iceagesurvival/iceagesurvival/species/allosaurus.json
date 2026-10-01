@@ -71,27 +71,30 @@
     "aggro_radius": 22,
     "territory_radius": 56,
     "flee_health_fraction": 0.15,
-    "prey": "#iceagesurvival:large_prey"
+    "prey": "#iceagesurvival:allosaurus_prey",
+    "herd_radius": 12,
+    "group_defense": true
   },
   "mount": {
-    "seat_height": 3.5,
+    "seat_height": 3.1,
     "min_affinity": 25,
     "speed_multiplier": 0.95,
     "jump_strength": 0.5,
     "break_hardness": 1.5
   },
   "spawn": {
-    "biomes": "#iceagesurvival:spawns_carnotaurus",
+    "biomes": "#iceagesurvival:spawns_allosaurus",
     "weight": 1,
-    "group_min": 1,
-    "group_max": 1,
-    "max_nearby": 2
+    "group_min": 2,
+    "group_max": 3,
+    "max_nearby": 3,
+    "min_distance": 1500
   },
   "sounds": {
     "attack": "minecraft:entity.ravager.attack",
-    "ambient": "iceagesurvival:entity.carnotaurus.ambient",
-    "hurt": "iceagesurvival:entity.carnotaurus.hurt",
-    "death": "iceagesurvival:entity.carnotaurus.death",
+    "ambient": "iceagesurvival:entity.allosaurus.ambient",
+    "hurt": "iceagesurvival:entity.allosaurus.hurt",
+    "death": "iceagesurvival:entity.allosaurus.death",
     "volume": 2.0
   },
   "breeding": {

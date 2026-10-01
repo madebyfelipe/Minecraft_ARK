@@ -69,9 +69,9 @@
   "behavior": {
     "aggressive": true,
     "aggro_radius": 24,
-    "territory_radius": 48,
+    "territory_radius": 160,
     "flee_health_fraction": 0.1,
-    "prey": "#iceagesurvival:large_prey"
+    "prey": "#iceagesurvival:tyrannosaurus_prey"
   },
   "mount": {
     "seat_height": 5.6,
@@ -85,7 +85,8 @@
     "weight": 1,
     "group_min": 1,
     "group_max": 1,
-    "max_nearby": 1
+    "max_nearby": 1,
+    "min_distance": 2000
   },
   "sounds": {
     "ambient": "iceagesurvival:entity.tyrannosaurus.ambient",

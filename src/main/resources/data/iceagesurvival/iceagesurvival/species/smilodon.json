@@ -84,7 +84,8 @@
     "weight": 2,
     "group_min": 1,
     "group_max": 1,
-    "max_nearby": 2
+    "max_nearby": 1,
+    "min_distance": 600
   },
   "sounds": {
     "ambient": "iceagesurvival:entity.smilodon.ambient",

@@ -83,6 +83,12 @@ public final class WildSpawner {
         if (reports.isEmpty()) {
             return 0;
         }
+        // Teto da soma de todas as espécies: sem ele, cada espécie enchia a própria cota e a
+        // base de quem fica parado virava um zoológico.
+        int totalRoom = ServerConfig.WILD_SPAWN_MAX_TOTAL.get() - totalWildNearby(level, player);
+        if (totalRoom <= 0) {
+            return 0;
+        }
         List<WildSpawnRules.Candidate> candidates = new ArrayList<>(reports.size());
         for (Report report : reports) {
             candidates.add(new WildSpawnRules.Candidate(
@@ -94,7 +100,7 @@ public final class WildSpawner {
             return 0;
         }
         Report report = reports.get(chosen);
-        int room = report.profile().maxNearby() - report.nearby();
+        int room = Math.min(report.profile().maxNearby() - report.nearby(), totalRoom);
         int group = WildSpawnRules.groupSize(report.profile().groupMin(), report.profile().groupMax(), room, random);
         return group <= 0 ? 0 : spawnGroup(level, player, report, group, minDistance, maxDistance, random);
     }
@@ -120,9 +126,22 @@ public final class WildSpawner {
         return reports;
     }
 
+    /** Criaturas selvagens do mod, de todas as espécies, no raio de densidade do jogador: o que conta no teto. */
+    public static int totalWildNearby(ServerLevel level, ServerPlayer player) {
+        return countNearby(level, player).values().intStream().sum();
+    }
+
+    /**
+     * Raio da contagem: o da config, mas sempre além de onde a reposição faz nascer — senão
+     * quem nasceu na borda sai andando, deixa de contar e abre vaga para outro.
+     */
+    public static double densityRadius() {
+        return Math.max(ServerConfig.WILD_SPAWN_DENSITY_RADIUS.get(), ServerConfig.WILD_SPAWN_MAX_DISTANCE.get() + 32);
+    }
+
     /** Uma varredura só, para todas as espécies: contagens de criaturas do mod perto do jogador. */
     private static Object2IntMap<EntityType<?>> countNearby(ServerLevel level, ServerPlayer player) {
-        double radius = ServerConfig.WILD_SPAWN_DENSITY_RADIUS.get();
+        double radius = densityRadius();
         Object2IntMap<EntityType<?>> counts = new Object2IntOpenHashMap<>();
         AABB box = player.getBoundingBox().inflate(radius);
         for (PrehistoricCreature creature : level.getEntitiesOfClass(PrehistoricCreature.class, box,

@@ -47,9 +47,9 @@ public final class ModItems {
             "spinosaurus_spawn_egg",
             () -> new DeferredSpawnEggItem(ModEntities.SPINOSAURUS, 0x5B6B4E, 0xB04A2E, new Item.Properties()));
 
-    public static final DeferredItem<DeferredSpawnEggItem> CARNOTAURUS_SPAWN_EGG = ITEMS.register(
-            "carnotaurus_spawn_egg",
-            () -> new DeferredSpawnEggItem(ModEntities.CARNOTAURUS, 0x8C3B2A, 0x2F2A26, new Item.Properties()));
+    public static final DeferredItem<DeferredSpawnEggItem> ALLOSAURUS_SPAWN_EGG = ITEMS.register(
+            "allosaurus_spawn_egg",
+            () -> new DeferredSpawnEggItem(ModEntities.ALLOSAURUS, 0x8C3B2A, 0x2F2A26, new Item.Properties()));
 
     public static final DeferredItem<DeferredSpawnEggItem> BRONTOSAURUS_SPAWN_EGG = ITEMS.register(
             "brontosaurus_spawn_egg",
@@ -110,7 +110,7 @@ public final class ModItems {
             event.accept(VELOCIRAPTOR_SPAWN_EGG);
             event.accept(UTAHRAPTOR_SPAWN_EGG);
             event.accept(SPINOSAURUS_SPAWN_EGG);
-            event.accept(CARNOTAURUS_SPAWN_EGG);
+            event.accept(ALLOSAURUS_SPAWN_EGG);
             event.accept(BRONTOSAURUS_SPAWN_EGG);
         } else if (event.getTabKey() == CreativeModeTabs.COMBAT) {
             event.accept(TRANQ_ARROW);

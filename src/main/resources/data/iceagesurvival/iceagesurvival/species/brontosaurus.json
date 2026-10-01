@@ -65,10 +65,11 @@
   },
   "spawn": {
     "biomes": "#iceagesurvival:spawns_brontosaurus",
-    "weight": 1,
-    "group_min": 1,
+    "weight": 6,
+    "group_min": 2,
     "group_max": 3,
-    "max_nearby": 3
+    "max_nearby": 4,
+    "min_distance": 0
   },
   "sounds": {
     "attack": "minecraft:entity.ravager.step",

@@ -39,7 +39,7 @@ public final class ServerConfig {
 
     public static final ModConfigSpec.IntValue WILD_SPAWN_INTERVAL_SECONDS = BUILDER
             .comment("Segundos entre duas tentativas de reposição de fauna por jogador.")
-            .defineInRange("wildSpawnIntervalSeconds", 45, 5, 3600);
+            .defineInRange("wildSpawnIntervalSeconds", 60, 5, 3600);
 
     public static final ModConfigSpec.IntValue WILD_SPAWN_MIN_DISTANCE = BUILDER
             .comment("Distância mínima do jogador para uma criatura nascer, para não aparecer à vista.")
@@ -51,7 +51,15 @@ public final class ServerConfig {
 
     public static final ModConfigSpec.IntValue WILD_SPAWN_DENSITY_RADIUS = BUILDER
             .comment("Raio em que a densidade de cada espécie é conferida contra o max_nearby do JSON da espécie.")
-            .defineInRange("wildSpawnDensityRadius", 96, 16, 512);
+            .defineInRange("wildSpawnDensityRadius", 128, 16, 512);
+
+    public static final ModConfigSpec.IntValue WILD_SPAWN_MAX_TOTAL = BUILDER
+            .comment("Teto de criaturas selvagens do mod, somando todas as espécies, no raio de densidade de um jogador.")
+            .defineInRange("wildSpawnMaxTotal", 10, 0, 200);
+
+    public static final ModConfigSpec.IntValue FULL_DANGER_DISTANCE = BUILDER
+            .comment("Distância do spawn do mundo em que criaturas selvagens já nascem com o nível máximo. No spawn, até 30% dele.")
+            .defineInRange("fullDangerDistance", 3000, 0, 1_000_000);
 
     public static final ModConfigSpec.DoubleValue STIMULANT_TORPOR = BUILDER
             .comment("Torpor que um estimulante tira de uma criatura.")

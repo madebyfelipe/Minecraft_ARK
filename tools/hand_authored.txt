@@ -1,8 +1,8 @@
 # Espécies cujos assets NÃO vêm de tools/gen_<especie>.py e não devem ser regerados.
 # Preenchido por tools/install-revival-placeholders.py; o guarda está em tools/modelgen.py.
 # Arte do F&A Revival, All Rights Reserved — ver ASSET_LICENSES.md.
+allosaurus
 brontosaurus
-carnotaurus
 mammoth
 smilodon
 spinosaurus

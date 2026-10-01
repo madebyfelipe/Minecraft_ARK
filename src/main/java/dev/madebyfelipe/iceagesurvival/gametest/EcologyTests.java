@@ -1,6 +1,7 @@
 package dev.madebyfelipe.iceagesurvival.gametest;
 
 import dev.madebyfelipe.iceagesurvival.IceAgeSurvival;
+import dev.madebyfelipe.iceagesurvival.config.ServerConfig;
 import dev.madebyfelipe.iceagesurvival.entity.LandCreature;
 import dev.madebyfelipe.iceagesurvival.registry.ModEntities;
 import dev.madebyfelipe.iceagesurvival.species.BehaviorProfile;
@@ -177,6 +178,37 @@ public class EcologyTests {
         helper.succeed();
     }
 
+    /** Num lote próprio: o raio da contagem (128) pegaria as criaturas dos testes vizinhos. */
+    @GameTest(template = "arena", batch = "population_cap")
+    public static void populationCapCountsEverySpeciesBeyondTheSpawnRing(GameTestHelper helper) {
+        ServerPlayer player = helper.makeMockServerPlayerInLevel();
+        player.moveTo(helper.absoluteVec(new net.minecraft.world.phys.Vec3(2.5, 1, 2.5)));
+        helper.assertTrue(WildSpawner.densityRadius() > ServerConfig.WILD_SPAWN_MAX_DISTANCE.get(),
+                "o raio da contagem precisa passar de onde a reposição faz nascer");
+        helper.spawnWithNoFreeWill(ModEntities.DIRE_WOLF.get(), 4, 1, 4);
+        helper.spawnWithNoFreeWill(ModEntities.MAMMOTH.get(), 12, 1, 12);
+        LandCreature tamed = helper.spawnWithNoFreeWill(ModEntities.SMILODON.get(), 8, 1, 8);
+        tamed.tame(player);
+        helper.assertTrue(WildSpawner.totalWildNearby(helper.getLevel(), player) == 2,
+                "esperava 2 selvagens (lobo e mamute; a domesticada não conta), contei "
+                        + WildSpawner.totalWildNearby(helper.getLevel(), player));
+        helper.succeed();
+    }
+
+    @GameTest(template = EMPTY)
+    public static void dangerZonesKeepPredatorsAwayFromSpawn(GameTestHelper helper) {
+        var registries = helper.getLevel().registryAccess();
+        java.util.function.ToIntFunction<EntityType<?>> min = type ->
+                Species.of(registries, type).orElseThrow().spawn().orElseThrow().minDistance();
+        helper.assertTrue(min.applyAsInt(ModEntities.DIRE_WOLF.get()) == 0
+                && min.applyAsInt(ModEntities.MAMMOTH.get()) == 0
+                && min.applyAsInt(ModEntities.BRONTOSAURUS.get()) == 0, "comuns deveriam nascer já no spawn");
+        helper.assertTrue(min.applyAsInt(ModEntities.TYRANNOSAURUS.get()) >= 1500, "T-Rex perto demais do spawn");
+        helper.assertTrue(min.applyAsInt(ModEntities.ALLOSAURUS.get()) >= 1000, "Alossauro perto demais do spawn");
+        helper.assertTrue(min.applyAsInt(ModEntities.SMILODON.get()) > 0, "Smilodon no spawn");
+        helper.succeed();
+    }
+
     @GameTest(template = EMPTY)
     public static void repopulationRespectsTheBiomeOfTheSpecies(GameTestHelper helper) {
         // O mundo do gametest é de bioma temperado: nenhuma espécie do mod nasce aqui.
@@ -191,7 +223,7 @@ public class EcologyTests {
     public static void repopulationSpawnsOnOpenGround(GameTestHelper helper) {
         // Tag de bioma que contém o bioma do gametest, para exercitar o caminho de posição
         // sem depender de um bioma nevado, que o mundo plano do teste não tem.
-        SpawnProfile anywhere = new SpawnProfile(BiomeTags.IS_OVERWORLD, 10, 1, 1, 4);
+        SpawnProfile anywhere = new SpawnProfile(BiomeTags.IS_OVERWORLD, 10, 1, 1, 4, 0);
         BlockPos floor = helper.absolutePos(new BlockPos(1, 2, 1));
         var type = ModEntities.SMILODON.get();
 
@@ -208,7 +240,7 @@ public class EcologyTests {
 
     @GameTest(template = EMPTY, skyAccess = true)
     public static void repopulationRefusesTheWrongBiome(GameTestHelper helper) {
-        SpawnProfile jungleOnly = new SpawnProfile(BiomeTags.IS_JUNGLE, 10, 1, 1, 4);
+        SpawnProfile jungleOnly = new SpawnProfile(BiomeTags.IS_JUNGLE, 10, 1, 1, 4, 0);
         BlockPos floor = helper.absolutePos(new BlockPos(1, 2, 1));
         helper.assertTrue(!WildSpawner.canSpawnAt(helper.getLevel(), ModEntities.SMILODON.get(), floor, jungleOnly),
                 "a reposição aceitou um bioma fora da tag da espécie");

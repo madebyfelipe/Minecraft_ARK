@@ -1,9 +1,9 @@
 {
   "type": "neoforge:add_spawns",
-  "biomes": "#iceagesurvival:spawns_utahraptor",
+  "biomes": "#iceagesurvival:spawns_allosaurus",
   "spawners": [
     {
-      "type": "iceagesurvival:utahraptor",
+      "type": "iceagesurvival:allosaurus",
       "weight": 1,
       "minCount": 2,
       "maxCount": 3

@@ -4,8 +4,8 @@
   "spawners": [
     {
       "type": "iceagesurvival:brontosaurus",
-      "weight": 1,
-      "minCount": 1,
+      "weight": 2,
+      "minCount": 2,
       "maxCount": 3
     }
   ]
