@@ -28,7 +28,7 @@ class ConfrontationTableTest {
     private static double[] body(String species) {
         return switch (species) {
             case "dodo" -> new double[] {0.7, 0.9};
-            case "velociraptor" -> new double[] {0.7, 1.1};
+            case "velociraptor" -> new double[] {0.6, 0.9};
             case "smilodon" -> new double[] {1.3, 2.3};
             case "utahraptor" -> new double[] {1.2, 2.3};
             case "elasmotherium" -> new double[] {1.8, 2.4};
@@ -49,8 +49,9 @@ class ConfrontationTableTest {
     @ParameterizedTest(name = "{1} {0} × {3} {2} (fome {4})")
     @CsvSource({
             // herbívoro,  n, predador,      n, fome,  herbívoro foge, cede ao bufo, cede à investida
-            "elasmotherium, 1, velociraptor,  4, true,  true,  false, false",
-            "elasmotherium, 1, velociraptor,  4, false, false, false, true",
+            // Velociraptor do tamanho real (um peru grande): nem um bando de quatro encara um rinoceronte.
+            "elasmotherium, 1, velociraptor,  4, true,  false, true,  true",
+            "elasmotherium, 1, velociraptor,  4, false, false, true,  true",
             "elasmotherium, 1, velociraptor,  1, false, false, true,  true",
             "elasmotherium, 1, velociraptor,  1, true,  false, true,  true",
             "elasmotherium, 1, smilodon,      1, true,  true,  false, false",

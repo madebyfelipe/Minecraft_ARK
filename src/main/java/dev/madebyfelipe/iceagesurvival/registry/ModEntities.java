@@ -33,7 +33,7 @@ public final class ModEntities {
     public static final RegistryObject<EntityType<LandCreature>> MAMMOTH = landCreature("mammoth", 3.0F, 4.65F);
     public static final RegistryObject<EntityType<LandCreature>> DIRE_WOLF = landCreature("dire_wolf", 0.8F, 1.2F);
     public static final RegistryObject<EntityType<LandCreature>> TYRANNOSAURUS = landCreature("tyrannosaurus", 2.7F, 5.4F);
-    public static final RegistryObject<EntityType<LandCreature>> VELOCIRAPTOR = landCreature("velociraptor", 0.7F, 1.1F);
+    public static final RegistryObject<EntityType<LandCreature>> VELOCIRAPTOR = landCreature("velociraptor", 0.6F, 0.9F);
     public static final RegistryObject<EntityType<LandCreature>> UTAHRAPTOR = landCreature("utahraptor", 1.2F, 2.3F);
     public static final RegistryObject<EntityType<LandCreature>> SPINOSAURUS = landCreature("spinosaurus", 2.7F, 5.6F);
     public static final RegistryObject<EntityType<LandCreature>> ALLOSAURUS = landCreature("allosaurus", 1.8F, 3.4F);

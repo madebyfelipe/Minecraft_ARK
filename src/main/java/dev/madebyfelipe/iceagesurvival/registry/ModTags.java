@@ -15,6 +15,13 @@ public final class ModTags {
     public static final TagKey<Block> HEAT_SOURCES =
             TagKey.create(Registries.BLOCK, IceAgeSurvival.id("heat_sources"));
 
+    /**
+     * Espécies desligadas: não nascem, não têm ovo na aba criativa e a selvagem que existir num mundo
+     * some ao carregar. A entidade segue registrada para mundos antigos e as domesticadas ficam.
+     */
+    public static final TagKey<net.minecraft.world.entity.EntityType<?>> DISABLED =
+            TagKey.create(Registries.ENTITY_TYPE, IceAgeSurvival.id("disabled"));
+
     private ModTags() {
     }
 }

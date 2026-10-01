@@ -300,4 +300,40 @@ public class TamingTests {
             helper.succeed();
         });
     }
+
+    /** Ferida, a domesticada aceita a comida da espécie da mão do dono e se cura com ela, sem esperar a fome. */
+    @GameTest(template = EMPTY)
+    public static void ownerHealsTamedCreatureWithItsFood(GameTestHelper helper) {
+        Player owner = helper.makeMockSurvivalPlayer();
+        TestCreature creature = spawn(helper);
+        creature.tame(owner);
+        creature.setHealth(creature.getMaxHealth() * 0.2F);
+        owner.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, new ItemStack(Items.CARROT, 4));
+        float before = creature.getHealth();
+        creature.mobInteract(owner, net.minecraft.world.InteractionHand.MAIN_HAND);
+        float afterFirst = creature.getHealth();
+        helper.assertTrue(afterFirst > before, "a cenoura não curou");
+        helper.assertTrue(owner.getMainHandItem().getCount() == 3, "a porção não foi gasta");
+        helper.runAfterDelay(15, () -> {
+            // Ferida, não espera o intervalo da fome (30 s): come de novo meio segundo depois.
+            creature.mobInteract(owner, net.minecraft.world.InteractionHand.MAIN_HAND);
+            helper.assertTrue(creature.getHealth() > afterFirst, "ferida, deveria aceitar outra porção logo");
+            helper.succeed();
+        });
+    }
+
+    /** Domesticada e ferida, come sozinha a comida que estiver no inventário dela. */
+    @GameTest(template = EMPTY, timeoutTicks = 200)
+    public static void tamedCreatureEatsFromInventoryToHeal(GameTestHelper helper) {
+        TestCreature creature = spawn(helper);
+        creature.tame(helper.makeMockPlayer());
+        creature.setHealth(creature.getMaxHealth() * 0.2F);
+        creature.inventory().addItem(new ItemStack(Items.CARROT, 8));
+        float before = creature.getHealth();
+        helper.runAfterDelay(120, () -> {
+            helper.assertTrue(creature.getHealth() > before, "não se curou com a comida do inventário");
+            helper.assertTrue(creature.inventory().countItem(Items.CARROT) < 8, "não comeu do inventário");
+            helper.succeed();
+        });
+    }
 }

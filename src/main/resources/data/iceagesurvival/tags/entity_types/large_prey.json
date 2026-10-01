@@ -14,6 +14,8 @@
     "iceagesurvival:brontosaurus",
     "iceagesurvival:dodo",
     "iceagesurvival:gallimimus",
-    "iceagesurvival:triceratops"
+    "iceagesurvival:triceratops",
+    "minecraft:villager",
+    "minecraft:wandering_trader"
   ]
 }

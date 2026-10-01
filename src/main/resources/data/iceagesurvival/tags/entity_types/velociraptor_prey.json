@@ -1,8 +1,10 @@
 {
   "replace": false,
   "values": [
-    "#iceagesurvival:small_prey",
-    "iceagesurvival:elasmotherium",
-    "iceagesurvival:gallimimus"
+    "minecraft:rabbit",
+    "minecraft:chicken",
+    "minecraft:fox",
+    "minecraft:frog",
+    "iceagesurvival:dodo"
   ]
 }

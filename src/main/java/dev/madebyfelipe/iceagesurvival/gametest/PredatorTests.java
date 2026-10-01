@@ -136,26 +136,26 @@ public class PredatorTests {
 
     @GameTest(template = ARENA, batch = "predator_hunt_raptor", timeoutTicks = 400)
     public static void velociraptorHuntsThePlayer(GameTestHelper helper) {
-        huntsThePlayer(helper, ModEntities.VELOCIRAPTOR.get());
+        huntsThePlayer(helper, ModEntities.UTAHRAPTOR.get());
     }
 
     /** Um carnívoro saciado não caça o jogador, mas um faminto o considera presa como qualquer animal. */
     @GameTest(template = ARENA, batch = "predator_hunt_hungry", timeoutTicks = 120)
     public static void carnivoreOnlyHuntsPlayerWhenHungry(GameTestHelper helper) {
-        LandCreature predator = helper.spawn(ModEntities.VELOCIRAPTOR.get(), 6, 0, 4);
+        LandCreature predator = helper.spawn(ModEntities.UTAHRAPTOR.get(), 6, 0, 4);
         var prey = predator.behavior().orElseThrow().prey().orElseThrow();
         Player player = survivalPlayer(helper);
         player.moveTo(helper.absoluteVec(new Vec3(6.5, 0, 12.5)));
 
         predator.setTicksSinceMeal(0);
-        helper.assertFalse(HuntGoal.wouldHunt(predator, player, prey), "Velociraptor saciado escolheu o jogador");
+        helper.assertFalse(HuntGoal.wouldHunt(predator, player, prey), "Utahraptor saciado escolheu o jogador");
         helper.runAtTickTime(30, () -> helper.assertTrue(predator.getTarget() != player,
-                "Velociraptor saciado perseguiu o jogador"));
+                "Utahraptor saciado perseguiu o jogador"));
 
         helper.runAtTickTime(35, () -> {
             predator.setTicksSinceMeal(STARVING);
             helper.assertTrue(HuntGoal.wouldHunt(predator, player, prey),
-                    "Velociraptor faminto não considerou o jogador como presa");
+                    "Utahraptor faminto não considerou o jogador como presa");
         });
         helper.onEachTick(() -> {
             if (predator.getTarget() == player) {
@@ -167,7 +167,7 @@ public class PredatorTests {
     /** Sem fome não começa a caçada, mas continua se defendendo quando o jogador o fere. */
     @GameTest(template = ARENA, timeoutTicks = 80)
     public static void carnivoreRetaliatesAgainstPlayerWithoutHuntingThem(GameTestHelper helper) {
-        LandCreature predator = helper.spawn(ModEntities.VELOCIRAPTOR.get(), 6, 0, 4);
+        LandCreature predator = helper.spawn(ModEntities.UTAHRAPTOR.get(), 6, 0, 4);
         predator.setTicksSinceMeal(0);
         ServerPlayer player = survivalPlayer(helper);
         player.moveTo(helper.absoluteVec(new Vec3(6.5, 0, 8.0)));

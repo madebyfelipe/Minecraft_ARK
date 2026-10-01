@@ -88,14 +88,6 @@
       "nervousness": 1.0
     }
   },
-  "spawn": {
-    "biomes": "#iceagesurvival:spawns_dire_wolf",
-    "weight": 6,
-    "group_min": 2,
-    "group_max": 4,
-    "max_nearby": 6,
-    "min_distance": 0
-  },
   "sounds": {
     "attack": "minecraft:entity.fox.bite"
   },

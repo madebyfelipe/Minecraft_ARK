@@ -99,64 +99,30 @@ public class HuntTests {
                         .toList()));
     }
 
-    /** Velociraptores em bando caçam Elasmotérios solitários, além dos dodôs. */
+    /**
+     * Velociraptor do tamanho real (um peru grande): faminto, ignora o Elasmotério e o jogador e caça
+     * bicho pequeno — o dodô.
+     */
     @GameTest(template = ARENA, batch = "hunt_raptor", timeoutTicks = 300)
-    public static void velociraptorsHuntAnElasmotherium(GameTestHelper helper) {
+    public static void hungryVelociraptorHuntsSmallPreyOnly(GameTestHelper helper) {
         clearStrays(helper);
-        List<LandCreature> pack = List.of(hungry(helper, ModEntities.VELOCIRAPTOR.get(), 4, 3),
-                hungry(helper, ModEntities.VELOCIRAPTOR.get(), 6, 3),
-                hungry(helper, ModEntities.VELOCIRAPTOR.get(), 8, 3),
-                hungry(helper, ModEntities.VELOCIRAPTOR.get(), 10, 3));
-        LandCreature raptor = pack.get(0);
-        LandCreature elasmotherium = helper.spawn(ModEntities.ELASMOTHERIUM.get(), 12, 0, 16);
-        boolean wouldHunt = HuntGoal.wouldHunt(raptor, elasmotherium,
-                raptor.behavior().orElseThrow().prey().orElseThrow());
-        helper.assertTrue(wouldHunt, "um bando faminto de velociraptores deveria escolher o Elasmotério; prey="
-                + HuntGoal.isPrey(raptor, elasmotherium, raptor.behavior().orElseThrow().prey().orElseThrow())
-                + ", isolado=" + elasmotherium.isIsolated() + ", distância=" + raptor.distanceTo(elasmotherium)
-                + ", bando=" + (1 + helper.getLevel().getEntitiesOfClass(LandCreature.class,
-                        raptor.getBoundingBox().inflate(raptor.behavior().orElseThrow().herdRadius()),
-                        other -> other != raptor && other.getType() == ModEntities.VELOCIRAPTOR.get()
-                                && !other.isTame() && !other.isBaby() && !other.isUnconscious()).size())
-                + ", razão tamanho=" + Math.pow((elasmotherium.getBbWidth() * elasmotherium.getBbWidth()
-                        * elasmotherium.getBbHeight())
-                        / (raptor.getBbWidth() * raptor.getBbWidth() * raptor.getBbHeight()), 2.0 / 3.0));
+        LandCreature raptor = hungry(helper, ModEntities.VELOCIRAPTOR.get(), 4, 3);
+        // Só para a regra: posto no mundo, o Elasmotério investiria contra o raptor e roubaria a cena.
+        LandCreature elasmotherium = ModEntities.ELASMOTHERIUM.get().create(helper.getLevel());
+        var prey = raptor.behavior().orElseThrow().prey().orElseThrow();
+        helper.assertTrue(!HuntGoal.isPrey(raptor, elasmotherium, prey), "o Elasmotério não é presa do Velociraptor");
+        helper.assertTrue(!HuntGoal.wouldHunt(raptor, PredatorTests.survivalPlayer(helper), prey),
+                "o Velociraptor não caça gente");
+        LandCreature dodo = helper.spawn(ModEntities.DODO.get(), 8, 0, 9);
         helper.onEachTick(() -> {
-            long pursuing = pack.stream().filter(member -> member.getTarget() == elasmotherium).count();
-            if (pursuing >= 2 && elasmotherium.isHunted() && elasmotherium.huntingPack() >= 2) {
+            if (raptor.getTarget() == dodo) {
                 helper.succeed();
             }
         });
-        helper.runAtTickTime(290, () -> helper.fail("matilha não perseguiu: alvos "
-                + pack.stream().map(member -> String.valueOf(member.getTarget())).toList()
-                + ", fome " + raptor.hungerDrive() + ", intervalo " + raptor.ecology().hungerSeconds()
-                + ", caçado " + elasmotherium.isHunted() + ", matilha " + elasmotherium.huntingPack()));
+        helper.runAtTickTime(290, () -> helper.fail("o Velociraptor faminto não caçou o dodô: alvo " + raptor.getTarget()
+                + ", fome " + raptor.hungerDrive()));
     }
 
-    /** Mesmo sem fome plena, um bando oportunista caça um Elasmotério isolado que está perto. */
-    @GameTest(template = ARENA, batch = "hunt_raptor_opportunistic", timeoutTicks = 240)
-    public static void opportunisticVelociraptorsHuntANearbyElasmotherium(GameTestHelper helper) {
-        clearStrays(helper);
-        List<LandCreature> pack = List.of(
-                helper.spawn(ModEntities.VELOCIRAPTOR.get(), 4, 0, 3),
-                helper.spawn(ModEntities.VELOCIRAPTOR.get(), 6, 0, 3),
-                helper.spawn(ModEntities.VELOCIRAPTOR.get(), 8, 0, 3),
-                helper.spawn(ModEntities.VELOCIRAPTOR.get(), 10, 0, 3));
-        pack.forEach(raptor -> raptor.setTicksSinceMeal(40 * 20L));
-        LandCreature elasmotherium = helper.spawn(ModEntities.ELASMOTHERIUM.get(), 12, 0, 10);
-        helper.assertTrue(pack.get(0).hungerDrive() == dev.madebyfelipe.iceagesurvival.core.ecology.Hunger.Drive.OPPORTUNISTIC,
-                "teste precisa começar no estado oportunista");
-        helper.onEachTick(() -> {
-            if (pack.stream().anyMatch(raptor -> raptor.getTarget() == elasmotherium)) {
-                helper.succeed();
-            }
-        });
-        helper.runAtTickTime(230, () -> helper.fail("o bando oportunista ignorou o Elasmotério próximo: "
-                + pack.stream().map(raptor -> String.format("[dist %.1f, fome %s, falhou %s, intimidado %s, alvo %s]",
-                        raptor.distanceTo(elasmotherium), raptor.hungerDrive(), raptor.recentlyFailedHunt(),
-                        raptor.isIntimidatedBy(elasmotherium), raptor.getTarget())).toList()
-                + " elasmo agressivo=" + elasmotherium.isAggressive()));
-    }
 
     /** Barriga cheia: o predador ignora a presa que passa ao lado. */
     @GameTest(template = ARENA, batch = "hunt_sated", timeoutTicks = 120)

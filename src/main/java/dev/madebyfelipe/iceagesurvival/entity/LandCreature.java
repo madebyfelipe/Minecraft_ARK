@@ -161,7 +161,8 @@ public class LandCreature extends PrehistoricCreature implements GeoEntity, Geck
         @Override
         public boolean canUse() {
             if (creature().behavior().flatMap(BehaviorProfile::prey).isPresent()
-                    && creature().hungerDrive() != Hunger.Drive.HUNTING) {
+                    && (creature().hungerDrive() != Hunger.Drive.HUNTING
+                    || !creature().behavior().map(BehaviorProfile::huntsPlayers).orElse(true))) {
                 return false;
             }
             targetConditions.range(getFollowDistance());

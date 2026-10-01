@@ -160,7 +160,6 @@ public final class ModItems {
             event.accept(TEST_CREATURE_SPAWN_EGG);
             event.accept(SMILODON_SPAWN_EGG);
             event.accept(MAMMOTH_SPAWN_EGG);
-            event.accept(DIRE_WOLF_SPAWN_EGG);
             event.accept(TYRANNOSAURUS_SPAWN_EGG);
             event.accept(VELOCIRAPTOR_SPAWN_EGG);
             event.accept(UTAHRAPTOR_SPAWN_EGG);

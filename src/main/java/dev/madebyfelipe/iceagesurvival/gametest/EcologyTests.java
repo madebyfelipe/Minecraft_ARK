@@ -103,8 +103,9 @@ public class EcologyTests {
     @GameTest(template = EMPTY)
     public static void everyPredatorChoosesFightOrFlightBySize(GameTestHelper helper) {
         var registries = helper.getLevel().registryAccess();
+        // O Velociraptor fica de fora: pequeno, reage ao jogador como ameaça em vez de caçá-lo.
         for (var predator : List.of(ModEntities.DIRE_WOLF.get(), ModEntities.SMILODON.get(), ModEntities.DIREBEAR.get(),
-                ModEntities.VELOCIRAPTOR.get(), ModEntities.UTAHRAPTOR.get(), ModEntities.ALLOSAURUS.get(),
+                ModEntities.UTAHRAPTOR.get(), ModEntities.ALLOSAURUS.get(),
                 ModEntities.SPINOSAURUS.get(), ModEntities.TYRANNOSAURUS.get())) {
             String name = EntityType.getKey(predator).toString();
             var wariness = Species.of(registries, predator).orElseThrow().behavior().orElseThrow().wariness()
@@ -139,9 +140,7 @@ public class EcologyTests {
     @GameTest(template = EMPTY)
     public static void coldBiomesListTheNewFauna(GameTestHelper helper) {
         assertSpawnsIn(helper, Biomes.SNOWY_PLAINS, ModEntities.MAMMOTH.get());
-        assertSpawnsIn(helper, Biomes.SNOWY_PLAINS, ModEntities.DIRE_WOLF.get());
         assertSpawnsIn(helper, Biomes.TAIGA, ModEntities.SMILODON.get());
-        assertSpawnsIn(helper, Biomes.TAIGA, ModEntities.DIRE_WOLF.get());
         assertSpawnsIn(helper, Biomes.SNOWY_PLAINS, ModEntities.TYRANNOSAURUS.get());
         assertSpawnsIn(helper, Biomes.TAIGA, ModEntities.TYRANNOSAURUS.get());
         assertSpawnsIn(helper, Biomes.SNOWY_PLAINS, ModEntities.PTERANODON.get());
@@ -155,7 +154,7 @@ public class EcologyTests {
     @GameTest(template = EMPTY)
     public static void naturalSpawnWeightsAreReducedAndRareSpeciesRemain(GameTestHelper helper) {
         assertSpawnWeight(helper, Biomes.SNOWY_PLAINS, ModEntities.DODO.get(), 14);
-        assertSpawnWeight(helper, Biomes.SNOWY_PLAINS, ModEntities.VELOCIRAPTOR.get(), 11);
+        assertSpawnWeight(helper, Biomes.SNOWY_PLAINS, ModEntities.VELOCIRAPTOR.get(), 4);
         assertSpawnWeight(helper, Biomes.SNOWY_PLAINS, ModEntities.PTERANODON.get(), 8);
         assertSpawnWeight(helper, Biomes.TAIGA, ModEntities.SMILODON.get(), 3);
         // O Smilodon substitui o bando de Velociraptores na planície nevada do spawn.
@@ -179,26 +178,24 @@ public class EcologyTests {
         helper.succeed();
     }
 
+    /**
+     * Velociraptor próximo do real: do porte de um peru grande, sozinho ou em par, espreita bicho pequeno
+     * e não caça gente — mas reage a quem chega perto (alerta, ameaça, recua ou morde encurralado).
+     */
     @GameTest(template = EMPTY)
-    public static void velociraptorUsesAllosaurusStylePackChase(GameTestHelper helper) {
+    public static void velociraptorIsASmallWaryHunter(GameTestHelper helper) {
         var registries = helper.getLevel().registryAccess();
         Species velociraptor = Species.of(registries, ModEntities.VELOCIRAPTOR.get()).orElseThrow();
-        Species allosaurus = Species.of(registries, ModEntities.ALLOSAURUS.get()).orElseThrow();
-        BehaviorProfile raptorBehavior = velociraptor.behavior().orElseThrow();
-        BehaviorProfile allosaurusBehavior = allosaurus.behavior().orElseThrow();
-        var raptorEcology = raptorBehavior.ecology();
-        var allosaurusEcology = allosaurusBehavior.ecology();
-
-        helper.assertTrue(raptorBehavior.herdRadius() > 0 && raptorBehavior.groupDefense(),
-                "velociraptores precisam caçar e reagir em bando");
-        helper.assertTrue(raptorBehavior.huntStyle() == BehaviorProfile.HuntStyle.CHASE,
-                "velociraptor deveria perseguir sem espreitar");
-        helper.assertTrue(raptorEcology.huntRadius() == allosaurusEcology.huntRadius()
-                        && raptorEcology.chaseSeconds() == allosaurusEcology.chaseSeconds(),
-                "alcance e fôlego da perseguição devem acompanhar o Alossauro");
-        helper.assertTrue(ModEntities.ELASMOTHERIUM.get().is(raptorBehavior.prey().orElseThrow()),
-                "Elasmotério deveria estar na dieta do velociraptor");
-        helper.assertTrue(velociraptor.packBonus().isPresent(), "o bando deveria receber bônus como o Alossauro");
+        BehaviorProfile behavior = velociraptor.behavior().orElseThrow();
+        var wariness = behavior.wariness().orElseThrow();
+        helper.assertTrue(!behavior.aggressive() && !behavior.huntsPlayers(), "não caça gente");
+        helper.assertTrue(wariness.players() && wariness.chargeRadius() > 0 && wariness.bluffChance() > 0,
+                "reage ao jogador: ameaça e morde se encurralado");
+        helper.assertTrue(!ModEntities.ELASMOTHERIUM.get().is(behavior.prey().orElseThrow())
+                        && ModEntities.DODO.get().is(behavior.prey().orElseThrow()), "só bicho pequeno");
+        helper.assertTrue(ModEntities.VELOCIRAPTOR.get().getHeight() <= 0.9F, "do porte de um peru grande");
+        SpawnProfile spawn = velociraptor.spawn().orElseThrow();
+        helper.assertTrue(spawn.groupMax() <= 2 && spawn.maxNearby() <= 4, "sozinho ou em par, sem superpopulação");
         helper.succeed();
     }
 
@@ -222,6 +219,9 @@ public class EcologyTests {
     public static void everySpawningSpeciesHasARepopulationBlock(GameTestHelper helper) {
         var registries = helper.getLevel().registryAccess();
         for (var creature : ModEntities.LAND_CREATURES) {
+            if (creature.get().is(dev.madebyfelipe.iceagesurvival.registry.ModTags.DISABLED)) {
+                continue;
+            }
             SpawnProfile spawn = Species.of(registries, creature.get()).orElseThrow().spawn()
                     .orElseThrow(() -> new AssertionError("sem bloco spawn: " + creature.getId()));
             helper.assertTrue(spawn.weight() > 0, creature.getId() + " com peso zero");
@@ -260,8 +260,7 @@ public class EcologyTests {
         var registries = helper.getLevel().registryAccess();
         java.util.function.ToIntFunction<EntityType<?>> min = type ->
                 Species.of(registries, type).orElseThrow().spawn().orElseThrow().minDistance();
-        helper.assertTrue(min.applyAsInt(ModEntities.DIRE_WOLF.get()) == 0
-                && min.applyAsInt(ModEntities.MAMMOTH.get()) == 0
+        helper.assertTrue(min.applyAsInt(ModEntities.MAMMOTH.get()) == 0
                 && min.applyAsInt(ModEntities.BRONTOSAURUS.get()) == 0
                 && min.applyAsInt(ModEntities.SMILODON.get()) == 0,
                 "fauna comum e Smilodon solitário deveriam nascer já no spawn");
@@ -381,5 +380,29 @@ public class EcologyTests {
         helper.assertTrue(stego.weight() >= mammoth.weight(), "peso " + stego.weight() + " abaixo do mamute");
         assertSpawnWeight(helper, Biomes.SNOWY_PLAINS, ModEntities.STEGOSAURUS.get(), 9);
         helper.succeed();
+    }
+
+    /** O lobo-terrível está desligado: não nasce, nem na geração nem na reposição, e o selvagem que sobrou some. */
+    @GameTest(template = EMPTY)
+    public static void direWolfIsDisabled(GameTestHelper helper) {
+        var wolfType = ModEntities.DIRE_WOLF.get();
+        helper.assertTrue(wolfType.is(dev.madebyfelipe.iceagesurvival.registry.ModTags.DISABLED), "lobo-terrível na tag disabled");
+        helper.assertTrue(Species.of(helper.getLevel().registryAccess(), wolfType).orElseThrow().spawn().isEmpty(),
+                "sem bloco de reposição");
+        for (var biome : List.of(Biomes.SNOWY_PLAINS, Biomes.TAIGA, Biomes.FOREST)) {
+            Biome holder = helper.getLevel().registryAccess().registryOrThrow(Registries.BIOME).getOrThrow(biome);
+            helper.assertTrue(holder.getMobSettings().getMobs(MobCategory.CREATURE).unwrap().stream()
+                    .noneMatch(spawner -> spawner.type == wolfType), "lobo-terrível na geração de " + biome.location());
+        }
+        LandCreature wild = (LandCreature) wolfType.create(helper.getLevel());
+        wild.moveTo(helper.absoluteVec(new net.minecraft.world.phys.Vec3(2.5, 2, 2.5)));
+        helper.getLevel().addFreshEntity(wild);
+        LandCreature tame = helper.spawn(wolfType, 4, 2, 4);
+        tame.tame(helper.makeMockPlayer());
+        helper.runAfterDelay(30, () -> {
+            helper.assertTrue(wild.isRemoved(), "o lobo-terrível selvagem deveria ter sumido");
+            helper.assertTrue(!tame.isRemoved(), "o domesticado fica");
+            helper.succeed();
+        });
     }
 }

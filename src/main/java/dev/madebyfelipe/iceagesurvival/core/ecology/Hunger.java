@@ -14,9 +14,12 @@ package dev.madebyfelipe.iceagesurvival.core.ecology;
 public final class Hunger {
     public enum Drive { SATED, OPPORTUNISTIC, HUNTING }
 
-    /** Ao nascer, a fome começa sorteada entre estas frações do tempo até caçar: há caçadas logo cedo. */
+    /**
+     * Ao nascer, a fome começa sorteada entre estas frações do tempo até caçar: há caçadas logo cedo,
+     * mas nenhum predador nasce já faminto — antes um em sete nascia caçando, jogador inclusive.
+     */
     public static final double SPAWN_MIN_FRACTION = 0.4;
-    public static final double SPAWN_MAX_FRACTION = 1.1;
+    public static final double SPAWN_MAX_FRACTION = 0.9;
 
     private Hunger() {
     }

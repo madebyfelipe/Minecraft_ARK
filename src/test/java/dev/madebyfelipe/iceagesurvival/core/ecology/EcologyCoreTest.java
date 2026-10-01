@@ -78,7 +78,8 @@ class EcologyCoreTest {
         assertEquals(Hunger.Drive.OPPORTUNISTIC, Hunger.drive(200 * 20, 180, 360));
         assertEquals(Hunger.Drive.HUNTING, Hunger.drive(400 * 20, 180, 360));
         long fresh = Hunger.spawnTicksSinceMeal(360, 0.99);
-        assertEquals(Hunger.Drive.HUNTING, Hunger.drive(fresh, 180, 360), "parte dos recém-nascidos já sai com fome");
+        assertEquals(Hunger.Drive.OPPORTUNISTIC, Hunger.drive(fresh, 180, 360),
+                "nenhum recém-nascido sai caçando (nem o jogador), mas o mais faminto pega presa fácil");
     }
 
     // ---- Escolha de presa ----

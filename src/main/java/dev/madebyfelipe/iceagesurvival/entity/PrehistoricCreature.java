@@ -199,6 +199,19 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     private static final int TAMED_FEED_INTERVAL_TICKS = 30 * 20;
     /** Afinidade ganha ao dar o alimento preferido a uma criatura domesticada. */
     private static final float AFFINITY_PER_FEED = 5.0F;
+    /**
+     * Cura por porção de comida, em fração da vida máxima por ponto de {@code value} do alimento: a
+     * melhor comida da espécie (valor 40) cura 20%. Com valor fixo em pontos, a carne mal fazia
+     * cócegas num T-Rex de 220 de vida.
+     */
+    private static final double HEAL_FRACTION_PER_FOOD_VALUE = 0.005;
+    private static final double MIN_HEAL_FRACTION = 0.03;
+    private static final double MAX_HEAL_FRACTION = 0.25;
+    /** Ferida, aceita comida da mão a cada meio segundo, para não gastar a pilha num clique segurado. */
+    private static final int HEAL_FEED_COOLDOWN_TICKS = 10;
+    /** Ferida e domesticada, come sozinha do próprio inventário a cada 5 s. */
+    private static final int SELF_HEAL_INTERVAL_TICKS = 100;
+    private long nextHealTime;
     /** Uma criatura domesticada larga o alvo que se afastar mais que isto. */
     private static final double TAMED_TARGET_LEASH = 40.0;
     /** Uma fileira de baú. */
@@ -1149,12 +1162,16 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     @Override
     public void tick() {
         if (isFlightMount()) {
-            if (wildFlight) {
-                if (!canFlyWild()) {
-                    setWildFlying(false);
+            // Só o servidor decide o fim do voo: no cliente o voo selvagem não é conhecido ({@code wildFlight}
+            // é do servidor), e desligar ali o voo de um Pteranodonte sem ninguém em cima o fazia "andar no ar".
+            if (!level().isClientSide) {
+                if (wildFlight) {
+                    if (!canFlyWild()) {
+                        setWildFlying(false);
+                    }
+                } else if (isFlying() && (!isVehicle() || isUnconscious() || !isRideReady())) {
+                    setFlying(false);
                 }
-            } else if (isFlying() && (!isVehicle() || isUnconscious() || !isRideReady())) {
-                setFlying(false);
             }
             setNoGravity(isFlying());
             if (isFlying()) {
@@ -1175,6 +1192,12 @@ public abstract class PrehistoricCreature extends TamableAnimal {
                 discard();
                 return;
             }
+        }
+        if (!level().isClientSide && tickCount % 20 == 0 && getType().is(ModTags.DISABLED)
+                && !isTame() && tamerUUID == null && !isPersistenceRequired() && !isVehicle()) {
+            // Espécie desligada (o lobo-terrível): a selvagem que sobrou de antes some.
+            discard();
+            return;
         }
         if (level() instanceof ServerLevel serverLevel && countsForGroupSpacing()
                 && (!spacingChecked || (tickCount + getId()) % SPACING_REPORT_INTERVAL == 0)) {
@@ -1200,6 +1223,9 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         }
         if (isUnconscious() && !isTame()) {
             eatFromInventory();
+        }
+        if (isTame() && !isUnconscious() && tickCount % SELF_HEAL_INTERVAL_TICKS == 0) {
+            eatToHeal();
         }
         LivingEntity target = getTarget();
         if (isTame() && target != null
@@ -2070,8 +2096,9 @@ public abstract class PrehistoricCreature extends TamableAnimal {
                 return InteractionResult.sidedSuccess(level().isClientSide);
             }
             Optional<TamingProfile.Food> food = tamingProfile().flatMap(p -> p.foodFor(stack));
-            // Alimentar tem preferência; passada a fome, a mesma mão cheia de carne monta.
-            if (food.isPresent() && level().getGameTime() >= nextFeedTime) {
+            // Alimentar tem preferência; passada a fome, a mesma mão cheia de carne monta. Ferida, sempre
+            // aceita comida: é como se cura.
+            if (food.isPresent() && (level().getGameTime() >= nextFeedTime || getHealth() < getMaxHealth())) {
                 if (!level().isClientSide) {
                     feedTamed(player, hand, stack, food.get());
                 }
@@ -2105,15 +2132,56 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     /** Alimentar uma criatura domesticada cura e aumenta a afinidade; é opcional, não manutenção. */
     private void feedTamed(Player player, InteractionHand hand, ItemStack stack, TamingProfile.Food food) {
         long now = level().getGameTime();
-        if (now < nextFeedTime) {
+        boolean hurt = getHealth() < getMaxHealth();
+        if (!hurt && now < nextFeedTime) {
             player.displayClientMessage(Component.translatable("iceagesurvival.taming.not_hungry"), true);
             return;
         }
+        if (hurt && now < nextHealTime) {
+            return;
+        }
         usePlayerItem(player, hand, stack);
-        heal((float) food.value());
-        setAffinity(affinity + (float) (AFFINITY_PER_FEED * food.quality()));
-        nextFeedTime = now + TAMED_FEED_INTERVAL_TICKS;
+        heal(healAmount(food));
+        nextHealTime = now + HEAL_FEED_COOLDOWN_TICKS;
+        // A afinidade sobe só no ritmo normal das refeições: curar não vira atalho para ela.
+        if (now >= nextFeedTime) {
+            setAffinity(affinity + (float) (AFFINITY_PER_FEED * food.quality()));
+            nextFeedTime = now + TAMED_FEED_INTERVAL_TICKS;
+        }
+        playSound(SoundEvents.GENERIC_EAT, 0.8F, 0.8F + getRandom().nextFloat() * 0.4F);
         level().broadcastEntityEvent(this, (byte) 7);
+    }
+
+    /** Quanto uma porção cura: fração da vida máxima proporcional ao valor do alimento. */
+    public float healAmount(TamingProfile.Food food) {
+        double fraction = Mth.clamp(food.value() * HEAL_FRACTION_PER_FOOD_VALUE, MIN_HEAL_FRACTION, MAX_HEAL_FRACTION);
+        return (float) (getMaxHealth() * fraction);
+    }
+
+    /** Domesticada e ferida: come uma porção do próprio inventário, a melhor que tiver. */
+    private void eatToHeal() {
+        if (getHealth() >= getMaxHealth()) {
+            return;
+        }
+        Optional<TamingProfile> profile = tamingProfile();
+        if (profile.isEmpty()) {
+            return;
+        }
+        int bestSlot = -1;
+        TamingProfile.Food best = null;
+        for (int slot = 0; slot < inventory.getContainerSize(); slot++) {
+            Optional<TamingProfile.Food> food = profile.get().foodFor(inventory.getItem(slot));
+            if (food.isPresent() && (best == null || food.get().value() > best.value())) {
+                bestSlot = slot;
+                best = food.get();
+            }
+        }
+        if (best == null) {
+            return;
+        }
+        inventory.removeItem(bestSlot, 1);
+        heal(healAmount(best));
+        playSound(SoundEvents.GENERIC_EAT, 0.6F, 0.8F + getRandom().nextFloat() * 0.4F);
     }
 
     /** Inconsciente, come uma unidade do melhor alimento que houver no inventário, respeitando o intervalo. */

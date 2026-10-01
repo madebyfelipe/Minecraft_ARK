@@ -51,7 +51,7 @@ public class HuntGoal extends Goal {
 
     public static boolean isPrey(PrehistoricCreature hunter, LivingEntity candidate, TagKey<EntityType<?>> prey) {
         boolean playerPrey = candidate instanceof Player
-                && hunter.behavior().map(behavior -> behavior.prey().isPresent()).orElse(false);
+                && hunter.behavior().map(behavior -> behavior.prey().isPresent() && behavior.huntsPlayers()).orElse(false);
         if (!candidate.isAlive() || (!playerPrey && !candidate.getType().is(prey))
                 || candidate.getType() == hunter.getType()) {
             return false;
