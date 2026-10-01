@@ -363,4 +363,19 @@ public class EcologyTests {
         helper.assertTrue(actualWeight == expectedWeight, EntityType.getKey(type) + " peso "
                 + actualWeight + ", esperado " + expectedWeight);
     }
+
+    /**
+     * O Estegossauro nasce desde o spawn e com peso de herbívoro comum: a 300+ blocos e com peso 6 ele
+     * perdia todas as vagas do teto de população para dodôs, raptores e Pteranodontes e não aparecia.
+     */
+    @GameTest(template = EMPTY)
+    public static void stegosaurusIsCommonFromTheSpawn(GameTestHelper helper) {
+        var registries = helper.getLevel().registryAccess();
+        SpawnProfile stego = Species.of(registries, ModEntities.STEGOSAURUS.get()).orElseThrow().spawn().orElseThrow();
+        SpawnProfile mammoth = Species.of(registries, ModEntities.MAMMOTH.get()).orElseThrow().spawn().orElseThrow();
+        helper.assertTrue(stego.minDistance() == 0, "o Estegossauro deveria nascer já no spawn");
+        helper.assertTrue(stego.weight() >= mammoth.weight(), "peso " + stego.weight() + " abaixo do mamute");
+        assertSpawnWeight(helper, Biomes.SNOWY_PLAINS, ModEntities.STEGOSAURUS.get(), 9);
+        helper.succeed();
+    }
 }

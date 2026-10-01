@@ -72,11 +72,11 @@
   },
   "spawn": {
     "biomes": "#iceagesurvival:spawns_stegosaurus",
-    "weight": 6,
+    "weight": 12,
     "group_min": 2,
     "group_max": 4,
     "max_nearby": 8,
-    "min_distance": 300
+    "min_distance": 0
   },
   "sounds": {
     "ambient": "fossil:stegosaurus_ambient",
