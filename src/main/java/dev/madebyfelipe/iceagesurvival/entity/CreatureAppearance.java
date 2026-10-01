@@ -13,7 +13,14 @@ public record CreatureAppearance(
         String attack,
         String unconscious,
         String fly,
-        String run) {
+        String run,
+        String dive) {
+    /** Sem animação de mergulho própria: mergulha com a de voo. */
+    public CreatureAppearance(String model, String texture, String idle, String walk, String attack, String unconscious,
+                              String fly, String run) {
+        this(model, texture, idle, walk, attack, unconscious, fly, run, fly);
+    }
+
     /** Espécie que não voa nem tem corrida própria: as duas são a animação de andar. */
     public CreatureAppearance(String model, String texture, String idle, String walk, String attack, String unconscious) {
         this(model, texture, idle, walk, attack, unconscious, walk, walk);
@@ -46,7 +53,7 @@ public record CreatureAppearance(
             Map.entry("stegosaurus", new CreatureAppearance("stegosaurus", "stegosaurus/stegosaurus_male.png",
                     "idle", "walk", "attack_back_left", "sleep_1", "walk", "run")),
             Map.entry("pteranodon", new CreatureAppearance("pteranodon", "pteranodon/pteranodon_male.png",
-                    "idle", "walk", "attack", "sleep", "fly"))
+                    "idle", "walk", "attack", "sleep", "fly", "walk", "dive"))
     );
 
     public static Optional<CreatureAppearance> forEntity(ResourceLocation entityId) {

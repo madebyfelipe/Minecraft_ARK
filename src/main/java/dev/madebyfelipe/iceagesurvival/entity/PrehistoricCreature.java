@@ -227,6 +227,19 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     private boolean riderBoost;
     /** Velocidade escalar do voo montado, em blocos/tick; só no cliente de quem monta. */
     private double flightSpeed;
+    /** Rumo e inclinação da trajetória no voo montado: seguem o olhar com curva limitada. */
+    private float flightYaw;
+    private float flightPitch;
+    /** Ticks sem quadro novo (montaria fora da tela) até voltar ao assento dos dados. */
+    private static final int ANIMATED_SEAT_MAX_AGE = 5;
+    /**
+     * Posição do osso {@code rider_pos} já animado, relativa à origem da entidade, gravada pelo
+     * renderer a cada quadro (só no cliente). Na animação de voo o corpo se inclina; sem isto o
+     * assento fica parado e o modelo invade a frente de quem monta.
+     */
+    @Nullable
+    private Vec3 animatedSeat;
+    private int animatedSeatTick;
     private final SimpleContainer inventory;
 
     protected PrehistoricCreature(EntityType<? extends PrehistoricCreature> type, Level level) {
@@ -383,6 +396,12 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         if (!allowed) {
             flightSpeed = 0.0;
         }
+    }
+
+    /** Chamado pelo renderer com a posição do osso {@code rider_pos} neste quadro. */
+    public void setAnimatedSeat(Vec3 offset) {
+        animatedSeat = offset;
+        animatedSeatTick = tickCount;
     }
 
     // ---- Sons ----
@@ -1357,8 +1376,11 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     @Override
     protected void tickRidden(Player player, Vec3 travelVector) {
         super.tickRidden(player, travelVector);
-        // A criatura aponta para onde quem monta olha; o passo do pescoço é metade, como no cavalo.
-        setRot(player.getYRot(), player.getXRot() * 0.5F);
+        if (!isFlying()) {
+            // A criatura aponta para onde quem monta olha; o passo do pescoço é metade, como no cavalo.
+            setRot(player.getYRot(), player.getXRot() * 0.5F);
+        }
+        // Em voo o rumo é do tickFlight, no cliente de quem monta; o servidor recebe a rotação com a posição.
         yRotO = yBodyRot = yHeadRot = getYRot();
         getNavigation().stop();
         if (!isControlledByLocalInstance()) {
@@ -1393,23 +1415,34 @@ public abstract class PrehistoricCreature extends TamableAnimal {
 
     /** Voo montado, no cliente de quem monta ({@link FlightModel}). */
     private void tickFlight(Player player, boolean jumpPressed) {
-        double maxSpeed = mountProfile().map(MountProfile::flightSpeed).orElse(MountProfile.DEFAULT.flightSpeed());
-        FlightModel.Tuning tuning = FlightModel.Tuning.forMaxSpeed(maxSpeed);
+        MountProfile mount = mountProfile().orElse(MountProfile.DEFAULT);
+        double maxSpeed = mount.flightSpeed();
+        FlightModel.Tuning tuning = FlightModel.Tuning.forMaxSpeed(maxSpeed, mount.flightTurnRate());
         if (!isFlying()) {
             if (jumpPressed && isRideReady()) {
                 setFlying(true);
                 flightSpeed = maxSpeed * FlightModel.TAKEOFF_SPEED_FRACTION;
+                flightYaw = getYRot();
+                flightPitch = 0.0F;
                 Vec3 movement = getDeltaMovement();
                 setDeltaMovement(movement.x, FlightModel.TAKEOFF_LIFT, movement.z);
             }
             return;
         }
         FlightModel.Input input = new FlightModel.Input(player.zza, player.xxa, riderJumpHeld, riderBoost);
-        flightSpeed = FlightModel.nextSpeed(flightSpeed, input, tuning);
-        FlightModel.Velocity velocity = FlightModel.velocity(flightSpeed, getYRot(), player.getXRot(), input, tuning);
+        flightYaw = FlightModel.nextYaw(flightYaw, player.getYRot(), flightSpeed, tuning);
+        flightPitch = FlightModel.nextPitch(flightPitch, player.getXRot(), tuning);
+        flightSpeed = FlightModel.nextSpeed(flightSpeed, flightPitch, input, tuning);
+        FlightModel.Velocity velocity = FlightModel.velocity(flightSpeed, flightYaw, flightPitch, input, tuning);
+        if (onGround() && velocity.y() < 0) {
+            // Rasante: encostou no chão rápido demais para pousar; desliza em vez de afundar.
+            velocity = new FlightModel.Velocity(velocity.x(), 0.0, velocity.z());
+        }
         setDeltaMovement(velocity.x(), velocity.y(), velocity.z());
+        setRot(flightYaw, flightPitch);
+        yRotO = yBodyRot = yHeadRot = flightYaw;
         resetFallDistance();
-        if (FlightModel.shouldLand(onGround(), riderJumpHeld, player.getXRot())) {
+        if (FlightModel.shouldLand(onGround(), riderJumpHeld, player.getXRot(), flightSpeed, tuning)) {
             setFlying(false);
         }
     }
@@ -1421,6 +1454,27 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         if (isFlying() && !isVehicle()) {
             setFlying(false);
         }
+    }
+
+    /**
+     * No cliente de uma montaria voadora, quem monta vai no osso {@code rider_pos} animado, como no
+     * Revival. Nas outras, e no servidor, na altura dos dados, adiantado por {@code seat_forward}.
+     */
+    @Override
+    protected void positionRider(Entity passenger, Entity.MoveFunction move) {
+        if (!hasPassenger(passenger)) {
+            return;
+        }
+        if (level().isClientSide && isFlightMount() && animatedSeat != null
+                && tickCount - animatedSeatTick <= ANIMATED_SEAT_MAX_AGE) {
+            move.accept(passenger, getX() + animatedSeat.x,
+                    getY() + animatedSeat.y + passenger.getMyRidingOffset(), getZ() + animatedSeat.z);
+            return;
+        }
+        double forward = mountProfile().map(MountProfile::seatForward).orElse(0.0);
+        Vec3 ahead = Vec3.directionFromRotation(0.0F, yBodyRot).scale(forward);
+        move.accept(passenger, getX() + ahead.x,
+                getY() + getPassengersRidingOffset() + passenger.getMyRidingOffset(), getZ() + ahead.z);
     }
 
     /** Onde quem monta se senta. Fica nos dados da espécie, junto do resto do corpo. */

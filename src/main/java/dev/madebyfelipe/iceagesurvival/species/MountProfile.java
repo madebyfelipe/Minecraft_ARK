@@ -24,12 +24,13 @@ import net.minecraft.world.level.block.Block;
  * @param flying           voo montado ({@link dev.madebyfelipe.iceagesurvival.core.mount.FlightModel})
  * @param flightSpeed      velocidade máxima de cruzeiro no voo, em blocos/tick (o impulso multiplica)
  * @param requiresSaddle   falso = monta sem sela, como uma montaria de início de jogo
+ * @param flightTurnRate   curva máxima no voo, em graus por segundo, na velocidade de cruzeiro
  */
 public record MountProfile(double seatHeight, double seatForward, float minAffinity, double speedMultiplier, double jumpStrength,
                            double jumpForward, float breakHardness, Optional<TagKey<Block>> breakBlocks, boolean flying,
-                           double flightSpeed, boolean requiresSaddle) {
+                           double flightSpeed, boolean requiresSaddle, double flightTurnRate) {
     public static final MountProfile DEFAULT =
-            new MountProfile(0.0, 0.0, 25.0F, 1.0, 0.0, 0.0, 0.0F, Optional.empty(), false, 0.8, true);
+            new MountProfile(0.0, 0.0, 25.0F, 1.0, 0.0, 0.0, 0.0F, Optional.empty(), false, 0.8, true, 120.0);
 
     public static final Codec<MountProfile> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.doubleRange(0, 16).optionalFieldOf("seat_height", DEFAULT.seatHeight())
@@ -52,7 +53,9 @@ public record MountProfile(double seatHeight, double seatForward, float minAffin
             Codec.doubleRange(0.05, 4).optionalFieldOf("flight_speed", DEFAULT.flightSpeed())
                     .forGetter(MountProfile::flightSpeed),
             Codec.BOOL.optionalFieldOf("requires_saddle", DEFAULT.requiresSaddle())
-                    .forGetter(MountProfile::requiresSaddle)
+                    .forGetter(MountProfile::requiresSaddle),
+            Codec.doubleRange(10, 720).optionalFieldOf("flight_turn_rate", DEFAULT.flightTurnRate())
+                    .forGetter(MountProfile::flightTurnRate)
     ).apply(instance, MountProfile::new));
 
     /** Altura do assento para uma criatura com esta caixa de colisão. */

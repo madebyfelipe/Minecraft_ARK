@@ -7,6 +7,9 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
+import org.joml.Vector3d;
+import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.constant.DataTickets;
 import software.bernie.geckolib.core.animatable.model.CoreGeoBone;
 import software.bernie.geckolib.core.animation.AnimationState;
@@ -20,6 +23,7 @@ import software.bernie.geckolib.renderer.GeoEntityRenderer;
  * tamanho vem de {@link CreatureModelSettings}.
  */
 public class CreatureRenderer extends GeoEntityRenderer<LandCreature> {
+    private static final String RIDER_BONE = "rider_pos";
     private final ResourceLocation typeId;
 
     public CreatureRenderer(EntityRendererProvider.Context context, ResourceLocation typeId) {
@@ -34,7 +38,17 @@ public class CreatureRenderer extends GeoEntityRenderer<LandCreature> {
         scaleWidth = scale;
         scaleHeight = scale;
         shadowRadius = entity.getBbWidth() * 0.5F;
+        GeoBone seat = entity.isFlightMount() && entity.isVehicle()
+                ? getGeoModel().getBone(RIDER_BONE).orElse(null) : null;
+        if (seat != null) {
+            seat.setTrackingMatrices(true);
+        }
         super.render(entity, entityYaw, partialTick, poseStack, bufferSource, packedLight);
+        if (seat != null) {
+            // Relativa à origem da entidade, já com rumo, escala e animação: é onde o Revival senta quem monta.
+            Vector3d local = seat.getLocalPosition();
+            entity.setAnimatedSeat(new Vec3(local.x, local.y, local.z));
+        }
     }
 
     private static class Model extends DefaultedEntityGeoModel<LandCreature> {

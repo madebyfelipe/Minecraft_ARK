@@ -1,5 +1,6 @@
 package dev.madebyfelipe.iceagesurvival.entity;
 
+import dev.madebyfelipe.iceagesurvival.core.mount.FlightModel;
 import dev.madebyfelipe.iceagesurvival.core.stats.Stat;
 import dev.madebyfelipe.iceagesurvival.entity.ai.ChaseGoal;
 import dev.madebyfelipe.iceagesurvival.entity.ai.FleeWhenWeakGoal;
@@ -185,11 +186,13 @@ public class LandCreature extends PrehistoricCreature implements GeoEntity, Geck
         String unconsciousName = appearance == null ? "unconscious" : appearance.unconscious();
         String flyName = appearance == null ? walkName : appearance.fly();
         String runName = appearance == null ? walkName : appearance.run();
+        String diveName = appearance == null ? flyName : appearance.dive();
         RawAnimation idle = RawAnimation.begin().thenLoop(prefix + idleName);
         RawAnimation walk = RawAnimation.begin().thenLoop(prefix + walkName);
         RawAnimation unconscious = RawAnimation.begin().thenLoop(prefix + unconsciousName);
         RawAnimation fly = RawAnimation.begin().thenLoop(prefix + flyName);
         RawAnimation run = RawAnimation.begin().thenLoop(prefix + runName);
+        RawAnimation dive = RawAnimation.begin().thenLoop(prefix + diveName);
         // PLAY_ONCE explícito: o thenPlay usa o "loop" do arquivo, e o ataque do T-Rex e do Elasmotério
         // no Revival vem marcado como loop — o golpe ficava repetindo para sempre.
         RawAnimation attack = RawAnimation.begin().then(prefix + attackName, Animation.LoopType.PLAY_ONCE);
@@ -199,7 +202,8 @@ public class LandCreature extends PrehistoricCreature implements GeoEntity, Geck
                 return state.setAndContinue(unconscious);
             }
             if (isFlying()) {
-                return state.setAndContinue(fly);
+                // A inclinação da trajetória vem na rotação, que chega a todos os clientes.
+                return state.setAndContinue(getXRot() >= FlightModel.DIVE_PITCH ? dive : fly);
             }
             if (!state.isMoving()) {
                 return state.setAndContinue(idle);
