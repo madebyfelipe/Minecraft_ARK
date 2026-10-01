@@ -12,6 +12,8 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.dimension.LevelStem;
+import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
+import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
 import net.minecraft.world.level.levelgen.presets.WorldPreset;
 import net.minecraftforge.gametest.GameTestHolder;
 import net.minecraftforge.gametest.PrefixGameTestTemplate;
@@ -31,6 +33,9 @@ public class WorldgenTests {
         WorldPreset preset = registries.registryOrThrow(Registries.WORLD_PRESET).get(IceAgeSurvival.id("ice_age"));
         helper.assertTrue(preset != null, "preset iceagesurvival:ice_age não carregou");
         LevelStem overworld = preset.createWorldDimensions().dimensions().get(LevelStem.OVERWORLD);
+        helper.assertTrue(((NoiseBasedChunkGenerator) overworld.generator()).generatorSettings()
+                        .is(NoiseGeneratorSettings.OVERWORLD),
+                "o preset precisa usar o relevo normal minecraft:overworld, não amplified");
         Set<Holder<Biome>> biomes = overworld.generator().getBiomeSource().possibleBiomes();
 
         List<String> unexpected = biomes.stream()

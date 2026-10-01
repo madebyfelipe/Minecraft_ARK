@@ -671,6 +671,9 @@ Ver a tabela em [4](#4-decisões). Registro de mudanças estruturais:
   rios, praias e oceanos continuam congelados. Herbívoros reagem aos predadores pelo porte (investem
   ou fogem) e todos os carnívoros fazem a mesma escolha diante de outro predador: enfrentam os do
   próprio porte ou menores e fogem de um muito maior.
+- 2026-10-01 — Garantia contra relevo deformado: o GameTest exige que o preset use
+  `NoiseGeneratorSettings.OVERWORLD`; mundos criados quando o preset usava `amplified` continuam
+  com aquele relevo salvo e precisam ser recriados para receber a correção.
 - 2026-10-01 — Ecologia dinâmica (D24): fome, caçada pelo faro (raio de 40–72 blocos), presa e
   manada que disparam, perseguição com fôlego, estresse com humor no painel, rivais (T-Rex ×
   Alossauro × Espinossauro, Smilodon × lobo-terrível × urso). Raios de alerta das presas dobrados.
