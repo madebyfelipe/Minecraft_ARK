@@ -87,7 +87,6 @@
       "hunt_radius": 56,
       "hunger_seconds": 300,
       "chase_seconds": 30,
-      "rivals": "#iceagesurvival:rivals_utahraptor",
       "rival_radius": 32,
       "nervousness": 0.9
     }
@@ -105,7 +104,7 @@
     "group_min": 2,
     "group_max": 3,
     "max_nearby": 3,
-    "min_distance": 1000
+    "min_distance": 500
   },
   "sounds": {
     "attack": "minecraft:entity.fox.bite",

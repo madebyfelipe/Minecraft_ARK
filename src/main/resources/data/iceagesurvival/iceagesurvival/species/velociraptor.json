@@ -85,7 +85,6 @@
       "hunt_radius": 64,
       "hunger_seconds": 120,
       "chase_seconds": 30,
-      "rivals": "#iceagesurvival:rivals_velociraptor",
       "rival_radius": 28,
       "nervousness": 1.1
     }
@@ -102,7 +101,7 @@
     "group_min": 4,
     "group_max": 6,
     "max_nearby": 14,
-    "min_distance": 0
+    "min_distance": 300
   },
   "sounds": {
     "attack": "minecraft:entity.fox.bite",

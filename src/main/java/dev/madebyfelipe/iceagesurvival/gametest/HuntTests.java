@@ -4,6 +4,7 @@ import dev.madebyfelipe.iceagesurvival.IceAgeSurvival;
 import dev.madebyfelipe.iceagesurvival.core.ecology.Stress;
 import dev.madebyfelipe.iceagesurvival.entity.LandCreature;
 import dev.madebyfelipe.iceagesurvival.entity.ai.HuntGoal;
+import dev.madebyfelipe.iceagesurvival.entity.ai.RivalryGoal;
 import dev.madebyfelipe.iceagesurvival.registry.ModEntities;
 import java.util.List;
 import net.minecraft.gametest.framework.GameTest;
@@ -182,19 +183,30 @@ public class HuntTests {
         });
     }
 
-    /** O mais fraco, encarado pelo rival, vai embora; numa briga, quem cai à metade da vida desiste. */
+    /** Machos da mesma espécie disputam território mesmo sem fêmea próxima; o mais fraco cede. */
     @GameTest(template = EMPTY)
-    public static void weakerRivalYieldsAndFightsAreNotToTheDeath(GameTestHelper helper) {
+    public static void sameSpeciesMalesYieldAndFightsAreNotToTheDeath(GameTestHelper helper) {
         LandCreature rex = helper.spawnWithNoFreeWill(ModEntities.TYRANNOSAURUS.get(), 1, 2, 1);
-        LandCreature allo = helper.spawnWithNoFreeWill(ModEntities.ALLOSAURUS.get(), 5, 2, 5);
-        helper.assertTrue(rex.isRival(allo) && allo.isRival(rex), "T-Rex e Alossauro deveriam ser rivais");
-        // Os níveis são sorteados; ferido, o Alossauro é sem dúvida o mais fraco.
-        allo.setHealth(allo.getMaxHealth() * 0.4F);
-        helper.assertTrue(rex.dominance() > allo.dominance(), "o T-Rex deveria ser o dominante");
-        allo.challengedBy(rex);
-        helper.assertTrue(allo.yieldingFrom() == rex, "o Alossauro calmo deveria ter cedido");
+        LandCreature rival = helper.spawnWithNoFreeWill(ModEntities.TYRANNOSAURUS.get(), 5, 2, 5);
+        rex.setFemale(false);
+        rival.setFemale(false);
+        LandCreature allo = helper.spawnWithNoFreeWill(ModEntities.ALLOSAURUS.get(), 10, 2, 1);
+        helper.assertTrue(rex.isRival(rival) && rival.isRival(rex), "machos T-Rex da mesma espécie deveriam rivalizar");
+        helper.assertFalse(rex.isRival(allo), "T-Rex e Alossauro não são rivais entre espécies");
+        // Os níveis são sorteados; ferido, o outro macho é sem dúvida o mais fraco.
+        rival.setHealth(rival.getMaxHealth() * 0.4F);
+        helper.assertTrue(rex.dominance() > rival.dominance(), "o T-Rex deveria ser o dominante");
+        RivalryGoal goal = new RivalryGoal(rex);
+        boolean challenged = false;
+        for (int attempt = 0; attempt < 2400 && !challenged; attempt++) {
+            challenged = goal.canUse();
+        }
+        helper.assertTrue(challenged, "não houve disputa territorial entre machos sem fêmea próxima");
+        goal.start();
+        helper.assertTrue(rival.yieldingFrom() == rex, "o macho mais fraco deveria ter cedido");
 
-        LandCreature other = helper.spawnWithNoFreeWill(ModEntities.ALLOSAURUS.get(), 1, 2, 5);
+        LandCreature other = helper.spawnWithNoFreeWill(ModEntities.TYRANNOSAURUS.get(), 1, 2, 5);
+        other.setFemale(false);
         rex.setTarget(other);
         other.hurt(helper.getLevel().damageSources().mobAttack(rex), other.getMaxHealth() * 0.6F);
         helper.assertTrue(other.isAlive() && other.yieldingFrom() == rex, "quem perdeu a briga não desistiu");

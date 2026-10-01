@@ -718,10 +718,10 @@ public abstract class PrehistoricCreature extends TamableAnimal {
 
     // ---- Rivais ----
 
-    /** Espécie com que esta disputa território (pela tag {@code rivals}). */
+    /** Macho adulto selvagem da mesma espécie, rival por acesso a fêmeas. */
     public boolean isRival(LivingEntity other) {
         return other != this && other instanceof PrehistoricCreature creature && !creature.isTame()
-                && !creature.isBaby() && ecology().rivals().map(other.getType()::is).orElse(false);
+                && !creature.isBaby() && !creature.isFemale() && !isFemale() && other.getType() == getType();
     }
 
     /** Força para disputa: vida × ataque, com o bando somando. */
@@ -743,6 +743,9 @@ public abstract class PrehistoricCreature extends TamableAnimal {
      * ferido, com fome), às vezes revida.
      */
     public void challengedBy(PrehistoricCreature challenger) {
+        if (!isRival(challenger)) {
+            return;
+        }
         addStress(Stress.Event.RIVAL_SEEN, 5.0);
         boolean fightsBack = mood().atLeast(Stress.Mood.STRESSED) && getRandom().nextDouble() < 0.5
                 || dominance() >= challenger.dominance();
@@ -847,10 +850,10 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     /** Aplica percepção e território da espécie. Criaturas domesticadas não têm território. */
     private void applyBehavior() {
         Optional<BehaviorProfile> behavior = behavior();
-        // O alcance do caminho cobre a caçada e os rivais, não só o raio de agressão ao jogador.
+        // O alcance do caminho cobre a caçada e a disputa entre machos da mesma espécie.
         behavior.ifPresent(profile -> setBase(Attributes.FOLLOW_RANGE, Math.max(profile.aggroRadius(),
                 Math.max(profile.prey().isPresent() ? profile.ecology().huntRadius() : 0.0,
-                        profile.ecology().rivals().isPresent() ? profile.ecology().rivalRadius() : 0.0))));
+                        profile.ecology().rivalRadius()))));
         int territory = behavior.map(BehaviorProfile::territoryRadius).orElse(0);
         if (!isTame() && territory > 0 && homePos != null) {
             restrictTo(homePos, territory);

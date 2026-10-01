@@ -54,7 +54,7 @@ public final class ServerConfig {
             .defineInRange("wildSpawnDensityRadius", 144, 16, 512);
 
     public static final ForgeConfigSpec.IntValue WILD_SPAWN_MAX_TOTAL = BUILDER
-            .comment("Teto de criaturas selvagens do mod, somando todas as espécies, no raio de densidade de um jogador.")
+            .comment("Teto configurado antes da redução de 30%, somando as espécies no raio de densidade do jogador.")
             .defineInRange("wildSpawnMaxTotal", 72, 0, 200);
 
     public static final ForgeConfigSpec.IntValue FULL_DANGER_DISTANCE = BUILDER

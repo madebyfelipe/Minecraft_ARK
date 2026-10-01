@@ -4,7 +4,7 @@
   "spawners": [
     {
       "type": "iceagesurvival:stegosaurus",
-      "weight": 8,
+      "weight": 6,
       "minCount": 2,
       "maxCount": 4
     }

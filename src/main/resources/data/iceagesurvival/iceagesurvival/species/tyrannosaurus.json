@@ -86,7 +86,6 @@
       "hunt_radius": 72,
       "hunger_seconds": 480,
       "chase_seconds": 20,
-      "rivals": "#iceagesurvival:rivals_tyrannosaurus",
       "rival_radius": 48,
       "nervousness": 0.4
     }
@@ -103,7 +102,7 @@
     "group_min": 1,
     "group_max": 1,
     "max_nearby": 1,
-    "min_distance": 2000
+    "min_distance": 1000
   },
   "sounds": {
     "ambient": "fossil:tyrannosaurus_ambient",

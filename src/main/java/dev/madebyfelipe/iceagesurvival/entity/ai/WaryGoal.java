@@ -4,6 +4,7 @@ import dev.madebyfelipe.iceagesurvival.core.ecology.Stress;
 import dev.madebyfelipe.iceagesurvival.core.ecology.ThreatResponse;
 import dev.madebyfelipe.iceagesurvival.core.ecology.ThreatResponse.Reaction;
 import dev.madebyfelipe.iceagesurvival.entity.PrehistoricCreature;
+import dev.madebyfelipe.iceagesurvival.species.BehaviorProfile;
 import dev.madebyfelipe.iceagesurvival.species.WarinessProfile;
 import java.util.EnumSet;
 import javax.annotation.Nullable;
@@ -168,10 +169,17 @@ public class WaryGoal extends Goal {
         boolean approaching = distance < lastDistance - 0.25;
         lastDistance = distance;
         decisionCooldown = DECISION_INTERVAL;
+        int attackers = Math.max(creature.huntingPack(),
+                threat instanceof PrehistoricCreature hunter ? groupSize(hunter) : 1);
+        boolean guardingCalf = creature.hasCalfNearby(profile.calfRadius());
         var situation = new ThreatResponse.Situation(distance, approaching, sneaking(threat), firstContact,
-                creature.hasCalfNearby(profile.calfRadius()), sizeRatio(threat), creature.isHunted(),
-                creature.huntingPack(), creature.stress());
-        Reaction reaction = ThreatResponse.react(situation, profile.tuning(), creature.getRandom()::nextDouble);
+                guardingCalf, sizeRatio(threat), creature.isHunted(), attackers, creature.stress());
+        int defenders = creature.behavior().map(BehaviorProfile::groupDefense).orElse(false)
+                ? groupSize(creature) : 1;
+        Reaction reaction = isHunter(threat)
+                ? ThreatResponse.reactToHunter(situation, profile.tuning(), defenders,
+                        creature.getRandom()::nextDouble)
+                : ThreatResponse.react(situation, profile.tuning(), creature.getRandom()::nextDouble);
         if (reaction == Reaction.IGNORE) {
             reaction = Reaction.ALERT;
         }
@@ -307,15 +315,43 @@ public class WaryGoal extends Goal {
         if (other instanceof Player) {
             return profile.players() && EntitySelector.NO_CREATIVE_OR_SPECTATOR.test(other);
         }
-        if (other instanceof PrehistoricCreature predator && predator.isUnconscious()) {
+        if (other instanceof PrehistoricCreature predator
+                && (predator.isUnconscious() || predator.isBaby() || predator.isTame())) {
             return false;
         }
         boolean configuredThreat = profile.threats().map(other.getType()::is).orElse(false);
         if (other instanceof PrehistoricCreature creature) {
-            return configuredThreat || !creature.isTame() && creature.isAggressive()
-                    && creature.wariness().isPresent();
+            if (creature.isTame()) {
+                return false;
+            }
+            boolean activeThreat = creature.isAggressive() && creature.wariness().isPresent();
+            if (isHunter(creature)) {
+                boolean thisIsPrey = this.creature.behavior()
+                        .map(behavior -> behavior.prey().isEmpty()).orElse(true);
+                boolean huntsThisSpecies = creature.behavior().flatMap(BehaviorProfile::prey)
+                        .map(tag -> this.creature.getType().is(tag)).orElse(false);
+                return activeThreat || thisIsPrey || huntsThisSpecies;
+            }
+            return configuredThreat || activeThreat;
         }
         return configuredThreat;
+    }
+
+    private boolean isHunter(LivingEntity entity) {
+        return entity instanceof PrehistoricCreature hunter && !hunter.isTame() && !hunter.isUnconscious()
+                && hunter.behavior().flatMap(BehaviorProfile::prey).isPresent();
+    }
+
+    /** Adult wild group size, used to estimate whether the predator or the herd has the advantage. */
+    private int groupSize(PrehistoricCreature member) {
+        int radius = member.behavior().map(BehaviorProfile::herdRadius).orElse(0);
+        if (radius <= 0) {
+            return 1;
+        }
+        return 1 + member.level().getEntitiesOfClass(PrehistoricCreature.class,
+                member.getBoundingBox().inflate(radius), other -> other != member
+                        && other.getType() == member.getType() && !other.isTame()
+                        && !other.isBaby() && !other.isUnconscious()).size();
     }
 
     /** Distância entre as bordas dos corpos: os raios valem igual para um dodô e para um Brontossauro. */

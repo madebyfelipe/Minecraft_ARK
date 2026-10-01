@@ -127,9 +127,7 @@ public class LandCreature extends PrehistoricCreature implements GeoEntity, Geck
             targetSelector.addGoal(4, new PlayerTargetGoal(this).setUnseenMemoryTicks(TARGET_MEMORY_TICKS));
         }
         behavior.prey().ifPresent(prey -> targetSelector.addGoal(5, new HuntGoal(this, prey)));
-        if (behavior.ecology().rivals().isPresent()) {
-            targetSelector.addGoal(6, new RivalryGoal(this));
-        }
+        targetSelector.addGoal(6, new RivalryGoal(this));
     }
 
     /**

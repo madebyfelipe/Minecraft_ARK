@@ -130,6 +130,44 @@ public class WildlifeTests {
         });
     }
 
+    private static void largeHerbivoreDrivesOffSatedVelociraptor(GameTestHelper helper,
+                                                                  EntityType<LandCreature> herbivoreType) {
+        HuntTests.clearStrays(helper);
+        LandCreature herbivore = helper.spawn(herbivoreType, 8, 0, 4);
+        LandCreature raptor = helper.spawn(ModEntities.VELOCIRAPTOR.get(), 8, 0, 12);
+        raptor.setTicksSinceMeal(0);
+        double start = raptor.distanceTo(herbivore);
+        helper.onEachTick(() -> {
+            if (herbivore.isAggressive() && raptor.distanceTo(herbivore) > start + 3.0) {
+                helper.succeed();
+            }
+        });
+        helper.runAtTickTime(140, () -> helper.fail(herbivoreType.getDescriptionId()
+                + " não afastou o Velociraptor saciado; distância " + start + " → "
+                + raptor.distanceTo(herbivore) + ", agressivo=" + herbivore.isAggressive()));
+    }
+
+    /** Mesmo saciado e sem caçar mamute, o pequeno predador é expulso pela manada. */
+    @GameTest(template = ARENA, batch = BATCH + "_mammoth", timeoutTicks = 160)
+    public static void mammothHerdDrivesOffSatedVelociraptor(GameTestHelper helper) {
+        largeHerbivoreDrivesOffSatedVelociraptor(helper, ModEntities.MAMMOTH.get());
+    }
+
+    @GameTest(template = ARENA, batch = BATCH + "_brontosaurus", timeoutTicks = 160)
+    public static void brontosaurusDrivesOffSatedVelociraptor(GameTestHelper helper) {
+        largeHerbivoreDrivesOffSatedVelociraptor(helper, ModEntities.BRONTOSAURUS.get());
+    }
+
+    @GameTest(template = ARENA, batch = BATCH + "_stegosaurus", timeoutTicks = 160)
+    public static void stegosaurusDrivesOffSatedVelociraptor(GameTestHelper helper) {
+        largeHerbivoreDrivesOffSatedVelociraptor(helper, ModEntities.STEGOSAURUS.get());
+    }
+
+    @GameTest(template = ARENA, batch = BATCH + "_elasmotherium", timeoutTicks = 160)
+    public static void elasmotheriumDrivesOffSatedVelociraptor(GameTestHelper helper) {
+        largeHerbivoreDrivesOffSatedVelociraptor(helper, ModEntities.ELASMOTHERIUM.get());
+    }
+
     /** Depois de abater a presa, o predador come e para de caçar por um tempo. */
     @GameTest(template = EMPTY)
     public static void predatorIsSatedAfterAKill(GameTestHelper helper) {

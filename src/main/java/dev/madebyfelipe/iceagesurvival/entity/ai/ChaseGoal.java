@@ -50,7 +50,7 @@ public class ChaseGoal extends Goal {
                     && creature.distanceTo(target) < creature.ecology().huntRadius() * 1.5;
         }
         if (target instanceof PrehistoricCreature rival && rival.yieldingFrom() == creature) {
-            // O rival desistiu e foi embora: a disputa acabou.
+            // O macho da mesma espécie desistiu e foi embora: a disputa acabou.
             return false;
         }
         return creature.isTame() || creature.isWithinRestriction(target.blockPosition())

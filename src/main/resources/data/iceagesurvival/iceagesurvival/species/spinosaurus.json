@@ -78,7 +78,6 @@
       "hunt_radius": 56,
       "hunger_seconds": 420,
       "chase_seconds": 18,
-      "rivals": "#iceagesurvival:rivals_spinosaurus",
       "rival_radius": 48,
       "nervousness": 0.5
     }
@@ -96,7 +95,7 @@
     "group_min": 1,
     "group_max": 1,
     "max_nearby": 1,
-    "min_distance": 1500
+    "min_distance": 750
   },
   "sounds": {
     "attack": "minecraft:entity.ravager.attack",

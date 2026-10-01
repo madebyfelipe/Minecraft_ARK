@@ -66,7 +66,7 @@
     "group_min": 1,
     "group_max": 2,
     "max_nearby": 3,
-    "min_distance": 450
+    "min_distance": 300
   },
   "sounds": {
     "ambient": "fossil:pteranodon_ambient",

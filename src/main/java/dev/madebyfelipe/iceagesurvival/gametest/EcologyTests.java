@@ -144,6 +144,17 @@ public class EcologyTests {
         assertSpawnsIn(helper, Biomes.TAIGA, ModEntities.DIRE_WOLF.get());
         assertSpawnsIn(helper, Biomes.SNOWY_PLAINS, ModEntities.TYRANNOSAURUS.get());
         assertSpawnsIn(helper, Biomes.TAIGA, ModEntities.TYRANNOSAURUS.get());
+        assertSpawnsIn(helper, Biomes.SNOWY_PLAINS, ModEntities.PTERANODON.get());
+        assertSpawnsIn(helper, Biomes.TAIGA, ModEntities.PTERANODON.get());
+        helper.succeed();
+    }
+
+    @GameTest(template = EMPTY)
+    public static void naturalSpawnWeightsAreReducedAndRareSpeciesRemain(GameTestHelper helper) {
+        assertSpawnWeight(helper, Biomes.SNOWY_PLAINS, ModEntities.DODO.get(), 14);
+        assertSpawnWeight(helper, Biomes.SNOWY_PLAINS, ModEntities.VELOCIRAPTOR.get(), 11);
+        assertSpawnWeight(helper, Biomes.SNOWY_PLAINS, ModEntities.PTERANODON.get(), 1);
+        assertSpawnWeight(helper, Biomes.TAIGA, ModEntities.SMILODON.get(), 1);
         helper.succeed();
     }
 
@@ -245,11 +256,19 @@ public class EcologyTests {
         helper.assertTrue(min.applyAsInt(ModEntities.DIRE_WOLF.get()) == 0
                 && min.applyAsInt(ModEntities.MAMMOTH.get()) == 0
                 && min.applyAsInt(ModEntities.BRONTOSAURUS.get()) == 0
-                && min.applyAsInt(ModEntities.VELOCIRAPTOR.get()) == 0,
-                "fauna comum e raptores deveriam nascer já no spawn");
-        helper.assertTrue(min.applyAsInt(ModEntities.TYRANNOSAURUS.get()) >= 1500, "T-Rex perto demais do spawn");
-        helper.assertTrue(min.applyAsInt(ModEntities.ALLOSAURUS.get()) >= 1000, "Alossauro perto demais do spawn");
-        helper.assertTrue(min.applyAsInt(ModEntities.SMILODON.get()) > 0, "Smilodon no spawn");
+                && min.applyAsInt(ModEntities.SMILODON.get()) == 0,
+                "fauna comum e Smilodon solitário deveriam nascer já no spawn");
+        helper.assertTrue(min.applyAsInt(ModEntities.VELOCIRAPTOR.get()) == 300
+                && min.applyAsInt(ModEntities.PTERANODON.get()) == 300,
+                "raptores e Pteranodonte deveriam começar depois da zona inicial");
+        helper.assertTrue(min.applyAsInt(ModEntities.TYRANNOSAURUS.get()) == 1000,
+                "o raio de exclusão do T-Rex deveria ter diminuído");
+        helper.assertTrue(min.applyAsInt(ModEntities.ALLOSAURUS.get()) == 750
+                        && min.applyAsInt(ModEntities.SPINOSAURUS.get()) == 750,
+                "os predadores grandes deveriam aparecer a partir de 750 blocos");
+        helper.assertTrue(min.applyAsInt(ModEntities.UTAHRAPTOR.get()) == 500
+                        && min.applyAsInt(ModEntities.DIREBEAR.get()) == 400,
+                "os predadores médios deveriam aparecer mais perto do spawn");
         helper.succeed();
     }
 
@@ -321,5 +340,17 @@ public class EcologyTests {
         boolean listed = biome.getMobSettings().getMobs(MobCategory.CREATURE).unwrap().stream()
                 .anyMatch(spawner -> spawner.type == type);
         helper.assertTrue(listed, EntityType.getKey(type) + " não nasce em " + biomeKey.location());
+    }
+
+    private static void assertSpawnWeight(GameTestHelper helper, ResourceKey<Biome> biomeKey, EntityType<?> type,
+                                          int expectedWeight) {
+        Biome biome = helper.getLevel().registryAccess().registryOrThrow(Registries.BIOME).getOrThrow(biomeKey);
+        var spawner = biome.getMobSettings().getMobs(MobCategory.CREATURE).unwrap().stream()
+                .filter(candidate -> candidate.type == type).findFirst()
+                .orElseThrow(() -> new AssertionError(EntityType.getKey(type) + " não nasce em "
+                        + biomeKey.location()));
+        int actualWeight = spawner.getWeight().asInt();
+        helper.assertTrue(actualWeight == expectedWeight, EntityType.getKey(type) + " peso "
+                + actualWeight + ", esperado " + expectedWeight);
     }
 }

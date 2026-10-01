@@ -85,7 +85,6 @@
       "hunt_radius": 40,
       "hunger_seconds": 420,
       "chase_seconds": 15,
-      "rivals": "#iceagesurvival:rivals_direbear",
       "rival_radius": 40,
       "nervousness": 0.6
     }
@@ -101,7 +100,7 @@
     "group_min": 1,
     "group_max": 1,
     "max_nearby": 1,
-    "min_distance": 800
+    "min_distance": 400
   },
   "sounds": {
     "ambient": "minecraft:entity.polar_bear.ambient",

@@ -59,7 +59,7 @@ Fora de escopo: máquinas, árvores tecnológicas, dezenas de armaduras, arsenal
 | D22 | O conteúdo próprio do Revival **fica desligado**: itens fora das abas do criativo, minérios e estátua moai removidos por biome modifier, estruturas por `structure_set` vazios | Os itens dele duplicam os nossos (ovos de dinossauro, carnes, máquinas) e os minérios/estruturas espalham fósseis, âmbar, piche e templos que não existem na nossa progressão. Desligar por dados e por um evento evita mixin e não exige mexer na config do jogador. Limites: receitas dele continuam válidas; o bioma vulcão (TerraBlender) não aparece no preset Era do Gelo, mas aparece num mundo comum. | Fechada 2026-10-01 |
 | D23 | Pulo e voo montados **sem a barra de carga do cavalo**; o voo é decidido no cliente de quem monta | A barra de carga é do cavalo e não combina com predadores; o pulo sai na hora, com altura e avanço da espécie. O voo segue o Cobblemon (olhar dirige, frente acelera, embalo, Espaço bate as asas, sprint dá impulso) e, como o resto do movimento do veículo (D18), é simulado no cliente; o servidor só recebe o estado para tirar a gravidade. A física fica em `core/mount/FlightModel`, testada por JUnit. | Fechada 2026-10-01; falta sentir em jogo |
 | D21 | Usar assets do F&A Revival **em runtime**, sem copiá-los ao projeto ou ao jar | O Ice Age Survival referencia os recursos registrados pelo mod original, instalado separadamente. Isso preserva a autoria/licença dos assets e mantém o jar do addon sem conteúdo do Revival. Exige a dependência compatível instalada para renderizar as espécies afetadas. | Fechada; decisão atual substitui a escolha de 2026-09-30 |
-| D24 | **Ecologia por fome, estresse e rivalidade**, decidida no servidor e com o núcleo em `core/ecology` (JUnit) | Caçada só por intervalo aleatório e linha de visão deixava o mundo parado. Agora o predador caça quando tem fome (`Hunger`), escolhe a presa mais fácil pelo faro (`HuntChoice`: filhote, ferida, desgarrada; bando encara presa maior), persegue com fôlego limitado e desiste. A presa caçada avisa a manada, que dispara. Cada selvagem tem um termômetro de estresse (`Stress`) movido por eventos (predador à vista, ferida, manada atacada, rival, jogador perto) e pelo temperamento da espécie; estressado percebe de mais longe, foge antes e é imprevisível; o predador estressado ataca o jogador de mais longe. Rivais (tag `rivals`) disputam território: o mais fraco cede; briga para à metade da vida. | Fechada 2026-10-01; falta sentir em jogo e balancear |
+| D24 | **Ecologia por fome, estresse e disputa territorial**, decidida no servidor e com o núcleo em `core/ecology` (JUnit) | Caçada só por intervalo aleatório e linha de visão deixava o mundo parado. Agora o predador caça quando tem fome (`Hunger`), escolhe a presa mais fácil pelo faro (`HuntChoice`: filhote, ferida, desgarrada; bando encara presa maior), persegue com fôlego limitado e desiste. Herbívoros reconhecem caçadores pelo perfil de caça e comparam porte e tamanho dos grupos para investir, intimidar ou fugir; o caçador também recua de uma investida que provavelmente perderia. A presa caçada avisa a manada, que reage. Cada selvagem tem um termômetro de estresse (`Stress`) movido por eventos (caçador à vista, ferida, manada atacada, disputa territorial, jogador perto) e pelo temperamento da espécie. Machos adultos selvagens da mesma espécie disputam espaço dentro do raio territorial; espécies diferentes não são rivais por padrão. | Fechada 2026-10-01; falta sentir em jogo e balancear |
 | D25 | Voo montado com **curva e inclinação limitadas** e energia (mergulho ganha velocidade, subida perde); assento no osso `rider_pos` animado | A câmera gira na hora; a montaria segue com velocidade angular de `flight_turn_rate`. O rasante do grifo do ARK sai da troca altura × velocidade. O assento acompanha a animação de voo (que inclina o corpo), como no Revival. | Fechada 2026-10-01; falta sentir em jogo |
 
 ## 5. Mods avaliados
@@ -376,17 +376,19 @@ Bloco `spawn` do JSON de espécie, lido pela reposição própria do mod. **Ause
 "spawn": { "biomes": "#iceagesurvival:spawns_smilodon", "weight": 2, "group_min": 1, "group_max": 1, "max_nearby": 1, "min_distance": 600 }
 ```
 
-- Uma tentativa por jogador a cada `wildSpawnIntervalSeconds` (padrão 60 s): sorteia uma espécie entre as que podem nascer no bioma do jogador **e ainda têm vaga**, proporcionalmente ao `weight`, e procura posição num anel de `wildSpawnMinDistance` a `wildSpawnMaxDistance` (padrão 40 a 96 blocos) — longe da vista, dentro da distância de simulação.
+- Uma reposição por jogador a cada `wildSpawnIntervalSeconds` (padrão 8 s): sorteia uma espécie entre as que podem nascer no bioma do local **e ainda têm vaga**, proporcionalmente ao `weight`, e procura posição num anel de `wildSpawnMinDistance` a `wildSpawnMaxDistance` (padrão 32 a 112 blocos). Em regiões abaixo de metade do teto efetivo, tenta até 5 grupos; caso contrário, um.
 - A posição passa pelas checagens de spawn do vanilla (mapa de altura, regra de superfície, colisão e bioma da tag), e o nascimento passa pelos eventos do Forge, então outro mod pode barrar.
-- `max_nearby` é o teto de indivíduos daquela espécie no `wildSpawnDensityRadius` em volta do jogador, e `wildSpawnMaxTotal` (padrão 18; era 10, que os dodôs sozinhos lotariam) o teto da **soma de todas as espécies**. Criaturas domesticadas não entram na contagem. O raio da contagem é sempre maior que o de spawn (pelo menos `wildSpawnMaxDistance` + 32): antes os dois eram 96, quem nascia na borda saía andando, deixava de contar e abria vaga — com o teto só por espécie, uma base parada juntava mais de 40 criaturas em minutos.
+- `max_nearby` é o teto de indivíduos daquela espécie no `wildSpawnDensityRadius` em volta do jogador, e `wildSpawnMaxTotal` (padrão 72; teto efetivo 50 após a redução de aproximadamente 30%) o teto da **soma de todas as espécies**. Criaturas domesticadas não entram na contagem. O raio da contagem é sempre maior que o de spawn (pelo menos `wildSpawnMaxDistance` + 32): antes os dois eram 96, quem nascia na borda saía andando, deixava de contar e abria vaga — com o teto só por espécie, uma base parada juntava mais de 40 criaturas em minutos. Os pesos de `forge:add_spawns` também foram reduzidos em aproximadamente 30% (arredondados para inteiros; espécies de peso 1 ficam no mínimo permitido), para diminuir o fluxo de fauna em chunks novos sem desfazer bandos.
 
 **Zonas de perigo:** `spawn.min_distance` é a distância horizontal mínima do spawn do mundo para a espécie nascer, conferida na regra de colocação — vale para a reposição e para a geração do terreno. E o nível selvagem máximo cresce com a distância: 30% do `maxWildLevel` no spawn, 100% a `fullDangerDistance` (padrão 3.000 blocos).
 
 | Zona | Distância do spawn | Espécies | Raridade |
 |---|---|---|---|
-| Spawn | 0+ | dodô, Elasmotério, lobo-terrível, mamute, Brontossauro | início de jogo abundante (dodô 14, Elasmotério 9); comuns (8, 8, 6) |
-| Meio | 400+ / 600+ / 1.000+ | Velociraptor / Smilodon / Utahraptor | Smilodon raro (peso 2, máx. 1 por perto) |
-| Longe | 1.500+ / 2.000+ | Alossauro, Espinossauro / T-Rex | muito raros (peso 1) |
+| Spawn | 0+ | dodô, Elasmotério, lobo-terrível, mamute, Brontossauro e Smilodon | fauna inicial; Smilodon solitário substitui o bando de Velociraptores |
+| Próximo | 300+ | Estegossauro, Velociraptor e Pteranodonte | bandos de raptores e Pteranodonte começam fora da zona inicial |
+| Médio | 400+ / 500+ | urso-terrível / Utahraptor | predadores ficam acessíveis mais cedo |
+| Longe | 750+ | Alossauro e Espinossauro | raros (peso 1) |
+| Apex | 1.000+ | T-Rex | raro (peso 1, máximo 1 por perto); antes só aparecia a partir de 2.000 blocos |
 - Não trocamos a categoria para `MONSTER` para conseguir spawn contínuo: isso faria a fauna desaparecer sozinha ([D20](#4-decisões)).
 - Tudo desligável em `wildSpawnEnabled`, para quem quiser a fauna só na geração do terreno.
 
@@ -650,7 +652,7 @@ O mundo do GameTest é plano e de bioma temperado, então o frio não chega a su
 | 2 | Core: níveis, atributos, ownership, persistência, registry de espécies | ✅ 2026-09-30 |
 | 3 | Domesticação com criatura de teste | ✅ 2026-09-30 (falta conferir no cliente) |
 | 4 | Smilodon | ✅ 2026-09-30, conferido em jogo pelo Felipe |
-| 5 | Mais criaturas, spawning | 🟡 Estegossauro, Pteranodonte, dodô e Elasmotério (início de jogo), migração de herbívoros, bônus de bando do Alossauro e ecologia dinâmica (fome, caçadas, estresse, rivais — D24) implementados; caça ao jogador controlada pela fome e revide selvagem ao sofrer dano cobertos por GameTests; falta conferir comportamento em jogo |
+| 5 | Mais criaturas, spawning | 🟡 Estegossauro, Pteranodonte, dodô e Elasmotério (início de jogo), migração de herbívoros, bônus de bando do Alossauro e ecologia dinâmica (fome, caçadas, estresse, disputas territoriais entre machos da mesma espécie — D24) implementados; caça ao jogador controlada pela fome e encontros presa–caçador por porte e grupo cobertos por GameTests; falta conferir comportamento em jogo |
 | 6 | Temperatura | ✅ 2026-09-30 em testes automáticos; falta sentir o frio em jogo e balancear a primeira hora |
 | 7 | Montaria | 🟡 armazenamento por espécie, voo no estilo do Cobblemon, pulo sem barra de carga, montaria sem sela e More Hitboxes implementados; build e GameTests passam, falta conferir controles e hitboxes em jogo |
 | 8 | Reprodução e genética | ✅ 2026-09-30 em testes automáticos (genética em JUnit; acasalamento, gestação, ovo, incubadora, mesa química e estimulante em gametests); falta conferir em jogo |
@@ -675,8 +677,8 @@ Ver a tabela em [4](#4-decisões). Registro de mudanças estruturais:
   `NoiseGeneratorSettings.OVERWORLD`; mundos criados quando o preset usava `amplified` continuam
   com aquele relevo salvo e precisam ser recriados para receber a correção.
 - 2026-10-01 — Ecologia dinâmica (D24): fome, caçada pelo faro (raio de 40–72 blocos), presa e
-  manada que disparam, perseguição com fôlego, estresse com humor no painel, rivais (T-Rex ×
-  Alossauro × Espinossauro, Smilodon × lobo-terrível × urso). Raios de alerta das presas dobrados.
+  manada que disparam, perseguição com fôlego, estresse com humor no painel, disputa territorial
+  entre machos da mesma espécie. Raios de alerta das presas dobrados.
   Carnívoros não caçavam herbívoros por três motivos: `large_prey` só tinha bichos do vanilla, o
   `NearestAttackableTargetGoal` fixava o alcance antes dos atributos da espécie, e a procura era
   rara e exigia vista.
@@ -686,6 +688,13 @@ Ver a tabela em [4](#4-decisões). Registro de mudanças estruturais:
   imediatamente, exceto quando inconscientes ou atingidas por jogador criativo/espectador.
   Herbívoros cautelosos reconhecem outra criatura selvagem agressiva como ameaça mesmo sem tag de
   predador. GameTests também isolam jogadores simulados que sobraram de cenas anteriores.
+- 2026-10-01 — Encontros de presa–caçador sem rivalidade entre espécies: todo herbívoro com perfil
+  de cautela reconhece predadores selvagens pelo papel de caça, mesmo quando o predador está
+  saciado. A resposta compara porte e número de atacantes/defensores: vantagem permite blefar ou
+  investir para afastar caçadores menores; desvantagem causa fuga. Rivalidade foi restrita a machos
+  adultos de bandos diferentes da mesma espécie competindo por espaço; membros da própria manada
+  não disputam entre si. Removidas as tags de rivais entre espécies; a disputa não depende de uma
+  fêmea próxima.
 - 2026-10-01 — Spawn: o `Animal` só nascia em grama ou na luz, então à noite, na neve, a reposição
   e boa parte do spawn da geração falhavam (`checkSpawnRules` agora fica com `checkSurfaceSpawnRules`).
   Reposição escolhe a posição e depois as espécies do bioma dela, a cada 20 s, com rajada de 3
@@ -694,6 +703,10 @@ Ver a tabela em [4](#4-decisões). Registro de mudanças estruturais:
   cone de 140° que pega o bicho baixo; quebra de blocos mais funda e larga.
 - 2026-10-01 — Pteranodonte (D25): rasante, curva limitada e assento no `rider_pos`; `seat_forward`
   voltou a valer (perdido no port).
+- 2026-10-01 — Densidade e zona inicial: teto de fauna selvagem 72 → 50 (~30% menor), pesos dos
+  biome modifiers reduzidos na mesma proporção quando os inteiros permitem; Smilodon solitário fica
+  no spawn inicial, enquanto Velociraptor e Pteranodonte começam a 300 blocos. Competição
+  territorial entre machos da mesma espécie não exige fêmea próxima.
 - 2026-10-01 — GameTests estáveis: bichos que fugiam para fora da arena invadiam cenas seguintes;
   cenas de movimento ganharam lote próprio e limpam os soltos ao começar.
 

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Documentação técnica do sistema ecológico do Ice Age Survival: fome, caça, manadas, ameaças e rivalidade.">
+  <meta name="description" content="Documentação técnica da ecologia do Ice Age Survival: fome, caça, manadas, ameaças e relações entre presa e caçador.">
   <title>Ecologia — Ice Age Survival</title>
   <style>
     :root {
@@ -160,7 +160,7 @@
       <li><strong>Decisão</strong><br>O resultado pode ser ignorar, observar, recuar, fugir, blefar, investir ou iniciar uma caça.</li>
       <li><strong>Consequência</strong><br>A presa pode fugir e avisar a manada; o predador pode perseguir, desistir, se ferir ou se alimentar.</li>
     </ol>
-    <p>O sistema separa <em>ameaça</em>, <em>presa</em> e <em>rival</em>. Uma criatura pode ser presa sem ser rival; outra espécie pode ser uma ameaça sem entrar na dieta. As relações de espécie são declaradas em tags e nos perfis JSON, enquanto os algoritmos de escolha ficam no núcleo ecológico.</p>
+    <p>O sistema separa a relação <em>presa–caçador</em> da disputa territorial <em>entre indivíduos da mesma espécie</em>. Um predador pode escolher uma presa pela fome e pela chance de vencê-la; a presa reage pelo porte e pelo apoio da manada. Espécies diferentes não iniciam rivalidade territorial umas com as outras.</p>
 
     <h2>2. Fome e caça</h2>
     <p>O predador acumula tempo desde a última refeição. A fome não é uma barra de manutenção e não causa dano: ela regula a disposição de procurar presas. Após uma morte válida de presa, o predador se alimenta, recupera parte da vida e entra no período de saciedade configurado.</p>
@@ -209,7 +209,7 @@
     </div>
 
     <h2>4. Lutar ou fugir</h2>
-    <p>Espécies com <code>behavior.wariness</code> avaliam ameaças numa faixa de percepção. A decisão considera a distância entre as bordas das hitboxes, a proporção de tamanho, se o alvo está se aproximando, se há filhote por perto e se a criatura foi surpreendida. O estresse amplia a percepção e torna as reações mais imprevisíveis.</p>
+    <p>Espécies com <code>behavior.wariness</code> avaliam ameaças numa faixa de percepção. A decisão considera a distância entre as bordas das hitboxes, a proporção de tamanho, o número de caçadores e defensores, se o alvo se aproxima, se há filhote por perto e se a criatura foi surpreendida. O estresse amplia a percepção e torna as reações mais imprevisíveis.</p>
     <div class="table-wrap">
       <table>
         <thead><tr><th>Sinal</th><th>Resposta provável</th></tr></thead>
@@ -224,7 +224,7 @@
       </table>
     </div>
     <p>O recuo é movimento calmo; a fuga corre e recalcula a rota. A investida mira além do alvo, pode acertar com o ataque da espécie e, às vezes, vira combate contínuo. Um indivíduo ferido abaixo de <code>flee_health_fraction</code> também pode entrar em pânico e fugir do agressor.</p>
-    <p>Uma criatura com perfil de reação que está de fato agressiva (por exemplo, um herbívoro no meio de uma investida) pode ser reconhecida como ameaça por outra espécie cautelosa. Isso permite que uma criatura pequena fuja de um grande herbívoro que a esteja ameaçando, ainda que esse herbívoro não pertença à tag geral de predadores.</p>
+    <p>Herbívoros reconhecem qualquer predador selvagem como caçador, sem depender de uma lista de espécies na configuração. Um animal grande, ou uma manada com vantagem, pode blefar ou investir para expulsar um caçador menor; quando a força provável dos atacantes supera a defesa, a reação é fugir. O caçador que percebe uma investida de um animal muito maior também recua. A saciedade impede a caça, mas não faz o herbívoro aceitar um predador parado ao lado dele.</p>
 
     <h2>5. O jogador faz parte da cadeia ecológica</h2>
     <div class="grid">
@@ -246,12 +246,12 @@
       </article>
     </div>
 
-    <h2>6. Rivalidade entre predadores</h2>
-    <p>Rivalidade territorial é separada de caça. Uma tag <code>rivals_*</code> identifica oponentes e <code>rival_radius</code> define a proximidade que provoca a disputa. Ver o rival estressa; o indivíduo de maior dominância pode desafiá-lo. Dominância usa vida e ataque, com bônus de grupo quando aplicável.</p>
+    <h2>6. Disputa territorial na mesma espécie</h2>
+    <p>Oponentes de espécies diferentes não são rivais por padrão: entre predador e presa, valem a fome, a capacidade de caçar e a chance de vencer ou perder. A disputa territorial ocorre entre machos adultos selvagens de <strong>bandos diferentes da mesma espécie</strong> quando se aproximam além do espaço tolerado; membros da própria manada não são expulsos, e não é necessária uma fêmea próxima. <code>rival_radius</code> define o alcance; dominância compara vida e ataque.</p>
     <ul>
-      <li>O rival mais fraco pode ceder e fugir por um período.</li>
-      <li>Se a disputa vira combate, quem cai abaixo de metade da vida desiste; rivais não devem lutar até a morte.</li>
-      <li>As chances de iniciar confronto dependem de estresse e saciedade; uma simples proximidade não garante uma briga.</li>
+      <li>O macho mais forte pode desafiar o concorrente; o mais fraco cede ou, se estiver estressado, pode revidar, favorecendo a separação dos territórios.</li>
+      <li>Se a disputa vira combate, quem cai abaixo de metade da vida desiste; a disputa não deve terminar em luta até a morte.</li>
+      <li>As chances de iniciar confronto dependem de estresse e saciedade; estar perto de outra espécie não inicia uma briga.</li>
     </ul>
 
     <h2>7. Exemplos da fauna</h2>
@@ -264,7 +264,8 @@
           <tr><td>Alossauros × mamutes</td><td>O bando pode encarar presa grande; os mamutes caçados recebem o aviso e a manada foge.</td><td>A seleção depende do tamanho do bando; a resposta da manada depende do número e porte dos atacantes.</td></tr>
           <tr><td>T-Rex × Brontossauro</td><td>O T-Rex solitário prefere o Brontossauro desgarrado em vez de entrar diretamente no meio da manada.</td><td>A avaliação de isolamento é local, usando a proximidade de indivíduos da mesma espécie.</td></tr>
           <tr><td>T-Rex × Elasmotério</td><td>Um T-Rex faminto pode iniciar a caça; o Elasmotério, muito menor, foge.</td><td>Uma perseguição não continua indefinidamente: há limite de fôlego e de distância.</td></tr>
-          <tr><td>Predador × predador rival</td><td>Disputa de território, desafio ou recuo.</td><td>Somente espécies explicitamente relacionadas pela tag de rivalidade entram nessa mecânica.</td></tr>
+          <tr><td>Mamute × Velociraptor</td><td>O mamute intimida ou investe se tiver vantagem; o raptor menor recua.</td><td>A reação começa pela presença de um caçador, mesmo quando ele está saciado.</td></tr>
+          <tr><td>Machos adultos × mesma espécie</td><td>Disputa por espaço; o mais fraco cede e pode se afastar.</td><td>Não há rivalidade entre espécies diferentes nem dependência de uma fêmea próxima.</td></tr>
         </tbody>
       </table>
     </div>
@@ -276,10 +277,11 @@
       <li><code>behavior.ecology.hunt_radius</code>, <code>hunger_seconds</code> e <code>chase_seconds</code>: alcance, fome e fôlego.</li>
       <li><code>behavior.herd_radius</code>, <code>group_defense</code> e <code>migrates</code>: agrupamento, defesa e deslocamento.</li>
       <li><code>behavior.wariness</code>: ameaças, alcance, chances de recuo/blefe/investida, velocidades e resposta perto de filhotes.</li>
-      <li><code>behavior.ecology.rivals</code> e <code>rival_radius</code>: oponentes territoriais.</li>
+      <li><code>behavior.ecology.rival_radius</code>: alcance de competição territorial entre machos da mesma espécie.</li>
+      <li><code>spawn.weight</code>, <code>max_nearby</code> e <code>min_distance</code>: frequência relativa, teto local e distância mínima da espécie ao spawn do mundo.</li>
       <li><code>behavior.flee_health_fraction</code>: limiar de fuga quando ferida.</li>
     </ul>
-    <p>Implementação principal: <a href="../src/main/java/dev/madebyfelipe/iceagesurvival/entity/ai/HuntGoal.java"><code>HuntGoal</code></a>, <a href="../src/main/java/dev/madebyfelipe/iceagesurvival/entity/ai/WaryGoal.java"><code>WaryGoal</code></a>, <a href="../src/main/java/dev/madebyfelipe/iceagesurvival/entity/ai/RivalryGoal.java"><code>RivalryGoal</code></a>, <a href="../src/main/java/dev/madebyfelipe/iceagesurvival/core/ecology/ThreatResponse.java"><code>ThreatResponse</code></a> e <a href="../src/main/java/dev/madebyfelipe/iceagesurvival/core/ecology/HuntChoice.java"><code>HuntChoice</code></a>. Os perfis por espécie ficam em <a href="../src/main/resources/data/iceagesurvival/iceagesurvival/species/"><code>species/</code></a> e as relações em <a href="../src/main/resources/data/iceagesurvival/tags/entity_types/"><code>tags/entity_types/</code></a>.</p>
+    <p>Implementação principal: <a href="../src/main/java/dev/madebyfelipe/iceagesurvival/entity/ai/HuntGoal.java"><code>HuntGoal</code></a>, <a href="../src/main/java/dev/madebyfelipe/iceagesurvival/entity/ai/WaryGoal.java"><code>WaryGoal</code></a>, <a href="../src/main/java/dev/madebyfelipe/iceagesurvival/entity/ai/RivalryGoal.java"><code>RivalryGoal</code></a>, <a href="../src/main/java/dev/madebyfelipe/iceagesurvival/core/ecology/ThreatResponse.java"><code>ThreatResponse</code></a> e <a href="../src/main/java/dev/madebyfelipe/iceagesurvival/core/ecology/HuntChoice.java"><code>HuntChoice</code></a>. Os perfis por espécie ficam em <a href="../src/main/resources/data/iceagesurvival/iceagesurvival/species/"><code>species/</code></a> e as relações de caça em <a href="../src/main/resources/data/iceagesurvival/tags/entity_types/"><code>tags/entity_types/</code></a>.</p>
 
     <h2>9. Limites e leitura de comportamento</h2>
     <ul>

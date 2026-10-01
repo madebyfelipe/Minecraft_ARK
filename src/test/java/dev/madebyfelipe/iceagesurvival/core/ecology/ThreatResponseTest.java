@@ -19,6 +19,10 @@ class ThreatResponseTest {
         return new Situation(distance, false, false, false, false, 0.2);
     }
 
+    private static Situation hunter(double distance, double sizeRatio, int predators) {
+        return new Situation(distance, false, false, false, false, sizeRatio, false, predators, 0.0);
+    }
+
     @Test
     void farAwayIsIgnored() {
         assertEquals(Reaction.IGNORE, ThreatResponse.react(at(20), RHINO, UNLUCKY));
@@ -89,5 +93,26 @@ class ThreatResponseTest {
     @Test
     void sometimesItChargesOutOfNowhere() {
         assertEquals(Reaction.CHARGE, ThreatResponse.react(at(12), RHINO, () -> 0.01));
+    }
+
+    @Test
+    void largerPreyIntimidatesASmallHunterWithoutBeingHuntedFirst() {
+        Tuning largeHerbivore = new Tuning(36, 3, 0.7, 0.4, 0.02, 0.5, 36);
+        assertEquals(Reaction.BLUFF, ThreatResponse.reactToHunter(hunter(12, 0.2, 1),
+                largeHerbivore, 1, () -> 0.5));
+        assertEquals(Reaction.CHARGE, ThreatResponse.reactToHunter(hunter(12, 0.2, 1),
+                largeHerbivore, 1, () -> 0.9));
+    }
+
+    @Test
+    void hunterPackCanOutmatchPreyEvenWhenEachPredatorIsSmaller() {
+        assertEquals(Reaction.FLEE, ThreatResponse.reactToHunter(hunter(12, 0.4, 4),
+                RHINO, 1, LUCKY));
+    }
+
+    @Test
+    void herdCanFaceALargerHunterTogether() {
+        assertEquals(Reaction.CHARGE, ThreatResponse.reactToHunter(hunter(8, 1.2, 1),
+                RHINO, 2, UNLUCKY));
     }
 }

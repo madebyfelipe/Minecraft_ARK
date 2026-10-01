@@ -86,7 +86,6 @@
       "hunt_radius": 48,
       "hunger_seconds": 360,
       "chase_seconds": 12,
-      "rivals": "#iceagesurvival:rivals_smilodon",
       "rival_radius": 36,
       "nervousness": 0.8
     }
@@ -104,7 +103,7 @@
     "group_min": 1,
     "group_max": 1,
     "max_nearby": 1,
-    "min_distance": 600
+    "min_distance": 0
   },
   "sounds": {
     "ambient": "fossil:smilodon_ambient",

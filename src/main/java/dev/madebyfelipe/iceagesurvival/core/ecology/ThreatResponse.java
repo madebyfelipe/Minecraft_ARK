@@ -129,4 +129,51 @@ public final class ThreatResponse {
         }
         return Reaction.ALERT;
     }
+
+    /**
+     * Como uma presa reage a um caçador, comparando a força provável dos grupos. A razão combina
+     * porte do caçador, número de atacantes e defensores; vantagem clara permite intimidar, e
+     * desvantagem clara manda fugir. Em confrontos equilibrados valem as probabilidades da espécie.
+     */
+    public static Reaction reactToHunter(Situation situation, Tuning tuning, int defenders,
+                                         DoubleSupplier roll) {
+        double radius = detectionRadius(tuning, situation.sneaking(), situation.guardingCalf(), situation.stress());
+        if (situation.distance() > radius) {
+            return Reaction.IGNORE;
+        }
+
+        double relativePower = situation.sizeRatio() * Math.max(1, situation.predators())
+                / Math.max(1, defenders);
+        if (relativePower >= OUTMATCHED_SIZE_RATIO || tuning.chargeRadius() <= 0.0) {
+            return Reaction.FLEE;
+        }
+        boolean panicked = Stress.mood(situation.stress()).atLeast(Stress.Mood.PANICKED);
+        if (panicked) {
+            return situation.guardingCalf() ? Reaction.CHARGE : Reaction.FLEE;
+        }
+        if (situation.hunted() && !situation.guardingCalf() && relativePower >= HUNTED_FLEE_SIZE_RATIO) {
+            return Reaction.FLEE;
+        }
+        if (situation.distance() <= tuning.chargeRadius()
+                || situation.firstContact() && situation.distance() <= tuning.chargeRadius() * SURPRISE_MULTIPLIER) {
+            return Reaction.CHARGE;
+        }
+        boolean close = situation.distance() <= radius * CONFRONT_FRACTION;
+        if (situation.guardingCalf() && close) {
+            return Reaction.CHARGE;
+        }
+        if (close && relativePower <= 1.0 / OUTMATCHED_SIZE_RATIO) {
+            return roll.getAsDouble() < tuning.bluffChance() ? Reaction.BLUFF : Reaction.CHARGE;
+        }
+        if (situation.approaching() && close) {
+            return roll.getAsDouble() < tuning.bluffChance() ? Reaction.BLUFF : Reaction.CHARGE;
+        }
+        if (situation.approaching() && roll.getAsDouble() < tuning.retreatChance()) {
+            return Reaction.RETREAT;
+        }
+        if (roll.getAsDouble() < tuning.chargeChance() * Stress.unpredictability(situation.stress())) {
+            return Reaction.CHARGE;
+        }
+        return Reaction.ALERT;
+    }
 }

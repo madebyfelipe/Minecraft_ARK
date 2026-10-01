@@ -88,7 +88,6 @@
       "hunt_radius": 64,
       "hunger_seconds": 360,
       "chase_seconds": 30,
-      "rivals": "#iceagesurvival:rivals_allosaurus",
       "rival_radius": 40,
       "nervousness": 0.7
     }
@@ -111,7 +110,7 @@
     "group_min": 2,
     "group_max": 3,
     "max_nearby": 3,
-    "min_distance": 1500
+    "min_distance": 750
   },
   "sounds": {
     "attack": "minecraft:entity.ravager.attack",

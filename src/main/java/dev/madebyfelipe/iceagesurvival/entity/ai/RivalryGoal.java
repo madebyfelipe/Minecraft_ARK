@@ -7,13 +7,11 @@ import javax.annotation.Nullable;
 import net.minecraft.world.entity.ai.goal.Goal;
 
 /**
- * Disputa de território entre predadores rivais (tag {@code rivals}): o T-Rex não tolera o
- * Alossauro por perto, o Smilodon e o lobo-terrível brigam pela mesma caça.
+ * Disputa territorial entre machos adultos selvagens de bandos diferentes da mesma espécie.
  *
- * <p>Ver o rival estressa. O mais forte ({@link PrehistoricCreature#dominance()}) ruge e vai para
- * cima — mais provável quanto mais estressado ou faminto estiver; o mais fraco que é encarado
- * desiste e vai embora, ou, encurralado e estressado, revida. A briga para quando um dos dois
- * cai à metade da vida ({@link PrehistoricCreature#yieldTo}): rival não briga até a morte.
+ * <p>O mais forte ({@link PrehistoricCreature#dominance()}) desafia; o mais fraco cede ou, sob
+ * estresse, revida. A disputa termina quando um dos dois cai à metade da vida: machos não brigam
+ * até a morte.
  */
 public class RivalryGoal extends Goal {
     private static final int SCAN_INTERVAL = 60;
@@ -34,7 +32,8 @@ public class RivalryGoal extends Goal {
     @Override
     public boolean canUse() {
         if (creature.isTame() || creature.isBaby() || creature.isUnconscious() || creature.isVehicle()
-                || creature.getTarget() != null || creature.yieldingFrom() != null || --scanCooldown > 0) {
+                || creature.isFemale() || creature.getTarget() != null || creature.yieldingFrom() != null
+                || --scanCooldown > 0) {
             return false;
         }
         scanCooldown = SCAN_INTERVAL + creature.getRandom().nextInt(20);
@@ -43,7 +42,8 @@ public class RivalryGoal extends Goal {
         double best = Double.MAX_VALUE;
         for (PrehistoricCreature other : creature.level().getEntitiesOfClass(PrehistoricCreature.class,
                 creature.getBoundingBox().inflate(radius, 8.0, radius),
-                other -> creature.isRival(other) && !other.isUnconscious() && other.yieldingFrom() == null)) {
+                other -> creature.isRival(other) && !sameHerd(other)
+                        && !other.isUnconscious() && other.yieldingFrom() == null)) {
             double distance = creature.distanceTo(other);
             if (distance < best) {
                 best = distance;
@@ -65,6 +65,11 @@ public class RivalryGoal extends Goal {
         }
         rival = nearest;
         return true;
+    }
+
+    private boolean sameHerd(PrehistoricCreature other) {
+        int herdRadius = creature.behavior().map(profile -> profile.herdRadius()).orElse(0);
+        return herdRadius > 0 && creature.distanceTo(other) <= herdRadius;
     }
 
     @Override

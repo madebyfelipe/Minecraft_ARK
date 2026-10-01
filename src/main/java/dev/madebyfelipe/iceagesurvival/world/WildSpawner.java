@@ -82,10 +82,15 @@ public final class WildSpawner {
     /** Grupos por tentativa com a região esparsa (um mundo recém-criado, uma área recém-explorada). */
     private static final int SPARSE_GROUPS = 5;
 
+    /** População-alvo reduzida para deixar espaço para os territórios da fauna. */
+    public static int effectiveMaximumPopulation() {
+        return (int) (ServerConfig.WILD_SPAWN_MAX_TOTAL.get() * 0.7);
+    }
+
     /** Como {@link #trySpawnAround(ServerLevel, ServerPlayer)}, com as distâncias dadas. */
     public static int trySpawnAround(ServerLevel level, ServerPlayer player, int minDistance, int maxDistance) {
         Object2IntMap<EntityType<?>> nearby = countNearby(level, player);
-        int cap = ServerConfig.WILD_SPAWN_MAX_TOTAL.get();
+        int cap = effectiveMaximumPopulation();
         int total = nearby.values().intStream().sum();
         int groups = total < cap * SPARSE_FRACTION ? SPARSE_GROUPS : 1;
         RandomGenerator random = level.random::nextLong;

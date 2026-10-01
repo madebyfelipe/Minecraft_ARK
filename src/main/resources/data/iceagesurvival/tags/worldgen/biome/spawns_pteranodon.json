@@ -1,8 +1,6 @@
 {
   "replace": false,
   "values": [
-    "minecraft:snowy_slopes",
-    "minecraft:grove",
-    "minecraft:taiga"
+    "#iceagesurvival:spawns_velociraptor"
   ]
 }

@@ -1,6 +1,7 @@
 package dev.madebyfelipe.iceagesurvival.gametest;
 
 import dev.madebyfelipe.iceagesurvival.IceAgeSurvival;
+import dev.madebyfelipe.iceagesurvival.config.ServerConfig;
 import dev.madebyfelipe.iceagesurvival.entity.LandCreature;
 import dev.madebyfelipe.iceagesurvival.entity.PrehistoricCreature;
 import dev.madebyfelipe.iceagesurvival.registry.ModEntities;
@@ -9,6 +10,7 @@ import dev.madebyfelipe.iceagesurvival.species.MountProfile;
 import dev.madebyfelipe.iceagesurvival.species.SpawnProfile;
 import dev.madebyfelipe.iceagesurvival.species.Species;
 import dev.madebyfelipe.iceagesurvival.temperature.EnvironmentColdSource;
+import dev.madebyfelipe.iceagesurvival.world.WildSpawner;
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
@@ -30,10 +32,21 @@ public class EarlyGameTests {
         SpawnProfile dodo = Species.of(registries, ModEntities.DODO.get()).orElseThrow().spawn().orElseThrow();
         SpawnProfile elasmo = Species.of(registries, ModEntities.ELASMOTHERIUM.get()).orElseThrow().spawn().orElseThrow();
         SpawnProfile smilodon = Species.of(registries, ModEntities.SMILODON.get()).orElseThrow().spawn().orElseThrow();
+        SpawnProfile pteranodon = Species.of(registries, ModEntities.PTERANODON.get()).orElseThrow().spawn().orElseThrow();
+        SpawnProfile velociraptor = Species.of(registries, ModEntities.VELOCIRAPTOR.get()).orElseThrow().spawn().orElseThrow();
         helper.assertTrue(dodo.minDistance() == 0 && elasmo.minDistance() == 0, "devem nascer já no spawn");
+        helper.assertTrue(smilodon.minDistance() == 0 && smilodon.groupMax() == 1,
+                "Smilodon solitário deveria ocupar o lugar do bando de raptores na área inicial");
+        helper.assertTrue(velociraptor.minDistance() == 300,
+                "bandos de Velociraptor só deveriam aparecer depois da zona inicial");
+        helper.assertTrue(pteranodon.minDistance() == velociraptor.minDistance(),
+                "Pteranodonte deveria compartilhar a distância mínima dos raptores");
         helper.assertTrue(dodo.weight() > smilodon.weight() && elasmo.weight() > smilodon.weight(),
                 "deveriam ser mais comuns que um predador do meio");
         helper.assertTrue(dodo.maxNearby() >= 8, "dodôs deveriam ser abundantes: " + dodo.maxNearby());
+        helper.assertTrue(WildSpawner.effectiveMaximumPopulation()
+                        == (int) (ServerConfig.WILD_SPAWN_MAX_TOTAL.get() * 0.7),
+                "o teto total deve refletir a redução de aproximadamente 30%");
         helper.succeed();
     }
 

@@ -82,7 +82,6 @@
       "hunt_radius": 56,
       "hunger_seconds": 300,
       "chase_seconds": 40,
-      "rivals": "#iceagesurvival:rivals_dire_wolf",
       "rival_radius": 36,
       "nervousness": 1.0
     }
