@@ -100,11 +100,12 @@ public class PredatorTests {
 
     @GameTest(template = ARENA, batch = "rex_prey")
     public static void rexOnlyHuntsABrontosaurusOutOfItsHerd(GameTestHelper helper) {
+        HuntTests.clearStrays(helper);
         LandCreature rex = helper.spawnWithNoFreeWill(ModEntities.TYRANNOSAURUS.get(), 2, 0, 2);
         LandCreature bronto = helper.spawnWithNoFreeWill(ModEntities.BRONTOSAURUS.get(), 16, 0, 16);
-        helper.assertTrue(HuntGoal.isPrey(rex, bronto, REX_PREY), "bronto desgarrado deveria ser presa");
+        helper.assertTrue(HuntGoal.wouldHunt(rex, bronto, REX_PREY), "bronto desgarrado deveria ser presa");
         helper.spawnWithNoFreeWill(ModEntities.BRONTOSAURUS.get(), 18, 0, 18);
-        helper.assertFalse(HuntGoal.isPrey(rex, bronto, REX_PREY), "bronto na manada não deveria ser presa do T-Rex");
+        helper.assertFalse(HuntGoal.wouldHunt(rex, bronto, REX_PREY), "bronto na manada não deveria ser presa do T-Rex");
         helper.succeed();
     }
 
@@ -114,7 +115,7 @@ public class PredatorTests {
         LandCreature second = helper.spawnWithNoFreeWill(ModEntities.DIRE_WOLF.get(), 4, 0, 2);
         LandCreature mammoth = helper.spawnWithNoFreeWill(ModEntities.MAMMOTH.get(), 14, 0, 14);
         helper.spawnWithNoFreeWill(ModEntities.MAMMOTH.get(), 16, 0, 14);
-        helper.assertTrue(HuntGoal.isPrey(first, mammoth, WOLF_PREY), "matilha deveria poder caçar mamute de manada");
+        helper.assertTrue(HuntGoal.isPrey(first, mammoth, WOLF_PREY), "mamute é presa da matilha");
         first.setTarget(mammoth);
         first.rallyPack(mammoth);
         helper.assertTrue(second.getTarget() == mammoth, "o resto da matilha não partiu atrás da presa");
@@ -165,8 +166,11 @@ public class PredatorTests {
     /** Velocidade de corrida do jogador, em blocos por segundo. */
     private static final double PLAYER_SPRINT = 5.612;
 
-    @GameTest(template = ARENA, timeoutTicks = 100)
+    // Batch próprio: na arena compartilhada, bichos e jogadores dos testes vizinhos viravam alvo
+    // do T-Rex no meio da medida.
+    @GameTest(template = ARENA, timeoutTicks = 100, batch = "rex_speed")
     public static void tyrannosaurusOutrunsASprintingPlayer(GameTestHelper helper) {
+        HuntTests.clearStrays(helper);
         LandCreature rex = helper.spawn(ModEntities.TYRANNOSAURUS.get(), 6, 0, 2);
         Player player = survivalPlayer(helper);
         player.moveTo(helper.absoluteVec(new Vec3(6.5, 0, 22.5)));
@@ -184,6 +188,7 @@ public class PredatorTests {
     /** Jogador de costas: o Smilodon espreita, devagar, e só dá o bote quando chega perto. */
     @GameTest(template = ARENA, timeoutTicks = 400, batch = "smilodon_stalk")
     public static void smilodonStalksAPlayerWhoIsNotLooking(GameTestHelper helper) {
+        HuntTests.clearStrays(helper);
         LandCreature smilodon = helper.spawn(ModEntities.SMILODON.get(), 6, 0, 2);
         Player player = survivalPlayer(helper);
         player.moveTo(helper.absoluteVec(new Vec3(6.5, 0, 20.5)));

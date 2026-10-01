@@ -240,6 +240,20 @@ public class EcologyTests {
         helper.succeed();
     }
 
+    /** À noite, sobre neve: a reposição falhava porque o Animal só nasce em grama ou na luz. */
+    @GameTest(template = EMPTY)
+    public static void repopulationWorksAtNightOnSnow(GameTestHelper helper) {
+        BlockPos floor = helper.absolutePos(new BlockPos(1, 2, 1));
+        helper.getLevel().setBlockAndUpdate(floor.below(), Blocks.SNOW_BLOCK.defaultBlockState());
+        var wolf = ModEntities.DIRE_WOLF.get().create(helper.getLevel());
+        wolf.moveTo(floor.getX() + 0.5, floor.getY(), floor.getZ() + 0.5);
+        // Escuro de verdade não dá para garantir no gametest; o que importa é não depender da luz.
+        helper.assertTrue(wolf.checkSpawnRules(helper.getLevel(), net.minecraft.world.entity.MobSpawnType.NATURAL),
+                "a regra de spawn ainda depende de grama ou luz");
+        wolf.discard();
+        helper.succeed();
+    }
+
     @GameTest(template = EMPTY)
     public static void repopulationRefusesTheWrongBiome(GameTestHelper helper) {
         SpawnProfile jungleOnly = new SpawnProfile(BiomeTags.IS_JUNGLE, 10, 1, 1, 4, 0, java.util.Optional.empty());

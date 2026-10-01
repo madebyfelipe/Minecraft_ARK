@@ -4,7 +4,7 @@
   "spawners": [
     {
       "type": "iceagesurvival:velociraptor",
-      "weight": 1,
+      "weight": 3,
       "minCount": 3,
       "maxCount": 4
     }

@@ -89,7 +89,9 @@ public class CreatureFrameworkTests {
         BehaviorProfile behavior = smilodon.behavior().orElseThrow();
         helper.assertTrue(smilodon.hasRestriction(), "selvagem sem território");
         helper.assertTrue(smilodon.getRestrictCenter().equals(smilodon.blockPosition()), "território fora do ponto de origem");
-        assertClose(helper, "raio de percepção", behavior.aggroRadius(), smilodon.getAttributeValue(Attributes.FOLLOW_RANGE));
+        // O alcance do caminho cobre a caçada (o faro), que passa do raio de agressão ao jogador.
+        assertClose(helper, "raio de percepção", Math.max(behavior.aggroRadius(), behavior.ecology().huntRadius()),
+                smilodon.getAttributeValue(Attributes.FOLLOW_RANGE));
 
         smilodon.tame(helper.makeMockSurvivalPlayer());
         helper.assertTrue(!smilodon.hasRestriction(), "domesticado continua preso ao território");

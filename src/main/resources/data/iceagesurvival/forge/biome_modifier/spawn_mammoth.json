@@ -4,9 +4,9 @@
   "spawners": [
     {
       "type": "iceagesurvival:mammoth",
-      "weight": 3,
-      "minCount": 2,
-      "maxCount": 4
+      "weight": 12,
+      "minCount": 3,
+      "maxCount": 5
     }
   ]
 }

@@ -30,6 +30,9 @@ import dev.madebyfelipe.iceagesurvival.species.StorageProfile;
 import dev.madebyfelipe.iceagesurvival.species.WarinessProfile;
 import dev.madebyfelipe.iceagesurvival.species.FamilyProfile;
 import dev.madebyfelipe.iceagesurvival.core.mount.FlightModel;
+import dev.madebyfelipe.iceagesurvival.core.ecology.Hunger;
+import dev.madebyfelipe.iceagesurvival.core.ecology.Stress;
+import dev.madebyfelipe.iceagesurvival.species.EcologyProfile;
 import dev.madebyfelipe.iceagesurvival.core.mount.MountedReach;
 import dev.madebyfelipe.iceagesurvival.species.TamingProfile;
 import dev.madebyfelipe.iceagesurvival.menu.CreatureStorageMenu;
@@ -121,6 +124,19 @@ public abstract class PrehistoricCreature extends TamableAnimal {
             SynchedEntityData.defineId(PrehistoricCreature.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> DATA_FLYING =
             SynchedEntityData.defineId(PrehistoricCreature.class, EntityDataSerializers.BOOLEAN);
+    /** Estresse, de 0 a 100: o painel sob a mira mostra o humor. */
+    private static final EntityDataAccessor<Float> DATA_STRESS =
+            SynchedEntityData.defineId(PrehistoricCreature.class, EntityDataSerializers.FLOAT);
+    private static final String TAG_STRESS = "Stress";
+    private static final String TAG_TICKS_SINCE_MEAL = "TicksSinceMeal";
+    /** Intervalo da atualização do estresse (volta ao repouso). */
+    private static final int STRESS_INTERVAL = 20;
+    /** Por quanto tempo a presa se sabe caçada depois do último aviso. */
+    private static final int HUNTED_MEMORY_TICKS = 100;
+    /** Quanto tempo quem perdeu a disputa foge do rival. */
+    private static final int YIELD_TICKS = 200;
+    /** Numa briga entre rivais, quem cai abaixo desta fração da vida desiste e foge. */
+    private static final float RIVAL_YIELD_HEALTH = 0.5F;
 
     private static final String TAG_STAT_POINTS = "StatPoints";
     private static final String TAG_TORPOR = "Torpor";
@@ -218,7 +234,16 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     private LivingEntity noticedThreat;
     private long noticedThreatUntil;
     /** Predador que acabou de comer: não caça até este tick. Não é salvo — dura minutos. */
-    private long satedUntil;
+    /** Momento da última refeição (tempo do jogo); {@code Long.MIN_VALUE} = ainda não sorteado. */
+    private long lastMealTime = Long.MIN_VALUE;
+    private double stress;
+    private long huntedUntil;
+    private int huntedBy = 1;
+    private long huntStartTime = -1;
+    private long huntFailedUntil;
+    @Nullable
+    private LivingEntity yieldingFrom;
+    private long yieldUntil;
     private float plowHardness;
     /** Carga do pulo enviada pelo cliente de quem monta, de 0 a 1. */
     /** Se o impulso do pulo já foi aplicado e a criatura ainda não voltou ao chão. */
@@ -271,6 +296,16 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         int minDistance = Species.of(level.registryAccess(), type).flatMap(Species::spawn)
                 .map(SpawnProfile::minDistance).orElse(0);
         return minDistance <= 0 || DangerZones.allowed(distanceFromWorldSpawn(level.getLevel(), pos), minDistance);
+    }
+
+    /**
+     * O {@code Animal} só aceita nascer onde o chão é grama ou há luz; à noite, sobre neve, isso
+     * recusava toda a reposição e boa parte do spawn da geração do terreno. Quem decide o chão é
+     * {@link #checkSurfaceSpawnRules}, que já roda antes, pelo {@code SpawnPlacements}.
+     */
+    @Override
+    public boolean checkSpawnRules(net.minecraft.world.level.LevelAccessor level, MobSpawnType reason) {
+        return true;
     }
 
     /** Distância horizontal até o spawn do mundo. */
@@ -352,6 +387,7 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         entityData.define(DATA_FEMALE, false);
         entityData.define(DATA_MATING, false);
         entityData.define(DATA_FLYING, false);
+        entityData.define(DATA_STRESS, 0.0F);
     }
 
     public Optional<Species> species() {
@@ -532,7 +568,198 @@ public abstract class PrehistoricCreature extends TamableAnimal {
 
     /** Predador recém-alimentado: não procura presa. */
     public boolean isSated() {
-        return level().getGameTime() < satedUntil;
+        return hungerDrive() == Hunger.Drive.SATED;
+    }
+
+    public EcologyProfile ecology() {
+        return behavior().map(BehaviorProfile::ecology).orElse(EcologyProfile.DEFAULT);
+    }
+
+    /** Ticks desde a última refeição; o primeiro valor é sorteado, para as caçadas não sincronizarem. */
+    public long ticksSinceMeal() {
+        if (lastMealTime == Long.MIN_VALUE) {
+            lastMealTime = level().getGameTime()
+                    - Hunger.spawnTicksSinceMeal(ecology().hungerSeconds(), getRandom().nextDouble());
+        }
+        return level().getGameTime() - lastMealTime;
+    }
+
+    /** Fome do predador: saciado, oportunista ou caçando ({@link Hunger}). */
+    public Hunger.Drive hungerDrive() {
+        int sated = behavior().map(BehaviorProfile::satedSeconds).orElse(BehaviorProfile.PASSIVE.satedSeconds());
+        return Hunger.drive(ticksSinceMeal(), sated, ecology().hungerSeconds());
+    }
+
+    /** Para testes e comandos: fome como se a última refeição tivesse sido há tanto tempo. */
+    public void setTicksSinceMeal(long ticks) {
+        lastMealTime = level().getGameTime() - ticks;
+    }
+
+    // ---- Estresse ----
+
+    public double stress() {
+        return level().isClientSide ? entityData.get(DATA_STRESS) : stress;
+    }
+
+    public Stress.Mood mood() {
+        return Stress.mood(stress());
+    }
+
+    public void addStress(Stress.Event event) {
+        addStress(event, 1.0);
+    }
+
+    /** Domesticada, o termômetro fica parado: o que importa a ela é a obediência. */
+    public void addStress(Stress.Event event, double scale) {
+        if (level().isClientSide || isTame()) {
+            return;
+        }
+        setStress(Stress.apply(stress, event, ecology().nervousness(), scale));
+    }
+
+    public void setStress(double value) {
+        stress = Math.max(0.0, Math.min(Stress.MAX, value));
+        entityData.set(DATA_STRESS, (float) stress);
+    }
+
+    private void tickStress() {
+        boolean comforted = isSated() && behavior().flatMap(BehaviorProfile::prey).isPresent()
+                || !isIsolated() && behavior().map(BehaviorProfile::herdRadius).orElse(0) > 0;
+        setStress(Stress.decay(stress, STRESS_INTERVAL / 20.0, comforted));
+    }
+
+    /** O mesmo evento nos da manada por perto (selvagens, da espécie). */
+    private void stressHerd(Stress.Event event) {
+        double radius = Math.max(behavior().map(BehaviorProfile::herdRadius).orElse(0), 12);
+        for (PrehistoricCreature other : level().getEntitiesOfClass(PrehistoricCreature.class,
+                getBoundingBox().inflate(radius), o -> o != this && o.getType() == getType() && !o.isTame())) {
+            other.addStress(event);
+        }
+    }
+
+    // ---- Caçada ----
+
+    /**
+     * Um predador escolheu esta criatura como presa: ela e a manada se sabem caçadas (a manada
+     * dispara, ver {@link dev.madebyfelipe.iceagesurvival.core.ecology.ThreatResponse}).
+     *
+     * @param pack quantos predadores vêm juntos
+     */
+    public void onHunted(LivingEntity predator, int pack) {
+        markHunted(pack);
+        addStress(Stress.Event.HUNTED);
+        noticeThreat(predator);
+        double radius = Math.max(behavior().map(BehaviorProfile::herdRadius).orElse(0), 12);
+        for (PrehistoricCreature other : level().getEntitiesOfClass(PrehistoricCreature.class,
+                getBoundingBox().inflate(radius), o -> o != this && o.getType() == getType() && !o.isTame()
+                        && !o.isUnconscious())) {
+            other.markHunted(pack);
+            other.addStress(Stress.Event.HUNTED, 0.6);
+            other.noticeThreat(predator);
+        }
+    }
+
+    /** A caçada continua: renova o aviso na presa e na manada, sem somar estresse de novo. */
+    public void stillHunted(LivingEntity predator, int pack) {
+        markHunted(pack);
+        noticeThreat(predator);
+        double radius = Math.max(behavior().map(BehaviorProfile::herdRadius).orElse(0), 12);
+        for (PrehistoricCreature other : level().getEntitiesOfClass(PrehistoricCreature.class,
+                getBoundingBox().inflate(radius), o -> o != this && o.getType() == getType() && !o.isTame()
+                        && !o.isUnconscious())) {
+            other.markHunted(pack);
+            other.noticeThreat(predator);
+        }
+    }
+
+    private void markHunted(int pack) {
+        huntedUntil = level().getGameTime() + HUNTED_MEMORY_TICKS;
+        huntedBy = Math.max(1, pack);
+    }
+
+    public boolean isHunted() {
+        return level().getGameTime() < huntedUntil;
+    }
+
+    /** Quantos predadores caçam esta manada agora (1 se nenhum). */
+    public int huntingPack() {
+        return isHunted() ? huntedBy : 1;
+    }
+
+    /** Começou a perseguir uma presa. */
+    public void beginHunt() {
+        huntStartTime = level().getGameTime();
+    }
+
+    /** Perseguindo presa (não um jogador, não um rival). */
+    public boolean isHunting() {
+        return huntStartTime >= 0 && getTarget() != null;
+    }
+
+    /** Há quantos ticks a perseguição começou. */
+    public long huntTicks() {
+        return huntStartTime < 0 ? 0 : level().getGameTime() - huntStartTime;
+    }
+
+    /** A presa escapou: frustração e um tempo antes de tentar de novo. */
+    public void huntFailed() {
+        huntStartTime = -1;
+        huntFailedUntil = level().getGameTime() + 600;
+        addStress(Stress.Event.HUNT_FAILED);
+    }
+
+    public void endHunt() {
+        huntStartTime = -1;
+    }
+
+    public boolean recentlyFailedHunt() {
+        return level().getGameTime() < huntFailedUntil;
+    }
+
+    // ---- Rivais ----
+
+    /** Espécie com que esta disputa território (pela tag {@code rivals}). */
+    public boolean isRival(LivingEntity other) {
+        return other != this && other instanceof PrehistoricCreature creature && !creature.isTame()
+                && !creature.isBaby() && ecology().rivals().map(other.getType()::is).orElse(false);
+    }
+
+    /** Força para disputa: vida × ataque, com o bando somando. */
+    public double dominance() {
+        double attack = getAttribute(Attributes.ATTACK_DAMAGE) != null ? getAttributeValue(Attributes.ATTACK_DAMAGE) : 1.0;
+        return getHealth() * Math.max(1.0, attack);
+    }
+
+    /** Perdeu a disputa: larga o alvo e foge do rival por um tempo. */
+    public void yieldTo(LivingEntity rival) {
+        yieldingFrom = rival;
+        yieldUntil = level().getGameTime() + YIELD_TICKS;
+        setTarget(null);
+        addStress(Stress.Event.YIELDED);
+    }
+
+    /**
+     * Um rival mais forte veio tirar satisfação. Calmo, cede e vai embora; estressado (encurralado,
+     * ferido, com fome), às vezes revida.
+     */
+    public void challengedBy(PrehistoricCreature challenger) {
+        addStress(Stress.Event.RIVAL_SEEN, 5.0);
+        boolean fightsBack = mood().atLeast(Stress.Mood.STRESSED) && getRandom().nextDouble() < 0.5
+                || dominance() >= challenger.dominance();
+        if (fightsBack) {
+            setTarget(challenger);
+        } else {
+            yieldTo(challenger);
+        }
+    }
+
+    /** Fugindo de um rival que ganhou a disputa; nulo se não. */
+    @Nullable
+    public LivingEntity yieldingFrom() {
+        if (yieldingFrom != null && (!yieldingFrom.isAlive() || level().getGameTime() >= yieldUntil)) {
+            yieldingFrom = null;
+        }
+        return yieldingFrom;
     }
 
     @Override
@@ -541,9 +768,11 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         Optional<BehaviorProfile> behavior = behavior();
         if (!isTame() && behavior.isPresent() && behavior.get().prey().map(victim.getType()::is).orElse(false)) {
             // Comeu: recupera vida e passa um tempo sem caçar, perto de onde abateu.
-            satedUntil = level.getGameTime() + behavior.get().satedSeconds() * 20L;
+            lastMealTime = level.getGameTime();
+            huntStartTime = -1;
             heal(getMaxHealth() * 0.25F);
             setTarget(null);
+            addStress(Stress.Event.FED);
         }
         return result;
     }
@@ -616,7 +845,10 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     /** Aplica percepção e território da espécie. Criaturas domesticadas não têm território. */
     private void applyBehavior() {
         Optional<BehaviorProfile> behavior = behavior();
-        behavior.ifPresent(profile -> setBase(Attributes.FOLLOW_RANGE, profile.aggroRadius()));
+        // O alcance do caminho cobre a caçada e os rivais, não só o raio de agressão ao jogador.
+        behavior.ifPresent(profile -> setBase(Attributes.FOLLOW_RANGE, Math.max(profile.aggroRadius(),
+                Math.max(profile.prey().isPresent() ? profile.ecology().huntRadius() : 0.0,
+                        profile.ecology().rivals().isPresent() ? profile.ecology().rivalRadius() : 0.0))));
         int territory = behavior.map(BehaviorProfile::territoryRadius).orElse(0);
         if (!isTame() && territory > 0 && homePos != null) {
             restrictTo(homePos, territory);
@@ -963,6 +1195,9 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     @Override
     public void aiStep() {
         super.aiStep();
+        if (!level().isClientSide && tickCount % STRESS_INTERVAL == 0) {
+            tickStress();
+        }
         if (level().isClientSide || !horizontalCollision || isUnconscious()
                 || !ForgeEventFactory.getMobGriefingEvent(level(), this)) {
             return;
@@ -1040,6 +1275,7 @@ public abstract class PrehistoricCreature extends TamableAnimal {
                 candidate -> candidate != this && candidate.getType() == getType() && !candidate.isTame()
                         && !candidate.isBaby() && !candidate.isUnconscious() && candidate.getTarget() == null)) {
             other.setTarget(prey);
+            other.beginHunt();
         }
     }
 
@@ -1523,10 +1759,30 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     }
 
     @Override
+    public void die(DamageSource source) {
+        if (!level().isClientSide && !isTame()) {
+            stressHerd(Stress.Event.HERD_KILLED);
+        }
+        super.die(source);
+    }
+
+    @Override
     public boolean hurt(DamageSource source, float amount) {
         boolean hurt = super.hurt(source, amount);
         if (hurt && !level().isClientSide && isUnconscious() && !isTame()) {
             tamingSession.recordDamage(amount / getMaxHealth());
+        }
+        if (hurt && !level().isClientSide && !isTame()) {
+            addStress(Stress.Event.HURT);
+            stressHerd(Stress.Event.HERD_HURT);
+            // Briga de rivais não é até a morte: quem fica fraco desiste e vai embora.
+            if (source.getEntity() instanceof PrehistoricCreature rival && isRival(rival)
+                    && getHealth() < getMaxHealth() * RIVAL_YIELD_HEALTH) {
+                yieldTo(rival);
+                if (rival.getTarget() == this) {
+                    rival.setTarget(null);
+                }
+            }
         }
         if (hurt && !level().isClientSide && isBaby() && !isTame() && source.getEntity() instanceof LivingEntity attacker
                 && !(attacker instanceof Player player && (player.isCreative() || player.isSpectator()))) {
@@ -1717,6 +1973,10 @@ public abstract class PrehistoricCreature extends TamableAnimal {
             compound.put(TAG_STAT_POINTS, points);
         }
         compound.putDouble(TAG_TORPOR, torpor);
+        compound.putDouble(TAG_STRESS, stress);
+        if (lastMealTime != Long.MIN_VALUE) {
+            compound.putLong(TAG_TICKS_SINCE_MEAL, ticksSinceMeal());
+        }
         compound.putBoolean(TAG_UNCONSCIOUS, isUnconscious());
         CompoundTag taming = new CompoundTag();
         taming.putDouble(TAG_TAMING_FOOD, tamingSession.foodValue());
@@ -1762,6 +2022,10 @@ public abstract class PrehistoricCreature extends TamableAnimal {
             mutations[stat.ordinal()] = Math.max(0, mutationTag.getInt(stat.id()));
         }
         healthGene = compound.getBoolean(TAG_HEALTH_GENE);
+        setStress(compound.getDouble(TAG_STRESS));
+        if (compound.contains(TAG_TICKS_SINCE_MEAL)) {
+            lastMealTime = level().getGameTime() - compound.getLong(TAG_TICKS_SINCE_MEAL);
+        }
         // Criaturas de antes da reprodução não tinham sexo: sorteia uma vez.
         setFemale(compound.contains(TAG_FEMALE) ? compound.getBoolean(TAG_FEMALE) : random.nextBoolean());
         entityData.set(DATA_MATING, compound.getBoolean(TAG_MATING));

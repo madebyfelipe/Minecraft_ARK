@@ -71,7 +71,15 @@
     "territory_radius": 32,
     "flee_health_fraction": 0.25,
     "prey": "#iceagesurvival:large_prey",
-    "hunt_style": "stalk"
+    "hunt_style": "stalk",
+    "ecology": {
+      "hunt_radius": 48,
+      "hunger_seconds": 360,
+      "chase_seconds": 12,
+      "rivals": "#iceagesurvival:rivals_smilodon",
+      "rival_radius": 36,
+      "nervousness": 0.8
+    }
   },
   "mount": {
     "seat_height": 2.3,

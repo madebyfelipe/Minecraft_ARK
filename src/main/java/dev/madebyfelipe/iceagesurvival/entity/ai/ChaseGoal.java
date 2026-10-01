@@ -41,9 +41,21 @@ public class ChaseGoal extends Goal {
     @Override
     public boolean canContinueToUse() {
         LivingEntity target = validTarget();
-        return target != null && !creature.isStalking() && !creature.isVehicle()
-                && (creature.isTame() || creature.isWithinRestriction(target.blockPosition())
-                        || creature.distanceToSqr(target) < 16 * 16);
+        if (target == null || creature.isStalking() || creature.isVehicle()) {
+            return false;
+        }
+        if (creature.isHunting()) {
+            // Caçada: segue a presa para fora do território, mas o fôlego e o alcance acabam.
+            return creature.huntTicks() < creature.ecology().chaseSeconds() * 20L
+                    && creature.distanceTo(target) < creature.ecology().huntRadius() * 1.5;
+        }
+        if (target instanceof PrehistoricCreature rival && rival.yieldingFrom() == creature) {
+            // O rival desistiu e foi embora: a disputa acabou.
+            return false;
+        }
+        return creature.isTame() || creature.isWithinRestriction(target.blockPosition())
+                || creature.isRival(target) && creature.distanceTo(target) < creature.ecology().rivalRadius()
+                || creature.distanceToSqr(target) < 16 * 16;
     }
 
     private LivingEntity validTarget() {
@@ -62,7 +74,16 @@ public class ChaseGoal extends Goal {
     @Override
     public void stop() {
         LivingEntity target = creature.getTarget();
-        if (target != null && !EntitySelector.NO_CREATIVE_OR_SPECTATOR.test(target)) {
+        if (creature.isHunting()) {
+            // A presa abriu distância ou o fôlego acabou: escapou.
+            if (target != null && target.isAlive()) {
+                creature.setTarget(null);
+                creature.huntFailed();
+            } else {
+                creature.endHunt();
+            }
+        } else if (target != null && (!EntitySelector.NO_CREATIVE_OR_SPECTATOR.test(target)
+                || target instanceof PrehistoricCreature rival && rival.yieldingFrom() == creature)) {
             creature.setTarget(null);
         }
         creature.setAggressive(false);

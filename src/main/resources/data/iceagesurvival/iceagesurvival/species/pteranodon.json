@@ -48,7 +48,10 @@
   "behavior": {
     "aggressive": false,
     "herd_radius": 18,
-    "group_defense": true
+    "group_defense": true,
+    "ecology": {
+      "nervousness": 1.2
+    }
   },
   "mount": {
     "seat_height": 1.9,

@@ -25,6 +25,7 @@ import net.minecraft.world.entity.EntityType;
  *                           quando chega perto ou quando o alvo a vê
  * @param satedSeconds       depois de abater uma presa, o predador passa este tempo sem caçar
  * @param wariness           reação a ameaças (lutar ou fugir); ausente = ignora quem chega perto
+ * @param ecology            fome, raio de caça, rivais e temperamento
  */
 public record BehaviorProfile(
         boolean aggressive,
@@ -37,7 +38,8 @@ public record BehaviorProfile(
         Optional<TagKey<EntityType<?>>> prey,
         HuntStyle huntStyle,
         int satedSeconds,
-        Optional<WarinessProfile> wariness) {
+        Optional<WarinessProfile> wariness,
+        EcologyProfile ecology) {
 
     public enum HuntStyle implements StringRepresentable {
         CHASE("chase"),
@@ -59,7 +61,7 @@ public record BehaviorProfile(
     /** Espécie sem bloco de comportamento: passiva, solitária, sem território. */
     public static final BehaviorProfile PASSIVE =
             new BehaviorProfile(false, 16.0, 0, 0.0, 0, false, false, Optional.empty(), HuntStyle.CHASE, 180,
-                    Optional.empty());
+                    Optional.empty(), EcologyProfile.DEFAULT);
 
     public static final Codec<BehaviorProfile> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.BOOL.optionalFieldOf("aggressive", PASSIVE.aggressive()).forGetter(BehaviorProfile::aggressive),
@@ -73,6 +75,7 @@ public record BehaviorProfile(
             HuntStyle.CODEC.optionalFieldOf("hunt_style", HuntStyle.CHASE).forGetter(BehaviorProfile::huntStyle),
             Codec.intRange(0, 3600).optionalFieldOf("sated_seconds", PASSIVE.satedSeconds())
                     .forGetter(BehaviorProfile::satedSeconds),
-            WarinessProfile.CODEC.optionalFieldOf("wariness").forGetter(BehaviorProfile::wariness)
+            WarinessProfile.CODEC.optionalFieldOf("wariness").forGetter(BehaviorProfile::wariness),
+            EcologyProfile.CODEC.optionalFieldOf("ecology", EcologyProfile.DEFAULT).forGetter(BehaviorProfile::ecology)
     ).apply(instance, BehaviorProfile::new));
 }

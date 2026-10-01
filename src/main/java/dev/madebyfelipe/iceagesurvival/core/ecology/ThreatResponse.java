@@ -59,15 +59,32 @@ public final class ThreatResponse {
      * @param sizeRatio     área de colisão da ameaça ÷ a do animal
      */
     public record Situation(double distance, boolean approaching, boolean sneaking, boolean firstContact,
-                            boolean guardingCalf, double sizeRatio) {
+                            boolean guardingCalf, double sizeRatio, boolean hunted, int predators, double stress) {
+        /** Sem caçada em curso e calmo. */
+        public Situation(double distance, boolean approaching, boolean sneaking, boolean firstContact,
+                         boolean guardingCalf, double sizeRatio) {
+            this(distance, approaching, sneaking, firstContact, guardingCalf, sizeRatio, false, 1, 0.0);
+        }
     }
+
+    /**
+     * Sendo caçado por algo deste tamanho relativo para cima (ou por um bando), corre: é assim que
+     * a manada de mamutes dispara quando os alossauros vêm.
+     */
+    public static final double HUNTED_FLEE_SIZE_RATIO = 0.6;
 
     private ThreatResponse() {
     }
 
     /** Até onde o animal percebe esta ameaça. */
     public static double detectionRadius(Tuning tuning, boolean sneaking, boolean guardingCalf) {
+        return detectionRadius(tuning, sneaking, guardingCalf, 0.0);
+    }
+
+    /** Até onde o animal percebe esta ameaça; estressado, de mais longe ({@link Stress#perceptionMultiplier}). */
+    public static double detectionRadius(Tuning tuning, boolean sneaking, boolean guardingCalf, double stress) {
         double radius = guardingCalf ? Math.max(tuning.alertRadius(), tuning.calfRadius()) : tuning.alertRadius();
+        radius *= Stress.perceptionMultiplier(stress);
         return sneaking ? radius * tuning.sneakFactor() : radius;
     }
 
@@ -76,11 +93,21 @@ public final class ThreatResponse {
      * a decisão depende de sorte.
      */
     public static Reaction react(Situation situation, Tuning tuning, DoubleSupplier roll) {
-        double radius = detectionRadius(tuning, situation.sneaking(), situation.guardingCalf());
+        double radius = detectionRadius(tuning, situation.sneaking(), situation.guardingCalf(), situation.stress());
         if (situation.distance() > radius) {
             return Reaction.IGNORE;
         }
         if (situation.sizeRatio() >= OUTMATCHED_SIZE_RATIO || tuning.chargeRadius() <= 0.0) {
+            return Reaction.FLEE;
+        }
+        boolean panicked = Stress.mood(situation.stress()).atLeast(Stress.Mood.PANICKED);
+        // Em pânico não há blefe: foge, ou, com o filhote ali, vai para cima.
+        if (panicked) {
+            return situation.guardingCalf() ? Reaction.CHARGE : Reaction.FLEE;
+        }
+        // Caçado por um bando ou por algo do seu porte: a manada dispara.
+        if (situation.hunted() && !situation.guardingCalf()
+                && (situation.predators() >= 2 || situation.sizeRatio() >= HUNTED_FLEE_SIZE_RATIO)) {
             return Reaction.FLEE;
         }
         if (situation.distance() <= tuning.chargeRadius()
@@ -97,7 +124,7 @@ public final class ThreatResponse {
         if (situation.approaching() && !situation.guardingCalf() && roll.getAsDouble() < tuning.retreatChance()) {
             return Reaction.RETREAT;
         }
-        if (roll.getAsDouble() < tuning.chargeChance()) {
+        if (roll.getAsDouble() < tuning.chargeChance() * Stress.unpredictability(situation.stress())) {
             return Reaction.CHARGE;
         }
         return Reaction.ALERT;

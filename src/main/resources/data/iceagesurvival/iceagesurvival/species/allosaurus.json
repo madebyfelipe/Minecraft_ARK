@@ -73,7 +73,15 @@
     "flee_health_fraction": 0.15,
     "prey": "#iceagesurvival:allosaurus_prey",
     "herd_radius": 12,
-    "group_defense": true
+    "group_defense": true,
+    "ecology": {
+      "hunt_radius": 64,
+      "hunger_seconds": 360,
+      "chase_seconds": 30,
+      "rivals": "#iceagesurvival:rivals_allosaurus",
+      "rival_radius": 40,
+      "nervousness": 0.7
+    }
   },
   "pack_bonus": {
     "radius": 16,

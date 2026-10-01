@@ -67,11 +67,19 @@
     "flee_health_fraction": 0.2,
     "herd_radius": 10,
     "group_defense": true,
-    "prey": "#iceagesurvival:dire_wolf_prey"
+    "prey": "#iceagesurvival:dire_wolf_prey",
+    "ecology": {
+      "hunt_radius": 56,
+      "hunger_seconds": 300,
+      "chase_seconds": 40,
+      "rivals": "#iceagesurvival:rivals_dire_wolf",
+      "rival_radius": 36,
+      "nervousness": 1.0
+    }
   },
   "spawn": {
     "biomes": "#iceagesurvival:spawns_dire_wolf",
-    "weight": 8,
+    "weight": 6,
     "group_min": 2,
     "group_max": 4,
     "max_nearby": 6,

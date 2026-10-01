@@ -72,7 +72,15 @@
     "flee_health_fraction": 0.2,
     "herd_radius": 12,
     "group_defense": true,
-    "prey": "#iceagesurvival:large_prey"
+    "prey": "#iceagesurvival:large_prey",
+    "ecology": {
+      "hunt_radius": 56,
+      "hunger_seconds": 300,
+      "chase_seconds": 30,
+      "rivals": "#iceagesurvival:rivals_utahraptor",
+      "rival_radius": 32,
+      "nervousness": 0.9
+    }
   },
   "mount": {
     "seat_height": 2.6,

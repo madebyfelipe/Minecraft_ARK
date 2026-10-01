@@ -7,6 +7,11 @@
     "minecraft:goat",
     "minecraft:horse",
     "minecraft:donkey",
-    "minecraft:llama"
+    "minecraft:llama",
+    "iceagesurvival:elasmotherium",
+    "iceagesurvival:mammoth",
+    "iceagesurvival:stegosaurus",
+    "iceagesurvival:brontosaurus",
+    "iceagesurvival:dodo"
   ]
 }

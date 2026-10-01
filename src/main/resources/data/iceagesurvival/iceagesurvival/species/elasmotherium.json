@@ -70,17 +70,20 @@
     "group_defense": false,
     "wariness": {
       "threats": "#iceagesurvival:predators",
-      "alert_radius": 14,
+      "alert_radius": 28,
       "charge_radius": 4,
       "bluff_chance": 0.55,
       "retreat_chance": 0.35,
       "charge_chance": 0.04,
       "sneak_factor": 0.5,
-      "calf_radius": 14,
+      "calf_radius": 28,
       "charge_speed": 1.8,
       "flee_speed": 1.5,
       "knockback": 1.4,
       "lift": 0.45
+    },
+    "ecology": {
+      "nervousness": 1.2
     }
   },
   "mount": {
@@ -97,7 +100,7 @@
     "weight": 6,
     "group_min": 1,
     "group_max": 1,
-    "max_nearby": 3,
+    "max_nearby": 4,
     "min_distance": 0,
     "family": {
       "calf_chance": 0.2,

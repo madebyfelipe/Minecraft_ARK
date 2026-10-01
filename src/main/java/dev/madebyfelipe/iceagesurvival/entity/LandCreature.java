@@ -7,6 +7,9 @@ import dev.madebyfelipe.iceagesurvival.entity.ai.FleeWhenWeakGoal;
 import dev.madebyfelipe.iceagesurvival.entity.ai.FollowHerdGoal;
 import dev.madebyfelipe.iceagesurvival.entity.ai.HerdTravelGoal;
 import dev.madebyfelipe.iceagesurvival.entity.ai.HuntGoal;
+import dev.madebyfelipe.iceagesurvival.entity.ai.RivalryGoal;
+import dev.madebyfelipe.iceagesurvival.entity.ai.YieldGoal;
+import dev.madebyfelipe.iceagesurvival.core.ecology.Stress;
 import dev.madebyfelipe.iceagesurvival.entity.ai.StalkGoal;
 import dev.madebyfelipe.iceagesurvival.entity.ai.FollowMotherGoal;
 import dev.madebyfelipe.iceagesurvival.entity.ai.WaryGoal;
@@ -53,7 +56,7 @@ public class LandCreature extends PrehistoricCreature implements GeoEntity, Geck
     /** Amplitude da passada acima da qual a criatura está correndo, não andando. */
     private static final float RUN_LIMB_SWING = 0.75F;
 
-    private static final double CHASE_SPEED = 1.25;
+    private static final double CHASE_SPEED = 1.35;
     private static final double STALK_SPEED = 0.55;
     private static final int TARGET_MEMORY_TICKS = 200;
     private static final double FLEE_SPEED = 1.4;
@@ -92,6 +95,7 @@ public class LandCreature extends PrehistoricCreature implements GeoEntity, Geck
 
         goalSelector.addGoal(0, new FloatGoal(this));
         goalSelector.addGoal(1, new FleeWhenWeakGoal(this, FLEE_SPEED));
+        goalSelector.addGoal(1, new YieldGoal(this, FLEE_SPEED));
         if (behavior.huntStyle() == BehaviorProfile.HuntStyle.STALK) {
             goalSelector.addGoal(2, new StalkGoal(this, STALK_SPEED));
         }
@@ -119,10 +123,41 @@ public class LandCreature extends PrehistoricCreature implements GeoEntity, Geck
 
         if (behavior.aggressive()) {
             // Lembra do jogador que sumiu atrás das árvores por 10 s, não os 3 s do vanilla.
-            targetSelector.addGoal(4, new NonTameRandomTargetGoal<>(this, Player.class, true, null)
-                    .setUnseenMemoryTicks(TARGET_MEMORY_TICKS));
+            targetSelector.addGoal(4, new PlayerTargetGoal(this).setUnseenMemoryTicks(TARGET_MEMORY_TICKS));
         }
         behavior.prey().ifPresent(prey -> targetSelector.addGoal(5, new HuntGoal(this, prey)));
+        if (behavior.ecology().rivals().isPresent()) {
+            targetSelector.addGoal(6, new RivalryGoal(this));
+        }
+    }
+
+    /**
+     * Agressão ao jogador no raio {@code aggro_radius}, que o estresse alarga (até 2×). O alcance
+     * do goal do vanilla é fixado quando ele é criado, antes dos atributos da espécie; aqui ele é
+     * recalculado a cada procura.
+     */
+    private static final class PlayerTargetGoal extends NonTameRandomTargetGoal<Player> {
+        PlayerTargetGoal(LandCreature creature) {
+            super(creature, Player.class, true, null);
+        }
+
+        // O construtor do vanilla já chama getFollowDistance(): usa o mob herdado, não um campo nosso.
+        private LandCreature creature() {
+            return (LandCreature) mob;
+        }
+
+        @Override
+        protected double getFollowDistance() {
+            LandCreature creature = creature();
+            double aggro = creature.behavior().map(BehaviorProfile::aggroRadius).orElse(16.0);
+            return aggro * Stress.perceptionMultiplier(creature.stress());
+        }
+
+        @Override
+        public boolean canUse() {
+            targetConditions.range(getFollowDistance());
+            return creature().yieldingFrom() == null && super.canUse();
+        }
     }
 
     @Override

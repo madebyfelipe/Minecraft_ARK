@@ -1,5 +1,6 @@
 package dev.madebyfelipe.iceagesurvival.entity.ai;
 
+import dev.madebyfelipe.iceagesurvival.core.ecology.Stress;
 import dev.madebyfelipe.iceagesurvival.core.ecology.ThreatResponse;
 import dev.madebyfelipe.iceagesurvival.core.ecology.ThreatResponse.Reaction;
 import dev.madebyfelipe.iceagesurvival.entity.PrehistoricCreature;
@@ -42,6 +43,8 @@ public class WaryGoal extends Goal {
     /** Depois de acertar a investida, chance de seguir brigando em vez de voltar a encarar. */
     private static final double KEEP_FIGHTING_CHANCE = 0.35;
     private static final double RETREAT_SPEED = 1.0;
+    /** Até onde corre de cada vez, fugindo. */
+    private static final int FLEE_DISTANCE = 28;
 
     private final PrehistoricCreature creature;
     private final double calmSpeed;
@@ -137,8 +140,16 @@ public class WaryGoal extends Goal {
         WarinessProfile profile = profile();
         double distance = gap(threat);
         double radius = ThreatResponse.detectionRadius(profile.tuning(), sneaking(threat),
-                creature.hasCalfNearby(profile.calfRadius()));
-        outOfRangeTicks = distance > radius * 1.3 ? outOfRangeTicks + 1 : 0;
+                creature.hasCalfNearby(profile.calfRadius()), creature.stress());
+        outOfRangeTicks = distance > radius * 1.3 && !creature.isHunted() ? outOfRangeTicks + 1 : 0;
+        if (stateTicks % 20 == 0 && distance <= radius) {
+            // A ameaça ali estressa: o predador muito, o jogador menos, e menos ainda agachado.
+            if (threat instanceof Player) {
+                creature.addStress(Stress.Event.PLAYER_NEAR, sneaking(threat) ? 0.3 : 1.0);
+            } else {
+                creature.addStress(Stress.Event.THREAT_SEEN);
+            }
+        }
 
         switch (state) {
             case CHARGE -> tickCharge(profile, distance);
@@ -158,7 +169,8 @@ public class WaryGoal extends Goal {
         lastDistance = distance;
         decisionCooldown = DECISION_INTERVAL;
         var situation = new ThreatResponse.Situation(distance, approaching, sneaking(threat), firstContact,
-                creature.hasCalfNearby(profile.calfRadius()), sizeRatio(threat));
+                creature.hasCalfNearby(profile.calfRadius()), sizeRatio(threat), creature.isHunted(),
+                creature.huntingPack(), creature.stress());
         Reaction reaction = ThreatResponse.react(situation, profile.tuning(), creature.getRandom()::nextDouble);
         if (reaction == Reaction.IGNORE) {
             reaction = Reaction.ALERT;
@@ -200,16 +212,23 @@ public class WaryGoal extends Goal {
     }
 
     private void tickAway(WarinessProfile profile) {
-        if (creature.getNavigation().isDone()) {
+        // Fugindo, refaz a rota a cada segundo: a ameaça se move, e a manada corre junto para longe dela.
+        if (creature.getNavigation().isDone() || state == Reaction.FLEE && stateTicks % 20 == 0) {
             moveAway(state == Reaction.FLEE ? profile.fleeSpeed() : RETREAT_SPEED * calmSpeed);
         }
     }
 
     private void moveAway(double speed) {
-        Vec3 away = DefaultRandomPos.getPosAway(creature, 16, 7, threat.position());
-        if (away != null) {
-            creature.getNavigation().moveTo(away.x, away.y, away.z, speed);
+        Vec3 away = DefaultRandomPos.getPosAway(creature, FLEE_DISTANCE, 7, threat.position());
+        if (away == null) {
+            // Sem ponto bom sorteado: corre em linha reta para longe.
+            Vec3 direction = creature.position().subtract(threat.position()).multiply(1, 0, 1);
+            if (direction.lengthSqr() < 1.0E-4) {
+                direction = Vec3.directionFromRotation(0.0F, creature.getYRot());
+            }
+            away = creature.position().add(direction.normalize().scale(FLEE_DISTANCE));
         }
+        creature.getNavigation().moveTo(away.x, away.y, away.z, speed);
     }
 
     private void aimCharge() {
@@ -263,14 +282,16 @@ public class WaryGoal extends Goal {
 
     @Nullable
     private LivingEntity nearestThreat(WarinessProfile profile) {
-        double reach = Math.max(profile.alertRadius(), profile.calfRadius());
+        double reach = Math.max(profile.alertRadius(), profile.calfRadius())
+                * Stress.perceptionMultiplier(creature.stress());
         LivingEntity nearest = null;
         double best = Double.MAX_VALUE;
         boolean calf = creature.hasCalfNearby(profile.calfRadius());
         for (LivingEntity candidate : creature.level().getEntitiesOfClass(LivingEntity.class,
                 creature.getBoundingBox().inflate(reach, 6.0, reach), other -> isThreat(other, profile))) {
             double distance = gap(candidate);
-            double radius = ThreatResponse.detectionRadius(profile.tuning(), sneaking(candidate), calf);
+            double radius = ThreatResponse.detectionRadius(profile.tuning(), sneaking(candidate), calf,
+                    creature.stress());
             if (distance <= radius && distance < best) {
                 best = distance;
                 nearest = candidate;

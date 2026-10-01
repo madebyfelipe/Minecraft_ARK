@@ -58,18 +58,21 @@
     "group_defense": false,
     "wariness": {
       "threats": "#iceagesurvival:predators",
-      "alert_radius": 8,
+      "alert_radius": 16,
       "charge_radius": 0,
       "sneak_factor": 0.4,
       "flee_speed": 1.6
+    },
+    "ecology": {
+      "nervousness": 1.8
     }
   },
   "spawn": {
     "biomes": "#iceagesurvival:spawns_dodo",
     "weight": 14,
-    "group_min": 3,
-    "group_max": 6,
-    "max_nearby": 8,
+    "group_min": 4,
+    "group_max": 7,
+    "max_nearby": 12,
     "min_distance": 0
   },
   "sounds": {

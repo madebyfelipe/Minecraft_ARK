@@ -71,7 +71,15 @@
     "aggro_radius": 24,
     "territory_radius": 160,
     "flee_health_fraction": 0.1,
-    "prey": "#iceagesurvival:tyrannosaurus_prey"
+    "prey": "#iceagesurvival:tyrannosaurus_prey",
+    "ecology": {
+      "hunt_radius": 72,
+      "hunger_seconds": 480,
+      "chase_seconds": 20,
+      "rivals": "#iceagesurvival:rivals_tyrannosaurus",
+      "rival_radius": 48,
+      "nervousness": 0.4
+    }
   },
   "mount": {
     "seat_height": 5.6,

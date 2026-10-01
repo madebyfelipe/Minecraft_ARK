@@ -39,23 +39,23 @@ public final class ServerConfig {
 
     public static final ForgeConfigSpec.IntValue WILD_SPAWN_INTERVAL_SECONDS = BUILDER
             .comment("Segundos entre duas tentativas de reposição de fauna por jogador.")
-            .defineInRange("wildSpawnIntervalSeconds", 60, 5, 3600);
+            .defineInRange("wildSpawnIntervalSeconds", 20, 5, 3600);
 
     public static final ForgeConfigSpec.IntValue WILD_SPAWN_MIN_DISTANCE = BUILDER
             .comment("Distância mínima do jogador para uma criatura nascer, para não aparecer à vista.")
-            .defineInRange("wildSpawnMinDistance", 40, 8, 256);
+            .defineInRange("wildSpawnMinDistance", 32, 8, 256);
 
     public static final ForgeConfigSpec.IntValue WILD_SPAWN_MAX_DISTANCE = BUILDER
             .comment("Distância máxima do jogador para uma criatura nascer. Acima da distância de simulação não nasce nada.")
-            .defineInRange("wildSpawnMaxDistance", 96, 16, 512);
+            .defineInRange("wildSpawnMaxDistance", 112, 16, 512);
 
     public static final ForgeConfigSpec.IntValue WILD_SPAWN_DENSITY_RADIUS = BUILDER
             .comment("Raio em que a densidade de cada espécie é conferida contra o max_nearby do JSON da espécie.")
-            .defineInRange("wildSpawnDensityRadius", 128, 16, 512);
+            .defineInRange("wildSpawnDensityRadius", 144, 16, 512);
 
     public static final ForgeConfigSpec.IntValue WILD_SPAWN_MAX_TOTAL = BUILDER
             .comment("Teto de criaturas selvagens do mod, somando todas as espécies, no raio de densidade de um jogador.")
-            .defineInRange("wildSpawnMaxTotal", 18, 0, 200);
+            .defineInRange("wildSpawnMaxTotal", 40, 0, 200);
 
     public static final ForgeConfigSpec.IntValue FULL_DANGER_DISTANCE = BUILDER
             .comment("Distância do spawn do mundo em que criaturas selvagens já nascem com o nível máximo. No spawn, até 30% dele.")

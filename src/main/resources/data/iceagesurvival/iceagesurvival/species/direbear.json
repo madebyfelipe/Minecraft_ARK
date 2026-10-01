@@ -70,7 +70,15 @@
     "aggro_radius": 18,
     "territory_radius": 64,
     "flee_health_fraction": 0.15,
-    "prey": "#iceagesurvival:large_prey"
+    "prey": "#iceagesurvival:large_prey",
+    "ecology": {
+      "hunt_radius": 40,
+      "hunger_seconds": 420,
+      "chase_seconds": 15,
+      "rivals": "#iceagesurvival:rivals_direbear",
+      "rival_radius": 40,
+      "nervousness": 0.6
+    }
   },
   "mount": {
     "seat_height": 3.1,

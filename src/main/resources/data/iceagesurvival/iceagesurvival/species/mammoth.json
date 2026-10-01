@@ -56,16 +56,19 @@
     "group_defense": true,
     "wariness": {
       "threats": "#iceagesurvival:predators",
-      "alert_radius": 16,
+      "alert_radius": 32,
       "charge_radius": 4,
       "bluff_chance": 0.6,
       "retreat_chance": 0.2,
       "charge_chance": 0.02,
-      "calf_radius": 16,
+      "calf_radius": 32,
       "charge_speed": 1.4,
       "flee_speed": 1.3,
       "knockback": 1.2,
       "lift": 0.3
+    },
+    "ecology": {
+      "nervousness": 0.8
     }
   },
   "mount": {
@@ -77,10 +80,10 @@
   },
   "spawn": {
     "biomes": "#iceagesurvival:spawns_mammoth",
-    "weight": 8,
-    "group_min": 2,
-    "group_max": 4,
-    "max_nearby": 6,
+    "weight": 10,
+    "group_min": 3,
+    "group_max": 5,
+    "max_nearby": 10,
     "min_distance": 0
   },
   "sounds": {

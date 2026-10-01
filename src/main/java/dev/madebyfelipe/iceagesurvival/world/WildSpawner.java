@@ -77,32 +77,75 @@ public final class WildSpawner {
                 ServerConfig.WILD_SPAWN_MIN_DISTANCE.get(), ServerConfig.WILD_SPAWN_MAX_DISTANCE.get());
     }
 
+    /** Com a região abaixo desta fração do teto, a reposição faz nascer vários grupos de uma vez. */
+    private static final double SPARSE_FRACTION = 0.5;
+    /** Grupos por tentativa com a região esparsa (um mundo recém-criado, uma área recém-explorada). */
+    private static final int SPARSE_GROUPS = 3;
+
     /** Como {@link #trySpawnAround(ServerLevel, ServerPlayer)}, com as distâncias dadas. */
     public static int trySpawnAround(ServerLevel level, ServerPlayer player, int minDistance, int maxDistance) {
-        List<Report> reports = survey(level, player);
-        if (reports.isEmpty()) {
-            return 0;
+        Object2IntMap<EntityType<?>> nearby = countNearby(level, player);
+        int cap = ServerConfig.WILD_SPAWN_MAX_TOTAL.get();
+        int total = nearby.values().intStream().sum();
+        int groups = total < cap * SPARSE_FRACTION ? SPARSE_GROUPS : 1;
+        RandomGenerator random = level.random::nextLong;
+        int spawned = 0;
+        for (int round = 0; round < groups; round++) {
+            int born = spawnOneGroup(level, player, nearby, cap - total - spawned, minDistance, maxDistance, random);
+            spawned += born;
         }
-        // Teto da soma de todas as espécies: sem ele, cada espécie enchia a própria cota e a
-        // base de quem fica parado virava um zoológico.
-        int totalRoom = ServerConfig.WILD_SPAWN_MAX_TOTAL.get() - totalWildNearby(level, player);
+        return spawned;
+    }
+
+    /**
+     * Sorteia uma posição no anel e, nela, uma espécie do bioma daquele lugar — não do bioma em
+     * que o jogador pisa: quem está na borda de uma tundra também vê a fauna da tundra.
+     */
+    private static int spawnOneGroup(ServerLevel level, ServerPlayer player, Object2IntMap<EntityType<?>> nearby,
+                                     int totalRoom, int minDistance, int maxDistance, RandomGenerator random) {
         if (totalRoom <= 0) {
             return 0;
         }
-        List<WildSpawnRules.Candidate> candidates = new ArrayList<>(reports.size());
-        for (Report report : reports) {
-            candidates.add(new WildSpawnRules.Candidate(
-                    report.profile().weight(), report.nearby(), report.profile().maxNearby()));
+        int min = minDistance;
+        int max = Math.max(min + 1, maxDistance);
+        for (int attempt = 0; attempt < POSITION_ATTEMPTS; attempt++) {
+            WildSpawnRules.Offset offset = WildSpawnRules.ringOffset(min, max, random);
+            int x = player.getBlockX() + offset.x();
+            int z = player.getBlockZ() + offset.z();
+            if (!level.hasChunkAt(x, z)) {
+                continue;
+            }
+            List<Report> reports = survey(level, new BlockPos(x, player.getBlockY(), z), nearby);
+            if (reports.isEmpty()) {
+                continue;
+            }
+            List<WildSpawnRules.Candidate> candidates = new ArrayList<>(reports.size());
+            for (Report report : reports) {
+                candidates.add(new WildSpawnRules.Candidate(
+                        report.profile().weight(), report.nearby(), report.profile().maxNearby()));
+            }
+            int chosen = WildSpawnRules.pick(candidates, random);
+            if (chosen < 0) {
+                continue;
+            }
+            Report report = reports.get(chosen);
+            int room = Math.min(report.profile().maxNearby() - report.nearby(), totalRoom);
+            int group = WildSpawnRules.groupSize(report.profile().groupMin(), report.profile().groupMax(), room, random);
+            BlockPos origin = surfacePos(level, x, z, report.type());
+            if (group <= 0 || origin == null || !canSpawnAt(level, report.type(), origin, report.profile())) {
+                continue;
+            }
+            int spawned = 0;
+            for (int index = 0; index < group; index++) {
+                BlockPos pos = index == 0 ? origin : nearbySurfacePos(level, origin, report.type(), report.profile(), random);
+                if (pos != null && spawnAt(level, report.type(), pos)) {
+                    spawned++;
+                }
+            }
+            nearby.mergeInt(report.type(), spawned, Integer::sum);
+            return spawned;
         }
-        RandomGenerator random = level.random::nextLong;
-        int chosen = WildSpawnRules.pick(candidates, random);
-        if (chosen < 0) {
-            return 0;
-        }
-        Report report = reports.get(chosen);
-        int room = Math.min(report.profile().maxNearby() - report.nearby(), totalRoom);
-        int group = WildSpawnRules.groupSize(report.profile().groupMin(), report.profile().groupMax(), room, random);
-        return group <= 0 ? 0 : spawnGroup(level, player, report, group, minDistance, maxDistance, random);
+        return 0;
     }
 
     /**
@@ -110,15 +153,17 @@ public final class WildSpawner {
      * no raio de densidade. Só as que ainda têm vaga.
      */
     public static List<Report> survey(ServerLevel level, ServerPlayer player) {
-        Object2IntMap<EntityType<?>> nearby = countNearby(level, player);
+        return survey(level, player.blockPosition(), countNearby(level, player));
+    }
+
+    /** Espécies do bioma desta posição, com as contagens dadas. */
+    private static List<Report> survey(ServerLevel level, BlockPos pos, Object2IntMap<EntityType<?>> nearby) {
+        var biome = level.getBiome(pos);
         List<Report> reports = new ArrayList<>();
         for (var holder : ModEntities.LAND_CREATURES) {
             EntityType<?> type = holder.get();
             Optional<SpawnProfile> profile = Species.of(level.registryAccess(), type).flatMap(Species::spawn);
-            if (profile.isEmpty()) {
-                continue;
-            }
-            if (!level.getBiome(player.blockPosition()).is(profile.get().biomes())) {
+            if (profile.isEmpty() || !biome.is(profile.get().biomes())) {
                 continue;
             }
             reports.add(new Report(type, profile.get(), nearby.getInt(type)));
@@ -149,30 +194,6 @@ public final class WildSpawner {
             counts.mergeInt(creature.getType(), 1, Integer::sum);
         }
         return counts;
-    }
-
-    private static int spawnGroup(ServerLevel level, ServerPlayer player, Report report, int group,
-                                  int minDistance, int maxDistance, RandomGenerator random) {
-        int min = minDistance;
-        int max = Math.max(min + 1, maxDistance);
-        EntityType<?> type = report.type();
-
-        for (int attempt = 0; attempt < POSITION_ATTEMPTS; attempt++) {
-            WildSpawnRules.Offset offset = WildSpawnRules.ringOffset(min, max, random);
-            BlockPos origin = surfacePos(level, player.getBlockX() + offset.x(), player.getBlockZ() + offset.z(), type);
-            if (origin == null || !canSpawnAt(level, type, origin, report.profile())) {
-                continue;
-            }
-            int spawned = 0;
-            for (int index = 0; index < group; index++) {
-                BlockPos pos = index == 0 ? origin : nearbySurfacePos(level, origin, type, report.profile(), random);
-                if (pos != null && spawnAt(level, type, pos)) {
-                    spawned++;
-                }
-            }
-            return spawned;
-        }
-        return 0;
     }
 
     /**

@@ -111,7 +111,12 @@ public final class CreatureHud {
             return Component.translatable("iceagesurvival.hud.yours");
         }
         if (!creature.isTame()) {
-            return Component.translatable(creature.isUnconscious() ? "iceagesurvival.hud.unconscious" : "iceagesurvival.hud.wild");
+            if (creature.isUnconscious()) {
+                return Component.translatable("iceagesurvival.hud.unconscious");
+            }
+            // O humor do bicho selvagem: o termômetro de estresse dele.
+            return Component.translatable("iceagesurvival.hud.wild_mood", Component.translatable(
+                    "iceagesurvival.mood." + creature.mood().name().toLowerCase(java.util.Locale.ROOT)));
         }
         LivingEntity owner = creature.getOwner();
         return owner != null

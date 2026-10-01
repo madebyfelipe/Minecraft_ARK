@@ -59,6 +59,8 @@ Fora de escopo: máquinas, árvores tecnológicas, dezenas de armaduras, arsenal
 | D22 | O conteúdo próprio do Revival **fica desligado**: itens fora das abas do criativo, minérios e estátua moai removidos por biome modifier, estruturas por `structure_set` vazios | Os itens dele duplicam os nossos (ovos de dinossauro, carnes, máquinas) e os minérios/estruturas espalham fósseis, âmbar, piche e templos que não existem na nossa progressão. Desligar por dados e por um evento evita mixin e não exige mexer na config do jogador. Limites: receitas dele continuam válidas; o bioma vulcão (TerraBlender) não aparece no preset Era do Gelo, mas aparece num mundo comum. | Fechada 2026-10-01 |
 | D23 | Pulo e voo montados **sem a barra de carga do cavalo**; o voo é decidido no cliente de quem monta | A barra de carga é do cavalo e não combina com predadores; o pulo sai na hora, com altura e avanço da espécie. O voo segue o Cobblemon (olhar dirige, frente acelera, embalo, Espaço bate as asas, sprint dá impulso) e, como o resto do movimento do veículo (D18), é simulado no cliente; o servidor só recebe o estado para tirar a gravidade. A física fica em `core/mount/FlightModel`, testada por JUnit. | Fechada 2026-10-01; falta sentir em jogo |
 | D21 | Usar assets do F&A Revival **em runtime**, sem copiá-los ao projeto ou ao jar | O Ice Age Survival referencia os recursos registrados pelo mod original, instalado separadamente. Isso preserva a autoria/licença dos assets e mantém o jar do addon sem conteúdo do Revival. Exige a dependência compatível instalada para renderizar as espécies afetadas. | Fechada; decisão atual substitui a escolha de 2026-09-30 |
+| D24 | **Ecologia por fome, estresse e rivalidade**, decidida no servidor e com o núcleo em `core/ecology` (JUnit) | Caçada só por intervalo aleatório e linha de visão deixava o mundo parado. Agora o predador caça quando tem fome (`Hunger`), escolhe a presa mais fácil pelo faro (`HuntChoice`: filhote, ferida, desgarrada; bando encara presa maior), persegue com fôlego limitado e desiste. A presa caçada avisa a manada, que dispara. Cada selvagem tem um termômetro de estresse (`Stress`) movido por eventos (predador à vista, ferida, manada atacada, rival, jogador perto) e pelo temperamento da espécie; estressado percebe de mais longe, foge antes e é imprevisível; o predador estressado ataca o jogador de mais longe. Rivais (tag `rivals`) disputam território: o mais fraco cede; briga para à metade da vida. | Fechada 2026-10-01; falta sentir em jogo e balancear |
+| D25 | Voo montado com **curva e inclinação limitadas** e energia (mergulho ganha velocidade, subida perde); assento no osso `rider_pos` animado | A câmera gira na hora; a montaria segue com velocidade angular de `flight_turn_rate`. O rasante do grifo do ARK sai da troca altura × velocidade. O assento acompanha a animação de voo (que inclina o corpo), como no Revival. | Fechada 2026-10-01; falta sentir em jogo |
 
 ## 5. Mods avaliados
 
@@ -642,7 +644,7 @@ O mundo do GameTest é plano e de bioma temperado, então o frio não chega a su
 | 2 | Core: níveis, atributos, ownership, persistência, registry de espécies | ✅ 2026-09-30 |
 | 3 | Domesticação com criatura de teste | ✅ 2026-09-30 (falta conferir no cliente) |
 | 4 | Smilodon | ✅ 2026-09-30, conferido em jogo pelo Felipe |
-| 5 | Mais criaturas, spawning | 🟡 Estegossauro, Pteranodonte, dodô e Elasmotério (início de jogo), migração de herbívoros e bônus de bando do Alossauro implementados; build e GameTests passam, falta conferir comportamento em jogo |
+| 5 | Mais criaturas, spawning | 🟡 Estegossauro, Pteranodonte, dodô e Elasmotério (início de jogo), migração de herbívoros, bônus de bando do Alossauro e ecologia dinâmica (fome, caçadas, estresse, rivais — D24) implementados; build e GameTests passam, falta conferir comportamento em jogo |
 | 6 | Temperatura | ✅ 2026-09-30 em testes automáticos; falta sentir o frio em jogo e balancear a primeira hora |
 | 7 | Montaria | 🟡 armazenamento por espécie, voo no estilo do Cobblemon, pulo sem barra de carga, montaria sem sela e More Hitboxes implementados; build e GameTests passam, falta conferir controles e hitboxes em jogo |
 | 8 | Reprodução e genética | ✅ 2026-09-30 em testes automáticos (genética em JUnit; acasalamento, gestação, ovo, incubadora, mesa química e estimulante em gametests); falta conferir em jogo |
@@ -654,6 +656,23 @@ MVP = Etapas 1–4 + versão mínima de 6, 7 e 9 (mundo frio, temperatura básic
 ## 24. Decisões técnicas
 
 Ver a tabela em [4](#4-decisões). Registro de mudanças estruturais:
+
+- 2026-10-01 — Ecologia dinâmica (D24): fome, caçada pelo faro (raio de 40–72 blocos), presa e
+  manada que disparam, perseguição com fôlego, estresse com humor no painel, rivais (T-Rex ×
+  Alossauro × Espinossauro, Smilodon × lobo-terrível × urso). Raios de alerta das presas dobrados.
+  Carnívoros não caçavam herbívoros por três motivos: `large_prey` só tinha bichos do vanilla, o
+  `NearestAttackableTargetGoal` fixava o alcance antes dos atributos da espécie, e a procura era
+  rara e exigia vista.
+- 2026-10-01 — Spawn: o `Animal` só nascia em grama ou na luz, então à noite, na neve, a reposição
+  e boa parte do spawn da geração falhavam (`checkSpawnRules` agora fica com `checkSurfaceSpawnRules`).
+  Reposição escolhe a posição e depois as espécies do bioma dela, a cada 20 s, com rajada de 3
+  grupos em região vazia; teto 18 → 40; pesos e manadas maiores.
+- 2026-10-01 — Golpe montado proporcional ao corpo (`MountedReach`): alcance 3,5 + 1,25 × largura,
+  cone de 140° que pega o bicho baixo; quebra de blocos mais funda e larga.
+- 2026-10-01 — Pteranodonte (D25): rasante, curva limitada e assento no `rider_pos`; `seat_forward`
+  voltou a valer (perdido no port).
+- 2026-10-01 — GameTests estáveis: bichos que fugiam para fora da arena invadiam cenas seguintes;
+  cenas de movimento ganharam lote próprio e limpam os soltos ao começar.
 
 - 2026-10-01 — Crash ao renascer: o corpo antigo do jogador recebe um último tick depois que o Forge
   invalida suas capabilities, e o `ColdExposure` exigia a de frio. O tick agora ignora jogador sem

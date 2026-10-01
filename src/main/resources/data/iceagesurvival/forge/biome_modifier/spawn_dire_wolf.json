@@ -4,7 +4,7 @@
   "spawners": [
     {
       "type": "iceagesurvival:dire_wolf",
-      "weight": 3,
+      "weight": 6,
       "minCount": 2,
       "maxCount": 4
     }

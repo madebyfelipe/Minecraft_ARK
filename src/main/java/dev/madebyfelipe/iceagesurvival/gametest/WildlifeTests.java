@@ -24,7 +24,7 @@ import net.minecraftforge.gametest.PrefixGameTestTemplate;
 public class WildlifeTests {
     private static final String EMPTY = "empty";
     private static final String ARENA = "arena";
-    /** Lote próprio: animais de testes vizinhos se enxergariam (os raios de alerta passam de 14 blocos). */
+    /** Um lote por cena: animais de testes vizinhos se enxergariam (os raios de alerta passam de 28 blocos). */
     private static final String BATCH = "wildlife";
 
     @GameTest(template = EMPTY)
@@ -43,8 +43,9 @@ public class WildlifeTests {
     }
 
     /** Chegar colado num Elasmotério sem ele ter visto: investida, com o golpe que joga para o alto. */
-    @GameTest(template = ARENA, batch = BATCH, timeoutTicks = 200)
+    @GameTest(template = ARENA, batch = BATCH + "_1", timeoutTicks = 200)
     public static void surprisedElasmotheriumCharges(GameTestHelper helper) {
+        HuntTests.clearStrays(helper);
         LandCreature elasmo = helper.spawn(ModEntities.ELASMOTHERIUM.get(), 4, 0, 4);
         ServerPlayer player = PredatorTests.survivalPlayer(helper);
         player.moveTo(helper.absoluteVec(new Vec3(4.5, 0, 8.0)));
@@ -57,12 +58,14 @@ public class WildlifeTests {
     }
 
     /** Agachado e a uma distância educada, o jogador passa: o faro conta mais que a vista. */
-    @GameTest(template = ARENA, batch = BATCH, timeoutTicks = 120)
+    @GameTest(template = ARENA, batch = BATCH + "_2", timeoutTicks = 120)
     public static void sneakingPastAtADistanceDoesNotProvoke(GameTestHelper helper) {
-        LandCreature elasmo = helper.spawn(ModEntities.ELASMOTHERIUM.get(), 2, 0, 2);
+        HuntTests.clearStrays(helper);
+        LandCreature elasmo = helper.spawn(ModEntities.ELASMOTHERIUM.get(), 2, 0, 1);
         ServerPlayer player = PredatorTests.survivalPlayer(helper);
         player.setShiftKeyDown(true);
-        player.moveTo(helper.absoluteVec(new Vec3(2.5, 0, 14.5)));
+        // Alerta de 28 blocos; agachado, metade: a 21 blocos passa sem ser notado.
+        player.moveTo(helper.absoluteVec(new Vec3(2.5, 0, 22.5)));
         float start = player.getHealth();
         helper.runAtTickTime(100, () -> {
             helper.assertTrue(player.getHealth() == start, "o jogador agachado foi atacado");
@@ -86,8 +89,9 @@ public class WildlifeTests {
     }
 
     /** Diante de algo muito maior, foge — mesmo um animal que investe contra o jogador. */
-    @GameTest(template = ARENA, batch = BATCH, timeoutTicks = 160)
+    @GameTest(template = ARENA, batch = BATCH + "_3", timeoutTicks = 160)
     public static void elasmotheriumFleesFromTyrannosaurus(GameTestHelper helper) {
+        HuntTests.clearStrays(helper);
         LandCreature rex = helper.spawnWithNoFreeWill(ModEntities.TYRANNOSAURUS.get(), 8, 0, 4);
         LandCreature elasmo = helper.spawn(ModEntities.ELASMOTHERIUM.get(), 8, 0, 12);
         double start = elasmo.distanceTo(rex);
@@ -98,8 +102,9 @@ public class WildlifeTests {
         });
     }
 
-    @GameTest(template = ARENA, batch = BATCH, timeoutTicks = 160)
+    @GameTest(template = ARENA, batch = BATCH + "_4", timeoutTicks = 160)
     public static void dodoRunsFromAWolf(GameTestHelper helper) {
+        HuntTests.clearStrays(helper);
         var wolf = helper.spawnWithNoFreeWill(ModEntities.DIRE_WOLF.get(), 8, 0, 8);
         LandCreature dodo = helper.spawn(ModEntities.DODO.get(), 8, 0, 12);
         double start = dodo.distanceTo(wolf);
@@ -115,6 +120,7 @@ public class WildlifeTests {
     public static void predatorIsSatedAfterAKill(GameTestHelper helper) {
         LandCreature wolf = helper.spawnWithNoFreeWill(ModEntities.DIRE_WOLF.get(), 3, 2, 3);
         Pig pig = helper.spawnWithNoFreeWill(EntityType.PIG, 5, 2, 3);
+        wolf.setTicksSinceMeal(20L * 3600);
         helper.assertFalse(wolf.isSated(), "começa com fome");
         wolf.killedEntity(helper.getLevel(), pig);
         helper.assertTrue(wolf.isSated(), "deveria estar saciado depois de abater a presa");
