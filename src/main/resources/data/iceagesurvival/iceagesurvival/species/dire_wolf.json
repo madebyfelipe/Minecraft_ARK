@@ -68,6 +68,16 @@
     "herd_radius": 10,
     "group_defense": true,
     "prey": "#iceagesurvival:dire_wolf_prey",
+    "wariness": {
+      "threats": "#iceagesurvival:predators",
+      "players": false,
+      "alert_radius": 22,
+      "charge_radius": 3,
+      "retreat_chance": 0.2,
+      "charge_chance": 0.08,
+      "charge_speed": 1.7,
+      "flee_speed": 1.6
+    },
     "ecology": {
       "hunt_radius": 56,
       "hunger_seconds": 300,

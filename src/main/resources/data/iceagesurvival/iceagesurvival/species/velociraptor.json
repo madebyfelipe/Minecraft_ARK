@@ -70,6 +70,16 @@
     "group_defense": true,
     "prey": "#iceagesurvival:velociraptor_prey",
     "hunt_style": "chase",
+    "wariness": {
+      "threats": "#iceagesurvival:predators",
+      "players": false,
+      "alert_radius": 24,
+      "charge_radius": 3,
+      "retreat_chance": 0.3,
+      "charge_chance": 0.06,
+      "charge_speed": 1.8,
+      "flee_speed": 1.8
+    },
     "ecology": {
       "hunt_radius": 64,
       "hunger_seconds": 120,

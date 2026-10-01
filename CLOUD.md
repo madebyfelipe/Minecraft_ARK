@@ -41,7 +41,7 @@ Fora de escopo: máquinas, árvores tecnológicas, dezenas de armaduras, arsenal
 | D3 | **GeckoLib 4.7.2** | Build Forge para Minecraft 1.20.1, padrão de animação das criaturas e integração com More Hitboxes. | Fechada |
 | D4 | Gameplay, dados e código de criaturas são nossos; F&A Revival só fornece assets carregados em runtime | Não copiar código, modelos, texturas, animações ou sons. A dependência foi aceita após a migração para 1.20.1 Forge, exclusivamente para resolver assets do mod instalado pelo jogador; domesticação, progressão e IA continuam próprias. | Fechada; substitui a decisão inicial de não depender de fauna |
 | D5 | Temperatura: **sistema interno leve**, atrás de uma interface | Cold Sweat é muito mais complexo do que o brief pede ("secundária, sem burocracia"). Ver [15](#15-temperatura). | Fechada na Etapa 6 — `ColdSource` continua de pé |
-| D6 | Mundo glacial por **world preset próprio em datapack**, sem mod de worldgen obrigatório | Um preset com a fonte de biomas restrita a biomas frios resolve "mundo predominantemente congelado" sem dependência. Ver [18](#18-worldgen). | Fechada na Etapa 9 — a fonte troca biomas quentes por frios (`iceagesurvival:remapped`) e mantém o relevo vanilla do overworld. Ice Age - Frozen World não entra: para 1.20.1 ele só existe para Fabric, enquanto este pack usa Forge. |
+| D6 | Mundo glacial por **world preset próprio em datapack**, sem mod de worldgen obrigatório | Um preset com a fonte de biomas restrita a biomas frios resolve "mundo predominantemente congelado" sem dependência. Ver [18](#18-worldgen). | Fechada na Etapa 9 — a fonte troca toda a terra por planície nevada e mantém águas congeladas, sobre o relevo vanilla do overworld. Ice Age - Frozen World não entra: para 1.20.1 ele só existe para Fabric, enquanto este pack usa Forge. |
 | D7 | Espécies num **registry de datapack** sincronizado | Permite adicionar espécie por JSON, com validação por Codec e sync automático para o cliente. | Fechada |
 | D8 | Dados da criatura no **NBT da própria entidade**, serializados por Codec | As entidades são nossas; estado de jogador de terceiros fica em capability Forge (D17). | Fechada |
 | D9 | IA com **Goals vanilla** | Suficiente para território e manada; SmartBrainLib fica como opção se os Goals virarem gargalo. | Provisória |
@@ -578,11 +578,16 @@ Implementado na Etapa 8 (`Genome`, `Genetics`). Pontos **e** contagem de mutaç�
 
 Implementado na Etapa 9 (D6). **Não precisa de mod.** O world preset **Era do Gelo** (`iceagesurvival:ice_age`) aparece em *Criar mundo → Tipo de mundo*; num servidor, `level-type=iceagesurvival:ice_age` no `server.properties`.
 
-O preset conserva as cavernas, estruturas e dimensões vanilla, mas usa `minecraft:amplified` no overworld para gerar picos, encostas e vales bem mais dramáticos. A fonte de biomas embrulhada por `iceagesurvival:remapped` troca biomas quentes por `snowy_slopes`, `ice_spikes`, `frozen_peaks`, `snowy_plains` ou biomas de água congelada. Florestas densas, taigas e biomas tropicais não sobrevivem ao remapeamento; só grove mantém manchas de pinheiros. A combinação reduz os campos intermináveis de tundra, aumenta gelo e relevo e mantém toda a superfície abaixo do limite de neve. As tags de spawn também incluem as novas encostas para que a fauna continue presente.
+O preset conserva cavernas, estruturas, dimensões e relevo vanilla. A fonte de biomas
+`iceagesurvival:remapped` troca toda a terra do overworld por `minecraft:snowy_plains` e as águas
+por rios e oceanos congelados. Não há taiga, florestas, picos, encostas ou uma tabela climática
+complexa: o mundo é deliberadamente uma tundra simples, com planícies nevadas predominantes.
 
-A alternativa — listar os ~7 mil pontos climáticos do overworld num `multi_noise` só com biomas frios — daria um JSON de megabytes que precisaria ser regerado a cada versão; a troca é uma tabela curta.
+O GameTest aceita apenas planície/praia nevada, rios e oceanos congelados, além das cavernas
+vanilla. Assim nenhum bioma temperado, nem um bioma frio verde, volta a aparecer no preset.
 
-**Toda a superfície neva** (temperatura ≤ 0,15, o limite de neve do vanilla; o gametest confere). Até 2026-10-01 taigas (0,25), taigas antigas, morros ventosos e costa de pedra (0,2) ficavam como estavam, "frias mas sem nevasca" — num mundo de teste eram mais da metade da superfície, que saía verde. As cavernas guardam a temperatura delas (lush caves 0,5): descer é se abrigar.
+**Toda a superfície neva.** As cavernas guardam a temperatura delas (lush caves 0,5): descer é
+se abrigar.
 
 **Conteúdo do Revival desligado ([D22](#4-decisões)):** o biome modifier `remove_revival_features` tira os minérios (fóssil, âmbar, permafrost, rocha vulcânica) e a estátua moai; `data/fossil/worldgen/structure_set/` vazios desligam sítios de fóssil, poços de piche, templos astecas, academia egípcia e o barco do Nether; os itens dele saem das abas do criativo (`RevivalCleanup`). O TerraBlender só injeta o bioma vulcão em fontes `multi_noise` puras, então ele não aparece no preset (embrulhado pela nossa).
 
@@ -662,6 +667,10 @@ Ver a tabela em [4](#4-decisões). Registro de mudanças estruturais:
   `minecraft:overworld` e ao mapeamento original de biomas frios, removendo a reformulação de
   tundra aberta e relevo `amplified`. TerraBlender continua somente como dependência transitiva do
   Revival, não participa do nosso worldgen.
+- 2026-10-01 — Worldgen simplificado: toda a terra do preset Era do Gelo agora é planície nevada;
+  rios, praias e oceanos continuam congelados. Herbívoros reagem aos predadores pelo porte (investem
+  ou fogem) e todos os carnívoros fazem a mesma escolha diante de outro predador: enfrentam os do
+  próprio porte ou menores e fogem de um muito maior.
 - 2026-10-01 — Ecologia dinâmica (D24): fome, caçada pelo faro (raio de 40–72 blocos), presa e
   manada que disparam, perseguição com fôlego, estresse com humor no painel, rivais (T-Rex ×
   Alossauro × Espinossauro, Smilodon × lobo-terrível × urso). Raios de alerta das presas dobrados.

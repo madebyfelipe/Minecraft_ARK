@@ -101,6 +101,24 @@ public class EcologyTests {
     }
 
     @GameTest(template = EMPTY)
+    public static void everyPredatorChoosesFightOrFlightBySize(GameTestHelper helper) {
+        var registries = helper.getLevel().registryAccess();
+        for (var predator : List.of(ModEntities.DIRE_WOLF.get(), ModEntities.SMILODON.get(), ModEntities.DIREBEAR.get(),
+                ModEntities.VELOCIRAPTOR.get(), ModEntities.UTAHRAPTOR.get(), ModEntities.ALLOSAURUS.get(),
+                ModEntities.SPINOSAURUS.get(), ModEntities.TYRANNOSAURUS.get())) {
+            String name = EntityType.getKey(predator).toString();
+            var wariness = Species.of(registries, predator).orElseThrow().behavior().orElseThrow().wariness()
+                    .orElseThrow(() -> new AssertionError(name + " sem reação a outros carnívoros"));
+            helper.assertTrue(!wariness.players(), name + " não deveria substituir sua agressão normal ao jogador");
+            helper.assertTrue(wariness.chargeRadius() > 0 && wariness.fleeSpeed() > 0,
+                    name + " precisa poder lutar ou fugir");
+            helper.assertTrue(ModEntities.TYRANNOSAURUS.get().is(wariness.threats().orElseThrow()),
+                    name + " não reconhece predadores como ameaça");
+        }
+        helper.succeed();
+    }
+
+    @GameTest(template = EMPTY)
     public static void spawnRuleAcceptsOpenGround(GameTestHelper helper) {
         BlockPos onFloor = helper.absolutePos(new BlockPos(1, 2, 1));
         helper.assertTrue(SpawnPlacements.checkSpawnRules(ModEntities.MAMMOTH.get(), helper.getLevel(),

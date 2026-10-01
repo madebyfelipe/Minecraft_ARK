@@ -74,6 +74,16 @@
     "prey": "#iceagesurvival:allosaurus_prey",
     "herd_radius": 12,
     "group_defense": true,
+    "wariness": {
+      "threats": "#iceagesurvival:predators",
+      "players": false,
+      "alert_radius": 30,
+      "charge_radius": 5,
+      "retreat_chance": 0.1,
+      "charge_chance": 0.1,
+      "charge_speed": 1.6,
+      "flee_speed": 1.5
+    },
     "ecology": {
       "hunt_radius": 64,
       "hunger_seconds": 360,

@@ -71,6 +71,16 @@
     "territory_radius": 64,
     "flee_health_fraction": 0.15,
     "prey": "#iceagesurvival:large_prey",
+    "wariness": {
+      "threats": "#iceagesurvival:predators",
+      "players": false,
+      "alert_radius": 28,
+      "charge_radius": 5,
+      "retreat_chance": 0.1,
+      "charge_chance": 0.12,
+      "charge_speed": 1.5,
+      "flee_speed": 1.4
+    },
     "ecology": {
       "hunt_radius": 40,
       "hunger_seconds": 420,

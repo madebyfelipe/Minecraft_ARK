@@ -72,6 +72,16 @@
     "flee_health_fraction": 0.25,
     "prey": "#iceagesurvival:large_prey",
     "hunt_style": "stalk",
+    "wariness": {
+      "threats": "#iceagesurvival:predators",
+      "players": false,
+      "alert_radius": 24,
+      "charge_radius": 4,
+      "retreat_chance": 0.15,
+      "charge_chance": 0.08,
+      "charge_speed": 1.6,
+      "flee_speed": 1.5
+    },
     "ecology": {
       "hunt_radius": 48,
       "hunger_seconds": 360,

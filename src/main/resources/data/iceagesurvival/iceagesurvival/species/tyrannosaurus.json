@@ -72,6 +72,16 @@
     "territory_radius": 160,
     "flee_health_fraction": 0.1,
     "prey": "#iceagesurvival:tyrannosaurus_prey",
+    "wariness": {
+      "threats": "#iceagesurvival:predators",
+      "players": false,
+      "alert_radius": 36,
+      "charge_radius": 6,
+      "retreat_chance": 0.05,
+      "charge_chance": 0.15,
+      "charge_speed": 1.5,
+      "flee_speed": 1.3
+    },
     "ecology": {
       "hunt_radius": 72,
       "hunger_seconds": 480,

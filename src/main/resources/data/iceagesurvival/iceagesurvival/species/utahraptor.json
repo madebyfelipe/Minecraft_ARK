@@ -73,6 +73,16 @@
     "herd_radius": 12,
     "group_defense": true,
     "prey": "#iceagesurvival:large_prey",
+    "wariness": {
+      "threats": "#iceagesurvival:predators",
+      "players": false,
+      "alert_radius": 26,
+      "charge_radius": 4,
+      "retreat_chance": 0.2,
+      "charge_chance": 0.08,
+      "charge_speed": 1.7,
+      "flee_speed": 1.7
+    },
     "ecology": {
       "hunt_radius": 56,
       "hunger_seconds": 300,

@@ -21,12 +21,9 @@ import net.minecraftforge.gametest.PrefixGameTestTemplate;
 @PrefixGameTestTemplate(false)
 public class WorldgenTests {
     private static final String EMPTY = "empty";
-    /** Cavernas guardam a temperatura delas: são abrigo do frio. E o oceano profundo congelado, abaixo. */
-    private static final Set<ResourceKey<Biome>> CAVES = Set.of(Biomes.LUSH_CAVES, Biomes.DRIPSTONE_CAVES, Biomes.DEEP_DARK,
-            // Temperatura base 0,5, mas com o modificador "frozen" do vanilla: a superfície congela.
-            Biomes.DEEP_FROZEN_OCEAN);
-    /** Acima disto nada neva; taigas (0,25) e morros ventosos (0,2) são as regiões frias sem nevasca. */
-    private static final float WARMEST_ALLOWED = 0.3F;
+    private static final Set<ResourceKey<Biome>> ICE_AGE_BIOMES = Set.of(
+            Biomes.SNOWY_PLAINS, Biomes.SNOWY_BEACH, Biomes.FROZEN_RIVER, Biomes.FROZEN_OCEAN,
+            Biomes.DEEP_FROZEN_OCEAN, Biomes.LUSH_CAVES, Biomes.DRIPSTONE_CAVES, Biomes.DEEP_DARK);
 
     @GameTest(template = EMPTY)
     public static void iceAgePresetOnlyHasColdBiomes(GameTestHelper helper) {
@@ -36,16 +33,15 @@ public class WorldgenTests {
         LevelStem overworld = preset.createWorldDimensions().dimensions().get(LevelStem.OVERWORLD);
         Set<Holder<Biome>> biomes = overworld.generator().getBiomeSource().possibleBiomes();
 
-        List<String> warm = biomes.stream()
-                .filter(biome -> biome.unwrapKey().map(key -> !CAVES.contains(key)).orElse(true))
-                .filter(biome -> biome.value().getBaseTemperature() > WARMEST_ALLOWED)
+        List<String> unexpected = biomes.stream()
+                .filter(biome -> biome.unwrapKey().map(key -> !ICE_AGE_BIOMES.contains(key)).orElse(true))
                 .map(biome -> biome.unwrapKey().map(key -> key.location().toString()).orElse("?"))
                 .collect(Collectors.toList());
-        helper.assertTrue(warm.isEmpty(), "biomas quentes no mundo glacial: " + warm);
+        helper.assertTrue(unexpected.isEmpty(), "biomas fora do conjunto gelado simples: " + unexpected);
         for (ResourceKey<Biome> gone : List.of(Biomes.PLAINS, Biomes.DESERT, Biomes.JUNGLE, Biomes.OCEAN, Biomes.RIVER)) {
             helper.assertTrue(biomes.stream().noneMatch(biome -> biome.is(gone)), gone.location() + " sobrou");
         }
-        for (ResourceKey<Biome> kept : List.of(Biomes.SNOWY_PLAINS, Biomes.FROZEN_RIVER, Biomes.FROZEN_OCEAN, Biomes.TAIGA)) {
+        for (ResourceKey<Biome> kept : List.of(Biomes.SNOWY_PLAINS, Biomes.FROZEN_RIVER, Biomes.FROZEN_OCEAN)) {
             helper.assertTrue(biomes.stream().anyMatch(biome -> biome.is(kept)), kept.location() + " faltando");
         }
         helper.succeed();
