@@ -25,6 +25,7 @@ import net.minecraftforge.gametest.PrefixGameTestTemplate;
 @PrefixGameTestTemplate(false)
 public class PredatorTests {
     private static final String ARENA = "arena";
+    private static final long STARVING = 20L * 3600;
 
     /** Como {@code makeMockServerPlayerInLevel}, mas em sobrevivência: o do vanilla é criativo e nenhum mob o ataca. */
     static ServerPlayer survivalPlayer(GameTestHelper helper) {
@@ -54,6 +55,7 @@ public class PredatorTests {
     /** @param alreadyHunting o predador já tem o jogador como alvo (a mata tapa a visão para escolhê-lo) */
     private static void huntsThePlayer(GameTestHelper helper, EntityType<LandCreature> type, boolean alreadyHunting) {
         LandCreature predator = helper.spawn(type, 6, 0, 4);
+        predator.setTicksSinceMeal(STARVING);
         Player player = survivalPlayer(helper);
         player.moveTo(helper.absoluteVec(new Vec3(6.5, 0, 14.5)));
         if (alreadyHunting) {
@@ -102,6 +104,7 @@ public class PredatorTests {
     public static void rexOnlyHuntsABrontosaurusOutOfItsHerd(GameTestHelper helper) {
         HuntTests.clearStrays(helper);
         LandCreature rex = helper.spawnWithNoFreeWill(ModEntities.TYRANNOSAURUS.get(), 2, 0, 2);
+        rex.setTicksSinceMeal(STARVING);
         LandCreature bronto = helper.spawnWithNoFreeWill(ModEntities.BRONTOSAURUS.get(), 16, 0, 16);
         helper.assertTrue(HuntGoal.wouldHunt(rex, bronto, REX_PREY), "bronto desgarrado deveria ser presa");
         helper.spawnWithNoFreeWill(ModEntities.BRONTOSAURUS.get(), 18, 0, 18);
@@ -134,6 +137,46 @@ public class PredatorTests {
     @GameTest(template = ARENA, timeoutTicks = 400)
     public static void velociraptorHuntsThePlayer(GameTestHelper helper) {
         huntsThePlayer(helper, ModEntities.VELOCIRAPTOR.get());
+    }
+
+    /** Um carnívoro saciado não caça o jogador, mas um faminto o considera presa como qualquer animal. */
+    @GameTest(template = ARENA, timeoutTicks = 120)
+    public static void carnivoreOnlyHuntsPlayerWhenHungry(GameTestHelper helper) {
+        LandCreature predator = helper.spawn(ModEntities.VELOCIRAPTOR.get(), 6, 0, 4);
+        var prey = predator.behavior().orElseThrow().prey().orElseThrow();
+        Player player = survivalPlayer(helper);
+        player.moveTo(helper.absoluteVec(new Vec3(6.5, 0, 12.5)));
+
+        predator.setTicksSinceMeal(0);
+        helper.assertFalse(HuntGoal.wouldHunt(predator, player, prey), "Velociraptor saciado escolheu o jogador");
+        helper.runAtTickTime(30, () -> helper.assertTrue(predator.getTarget() != player,
+                "Velociraptor saciado perseguiu o jogador"));
+
+        helper.runAtTickTime(35, () -> {
+            predator.setTicksSinceMeal(STARVING);
+            helper.assertTrue(HuntGoal.wouldHunt(predator, player, prey),
+                    "Velociraptor faminto não considerou o jogador como presa");
+        });
+        helper.onEachTick(() -> {
+            if (predator.getTarget() == player) {
+                helper.succeed();
+            }
+        });
+    }
+
+    /** Sem fome não começa a caçada, mas continua se defendendo quando o jogador o fere. */
+    @GameTest(template = ARENA, timeoutTicks = 80)
+    public static void carnivoreRetaliatesAgainstPlayerWithoutHuntingThem(GameTestHelper helper) {
+        LandCreature predator = helper.spawn(ModEntities.VELOCIRAPTOR.get(), 6, 0, 4);
+        predator.setTicksSinceMeal(0);
+        ServerPlayer player = survivalPlayer(helper);
+        player.moveTo(helper.absoluteVec(new Vec3(6.5, 0, 8.0)));
+        predator.hurt(helper.getLevel().damageSources().playerAttack(player), 1.0F);
+        helper.runAtTickTime(10, () -> {
+            helper.assertTrue(predator.getTarget() == player, "não revidou ao jogador que o feriu");
+            helper.assertFalse(predator.isHunting(), "revide foi tratado como caçada por fome");
+            helper.succeed();
+        });
     }
 
     @GameTest(template = ARENA, timeoutTicks = 400)

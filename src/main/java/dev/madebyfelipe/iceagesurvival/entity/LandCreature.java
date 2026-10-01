@@ -2,6 +2,7 @@ package dev.madebyfelipe.iceagesurvival.entity;
 
 import dev.madebyfelipe.iceagesurvival.core.mount.FlightModel;
 import dev.madebyfelipe.iceagesurvival.core.stats.Stat;
+import dev.madebyfelipe.iceagesurvival.core.ecology.Hunger;
 import dev.madebyfelipe.iceagesurvival.entity.ai.ChaseGoal;
 import dev.madebyfelipe.iceagesurvival.entity.ai.FleeWhenWeakGoal;
 import dev.madebyfelipe.iceagesurvival.entity.ai.FollowHerdGoal;
@@ -155,6 +156,10 @@ public class LandCreature extends PrehistoricCreature implements GeoEntity, Geck
 
         @Override
         public boolean canUse() {
+            if (creature().behavior().flatMap(BehaviorProfile::prey).isPresent()
+                    && creature().hungerDrive() != Hunger.Drive.HUNTING) {
+                return false;
+            }
             targetConditions.range(getFollowDistance());
             return creature().yieldingFrom() == null && super.canUse();
         }

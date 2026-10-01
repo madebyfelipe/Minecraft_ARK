@@ -115,6 +115,21 @@ public class WildlifeTests {
         });
     }
 
+    /** Um Brontossauro em investida vira uma ameaça visível; o Velociraptor foge pelo porte. */
+    @GameTest(template = ARENA, batch = BATCH + "_5", timeoutTicks = 160)
+    public static void velociraptorFleesFromThreateningBrontosaurus(GameTestHelper helper) {
+        HuntTests.clearStrays(helper);
+        LandCreature bronto = helper.spawnWithNoFreeWill(ModEntities.BRONTOSAURUS.get(), 8, 0, 4);
+        bronto.setAggressive(true);
+        LandCreature raptor = helper.spawn(ModEntities.VELOCIRAPTOR.get(), 8, 0, 10);
+        Vec3 start = raptor.position();
+        helper.runAtTickTime(120, () -> {
+            helper.assertTrue(raptor.position().distanceTo(start) > 3.0,
+                    "o Velociraptor não fugiu do Brontossauro agressivo: " + start + " → " + raptor.position());
+            helper.succeed();
+        });
+    }
+
     /** Depois de abater a presa, o predador come e para de caçar por um tempo. */
     @GameTest(template = EMPTY)
     public static void predatorIsSatedAfterAKill(GameTestHelper helper) {

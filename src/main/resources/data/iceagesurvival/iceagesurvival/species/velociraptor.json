@@ -65,6 +65,7 @@
     "aggressive": true,
     "aggro_radius": 24,
     "territory_radius": 40,
+    "sated_seconds": 30,
     "flee_health_fraction": 0.3,
     "herd_radius": 10,
     "group_defense": true,

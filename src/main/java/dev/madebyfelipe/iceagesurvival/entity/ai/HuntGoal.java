@@ -14,6 +14,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.OwnableEntity;
 import net.minecraft.world.entity.ai.goal.Goal;
+import net.minecraft.world.entity.player.Player;
 
 /**
  * Caçada do predador selvagem, movida pela fome ({@link Hunger}) e pela escolha da presa mais fácil
@@ -50,7 +51,13 @@ public class HuntGoal extends Goal {
     }
 
     public static boolean isPrey(PrehistoricCreature hunter, LivingEntity candidate, TagKey<EntityType<?>> prey) {
-        if (!candidate.isAlive() || !candidate.getType().is(prey) || candidate.getType() == hunter.getType()) {
+        boolean playerPrey = candidate instanceof Player
+                && hunter.behavior().map(behavior -> behavior.prey().isPresent()).orElse(false);
+        if (!candidate.isAlive() || (!playerPrey && !candidate.getType().is(prey))
+                || candidate.getType() == hunter.getType()) {
+            return false;
+        }
+        if (candidate instanceof Player player && !net.minecraft.world.entity.EntitySelector.NO_CREATIVE_OR_SPECTATOR.test(player)) {
             return false;
         }
         if (candidate instanceof OwnableEntity ownable && ownable.getOwnerUUID() != null) {
@@ -64,8 +71,13 @@ public class HuntGoal extends Goal {
         if (!isPrey(hunter, candidate, prey)) {
             return false;
         }
+        Hunger.Drive drive = hunter.hungerDrive();
+        if (candidate instanceof Player && drive != Hunger.Drive.HUNTING) {
+            return false;
+        }
         HuntGoal probe = new HuntGoal(hunter, prey);
-        return HuntChoice.score(probe.prospect(candidate), hunter.ecology().huntRadius(), probe.packSize()) >= 0;
+        return HuntChoice.choose(List.of(probe.prospect(candidate)), hunter.ecology().huntRadius(),
+                probe.packSize(), drive) == 0;
     }
 
     private HuntChoice.Prey prospect(LivingEntity candidate) {
@@ -101,7 +113,9 @@ public class HuntGoal extends Goal {
         EcologyProfile ecology = creature.ecology();
         double radius = ecology.huntRadius();
         List<LivingEntity> found = creature.level().getEntitiesOfClass(LivingEntity.class,
-                creature.getBoundingBox().inflate(radius, 12.0, radius), other -> isPrey(creature, other, prey));
+                creature.getBoundingBox().inflate(radius, 12.0, radius),
+                other -> isPrey(creature, other, prey)
+                        && (!(other instanceof Player) || drive == Hunger.Drive.HUNTING));
         if (found.isEmpty()) {
             return null;
         }

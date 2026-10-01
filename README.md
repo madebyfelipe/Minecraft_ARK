@@ -3,6 +3,8 @@
 Mod de sobrevivência e domesticação para Minecraft Java Edition 1.20.1 (Forge 47.4.3): um mundo congelado, criaturas pré-históricas, torpor, domesticação, genética e um superpredador no fim.
 
 O design e as decisões técnicas estão em [CLOUD.md](CLOUD.md).
+As mecânicas de fome, caça, manadas, ameaças e rivalidade estão descritas em
+[docs/ecologia.html](docs/ecologia.html).
 
 ## Compatibilidade do modpack
 

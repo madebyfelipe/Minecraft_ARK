@@ -766,7 +766,9 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     public boolean killedEntity(ServerLevel level, LivingEntity victim) {
         boolean result = super.killedEntity(level, victim);
         Optional<BehaviorProfile> behavior = behavior();
-        if (!isTame() && behavior.isPresent() && behavior.get().prey().map(victim.getType()::is).orElse(false)) {
+        boolean playerMeal = victim instanceof Player && behavior.map(profile -> profile.prey().isPresent()).orElse(false);
+        boolean speciesPrey = behavior.flatMap(BehaviorProfile::prey).map(victim.getType()::is).orElse(false);
+        if (!isTame() && behavior.isPresent() && (speciesPrey || playerMeal)) {
             // Comeu: recupera vida e passa um tempo sem caçar, perto de onde abateu.
             lastMealTime = level.getGameTime();
             huntStartTime = -1;
@@ -1775,6 +1777,10 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         if (hurt && !level().isClientSide && !isTame()) {
             addStress(Stress.Event.HURT);
             stressHerd(Stress.Event.HERD_HURT);
+            if (isAlive() && !isUnconscious() && source.getEntity() instanceof LivingEntity attacker
+                    && !(attacker instanceof Player player && (player.isCreative() || player.isSpectator()))) {
+                setTarget(attacker);
+            }
             // Briga de rivais não é até a morte: quem fica fraco desiste e vai embora.
             if (source.getEntity() instanceof PrehistoricCreature rival && isRival(rival)
                     && getHealth() < getMaxHealth() * RIVAL_YIELD_HEALTH) {

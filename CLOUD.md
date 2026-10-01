@@ -650,7 +650,7 @@ O mundo do GameTest é plano e de bioma temperado, então o frio não chega a su
 | 2 | Core: níveis, atributos, ownership, persistência, registry de espécies | ✅ 2026-09-30 |
 | 3 | Domesticação com criatura de teste | ✅ 2026-09-30 (falta conferir no cliente) |
 | 4 | Smilodon | ✅ 2026-09-30, conferido em jogo pelo Felipe |
-| 5 | Mais criaturas, spawning | 🟡 Estegossauro, Pteranodonte, dodô e Elasmotério (início de jogo), migração de herbívoros, bônus de bando do Alossauro e ecologia dinâmica (fome, caçadas, estresse, rivais — D24) implementados; build e GameTests passam, falta conferir comportamento em jogo |
+| 5 | Mais criaturas, spawning | 🟡 Estegossauro, Pteranodonte, dodô e Elasmotério (início de jogo), migração de herbívoros, bônus de bando do Alossauro e ecologia dinâmica (fome, caçadas, estresse, rivais — D24) implementados; caça ao jogador controlada pela fome e revide selvagem ao sofrer dano cobertos por GameTests; falta conferir comportamento em jogo |
 | 6 | Temperatura | ✅ 2026-09-30 em testes automáticos; falta sentir o frio em jogo e balancear a primeira hora |
 | 7 | Montaria | 🟡 armazenamento por espécie, voo no estilo do Cobblemon, pulo sem barra de carga, montaria sem sela e More Hitboxes implementados; build e GameTests passam, falta conferir controles e hitboxes em jogo |
 | 8 | Reprodução e genética | ✅ 2026-09-30 em testes automáticos (genética em JUnit; acasalamento, gestação, ovo, incubadora, mesa química e estimulante em gametests); falta conferir em jogo |
@@ -680,6 +680,12 @@ Ver a tabela em [4](#4-decisões). Registro de mudanças estruturais:
   Carnívoros não caçavam herbívoros por três motivos: `large_prey` só tinha bichos do vanilla, o
   `NearestAttackableTargetGoal` fixava o alcance antes dos atributos da espécie, e a procura era
   rara e exigia vista.
+- 2026-10-01 — Interações ecológicas com jogadores e ameaças ativas: predadores só iniciam caça
+  ao jogador em sobrevivência quando estão no estado `HUNTING`; saciedade e caça oportunista não
+  os fazem perseguir jogadores. Criaturas selvagens capazes de lutar passam a mirar quem as feriu
+  imediatamente, exceto quando inconscientes ou atingidas por jogador criativo/espectador.
+  Herbívoros cautelosos reconhecem outra criatura selvagem agressiva como ameaça mesmo sem tag de
+  predador. GameTests também isolam jogadores simulados que sobraram de cenas anteriores.
 - 2026-10-01 — Spawn: o `Animal` só nascia em grama ou na luz, então à noite, na neve, a reposição
   e boa parte do spawn da geração falhavam (`checkSpawnRules` agora fica com `checkSurfaceSpawnRules`).
   Reposição escolhe a posição e depois as espécies do bioma dela, a cada 20 s, com rajada de 3

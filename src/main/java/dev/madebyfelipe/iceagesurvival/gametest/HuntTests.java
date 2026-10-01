@@ -26,19 +26,20 @@ import net.minecraftforge.gametest.PrefixGameTestTemplate;
 public class HuntTests {
     private static final String EMPTY = "empty";
     private static final String ARENA = "arena";
-    /** Uma hora sem comer: com fome de verdade. */
-    private static final long STARVING = 20L * 3600;
+    /** Uma hora sem comer: com fome de verdade (20 ticks por segundo). */
+    private static final long STARVING = 20L * 60 * 60;
 
     /** Raio da limpeza: o maior raio de caça, com folga. */
     private static final double STRAY_RADIUS = 128.0;
 
     /**
-     * Tira do mundo do gametest os bichos que fugiram de cenas anteriores para fora da arena (o
-     * gametest só limpa a própria estrutura). Sem isto, a caçada de uma cena vira atrás da presa
-     * de outra. Só para cenas com lote próprio: num lote compartilhado apagaria a cena vizinha.
+     * Tira do mundo do gametest os bichos e jogadores de teste que sobraram de cenas anteriores
+     * (o gametest só limpa a própria estrutura). Sem isto, a caçada de uma cena pode escolher um
+     * alvo de outra. Só para cenas com lote próprio: num lote compartilhado apagaria a cena vizinha.
      */
     static void clearStrays(GameTestHelper helper) {
         var center = helper.absoluteVec(new Vec3(12, 0, 12));
+        List.copyOf(helper.getLevel().players()).forEach(player -> player.discard());
         for (var stray : helper.getLevel().getEntitiesOfClass(net.minecraft.world.entity.Mob.class,
                 new net.minecraft.world.phys.AABB(center, center).inflate(STRAY_RADIUS, 64, STRAY_RADIUS),
                 mob -> true)) {
@@ -80,11 +81,21 @@ public class HuntTests {
         clearStrays(helper);
         LandCreature rex = hungry(helper, ModEntities.TYRANNOSAURUS.get(), 4, 3);
         LandCreature elasmo = helper.spawn(ModEntities.ELASMOTHERIUM.get(), 14, 0, 18);
+        helper.assertTrue(HuntGoal.wouldHunt(rex, elasmo,
+                        rex.behavior().orElseThrow().prey().orElseThrow()),
+                "o T-Rex faminto não considerou o Elasmotério isolado uma presa");
         helper.onEachTick(() -> {
             if (rex.getTarget() == elasmo && elasmo.isHunted() && rex.isHunting()) {
                 helper.succeed();
             }
         });
+        helper.runAtTickTime(290, () -> helper.fail("T-Rex não iniciou caçada: alvo=" + rex.getTarget()
+                + ", fome=" + rex.hungerDrive() + ", ticks desde refeição=" + rex.ticksSinceMeal()
+                + ", caça ativa=" + rex.isHunting() + ", presa avisada=" + elasmo.isHunted()
+                + ", navegação parada=" + rex.getNavigation().isDone()
+                + ", goals=" + rex.targetSelector.getAvailableGoals().stream()
+                        .map(goal -> goal.getGoal().getClass().getSimpleName() + (goal.isRunning() ? "*" : ""))
+                        .toList()));
     }
 
     /** Velociraptores em bando caçam Elasmotérios solitários, além dos dodôs. */
@@ -119,6 +130,27 @@ public class HuntTests {
                 + pack.stream().map(member -> String.valueOf(member.getTarget())).toList()
                 + ", fome " + raptor.hungerDrive() + ", intervalo " + raptor.ecology().hungerSeconds()
                 + ", caçado " + elasmotherium.isHunted() + ", matilha " + elasmotherium.huntingPack()));
+    }
+
+    /** Mesmo sem fome plena, um bando oportunista caça um Elasmotério isolado que está perto. */
+    @GameTest(template = ARENA, batch = "hunt_raptor_opportunistic", timeoutTicks = 240)
+    public static void opportunisticVelociraptorsHuntANearbyElasmotherium(GameTestHelper helper) {
+        clearStrays(helper);
+        List<LandCreature> pack = List.of(
+                helper.spawn(ModEntities.VELOCIRAPTOR.get(), 4, 0, 3),
+                helper.spawn(ModEntities.VELOCIRAPTOR.get(), 6, 0, 3),
+                helper.spawn(ModEntities.VELOCIRAPTOR.get(), 8, 0, 3),
+                helper.spawn(ModEntities.VELOCIRAPTOR.get(), 10, 0, 3));
+        pack.forEach(raptor -> raptor.setTicksSinceMeal(40 * 20L));
+        LandCreature elasmotherium = helper.spawn(ModEntities.ELASMOTHERIUM.get(), 12, 0, 10);
+        helper.assertTrue(pack.get(0).hungerDrive() == dev.madebyfelipe.iceagesurvival.core.ecology.Hunger.Drive.OPPORTUNISTIC,
+                "teste precisa começar no estado oportunista");
+        helper.onEachTick(() -> {
+            if (pack.stream().anyMatch(raptor -> raptor.getTarget() == elasmotherium)) {
+                helper.succeed();
+            }
+        });
+        helper.runAtTickTime(230, () -> helper.fail("o bando oportunista ignorou o Elasmotério próximo"));
     }
 
     /** Barriga cheia: o predador ignora a presa que passa ao lado. */

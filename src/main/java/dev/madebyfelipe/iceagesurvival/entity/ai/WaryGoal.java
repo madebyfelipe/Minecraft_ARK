@@ -310,7 +310,12 @@ public class WaryGoal extends Goal {
         if (other instanceof PrehistoricCreature predator && predator.isUnconscious()) {
             return false;
         }
-        return profile.threats().map(other.getType()::is).orElse(false);
+        boolean configuredThreat = profile.threats().map(other.getType()::is).orElse(false);
+        if (other instanceof PrehistoricCreature creature) {
+            return configuredThreat || !creature.isTame() && creature.isAggressive()
+                    && creature.wariness().isPresent();
+        }
+        return configuredThreat;
     }
 
     /** Distância entre as bordas dos corpos: os raios valem igual para um dodô e para um Brontossauro. */

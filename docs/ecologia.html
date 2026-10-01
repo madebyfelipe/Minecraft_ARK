@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Documentação técnica do sistema ecológico do Ice Age Survival: fome, caça, manadas, ameaças e rivalidade.">
+  <title>Ecologia — Ice Age Survival</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #10191b;
+      --panel: #182629;
+      --panel-soft: #1e3032;
+      --text: #e6efeb;
+      --muted: #afc1ba;
+      --accent: #8fd4bf;
+      --ice: #a9d9e8;
+      --line: #365153;
+      --warn: #f1cb85;
+      --code: #122022;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: radial-gradient(ellipse at 50% -15%, #284346 0, var(--bg) 55rem);
+      color: var(--text);
+      font-size: 1rem;
+      line-height: 1.7;
+    }
+
+    a { color: var(--ice); }
+    a:hover { color: #d1f1f7; }
+    code, pre { font-family: ui-monospace, "SFMono-Regular", Consolas, monospace; }
+    code {
+      padding: .1em .35em;
+      border: 1px solid var(--line);
+      border-radius: .35rem;
+      background: var(--code);
+      color: #c4eadb;
+      overflow-wrap: anywhere;
+    }
+
+    header, main, footer { width: min(100% - 2rem, 1080px); margin-inline: auto; }
+    header { padding: 4.5rem 0 2.5rem; }
+    header p { max-width: 720px; color: var(--muted); font-size: 1.15rem; }
+    main { padding-bottom: 4rem; }
+    footer { padding: 1.5rem 0 3rem; border-top: 1px solid var(--line); color: var(--muted); }
+    h1, h2, h3 { line-height: 1.2; letter-spacing: -.025em; }
+    h1 { max-width: 850px; margin: .7rem 0 1rem; font-size: clamp(2.3rem, 7vw, 4.8rem); }
+    h2 { margin-top: 3.2rem; font-size: clamp(1.6rem, 4vw, 2.2rem); }
+    h3 { margin-top: 0; font-size: 1.15rem; }
+    p, li { color: var(--muted); }
+    strong { color: var(--text); }
+    .eyebrow { color: var(--accent); font-size: .78rem; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; }
+    .lead { max-width: 760px; font-size: 1.12rem; }
+    .stamp { color: var(--muted); font-size: .9rem; }
+
+    .notice {
+      margin: 1.5rem 0;
+      padding: 1rem 1.2rem;
+      border: 1px solid #59746e;
+      border-left: 4px solid var(--accent);
+      border-radius: .6rem;
+      background: #172827;
+    }
+
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+    .card {
+      padding: 1.25rem;
+      border: 1px solid var(--line);
+      border-radius: .8rem;
+      background: linear-gradient(145deg, var(--panel), #142123);
+    }
+    .card p:last-child, .card ul:last-child { margin-bottom: 0; }
+    .tag { color: var(--accent); font-weight: 750; }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: .75rem;
+      margin: 1.5rem 0;
+      padding: 0;
+      list-style: none;
+      counter-reset: step;
+    }
+    .flow li {
+      position: relative;
+      min-height: 128px;
+      padding: 1rem;
+      border: 1px solid var(--line);
+      border-radius: .75rem;
+      background: var(--panel);
+      counter-increment: step;
+    }
+    .flow li::before {
+      content: "0" counter(step);
+      display: block;
+      margin-bottom: .55rem;
+      color: var(--accent);
+      font-size: .76rem;
+      font-weight: 800;
+      letter-spacing: .1em;
+    }
+
+    .table-wrap { overflow-x: auto; margin: 1.25rem 0; border: 1px solid var(--line); border-radius: .75rem; }
+    table { width: 100%; border-collapse: collapse; background: var(--panel); }
+    th, td { padding: .85rem 1rem; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+    th { color: var(--text); background: var(--panel-soft); font-size: .88rem; }
+    td { color: var(--muted); }
+    tr:last-child td { border-bottom: 0; }
+
+    .formula {
+      display: block;
+      margin: 1rem 0;
+      padding: 1rem 1.2rem;
+      border: 1px solid var(--line);
+      border-radius: .65rem;
+      background: var(--code);
+      color: #d1eee3;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .small { font-size: .9rem; }
+    @media (max-width: 760px) {
+      .grid { grid-template-columns: 1fr; }
+      .flow { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      header { padding-top: 3rem; }
+    }
+    @media (max-width: 440px) {
+      .flow { grid-template-columns: 1fr; }
+      header, main, footer { width: min(100% - 1.25rem, 1080px); }
+      th, td { padding: .7rem; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="eyebrow">Ice Age Survival · documentação técnica</div>
+    <h1>Ecologia de predadores, presas e manadas</h1>
+    <p class="lead">As criaturas selvagens não são apenas spawns decorativos: fome, tamanho, distância, estado do grupo e risco de ferimento definem quando caçam, enfrentam uma ameaça ou tentam escapar.</p>
+    <div class="stamp">Revisão: 1 de outubro de 2026 · Minecraft 1.20.1 / Forge</div>
+  </header>
+
+  <main>
+    <aside class="notice">
+      <strong>Regra central:</strong> o servidor escolhe as decisões de IA. Caçar exige um perfil
+      de presa e um estado de fome compatível; domesticação remove a criatura da ecologia selvagem.
+      O jogador é uma entidade do mundo: carnívoros só o escolhem como presa quando estão realmente
+      famintos, mas ainda podem revidar se forem atacados.
+    </aside>
+
+    <h2>1. Caminho de uma interação</h2>
+    <ol class="flow">
+      <li><strong>Percepção</strong><br>Tags, raio de alerta, distância entre corpos e estresse determinam se a criatura nota o outro animal.</li>
+      <li><strong>Contexto</strong><br>A IA verifica fome, tamanho relativo, ferimentos, filhotes, manada e agressividade atual.</li>
+      <li><strong>Decisão</strong><br>O resultado pode ser ignorar, observar, recuar, fugir, blefar, investir ou iniciar uma caça.</li>
+      <li><strong>Consequência</strong><br>A presa pode fugir e avisar a manada; o predador pode perseguir, desistir, se ferir ou se alimentar.</li>
+    </ol>
+    <p>O sistema separa <em>ameaça</em>, <em>presa</em> e <em>rival</em>. Uma criatura pode ser presa sem ser rival; outra espécie pode ser uma ameaça sem entrar na dieta. As relações de espécie são declaradas em tags e nos perfis JSON, enquanto os algoritmos de escolha ficam no núcleo ecológico.</p>
+
+    <h2>2. Fome e caça</h2>
+    <p>O predador acumula tempo desde a última refeição. A fome não é uma barra de manutenção e não causa dano: ela regula a disposição de procurar presas. Após uma morte válida de presa, o predador se alimenta, recupera parte da vida e entra no período de saciedade configurado.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Estado</th><th>Comportamento</th><th>Implicação</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Saciado</strong></td><td>Não procura presas, mesmo que passem perto.</td><td>O tempo vem de <code>behavior.sated_seconds</code>; padrão atual de 180 s, salvo ajuste da espécie.</td></tr>
+          <tr><td><strong>Oportunista</strong></td><td>Não percorre todo o raio de caça; pode atacar uma presa próxima e fácil, como filhote, ferida ou isolada.</td><td>A busca usa uma fração do raio e exige pontuação mínima.</td></tr>
+          <tr><td><strong>Caçando</strong></td><td>Procura pelo faro dentro de <code>ecology.hunt_radius</code> e inicia perseguição.</td><td>O alvo pode escapar se abrir distância ou se o predador ficar sem fôlego.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>As buscas são espaçadas para reduzir custo: o goal faz varreduras em intervalos de dezenas de ticks, não a cada quadro. A busca não depende de linha de visão; vegetação pode bloquear a visão sem apagar o cheiro. A perseguição, por outro lado, tem duração máxima (<code>chase_seconds</code>) e limite de distância.</p>
+
+    <h3>Como uma presa é avaliada</h3>
+    <ul>
+      <li><strong>Vulnerabilidade:</strong> filhotes, animais feridos e indivíduos isolados recebem preferência.</li>
+      <li><strong>Porte:</strong> o porte é estimado pela caixa de colisão. Uma presa muito maior é rejeitada por um caçador solitário; o bando aumenta a capacidade de caça.</li>
+      <li><strong>Distância:</strong> mais perto é melhor. No modo oportunista, alvos distantes são descartados.</li>
+      <li><strong>Segurança:</strong> criaturas domesticadas, inconscientes ou da mesma espécie não são presas.</li>
+    </ul>
+    <code class="formula">capacidade do caçador = 1,3 + 1,25 × (membros do bando − 1)
+                     + 1,0 se a presa estiver isolada</code>
+    <p class="small">A relação compara áreas aproximadas derivadas do volume da hitbox. É um limite de seleção, não uma garantia de vitória: vida, ataque, movimento e terreno continuam importantes.</p>
+
+    <h2>3. Caçada em bando e resposta da presa</h2>
+    <p>Quando um caçador de bando inicia uma caçada, ele chama membros selvagens da mesma espécie por perto. A presa e seus companheiros recebem um aviso temporário de que estão sendo caçados. O aviso eleva o estresse e ativa a resposta de fuga, sem exigir que cada indivíduo veja diretamente o atacante.</p>
+    <div class="grid">
+      <article class="card">
+        <h3>Predador em grupo</h3>
+        <p>Raptores e Alossauros podem avaliar uma presa maior em conjunto. A matilha é contada localmente; não há um objeto global de “bando” a sincronizar.</p>
+      </article>
+      <article class="card">
+        <h3>Manada ameaçada</h3>
+        <p>O aviso se propaga aos membros selvagens próximos da mesma espécie. O tamanho e o número de predadores aumentam a chance de fuga em vez de confronto.</p>
+      </article>
+      <article class="card">
+        <h3>Defesa quando ferida</h3>
+        <p>Com <code>group_defense</code>, companheiros selvagens da mesma espécie e sem alvo podem atacar quem feriu um deles. Criaturas domesticadas não entram na defesa da fauna selvagem.</p>
+      </article>
+      <article class="card">
+        <h3>Território e fôlego</h3>
+        <p>O território limita passeio e perseguição normal. Uma caçada pode sair temporariamente dele, mas continua limitada por fôlego e distância; se falhar, há uma pausa antes de tentar novamente.</p>
+      </article>
+    </div>
+
+    <h2>4. Lutar ou fugir</h2>
+    <p>Espécies com <code>behavior.wariness</code> avaliam ameaças numa faixa de percepção. A decisão considera a distância entre as bordas das hitboxes, a proporção de tamanho, se o alvo está se aproximando, se há filhote por perto e se a criatura foi surpreendida. O estresse amplia a percepção e torna as reações mais imprevisíveis.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Sinal</th><th>Resposta provável</th></tr></thead>
+        <tbody>
+          <tr><td>Alvo grande demais (razão de área ≥ 1,5)</td><td>Fuga, mesmo para espécies que normalmente investem.</td></tr>
+          <tr><td>Perseguição por vários caçadores ou por ameaça de porte relevante</td><td>A presa dispara; o alerta pode alcançar a manada.</td></tr>
+          <tr><td>Ameaça dentro do raio de investida</td><td>Investida defensiva. Se a criatura foi surpreendida muito perto, pode atacar sem blefar.</td></tr>
+          <tr><td>Ameaça se aproxima e ainda há distância</td><td>Blefe, investida ou recuo, conforme as chances da espécie.</td></tr>
+          <tr><td>Ameaça detectada sem pressão imediata</td><td>Alerta: para, olha e pode emitir um som de aviso.</td></tr>
+          <tr><td>Filhote próximo</td><td>Percepção maior e defesa mais determinada; filhotes, por sua vez, fogem.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>O recuo é movimento calmo; a fuga corre e recalcula a rota. A investida mira além do alvo, pode acertar com o ataque da espécie e, às vezes, vira combate contínuo. Um indivíduo ferido abaixo de <code>flee_health_fraction</code> também pode entrar em pânico e fugir do agressor.</p>
+    <p>Uma criatura com perfil de reação que está de fato agressiva (por exemplo, um herbívoro no meio de uma investida) pode ser reconhecida como ameaça por outra espécie cautelosa. Isso permite que uma criatura pequena fuja de um grande herbívoro que a esteja ameaçando, ainda que esse herbívoro não pertença à tag geral de predadores.</p>
+
+    <h2>5. O jogador faz parte da cadeia ecológica</h2>
+    <div class="grid">
+      <article class="card">
+        <h3>Carnívoro faminto</h3>
+        <p>Para um carnívoro com perfil de presas, o goal de alvo ao jogador só pode selecioná-lo no estado <strong>Caçando</strong>. A caça oportunista e a saciedade não iniciam uma perseguição ao jogador. O goal ecológico também pode encontrá-lo durante a busca faminta, inclusive sem linha de visão.</p>
+      </article>
+      <article class="card">
+        <h3>Carnívoro saciado ou atacado</h3>
+        <p>Sem fome, não inicia uma caça ao jogador. Se o jogador o ferir, a defesa/retaliação continua ativa: isso é resposta a agressão, não uma caçada por fome. Criativo e espectador não são presas.</p>
+      </article>
+      <article class="card">
+        <h3>Herbívoro cauteloso</h3>
+        <p>Espécies com <code>wariness.players</code> percebem o jogador como perceberiam outra ameaça: podem observar, recuar, fugir, blefar ou defender o filhote. Agachar reduz o alcance de detecção conforme <code>sneak_factor</code>.</p>
+      </article>
+      <article class="card">
+        <h3>Domesticação</h3>
+        <p>O ecossistema se refere a indivíduos selvagens. Criaturas domesticadas não são caçadas; ordens, dono e defesa do dono seguem as regras próprias de domesticação.</p>
+      </article>
+    </div>
+
+    <h2>6. Rivalidade entre predadores</h2>
+    <p>Rivalidade territorial é separada de caça. Uma tag <code>rivals_*</code> identifica oponentes e <code>rival_radius</code> define a proximidade que provoca a disputa. Ver o rival estressa; o indivíduo de maior dominância pode desafiá-lo. Dominância usa vida e ataque, com bônus de grupo quando aplicável.</p>
+    <ul>
+      <li>O rival mais fraco pode ceder e fugir por um período.</li>
+      <li>Se a disputa vira combate, quem cai abaixo de metade da vida desiste; rivais não devem lutar até a morte.</li>
+      <li>As chances de iniciar confronto dependem de estresse e saciedade; uma simples proximidade não garante uma briga.</li>
+    </ul>
+
+    <h2>7. Exemplos da fauna</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Encontro</th><th>Resultado esperado</th><th>Condição importante</th></tr></thead>
+        <tbody>
+          <tr><td>Velociraptores × Elasmotério</td><td>Um bando pode caçar o indivíduo isolado; o Elasmotério reage e tenta escapar ou se defender.</td><td>Caça normal depende da fome; oportunistas priorizam presas fáceis e próximas. O Elasmotério não deve estar domesticado.</td></tr>
+          <tr><td>Velociraptores × Brontossauro agressivo</td><td>O Brontossauro pode investir; os raptores reconhecem a investida como ameaça e fogem pelo porte.</td><td>Um Brontossauro apenas parado e distante não está necessariamente ameaçando-os.</td></tr>
+          <tr><td>Alossauros × mamutes</td><td>O bando pode encarar presa grande; os mamutes caçados recebem o aviso e a manada foge.</td><td>A seleção depende do tamanho do bando; a resposta da manada depende do número e porte dos atacantes.</td></tr>
+          <tr><td>T-Rex × Brontossauro</td><td>O T-Rex solitário prefere o Brontossauro desgarrado em vez de entrar diretamente no meio da manada.</td><td>A avaliação de isolamento é local, usando a proximidade de indivíduos da mesma espécie.</td></tr>
+          <tr><td>T-Rex × Elasmotério</td><td>Um T-Rex faminto pode iniciar a caça; o Elasmotério, muito menor, foge.</td><td>Uma perseguição não continua indefinidamente: há limite de fôlego e de distância.</td></tr>
+          <tr><td>Predador × predador rival</td><td>Disputa de território, desafio ou recuo.</td><td>Somente espécies explicitamente relacionadas pela tag de rivalidade entram nessa mecânica.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>8. Dados e implementação</h2>
+    <p>O comportamento é carregado do JSON de cada espécie. O código da entidade fornece goals reutilizáveis; tags de tipos de entidade definem presas, ameaças e rivais sem espalhar comparações por nome de espécie.</p>
+    <ul>
+      <li><code>behavior.prey</code>: tag de entidades que podem ser caçadas.</li>
+      <li><code>behavior.ecology.hunt_radius</code>, <code>hunger_seconds</code> e <code>chase_seconds</code>: alcance, fome e fôlego.</li>
+      <li><code>behavior.herd_radius</code>, <code>group_defense</code> e <code>migrates</code>: agrupamento, defesa e deslocamento.</li>
+      <li><code>behavior.wariness</code>: ameaças, alcance, chances de recuo/blefe/investida, velocidades e resposta perto de filhotes.</li>
+      <li><code>behavior.ecology.rivals</code> e <code>rival_radius</code>: oponentes territoriais.</li>
+      <li><code>behavior.flee_health_fraction</code>: limiar de fuga quando ferida.</li>
+    </ul>
+    <p>Implementação principal: <a href="../src/main/java/dev/madebyfelipe/iceagesurvival/entity/ai/HuntGoal.java"><code>HuntGoal</code></a>, <a href="../src/main/java/dev/madebyfelipe/iceagesurvival/entity/ai/WaryGoal.java"><code>WaryGoal</code></a>, <a href="../src/main/java/dev/madebyfelipe/iceagesurvival/entity/ai/RivalryGoal.java"><code>RivalryGoal</code></a>, <a href="../src/main/java/dev/madebyfelipe/iceagesurvival/core/ecology/ThreatResponse.java"><code>ThreatResponse</code></a> e <a href="../src/main/java/dev/madebyfelipe/iceagesurvival/core/ecology/HuntChoice.java"><code>HuntChoice</code></a>. Os perfis por espécie ficam em <a href="../src/main/resources/data/iceagesurvival/iceagesurvival/species/"><code>species/</code></a> e as relações em <a href="../src/main/resources/data/iceagesurvival/tags/entity_types/"><code>tags/entity_types/</code></a>.</p>
+
+    <h2>9. Limites e leitura de comportamento</h2>
+    <ul>
+      <li>Nem todo encontro vira ataque: saciedade, raio de caça, porte, isolação, estresse e estado de agressão filtram a resposta.</li>
+      <li>Caçar exige um goal ativo e um alvo válido; fauna domesticada, inconsciente, morta ou fora dos critérios é ignorada.</li>
+      <li>O alerta é um estado de IA, não uma garantia de que a criatura acertará um golpe. Terreno, caminho e colisões podem mudar o resultado.</li>
+      <li>O território regula passeio, mas o comportamento de manada e a caça podem mover temporariamente os animais para fora da área de repouso.</li>
+      <li>Os intervalos evitam varreduras a cada tick. Assim, perceber uma ameaça ou escolher uma presa pode levar alguns ticks após a entrada no raio.</li>
+    </ul>
+
+    <aside class="notice">
+      <strong>Testes de regressão:</strong> <code>./gradlew build</code> cobre as regras puras
+      (fome, seleção de presa e reação por porte); <code>./gradlew runGameTestServer</code> cobre
+      interações no servidor, incluindo matilha faminta, presa que foge, jogador como alvo de caça
+      somente com fome e retaliação após agressão.
+    </aside>
+  </main>
+
+  <footer>
+    <p>Documentação do projeto Ice Age Survival. Para decisões e roadmap completos, consulte <a href="../CLOUD.md">CLOUD.md</a>.</p>
+  </footer>
+</body>
+</html>
