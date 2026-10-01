@@ -70,7 +70,7 @@
     "seat_forward": 2.4,
     "min_affinity": 25,
     "speed_multiplier": 0.8,
-    "break_hardness": 1.5
+    "break_hardness": 2.0
   },
   "spawn": {
     "biomes": "#iceagesurvival:spawns_spinosaurus",

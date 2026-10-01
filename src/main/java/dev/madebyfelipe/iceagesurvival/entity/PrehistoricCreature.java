@@ -30,6 +30,7 @@ import dev.madebyfelipe.iceagesurvival.species.StorageProfile;
 import dev.madebyfelipe.iceagesurvival.species.WarinessProfile;
 import dev.madebyfelipe.iceagesurvival.species.FamilyProfile;
 import dev.madebyfelipe.iceagesurvival.core.mount.FlightModel;
+import dev.madebyfelipe.iceagesurvival.core.mount.MountedReach;
 import dev.madebyfelipe.iceagesurvival.species.TamingProfile;
 import dev.madebyfelipe.iceagesurvival.menu.CreatureStorageMenu;
 import java.util.Optional;
@@ -172,9 +173,9 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     /** Item que sela uma criatura montável. */
     public static final net.minecraft.world.item.Item SADDLE_ITEM = Items.SADDLE;
     /** Alcance da mordida de quem monta, a partir da caixa de colisão da criatura. */
-    public static final double RIDDEN_ATTACK_REACH = 3.0;
+    /** Alcance mínimo do golpe montado; o de cada montaria é {@link #riddenReach()}. */
+    public static final double RIDDEN_ATTACK_REACH = MountedReach.BASE_REACH;
     /** Quantos blocos à frente do corpo a mordida de quem monta quebra. */
-    private static final double BITE_DEPTH = 2.0;
     /** Ticks entre dois ataques de quem monta. */
     private static final int RIDDEN_ATTACK_COOLDOWN = 20;
     /** Recuo da ré de quem monta, como no cavalo: andar para trás é bem mais lento. */
@@ -1271,8 +1272,8 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         if (rider instanceof ServerPlayer serverRider) {
             breakBlocksInBite(serverRider);
         }
-        LivingEntity victim = canBiteAsMount(rider, target) ? target : level()
-                .getEntitiesOfClass(LivingEntity.class, biteArea(), candidate -> canBiteAsMount(rider, candidate))
+        LivingEntity victim = canBiteAsMount(rider, target, true) ? target : level()
+                .getEntitiesOfClass(LivingEntity.class, biteArea(), candidate -> canBiteAsMount(rider, candidate, false))
                 .stream().min(java.util.Comparator.comparingDouble(this::distanceToSqr)).orElse(null);
         if (victim != null) {
             attackSwung = true;
@@ -1285,7 +1286,11 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         return true;
     }
 
-    private boolean canBiteAsMount(Player rider, @Nullable LivingEntity target) {
+    /**
+     * @param aimed o alvo veio da mira de quem monta: vale em qualquer direção ao alcance; sem
+     *              mira, só o que estiver no cone à frente
+     */
+    private boolean canBiteAsMount(Player rider, @Nullable LivingEntity target, boolean aimed) {
         if (target == null || target == this || target == rider || !target.isAlive() || hasPassenger(target)) {
             return false;
         }
@@ -1295,12 +1300,23 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         if (target instanceof Player other && !rider.canHarmPlayer(other)) {
             return false;
         }
-        return getBoundingBox().inflate(RIDDEN_ATTACK_REACH).intersects(target.getBoundingBox());
+        if (!getBoundingBox().inflate(riddenReach()).intersects(target.getBoundingBox())) {
+            return false;
+        }
+        Vec3 facing = Vec3.directionFromRotation(0.0F, getYRot());
+        Vec3 to = target.position().subtract(position());
+        return aimed || MountedReach.inBiteCone(facing.x, facing.z, to.x, to.z);
     }
 
-    /** O corpo esticado para a frente pelo alcance da mordida. */
+    /** Alcance do golpe montado, a partir da borda do corpo: cresce com o tamanho da montaria. */
+    public double riddenReach() {
+        return MountedReach.reach(getBbWidth());
+    }
+
+    /** Em volta do corpo pelo alcance da mordida, descendo um pouco: pega o bicho baixo à frente. */
     private AABB biteArea() {
-        return getBoundingBox().expandTowards(Vec3.directionFromRotation(0.0F, getYRot()).scale(RIDDEN_ATTACK_REACH));
+        double reach = riddenReach();
+        return getBoundingBox().inflate(reach, 0.0, reach).expandTowards(0.0, -1.5, 0.0);
     }
 
     /**
@@ -1319,11 +1335,12 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         Vec3 forward = Vec3.directionFromRotation(0.0F, getYRot());
         Vec3 side = new Vec3(-forward.z, 0.0, forward.x);
         double halfWidth = getBbWidth() / 2.0;
+        double sideReach = halfWidth + MountedReach.BREAK_SIDE_MARGIN;
         int minY = Mth.floor(getY() + 0.01);
         int maxY = Mth.floor(getY() + getBbHeight() - 0.01);
         java.util.Set<BlockPos> bitten = new java.util.LinkedHashSet<>();
-        for (double depth = halfWidth + 0.5; depth <= halfWidth + BITE_DEPTH; depth += 1.0) {
-            for (double lateral = -halfWidth; lateral <= halfWidth + 1.0E-3; lateral += Math.min(1.0, halfWidth)) {
+        for (double depth = halfWidth + 0.5; depth <= halfWidth + MountedReach.breakDepth(getBbWidth()); depth += 0.5) {
+            for (double lateral = -sideReach; lateral <= sideReach + 1.0E-3; lateral += 0.5) {
                 Vec3 column = position().add(forward.scale(depth)).add(side.scale(lateral));
                 for (int y = minY; y <= maxY; y++) {
                     bitten.add(BlockPos.containing(column.x, y, column.z));

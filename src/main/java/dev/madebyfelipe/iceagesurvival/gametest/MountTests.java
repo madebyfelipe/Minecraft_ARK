@@ -158,7 +158,7 @@ public class MountTests {
 
         helper.assertBlockNotPresent(Blocks.DIRT, 4, 2, 6);
         helper.assertBlockNotPresent(Blocks.STONE, 4, 3, 7);
-        helper.assertBlockPresent(Blocks.OAK_LOG, 3, 4, 6);
+        helper.assertBlockNotPresent(Blocks.OAK_LOG, 3, 4, 6);
         helper.assertBlockPresent(Blocks.OBSIDIAN, 5, 2, 7);
         helper.assertBlockPresent(Blocks.CHEST, 5, 3, 6);
         helper.assertBlockPresent(Blocks.DIRT, 4, 2, 11);
@@ -195,6 +195,26 @@ public class MountTests {
         helper.assertTrue(smilodon.attackAsMount(owner, null), "a mordida deveria sair sem alvo");
         helper.assertBlockPresent(Blocks.DIRT, 1, 2, 3);
         helper.succeed();
+    }
+
+    /** O Smilodon montado acerta, sem mira, o dodô baixo à frente e na diagonal; o de trás, não. */
+    @GameTest(template = EMPTY)
+    public static void smilodonBiteReachesADodoInFront(GameTestHelper helper) {
+        Player owner = PredatorTests.survivalPlayer(helper);
+        LandCreature smilodon = mounted(helper, owner, ModEntities.SMILODON.get());
+        LandCreature ahead = helper.spawnWithNoFreeWill(ModEntities.DODO.get(), 4, 0, 9);
+        LandCreature behind = helper.spawnWithNoFreeWill(ModEntities.DODO.get(), 4, 0, 1);
+        helper.assertTrue(smilodon.attackAsMount(owner, null), "a mordida deveria sair sem alvo");
+        helper.assertTrue(ahead.getHealth() < ahead.getMaxHealth(), "dodô 5 blocos à frente não foi mordido");
+        helper.assertTrue(behind.getHealth() == behind.getMaxHealth(), "dodô atrás foi mordido");
+
+        LandCreature diagonal = helper.spawnWithNoFreeWill(ModEntities.DODO.get(), 7, 0, 8);
+        ahead.discard();
+        helper.runAfterDelay(21, () -> {
+            helper.assertTrue(smilodon.attackAsMount(owner, null), "a recarga deveria ter passado");
+            helper.assertTrue(diagonal.getHealth() < diagonal.getMaxHealth(), "dodô na diagonal não foi mordido");
+            helper.succeed();
+        });
     }
 
     @GameTest(template = EMPTY)
