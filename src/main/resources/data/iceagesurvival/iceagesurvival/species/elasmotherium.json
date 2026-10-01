@@ -97,10 +97,10 @@
   },
   "spawn": {
     "biomes": "#iceagesurvival:spawns_elasmotherium",
-    "weight": 6,
+    "weight": 12,
     "group_min": 1,
     "group_max": 1,
-    "max_nearby": 4,
+    "max_nearby": 10,
     "min_distance": 0,
     "family": {
       "calf_chance": 0.2,

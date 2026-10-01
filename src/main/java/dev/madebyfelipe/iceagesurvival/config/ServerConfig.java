@@ -39,7 +39,7 @@ public final class ServerConfig {
 
     public static final ForgeConfigSpec.IntValue WILD_SPAWN_INTERVAL_SECONDS = BUILDER
             .comment("Segundos entre duas tentativas de reposição de fauna por jogador.")
-            .defineInRange("wildSpawnIntervalSeconds", 20, 5, 3600);
+            .defineInRange("wildSpawnIntervalSeconds", 8, 5, 3600);
 
     public static final ForgeConfigSpec.IntValue WILD_SPAWN_MIN_DISTANCE = BUILDER
             .comment("Distância mínima do jogador para uma criatura nascer, para não aparecer à vista.")
@@ -55,7 +55,7 @@ public final class ServerConfig {
 
     public static final ForgeConfigSpec.IntValue WILD_SPAWN_MAX_TOTAL = BUILDER
             .comment("Teto de criaturas selvagens do mod, somando todas as espécies, no raio de densidade de um jogador.")
-            .defineInRange("wildSpawnMaxTotal", 40, 0, 200);
+            .defineInRange("wildSpawnMaxTotal", 72, 0, 200);
 
     public static final ForgeConfigSpec.IntValue FULL_DANGER_DISTANCE = BUILDER
             .comment("Distância do spawn do mundo em que criaturas selvagens já nascem com o nível máximo. No spawn, até 30% dele.")

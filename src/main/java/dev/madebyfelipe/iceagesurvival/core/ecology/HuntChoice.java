@@ -13,7 +13,7 @@ public final class HuntChoice {
     /** Presa com área de colisão até este tanto da do caçador sozinho: dá conta. */
     public static final double SOLO_MAX_SIZE_RATIO = 1.3;
     /** Cada caçador do bando soma este tanto ao tamanho de presa que o bando encara. */
-    public static final double PACK_SIZE_PER_HUNTER = 1.2;
+    public static final double PACK_SIZE_PER_HUNTER = 1.25;
     /** Desgarrada, até uma presa bem maior fica vulnerável: o T-Rex pega o Brontossauro sozinho. */
     public static final double ISOLATED_SIZE_BONUS = 1.0;
     /** Oportunista só ataca presa fácil e a até esta fração do raio de caça. */

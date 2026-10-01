@@ -80,7 +80,7 @@ public final class WildSpawner {
     /** Com a região abaixo desta fração do teto, a reposição faz nascer vários grupos de uma vez. */
     private static final double SPARSE_FRACTION = 0.5;
     /** Grupos por tentativa com a região esparsa (um mundo recém-criado, uma área recém-explorada). */
-    private static final int SPARSE_GROUPS = 3;
+    private static final int SPARSE_GROUPS = 5;
 
     /** Como {@link #trySpawnAround(ServerLevel, ServerPlayer)}, com as distâncias dadas. */
     public static int trySpawnAround(ServerLevel level, ServerPlayer player, int minDistance, int maxDistance) {

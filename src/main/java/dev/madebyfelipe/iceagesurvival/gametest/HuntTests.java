@@ -3,6 +3,7 @@ package dev.madebyfelipe.iceagesurvival.gametest;
 import dev.madebyfelipe.iceagesurvival.IceAgeSurvival;
 import dev.madebyfelipe.iceagesurvival.core.ecology.Stress;
 import dev.madebyfelipe.iceagesurvival.entity.LandCreature;
+import dev.madebyfelipe.iceagesurvival.entity.ai.HuntGoal;
 import dev.madebyfelipe.iceagesurvival.registry.ModEntities;
 import java.util.List;
 import net.minecraft.gametest.framework.GameTest;
@@ -86,19 +87,38 @@ public class HuntTests {
         });
     }
 
-    /** Velociraptores em bando caçam dodôs. */
+    /** Velociraptores em bando caçam Elasmotérios solitários, além dos dodôs. */
     @GameTest(template = ARENA, batch = "hunt_raptor", timeoutTicks = 300)
-    public static void velociraptorsHuntDodos(GameTestHelper helper) {
+    public static void velociraptorsHuntAnElasmotherium(GameTestHelper helper) {
         clearStrays(helper);
-        LandCreature raptor = hungry(helper, ModEntities.VELOCIRAPTOR.get(), 4, 3);
-        hungry(helper, ModEntities.VELOCIRAPTOR.get(), 6, 3);
-        LandCreature dodo = helper.spawn(ModEntities.DODO.get(), 12, 0, 16);
-        helper.spawn(ModEntities.DODO.get(), 14, 0, 17);
+        List<LandCreature> pack = List.of(hungry(helper, ModEntities.VELOCIRAPTOR.get(), 4, 3),
+                hungry(helper, ModEntities.VELOCIRAPTOR.get(), 6, 3),
+                hungry(helper, ModEntities.VELOCIRAPTOR.get(), 8, 3),
+                hungry(helper, ModEntities.VELOCIRAPTOR.get(), 10, 3));
+        LandCreature raptor = pack.get(0);
+        LandCreature elasmotherium = helper.spawn(ModEntities.ELASMOTHERIUM.get(), 12, 0, 16);
+        boolean wouldHunt = HuntGoal.wouldHunt(raptor, elasmotherium,
+                raptor.behavior().orElseThrow().prey().orElseThrow());
+        helper.assertTrue(wouldHunt, "um bando faminto de velociraptores deveria escolher o Elasmotério; prey="
+                + HuntGoal.isPrey(raptor, elasmotherium, raptor.behavior().orElseThrow().prey().orElseThrow())
+                + ", isolado=" + elasmotherium.isIsolated() + ", distância=" + raptor.distanceTo(elasmotherium)
+                + ", bando=" + (1 + helper.getLevel().getEntitiesOfClass(LandCreature.class,
+                        raptor.getBoundingBox().inflate(raptor.behavior().orElseThrow().herdRadius()),
+                        other -> other != raptor && other.getType() == ModEntities.VELOCIRAPTOR.get()
+                                && !other.isTame() && !other.isBaby() && !other.isUnconscious()).size())
+                + ", razão tamanho=" + Math.pow((elasmotherium.getBbWidth() * elasmotherium.getBbWidth()
+                        * elasmotherium.getBbHeight())
+                        / (raptor.getBbWidth() * raptor.getBbWidth() * raptor.getBbHeight()), 2.0 / 3.0));
         helper.onEachTick(() -> {
-            if (raptor.getTarget() != null && raptor.getTarget().getType() == ModEntities.DODO.get() && dodo.isHunted()) {
+            long pursuing = pack.stream().filter(member -> member.getTarget() == elasmotherium).count();
+            if (pursuing >= 2 && elasmotherium.isHunted() && elasmotherium.huntingPack() >= 2) {
                 helper.succeed();
             }
         });
+        helper.runAtTickTime(290, () -> helper.fail("matilha não perseguiu: alvos "
+                + pack.stream().map(member -> String.valueOf(member.getTarget())).toList()
+                + ", fome " + raptor.hungerDrive() + ", intervalo " + raptor.ecology().hungerSeconds()
+                + ", caçado " + elasmotherium.isHunted() + ", matilha " + elasmotherium.huntingPack()));
     }
 
     /** Barriga cheia: o predador ignora a presa que passa ao lado. */

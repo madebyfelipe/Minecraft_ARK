@@ -102,6 +102,13 @@ class EcologyCoreTest {
     }
 
     @Test
+    void fourHuntersCanTakeAnIsolatedElasmotherium() {
+        List<HuntChoice.Prey> elasmotherium = List.of(adult(16, 5.93, true));
+        assertEquals(-1, HuntChoice.choose(elasmotherium, 64, 3, Hunger.Drive.HUNTING));
+        assertEquals(0, HuntChoice.choose(elasmotherium, 64, 4, Hunger.Drive.HUNTING));
+    }
+
+    @Test
     void calvesAndWoundedAreFavoured() {
         List<HuntChoice.Prey> options = List.of(
                 adult(10, 0.5, true),

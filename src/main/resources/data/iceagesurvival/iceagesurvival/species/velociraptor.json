@@ -63,28 +63,35 @@
   },
   "behavior": {
     "aggressive": true,
-    "aggro_radius": 18,
+    "aggro_radius": 24,
     "territory_radius": 40,
     "flee_health_fraction": 0.3,
     "herd_radius": 10,
     "group_defense": true,
-    "prey": "#iceagesurvival:small_prey",
+    "prey": "#iceagesurvival:velociraptor_prey",
+    "hunt_style": "chase",
     "ecology": {
-      "hunt_radius": 48,
-      "hunger_seconds": 240,
-      "chase_seconds": 25,
+      "hunt_radius": 64,
+      "hunger_seconds": 120,
+      "chase_seconds": 30,
       "rivals": "#iceagesurvival:rivals_velociraptor",
       "rival_radius": 28,
       "nervousness": 1.1
     }
   },
+  "pack_bonus": {
+    "radius": 16,
+    "minimum_allies": 1,
+    "speed_multiplier": 0.25,
+    "attack_multiplier": 0.25
+  },
   "spawn": {
     "biomes": "#iceagesurvival:spawns_velociraptor",
-    "weight": 3,
-    "group_min": 3,
-    "group_max": 4,
-    "max_nearby": 5,
-    "min_distance": 400
+    "weight": 16,
+    "group_min": 4,
+    "group_max": 6,
+    "max_nearby": 14,
+    "min_distance": 0
   },
   "sounds": {
     "attack": "minecraft:entity.fox.bite",

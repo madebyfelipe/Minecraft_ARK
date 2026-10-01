@@ -41,7 +41,7 @@ Fora de escopo: máquinas, árvores tecnológicas, dezenas de armaduras, arsenal
 | D3 | **GeckoLib 4.7.2** | Build Forge para Minecraft 1.20.1, padrão de animação das criaturas e integração com More Hitboxes. | Fechada |
 | D4 | Gameplay, dados e código de criaturas são nossos; F&A Revival só fornece assets carregados em runtime | Não copiar código, modelos, texturas, animações ou sons. A dependência foi aceita após a migração para 1.20.1 Forge, exclusivamente para resolver assets do mod instalado pelo jogador; domesticação, progressão e IA continuam próprias. | Fechada; substitui a decisão inicial de não depender de fauna |
 | D5 | Temperatura: **sistema interno leve**, atrás de uma interface | Cold Sweat é muito mais complexo do que o brief pede ("secundária, sem burocracia"). Ver [15](#15-temperatura). | Fechada na Etapa 6 — `ColdSource` continua de pé |
-| D6 | Mundo glacial por **world preset próprio em datapack**, sem mod de worldgen obrigatório | Um preset com a fonte de biomas restrita a biomas frios resolve "mundo predominantemente congelado" sem dependência. Ver [18](#18-worldgen). | Fechada na Etapa 9 — o preset embrulha o overworld do vanilla numa fonte de biomas que troca os quentes pelos frios (`iceagesurvival:remapped`); Primal Winter e Ice Age não entram |
+| D6 | Mundo glacial por **world preset próprio em datapack**, sem mod de worldgen obrigatório | Um preset com a fonte de biomas restrita a biomas frios resolve "mundo predominantemente congelado" sem dependência. Ver [18](#18-worldgen). | Fechada na Etapa 9 — o preset embrulha o overworld do vanilla numa fonte de biomas que troca os quentes pelos frios (`iceagesurvival:remapped`). Ice Age - Frozen World não entra: para 1.20.1 ele só existe para Fabric, enquanto este pack usa Forge. |
 | D7 | Espécies num **registry de datapack** sincronizado | Permite adicionar espécie por JSON, com validação por Codec e sync automático para o cliente. | Fechada |
 | D8 | Dados da criatura no **NBT da própria entidade**, serializados por Codec | As entidades são nossas; estado de jogador de terceiros fica em capability Forge (D17). | Fechada |
 | D9 | IA com **Goals vanilla** | Suficiente para território e manada; SmartBrainLib fica como opção se os Goals virarem gargalo. | Provisória |
@@ -137,6 +137,7 @@ Compatibilidade opcional a avaliar mais tarde, sem dependência em código: Tect
 - **Tough As Nails, Legendary Survival Overhaul, Homeostatic** — trazem sede e outros sistemas fora do escopo.
 - **TerraBlender, Terralith, Citadel** — desnecessários para a abordagem escolhida.
 - **Primal Winter como dependência** — sem manutenção desde 2024-10. Fica como *referência de design* (MIT, código aberto) para a Etapa 9.
+- **Ice Age - Frozen World como dependência** — o arquivo para Minecraft 1.20.1 é Fabric e requer Natural Temperature; este projeto é Forge 47.4.3. Não há release Forge compatível para instalar.
 
 ## 8. Versões
 
@@ -742,6 +743,7 @@ Ver a tabela em [4](#4-decisões). Registro de mudanças estruturais:
 - 2026-09-30 — Mamute em 1,5x (colisão 3,0×4,65, escala 1,92, assento 3,85, degrau 1,65) e coletor de madeira pela mordida montada.
 - 2026-09-30 — Tyrannosaurus reduzido de 2x para 1,5x: colisão 2,7×5,4, escala do modelo 4,25, assento 5,6 (osso `rider_pos` × escala), degrau 2,1.
 - 2026-10-01 — Preset Era do Gelo mais aberto: florestas temperadas, pântanos e selvas viram `snowy_plains` (antes `snowy_taiga`, que cobria ~73% da terra); taiga nevada fica para taigas e floresta escura. GameTest `iceAgeIsMostlyOpenTundra` exige ≥40% de tundra aberta e ≤30% de taiga.
+- 2026-10-01 — População inicial reforçada a pedido do Felipe: reposição sobe para 5 grupos a cada 8 s enquanto a região estiver vazia e o teto total por jogador vai de 40 para 72. Elasmotérios têm peso e teto maiores. Velociraptores passam a nascer em tundra aberta e picos de gelo, inclusive no spawn, em bandos de 4–6; enxergam e caçam mais cedo, perseguem por 30 s como o Alossauro, recebem o mesmo bônus de bando e incluem o Elasmotério solitário entre as presas. O limiar de tamanho por caçador foi ajustado levemente para que um bando mínimo de quatro consiga abater Elasmotério. Ice Age - Frozen World foi avaliado, mas não pode ser instalado: para 1.20.1 há apenas Fabric, incompatível com Forge 47.4.3.
 
 ## 25. Riscos
 

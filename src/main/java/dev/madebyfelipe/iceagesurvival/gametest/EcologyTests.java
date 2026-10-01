@@ -146,6 +146,29 @@ public class EcologyTests {
     }
 
     @GameTest(template = EMPTY)
+    public static void velociraptorUsesAllosaurusStylePackChase(GameTestHelper helper) {
+        var registries = helper.getLevel().registryAccess();
+        Species velociraptor = Species.of(registries, ModEntities.VELOCIRAPTOR.get()).orElseThrow();
+        Species allosaurus = Species.of(registries, ModEntities.ALLOSAURUS.get()).orElseThrow();
+        BehaviorProfile raptorBehavior = velociraptor.behavior().orElseThrow();
+        BehaviorProfile allosaurusBehavior = allosaurus.behavior().orElseThrow();
+        var raptorEcology = raptorBehavior.ecology();
+        var allosaurusEcology = allosaurusBehavior.ecology();
+
+        helper.assertTrue(raptorBehavior.herdRadius() > 0 && raptorBehavior.groupDefense(),
+                "velociraptores precisam caçar e reagir em bando");
+        helper.assertTrue(raptorBehavior.huntStyle() == BehaviorProfile.HuntStyle.CHASE,
+                "velociraptor deveria perseguir sem espreitar");
+        helper.assertTrue(raptorEcology.huntRadius() == allosaurusEcology.huntRadius()
+                        && raptorEcology.chaseSeconds() == allosaurusEcology.chaseSeconds(),
+                "alcance e fôlego da perseguição devem acompanhar o Alossauro");
+        helper.assertTrue(ModEntities.ELASMOTHERIUM.get().is(raptorBehavior.prey().orElseThrow()),
+                "Elasmotério deveria estar na dieta do velociraptor");
+        helper.assertTrue(velociraptor.packBonus().isPresent(), "o bando deveria receber bônus como o Alossauro");
+        helper.succeed();
+    }
+
+    @GameTest(template = EMPTY)
     public static void warmBiomesDoNotListTheNewFauna(GameTestHelper helper) {
         Biome desert = helper.getLevel().registryAccess().registryOrThrow(Registries.BIOME).getOrThrow(Biomes.DESERT);
         for (var creature : ModEntities.LAND_CREATURES) {
@@ -203,7 +226,9 @@ public class EcologyTests {
                 Species.of(registries, type).orElseThrow().spawn().orElseThrow().minDistance();
         helper.assertTrue(min.applyAsInt(ModEntities.DIRE_WOLF.get()) == 0
                 && min.applyAsInt(ModEntities.MAMMOTH.get()) == 0
-                && min.applyAsInt(ModEntities.BRONTOSAURUS.get()) == 0, "comuns deveriam nascer já no spawn");
+                && min.applyAsInt(ModEntities.BRONTOSAURUS.get()) == 0
+                && min.applyAsInt(ModEntities.VELOCIRAPTOR.get()) == 0,
+                "fauna comum e raptores deveriam nascer já no spawn");
         helper.assertTrue(min.applyAsInt(ModEntities.TYRANNOSAURUS.get()) >= 1500, "T-Rex perto demais do spawn");
         helper.assertTrue(min.applyAsInt(ModEntities.ALLOSAURUS.get()) >= 1000, "Alossauro perto demais do spawn");
         helper.assertTrue(min.applyAsInt(ModEntities.SMILODON.get()) > 0, "Smilodon no spawn");
