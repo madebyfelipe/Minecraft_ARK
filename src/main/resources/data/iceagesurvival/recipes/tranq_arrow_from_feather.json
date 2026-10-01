@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "equipment",
+  "ingredients": [
+    {
+      "item": "iceagesurvival:narcotic"
+    },
+    {
+      "item": "minecraft:feather"
+    },
+    {
+      "item": "minecraft:stick"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "item": "iceagesurvival:tranq_arrow"
+  }
+}

@@ -1,6 +1,6 @@
 {
   "replace": false,
   "values": [
-    "#iceagesurvival:spawns_velociraptor"
+    "#minecraft:is_overworld"
   ]
 }

@@ -14,6 +14,7 @@ import dev.madebyfelipe.iceagesurvival.core.ecology.Stress;
 import dev.madebyfelipe.iceagesurvival.entity.ai.StalkGoal;
 import dev.madebyfelipe.iceagesurvival.entity.ai.FollowMotherGoal;
 import dev.madebyfelipe.iceagesurvival.entity.ai.WaryGoal;
+import dev.madebyfelipe.iceagesurvival.entity.ai.WildFlightGoal;
 import dev.madebyfelipe.iceagesurvival.species.WarinessProfile;
 import dev.madebyfelipe.iceagesurvival.species.BehaviorProfile;
 import dev.madebyfelipe.iceagesurvival.species.PackBonusProfile;
@@ -95,6 +96,10 @@ public class LandCreature extends PrehistoricCreature implements GeoEntity, Geck
         double calm = Math.max(0.4, Math.min(1.0, CALM_SPEED_PRODUCT / Math.max(baseSpeed, 0.01)));
 
         goalSelector.addGoal(0, new FloatGoal(this));
+        if (isFlightMount()) {
+            // Acima de tudo que anda: ferida, decola em vez de fugir a pé.
+            goalSelector.addGoal(0, new WildFlightGoal(this));
+        }
         goalSelector.addGoal(1, new FleeWhenWeakGoal(this, FLEE_SPEED));
         goalSelector.addGoal(1, new YieldGoal(this, FLEE_SPEED));
         if (behavior.huntStyle() == BehaviorProfile.HuntStyle.STALK) {

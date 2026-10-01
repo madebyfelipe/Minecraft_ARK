@@ -170,18 +170,29 @@ public class CreatureStatusScreen extends Screen {
         renderStats(graphics, left + PREVIEW_WIDTH + 8, top + 28);
     }
 
+    /** Quanto o modelo passa da caixa de colisão, para caber no quadro da prévia. */
+    private static final float PREVIEW_HEIGHT_MARGIN = 1.25F;
+    private static final float PREVIEW_LENGTH_MARGIN = 2.2F;
+
     private void renderPreview(GuiGraphics graphics, int mouseX, int mouseY) {
         int x1 = left + 8;
         int y1 = top + 26;
         int x2 = left + PREVIEW_WIDTH;
         int y2 = top + HEIGHT - 78;
         graphics.fill(x1, y1, x2, y2, 0x30FFFFFF);
-        float size = Math.max(creature.getBbHeight(), creature.getBbWidth() * 1.4F);
-        int scale = Math.max(4, Math.round((y2 - y1 - 16) / size));
+        // O modelo vai de pé no fundo da caixa (o y do vanilla é onde ficam os pés, não o centro) e cabe
+        // nela pela altura e pelo comprimento: os modelos passam da caixa de colisão — o corpo é mais
+        // comprido que a largura dela e a cabeça sobe acima —, daí as margens. O recorte segura o resto.
+        float visualHeight = creature.getBbHeight() * PREVIEW_HEIGHT_MARGIN;
+        float visualLength = Math.max(creature.getBbWidth(), creature.getBbHeight() * 0.5F) * PREVIEW_LENGTH_MARGIN;
+        float fit = Math.min((y2 - y1 - 12) / visualHeight, (x2 - x1 - 8) / visualLength);
+        int scale = Math.max(4, Math.round(fit));
         int centerX = (x1 + x2) / 2;
-        int centerY = (y1 + y2) / 2;
-        InventoryScreen.renderEntityInInventoryFollowsMouse(graphics, centerX, centerY, scale,
-                mouseX - centerX, mouseY - centerY, creature);
+        int feetY = y2 - 6;
+        graphics.enableScissor(x1, y1, x2, y2);
+        InventoryScreen.renderEntityInInventoryFollowsMouse(graphics, centerX, feetY, scale,
+                mouseX - centerX, mouseY - (feetY - visualHeight * scale * 0.5F), creature);
+        graphics.disableScissor();
     }
 
     private void renderStats(GuiGraphics graphics, int x, int y) {

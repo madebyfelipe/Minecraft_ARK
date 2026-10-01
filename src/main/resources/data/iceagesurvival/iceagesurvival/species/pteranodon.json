@@ -62,11 +62,11 @@
   },
   "spawn": {
     "biomes": "#iceagesurvival:spawns_pteranodon",
-    "weight": 2,
-    "group_min": 1,
-    "group_max": 2,
-    "max_nearby": 3,
-    "min_distance": 300
+    "weight": 10,
+    "group_min": 2,
+    "group_max": 4,
+    "max_nearby": 8,
+    "min_distance": 0
   },
   "sounds": {
     "ambient": "fossil:pteranodon_ambient",

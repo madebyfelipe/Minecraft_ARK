@@ -11,6 +11,8 @@ import dev.madebyfelipe.iceagesurvival.genetics.GenomeNbt;
 import dev.madebyfelipe.iceagesurvival.item.CreatureEggItem;
 import dev.madebyfelipe.iceagesurvival.species.BreedingProfile;
 import dev.madebyfelipe.iceagesurvival.core.spawn.DangerZones;
+import dev.madebyfelipe.iceagesurvival.core.spawn.SpeciesSpacing;
+import dev.madebyfelipe.iceagesurvival.world.GroupSpacing;
 import dev.madebyfelipe.iceagesurvival.core.stats.Stat;
 import dev.madebyfelipe.iceagesurvival.core.stats.StatPoints;
 import dev.madebyfelipe.iceagesurvival.core.stats.StatProfile;
@@ -164,6 +166,11 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     private static final String TAG_GESTATION_END = "GestationEnd";
     private static final String TAG_GESTATION_CHILD = "GestationChild";
     private static final String TAG_ZONE_CHECKED = "ZoneChecked";
+    private static final String TAG_SPACING_CHECKED = "SpacingChecked";
+    /** A cada quanto um indivíduo selvagem renova a marca do grupo dele, em ticks. */
+    private static final int SPACING_REPORT_INTERVAL = 600;
+    /** Queda máxima, em blocos/tick, de uma espécie voadora fora do voo: ela plana. */
+    private static final double GLIDE_FALL_SPEED = 0.2;
     private static final String TAG_TERRITORY = "Territory";
     /** Por quanto tempo um animal que encarou este predador ainda conta como ameaça para ele. */
     private static final int INTIMIDATION_TICKS = 60;
@@ -258,6 +265,13 @@ public abstract class PrehistoricCreature extends TamableAnimal {
      * mundo estar decidido, e mundos de versões anteriores têm fauna que hoje não nasceria ali.
      */
     private boolean zoneChecked;
+    /**
+     * Já conferida contra o espaçamento entre grupos da espécie. Como {@link #zoneChecked}: só o que
+     * veio da geração do terreno ou de um mundo de antes da regra fica para conferir.
+     */
+    private boolean spacingChecked;
+    /** Voando por conta própria, sem montaria ({@link #setWildFlying}); só no servidor. */
+    private boolean wildFlight;
     /** Raio de território próprio deste indivíduo (o apex inicial); 0 = o da espécie. */
     private int territoryOverride;
     private float plowHardness;
@@ -311,7 +325,20 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         // Zonas de perigo: cada espécie só nasce a partir de uma distância do spawn do mundo.
         int minDistance = Species.of(level.registryAccess(), type).flatMap(Species::spawn)
                 .map(SpawnProfile::minDistance).orElse(0);
-        return minDistance <= 0 || DangerZones.allowed(distanceFromWorldSpawn(level.getLevel(), pos), minDistance);
+        if (minDistance > 0 && !DangerZones.allowed(distanceFromWorldSpawn(level.getLevel(), pos), minDistance)) {
+            return false;
+        }
+        // Por último, porque marca o lugar do grupo novo: uma manada de Brontossauro a cada 300 blocos.
+        return GroupSpacing.permitsSpawn(level.getLevel(), type, pos);
+    }
+
+    /**
+     * Conta para o espaçamento entre grupos ({@link GroupSpacing}): selvagem e sem dono. Presa ao mundo
+     * (nome, comando, teste) não conta — exceto o apex inicial, que tem território próprio e precisa
+     * afastar os T-Rex naturais.
+     */
+    public boolean countsForGroupSpacing() {
+        return !isTame() && tamerUUID == null && (!isPersistenceRequired() || territoryOverride > 0);
     }
 
     /**
@@ -367,6 +394,7 @@ public abstract class PrehistoricCreature extends TamableAnimal {
                                         @Nullable SpawnGroupData spawnData, @Nullable CompoundTag dataTag) {
         // Só a geração do terreno fica para conferir: o spawn do mundo ainda pode mudar.
         zoneChecked = reason != MobSpawnType.CHUNK_GENERATION;
+        spacingChecked = zoneChecked;
         if (spawnData == FamilyMember.INSTANCE) {
             return spawnData;
         }
@@ -496,11 +524,29 @@ public abstract class PrehistoricCreature extends TamableAnimal {
      */
     public void setFlying(boolean flying) {
         boolean allowed = flying && isFlightMount() && isRideReady() && isVehicle() && !isUnconscious();
+        wildFlight = false;
         entityData.set(DATA_FLYING, allowed);
         setNoGravity(allowed);
         if (!allowed) {
             flightSpeed = 0.0;
         }
+    }
+
+    /**
+     * Pode voar por conta própria ({@code WildFlightGoal}): espécie voadora, selvagem, acordada, adulta,
+     * solta e sem ninguém em cima.
+     */
+    public boolean canFlyWild() {
+        return isFlightMount() && !isTame() && !isVehicle() && !isUnconscious() && !isBaby() && !isLeashed()
+                && !isPassenger();
+    }
+
+    /** Liga ou desliga o voo selvagem; o estado é o mesmo do voo montado, e com ele a animação. */
+    public void setWildFlying(boolean flying) {
+        boolean allowed = flying && canFlyWild();
+        wildFlight = allowed;
+        entityData.set(DATA_FLYING, allowed);
+        setNoGravity(allowed);
     }
 
     /** Chamado pelo renderer com a posição do osso {@code rider_pos} neste quadro. */
@@ -1095,11 +1141,20 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     @Override
     public void tick() {
         if (isFlightMount()) {
-            if (isFlying() && (!isVehicle() || isUnconscious() || !isRideReady())) {
+            if (wildFlight) {
+                if (!canFlyWild()) {
+                    setWildFlying(false);
+                }
+            } else if (isFlying() && (!isVehicle() || isUnconscious() || !isRideReady())) {
                 setFlying(false);
             }
             setNoGravity(isFlying());
             if (isFlying()) {
+                resetFallDistance();
+            } else if (!onGround() && !isInWater() && getDeltaMovement().y < -GLIDE_FALL_SPEED) {
+                // Sem voar (desmaiada, laçada, largada no ar), plana até o chão em vez de despencar.
+                Vec3 movement = getDeltaMovement();
+                setDeltaMovement(movement.x, -GLIDE_FALL_SPEED, movement.z);
                 resetFallDistance();
             }
         } else {
@@ -1109,6 +1164,18 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         if (!level().isClientSide && !zoneChecked) {
             zoneChecked = true;
             if (outsideDangerZone()) {
+                discard();
+                return;
+            }
+        }
+        if (level() instanceof ServerLevel serverLevel && countsForGroupSpacing()
+                && (!spacingChecked || (tickCount + getId()) % SPACING_REPORT_INTERVAL == 0)) {
+            // Mundo antigo: outro grupo da espécie já ocupa a região, e este sobra. Depois da primeira
+            // conferência, só renova a marca — uma manada migrando pode passar perto de outra.
+            boolean removable = !spacingChecked && !isPersistenceRequired() && !isVehicle();
+            spacingChecked = true;
+            if (GroupSpacing.report(serverLevel, getType(), blockPosition(), !removable)
+                    == SpeciesSpacing.Verdict.TOO_CLOSE && removable) {
                 discard();
                 return;
             }
@@ -2131,6 +2198,7 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         compound.putBoolean(TAG_MATING, isMatingEnabled());
         compound.putLong(TAG_NEXT_MATING, nextMatingTime);
         compound.putBoolean(TAG_ZONE_CHECKED, zoneChecked);
+        compound.putBoolean(TAG_SPACING_CHECKED, spacingChecked);
         if (territoryOverride > 0) {
             compound.putInt(TAG_TERRITORY, territoryOverride);
         }
@@ -2159,6 +2227,7 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         entityData.set(DATA_MATING, compound.getBoolean(TAG_MATING));
         nextMatingTime = compound.getLong(TAG_NEXT_MATING);
         zoneChecked = compound.getBoolean(TAG_ZONE_CHECKED);
+        spacingChecked = compound.getBoolean(TAG_SPACING_CHECKED);
         territoryOverride = compound.getInt(TAG_TERRITORY);
         if (compound.contains(TAG_GESTATION_CHILD, Tag.TAG_COMPOUND)) {
             gestationEnd = compound.getLong(TAG_GESTATION_END);

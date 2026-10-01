@@ -17,6 +17,7 @@ import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraftforge.gametest.GameTestHolder;
 import net.minecraftforge.gametest.PrefixGameTestTemplate;
 
@@ -39,8 +40,8 @@ public class EarlyGameTests {
                 "Smilodon solitário deveria ocupar o lugar do bando de raptores na área inicial");
         helper.assertTrue(velociraptor.minDistance() == 300,
                 "bandos de Velociraptor só deveriam aparecer depois da zona inicial");
-        helper.assertTrue(pteranodon.minDistance() == velociraptor.minDistance(),
-                "Pteranodonte deveria compartilhar a distância mínima dos raptores");
+        helper.assertTrue(pteranodon.minDistance() == 0 && pteranodon.maxNearby() >= 8,
+                "Pteranodontes deveriam ser abundantes e nascer em qualquer lugar, inclusive no spawn");
         helper.assertTrue(dodo.weight() > smilodon.weight() && elasmo.weight() > smilodon.weight(),
                 "deveriam ser mais comuns que um predador do meio");
         helper.assertTrue(dodo.maxNearby() >= 8, "dodôs deveriam ser abundantes: " + dodo.maxNearby());
@@ -56,7 +57,7 @@ public class EarlyGameTests {
         dodo.kill();
         helper.runAfterDelay(2, () -> {
             helper.assertItemEntityPresent(ModItems.DODO_MEAT.get(), new BlockPos(1, 2, 1), 3.0);
-            helper.assertItemEntityPresent(ModItems.DODO_FEATHER.get(), new BlockPos(1, 2, 1), 3.0);
+            helper.assertItemEntityPresent(Items.FEATHER, new BlockPos(1, 2, 1), 3.0);
             helper.succeed();
         });
     }
@@ -130,6 +131,54 @@ public class EarlyGameTests {
         double fur = EnvironmentColdSource.insulation(player);
         helper.assertTrue(Math.abs(feather - 1.0) < 1e-6, "pena completa isola " + feather);
         helper.assertTrue(feather > 0.8 && feather < fur, "pena deveria ficar entre couro (0,8) e pele: " + feather);
+        helper.succeed();
+    }
+
+    /** O casaco é a peça que mais esquenta: sozinho, vale o dobro de cada uma das outras. */
+    @GameTest(template = EMPTY)
+    public static void featherCoatIsTheWarmestPiece(GameTestHelper helper) {
+        Player player = helper.makeMockSurvivalPlayer();
+        player.setItemSlot(EquipmentSlot.CHEST, new ItemStack(ModItems.FEATHER_CHESTPLATE.get()));
+        double coat = EnvironmentColdSource.insulation(player);
+        player.setItemSlot(EquipmentSlot.CHEST, ItemStack.EMPTY);
+        player.setItemSlot(EquipmentSlot.HEAD, new ItemStack(ModItems.FEATHER_HELMET.get()));
+        double hood = EnvironmentColdSource.insulation(player);
+        helper.assertTrue(Math.abs(coat - 2 * hood) < 1e-6 && coat > 0.35, "casaco " + coat + ", capuz " + hood);
+        helper.succeed();
+    }
+
+    /** Roupa de pena e flecha tranquilizante saem da pena comum, a que o dodô e a galinha dão. */
+    @GameTest(template = EMPTY)
+    public static void commonFeatherRecipes(GameTestHelper helper) {
+        var recipes = helper.getLevel().getRecipeManager();
+        var access = helper.getLevel().registryAccess();
+        var coat = recipes.byKey(new net.minecraft.resources.ResourceLocation(IceAgeSurvival.MODID, "feather_chestplate"))
+                .orElseThrow();
+        helper.assertTrue(coat.getIngredients().stream().filter(ingredient -> !ingredient.isEmpty())
+                        .allMatch(ingredient -> ingredient.test(new ItemStack(Items.FEATHER))),
+                "o casaco de penas deveria usar pena comum");
+        var arrow = recipes.byKey(new net.minecraft.resources.ResourceLocation(IceAgeSurvival.MODID, "tranq_arrow_from_feather"))
+                .orElseThrow();
+        helper.assertTrue(arrow.getResultItem(access).is(ModItems.TRANQ_ARROW.get()), "receita da flecha");
+        var ingredients = arrow.getIngredients();
+        helper.assertTrue(ingredients.size() == 3
+                        && ingredients.stream().anyMatch(i -> i.test(new ItemStack(ModItems.NARCOTIC.get())))
+                        && ingredients.stream().anyMatch(i -> i.test(new ItemStack(Items.FEATHER)))
+                        && ingredients.stream().anyMatch(i -> i.test(new ItemStack(Items.STICK))),
+                "narcótico + pena + graveto");
+        helper.assertTrue(recipes.byKey(new net.minecraft.resources.ResourceLocation(IceAgeSurvival.MODID, "tranq_arrow"))
+                .isPresent(), "a receita de flecha + narcótico continua");
+        helper.succeed();
+    }
+
+    /** O dodô é lento, manso e não teme gente — por isso foi extinto. */
+    @GameTest(template = EMPTY)
+    public static void dodoIsSlowAndFearless(GameTestHelper helper) {
+        Species dodo = Species.of(helper.getLevel().registryAccess(), ModEntities.DODO.get()).orElseThrow();
+        double speed = dodo.stats().entry(dev.madebyfelipe.iceagesurvival.core.stats.Stat.SPEED).base();
+        helper.assertTrue(speed <= 0.125, "o dodô deveria andar na metade do passo de antes (0,25): " + speed);
+        var wariness = dodo.behavior().orElseThrow().wariness().orElseThrow();
+        helper.assertTrue(!wariness.players(), "o dodô não foge de gente");
         helper.succeed();
     }
 

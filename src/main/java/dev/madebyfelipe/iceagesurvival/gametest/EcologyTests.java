@@ -146,6 +146,9 @@ public class EcologyTests {
         assertSpawnsIn(helper, Biomes.TAIGA, ModEntities.TYRANNOSAURUS.get());
         assertSpawnsIn(helper, Biomes.SNOWY_PLAINS, ModEntities.PTERANODON.get());
         assertSpawnsIn(helper, Biomes.TAIGA, ModEntities.PTERANODON.get());
+        // Pteranodonte em qualquer bioma da superfície, não só nos frios.
+        assertSpawnsIn(helper, Biomes.DESERT, ModEntities.PTERANODON.get());
+        assertSpawnsIn(helper, Biomes.JUNGLE, ModEntities.PTERANODON.get());
         helper.succeed();
     }
 
@@ -153,7 +156,7 @@ public class EcologyTests {
     public static void naturalSpawnWeightsAreReducedAndRareSpeciesRemain(GameTestHelper helper) {
         assertSpawnWeight(helper, Biomes.SNOWY_PLAINS, ModEntities.DODO.get(), 14);
         assertSpawnWeight(helper, Biomes.SNOWY_PLAINS, ModEntities.VELOCIRAPTOR.get(), 11);
-        assertSpawnWeight(helper, Biomes.SNOWY_PLAINS, ModEntities.PTERANODON.get(), 1);
+        assertSpawnWeight(helper, Biomes.SNOWY_PLAINS, ModEntities.PTERANODON.get(), 8);
         assertSpawnWeight(helper, Biomes.TAIGA, ModEntities.SMILODON.get(), 3);
         // O Smilodon substitui o bando de Velociraptores na planície nevada do spawn.
         assertSpawnWeight(helper, Biomes.SNOWY_PLAINS, ModEntities.SMILODON.get(), 3);
@@ -203,6 +206,9 @@ public class EcologyTests {
     public static void warmBiomesDoNotListTheNewFauna(GameTestHelper helper) {
         Biome desert = helper.getLevel().registryAccess().registryOrThrow(Registries.BIOME).getOrThrow(Biomes.DESERT);
         for (var creature : ModEntities.LAND_CREATURES) {
+            if (creature.get() == ModEntities.PTERANODON.get()) {
+                continue; // o Pteranodonte voa em qualquer bioma
+            }
             boolean listed = desert.getMobSettings().getMobs(MobCategory.CREATURE).unwrap().stream()
                     .anyMatch(spawner -> spawner.type == creature.get());
             helper.assertTrue(!listed, creature.getId() + " nasce no deserto");
@@ -260,9 +266,10 @@ public class EcologyTests {
                 && min.applyAsInt(ModEntities.BRONTOSAURUS.get()) == 0
                 && min.applyAsInt(ModEntities.SMILODON.get()) == 0,
                 "fauna comum e Smilodon solitário deveriam nascer já no spawn");
-        helper.assertTrue(min.applyAsInt(ModEntities.VELOCIRAPTOR.get()) >= 300
-                && min.applyAsInt(ModEntities.PTERANODON.get()) >= 300,
-                "raptores e Pteranodonte não podem nascer dentro dos 300 blocos do spawn");
+        helper.assertTrue(min.applyAsInt(ModEntities.VELOCIRAPTOR.get()) >= 300,
+                "raptores não podem nascer dentro dos 300 blocos do spawn");
+        helper.assertTrue(min.applyAsInt(ModEntities.PTERANODON.get()) == 0,
+                "o Pteranodonte nasce em qualquer lugar, inclusive perto do spawn");
         helper.assertTrue(min.applyAsInt(ModEntities.TYRANNOSAURUS.get()) == 300,
                 "o T-Rex natural deveria começar logo depois da zona inicial (o apex garantido fica dentro)");
         helper.assertTrue(min.applyAsInt(ModEntities.ALLOSAURUS.get()) == 400
@@ -276,11 +283,12 @@ public class EcologyTests {
 
     @GameTest(template = EMPTY)
     public static void repopulationRespectsTheBiomeOfTheSpecies(GameTestHelper helper) {
-        // O mundo do gametest é de bioma temperado: nenhuma espécie do mod nasce aqui.
+        // O mundo do gametest é de bioma temperado: só o Pteranodonte, que nasce em qualquer lugar, vale aqui.
         ServerPlayer player = PredatorTests.survivalPlayer(helper);
         List<WildSpawner.Report> reports = WildSpawner.survey(helper.getLevel(), player);
-        helper.assertTrue(reports.isEmpty(), "reposição ofereceu " + reports.size() + " espécie(s) em bioma temperado");
-        helper.assertTrue(WildSpawner.trySpawnAround(helper.getLevel(), player) == 0, "repôs fauna em bioma temperado");
+        helper.assertTrue(reports.stream().allMatch(report -> report.type() == ModEntities.PTERANODON.get()),
+                "reposição ofereceu fauna do frio em bioma temperado: " + reports.size() + " espécie(s)");
+        helper.assertTrue(!reports.isEmpty(), "o Pteranodonte deveria poder nascer em bioma temperado");
         helper.succeed();
     }
 
@@ -288,7 +296,7 @@ public class EcologyTests {
     public static void repopulationSpawnsOnOpenGround(GameTestHelper helper) {
         // Tag de bioma que contém o bioma do gametest, para exercitar o caminho de posição
         // sem depender de um bioma nevado, que o mundo plano do teste não tem.
-        SpawnProfile anywhere = new SpawnProfile(BiomeTags.IS_OVERWORLD, 10, 1, 1, 4, 0, java.util.Optional.empty());
+        SpawnProfile anywhere = new SpawnProfile(BiomeTags.IS_OVERWORLD, 10, 1, 1, 4, 0, 0, java.util.Optional.empty());
         BlockPos floor = helper.absolutePos(new BlockPos(1, 2, 1));
         helper.getLevel().setBlockAndUpdate(floor.below(), Blocks.STONE.defaultBlockState());
         var type = ModEntities.DIRE_WOLF.get();
@@ -320,7 +328,7 @@ public class EcologyTests {
 
     @GameTest(template = EMPTY)
     public static void repopulationRefusesTheWrongBiome(GameTestHelper helper) {
-        SpawnProfile jungleOnly = new SpawnProfile(BiomeTags.IS_JUNGLE, 10, 1, 1, 4, 0, java.util.Optional.empty());
+        SpawnProfile jungleOnly = new SpawnProfile(BiomeTags.IS_JUNGLE, 10, 1, 1, 4, 0, 0, java.util.Optional.empty());
         BlockPos floor = helper.absolutePos(new BlockPos(1, 2, 1));
         helper.assertTrue(!WildSpawner.canSpawnAt(helper.getLevel(), ModEntities.SMILODON.get(), floor, jungleOnly),
                 "a reposição aceitou um bioma fora da tag da espécie");

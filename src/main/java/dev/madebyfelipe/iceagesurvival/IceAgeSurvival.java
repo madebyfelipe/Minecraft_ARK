@@ -17,6 +17,7 @@ import dev.madebyfelipe.iceagesurvival.registry.ModItems;
 import dev.madebyfelipe.iceagesurvival.species.Species;
 import dev.madebyfelipe.iceagesurvival.temperature.ColdExposure;
 import dev.madebyfelipe.iceagesurvival.world.RemappedBiomeSource;
+import dev.madebyfelipe.iceagesurvival.world.GroupSpacing;
 import dev.madebyfelipe.iceagesurvival.world.StarterApexKeeper;
 import dev.madebyfelipe.iceagesurvival.world.WildSpawner;
 import net.minecraft.resources.ResourceLocation;
@@ -60,6 +61,9 @@ public class IceAgeSurvival {
         MinecraftForge.EVENT_BUS.addListener(ColdExposure::onPlayerTick);
         MinecraftForge.EVENT_BUS.addListener(WildSpawner::onServerTick);
         MinecraftForge.EVENT_BUS.addListener(StarterApexKeeper::onServerTick);
+        MinecraftForge.EVENT_BUS.addListener(GroupSpacing::onServerTick);
+        MinecraftForge.EVENT_BUS.addListener(GroupSpacing::onLevelLoad);
+        MinecraftForge.EVENT_BUS.addListener(GroupSpacing::onLevelUnload);
         MinecraftForge.EVENT_BUS.addListener(StarterApexKeeper::onDeath);
         MinecraftForge.EVENT_BUS.addListener(DebugCommands::register);
 

@@ -9,7 +9,7 @@
       "per_point": 0.02
     },
     "speed": {
-      "base": 0.25
+      "base": 0.1
     },
     "torpor": {
       "base": 20,
@@ -53,25 +53,26 @@
   "behavior": {
     "aggressive": false,
     "aggro_radius": 10,
-    "flee_health_fraction": 0.99,
+    "flee_health_fraction": 0.35,
     "herd_radius": 8,
-    "group_defense": false,
+    "group_defense": true,
     "wariness": {
       "threats": "#iceagesurvival:predators",
-      "alert_radius": 16,
+      "players": false,
+      "alert_radius": 8,
       "charge_radius": 0,
       "sneak_factor": 0.4,
-      "flee_speed": 1.6
+      "flee_speed": 2.0
     },
     "ecology": {
-      "nervousness": 1.8
+      "nervousness": 0.3
     }
   },
   "spawn": {
     "biomes": "#iceagesurvival:spawns_dodo",
     "weight": 14,
-    "group_min": 4,
-    "group_max": 7,
+    "group_min": 2,
+    "group_max": 5,
     "max_nearby": 12,
     "min_distance": 0
   },

@@ -130,10 +130,14 @@ public final class EnvironmentColdSource implements ColdSource {
                 || item == ModItems.FUR_LEGGINGS.get() || item == ModItems.FUR_BOOTS.get()) {
             return 0.35;
         }
-        // Pena: completa (1,0) segura o frio do dia nos biomas nevados, mas não o da noite (§15).
-        if (item == ModItems.FEATHER_HELMET.get() || item == ModItems.FEATHER_CHESTPLATE.get()
-                || item == ModItems.FEATHER_LEGGINGS.get() || item == ModItems.FEATHER_BOOTS.get()) {
-            return 0.25;
+        // Pena: completa (1,0) segura o frio do dia nos biomas nevados, mas não o da noite (§15). O
+        // casaco cobre o tronco e sozinho já vale o dobro de cada uma das outras peças.
+        if (item == ModItems.FEATHER_CHESTPLATE.get()) {
+            return 0.4;
+        }
+        if (item == ModItems.FEATHER_HELMET.get() || item == ModItems.FEATHER_LEGGINGS.get()
+                || item == ModItems.FEATHER_BOOTS.get()) {
+            return 0.2;
         }
         return 0.0;
     }

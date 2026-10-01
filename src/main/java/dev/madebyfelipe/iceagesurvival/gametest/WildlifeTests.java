@@ -6,6 +6,8 @@ import dev.madebyfelipe.iceagesurvival.registry.ModEntities;
 import dev.madebyfelipe.iceagesurvival.species.BehaviorProfile;
 import dev.madebyfelipe.iceagesurvival.species.SpawnProfile;
 import dev.madebyfelipe.iceagesurvival.species.Species;
+import dev.madebyfelipe.iceagesurvival.world.GroupSpacing;
+import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.server.level.ServerPlayer;
@@ -236,6 +238,53 @@ public class WildlifeTests {
         helper.assertFalse(wolf.isSated(), "começa com fome");
         wolf.killedEntity(helper.getLevel(), pig);
         helper.assertTrue(wolf.isSated(), "deveria estar saciado depois de abater a presa");
+        helper.succeed();
+    }
+
+    /** Ferido no chão, o Pteranodonte selvagem decola e ganha altura em vez de fugir a pé. */
+    @GameTest(template = ARENA, batch = BATCH + "_ptero", timeoutTicks = 200)
+    public static void wildPteranodonTakesOffWhenHurt(GameTestHelper helper) {
+        HuntTests.clearStrays(helper);
+        LandCreature ptero = helper.spawn(ModEntities.PTERANODON.get(), 8, 0, 8);
+        double startY = ptero.getY();
+        helper.runAfterDelay(5, () -> ptero.hurt(helper.getLevel().damageSources().playerAttack(helper.makeMockPlayer()), 1.0F));
+        helper.succeedWhen(() -> {
+            helper.assertTrue(ptero.isFlying(), "o Pteranodonte deveria estar voando");
+            helper.assertTrue(ptero.getY() > startY + 4.0, "deveria ter subido: " + startY + " → " + ptero.getY());
+        });
+    }
+
+    /** Domesticado, não sai voando sozinho: o voo dele é o montado. */
+    @GameTest(template = ARENA, batch = BATCH + "_ptero_tame", timeoutTicks = 120)
+    public static void tamePteranodonStaysGrounded(GameTestHelper helper) {
+        HuntTests.clearStrays(helper);
+        LandCreature ptero = helper.spawn(ModEntities.PTERANODON.get(), 8, 0, 8);
+        ptero.tame(helper.makeMockPlayer());
+        helper.runAfterDelay(5, () -> ptero.hurt(helper.getLevel().damageSources().playerAttack(helper.makeMockPlayer()), 1.0F));
+        helper.runAtTickTime(100, () -> {
+            helper.assertTrue(!ptero.isFlying(), "domesticado não deveria decolar sozinho");
+            helper.succeed();
+        });
+    }
+
+    /**
+     * Uma manada de Brontossauro e um T-Rex a cada 300 blocos: a marca do primeiro grupo deixa os
+     * membros dele nascerem perto e barra outro grupo na região. Coordenadas longe da área de testes.
+     */
+    @GameTest(template = EMPTY)
+    public static void bigSpeciesKeepOneGroupPerRegion(GameTestHelper helper) {
+        var level = helper.getLevel();
+        for (EntityType<?> type : new EntityType<?>[] {ModEntities.BRONTOSAURUS.get(), ModEntities.TYRANNOSAURUS.get()}) {
+            helper.assertTrue(GroupSpacing.spacing(level, type) == 300, "espaçamento de 300 blocos");
+            int base = 2_000_000 + (type == ModEntities.TYRANNOSAURUS.get() ? 10_000 : 0) + level.random.nextInt(1000) * 2000;
+            BlockPos first = new BlockPos(base, 80, base);
+            helper.assertTrue(GroupSpacing.permitsSpawn(level, type, first), "primeiro grupo da região");
+            helper.assertTrue(GroupSpacing.permitsSpawn(level, type, first.offset(4, 0, -3)), "membro do mesmo grupo");
+            helper.assertTrue(!GroupSpacing.permitsSpawn(level, type, first.offset(150, 0, 0)), "segundo grupo a 150 blocos");
+            helper.assertTrue(!GroupSpacing.permitsSpawn(level, type, first.offset(0, 0, 290)), "segundo grupo a 290 blocos");
+            helper.assertTrue(GroupSpacing.permitsSpawn(level, type, first.offset(0, 0, 310)), "outra região, a 310 blocos");
+        }
+        helper.assertTrue(GroupSpacing.spacing(level, ModEntities.DODO.get()) == 0, "dodôs sem espaçamento");
         helper.succeed();
     }
 }
