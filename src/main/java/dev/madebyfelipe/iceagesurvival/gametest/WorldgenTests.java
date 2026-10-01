@@ -13,6 +13,8 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.levelgen.presets.WorldPreset;
+import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
+import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
 import net.minecraftforge.gametest.GameTestHolder;
 import net.minecraftforge.gametest.PrefixGameTestTemplate;
 
@@ -50,30 +52,32 @@ public class WorldgenTests {
                 Biomes.TAIGA, Biomes.STONY_SHORE, Biomes.WINDSWEPT_HILLS, Biomes.OLD_GROWTH_PINE_TAIGA)) {
             helper.assertTrue(biomes.stream().noneMatch(biome -> biome.is(gone)), gone.location() + " sobrou");
         }
-        for (ResourceKey<Biome> kept : List.of(Biomes.SNOWY_PLAINS, Biomes.FROZEN_RIVER, Biomes.FROZEN_OCEAN, Biomes.SNOWY_TAIGA)) {
+        for (ResourceKey<Biome> kept : List.of(Biomes.SNOWY_PLAINS, Biomes.SNOWY_SLOPES, Biomes.ICE_SPIKES,
+                Biomes.FROZEN_PEAKS, Biomes.FROZEN_RIVER, Biomes.FROZEN_OCEAN)) {
             helper.assertTrue(biomes.stream().anyMatch(biome -> biome.is(kept)), kept.location() + " faltando");
         }
+        helper.assertTrue(((NoiseBasedChunkGenerator) overworld.generator()).generatorSettings()
+                        .is(NoiseGeneratorSettings.AMPLIFIED),
+                "o preset deveria usar relevo amplified");
         helper.succeed();
     }
 
     /**
-     * A Era do Gelo é a estepe do mamute: tundra aberta, com manchas de floresta. As florestas
-     * temperadas viravam todas taiga nevada, e ~75% da terra saía floresta de pinheiro fechada —
-     * árvores demais e bicho grande sem espaço para nascer. Amostra o ruído real do preset numa
-     * área de ~16 mil blocos de lado, com três sementes.
+     * O preset deve evitar uma estepe inteira de planícies e taiga: terreno amplified, encostas
+     * nevadas e ice spikes dão variedade sem voltar a biomas verdes ou floresta fechada.
      */
     @GameTest(template = EMPTY, timeoutTicks = 400)
-    public static void iceAgeIsMostlyOpenTundra(GameTestHelper helper) {
+    public static void iceAgeHasVariedColdLandscapes(GameTestHelper helper) {
         var registries = helper.getLevel().registryAccess();
         WorldPreset preset = registries.registryOrThrow(Registries.WORLD_PRESET).get(IceAgeSurvival.id("ice_age"));
         var source = preset.createWorldDimensions().dimensions().get(LevelStem.OVERWORLD).generator().getBiomeSource();
-        var settings = registries.registryOrThrow(Registries.NOISE_SETTINGS)
-                .getOrThrow(net.minecraft.world.level.levelgen.NoiseGeneratorSettings.OVERWORLD);
         int land = 0;
         int plains = 0;
         int taiga = 0;
+        int rugged = 0;
         for (long seed : new long[] {1L, 42L, 20261001L}) {
-            var sampler = net.minecraft.world.level.levelgen.RandomState.create(settings,
+            var sampler = net.minecraft.world.level.levelgen.RandomState.create(
+                    registries.registryOrThrow(Registries.NOISE_SETTINGS).getHolderOrThrow(NoiseGeneratorSettings.AMPLIFIED).value(),
                     registries.lookupOrThrow(Registries.NOISE), seed).sampler();
             for (int x = -32; x < 32; x++) {
                 for (int z = -32; z < 32; z++) {
@@ -89,13 +93,19 @@ public class WorldgenTests {
                     } else if (biome.is(Biomes.SNOWY_TAIGA)) {
                         taiga++;
                     }
+                    if (biome.is(Biomes.SNOWY_SLOPES) || biome.is(Biomes.FROZEN_PEAKS) || biome.is(Biomes.ICE_SPIKES)) {
+                        rugged++;
+                    }
                 }
             }
         }
         double plainsShare = (double) plains / land;
         double taigaShare = (double) taiga / land;
-        helper.assertTrue(plainsShare >= 0.40, String.format("tundra aberta só em %.0f%% da terra", plainsShare * 100));
-        helper.assertTrue(taigaShare <= 0.30, String.format("taiga nevada em %.0f%% da terra", taigaShare * 100));
+        double ruggedShare = (double) rugged / land;
+        helper.assertTrue(plainsShare <= 0.35, String.format("planícies nevadas em %.0f%% da terra", plainsShare * 100));
+        helper.assertTrue(taigaShare <= 0.15, String.format("taiga nevada em %.0f%% da terra", taigaShare * 100));
+        helper.assertTrue(ruggedShare >= 0.35,
+                String.format("encostas, picos e gelo em %.0f%% da terra", ruggedShare * 100));
         helper.succeed();
     }
 
