@@ -324,4 +324,26 @@ public class WildlifeTests {
             helper.succeed();
         });
     }
+
+    /** Tricerátopo: herbívoro de manada que encara e afasta o predador, como o mamute e o bronto. */
+    @GameTest(template = ARENA, batch = BATCH + "_triceratops", timeoutTicks = 160)
+    public static void triceratopsDrivesOffSatedVelociraptor(GameTestHelper helper) {
+        largeHerbivoreDrivesOffSatedVelociraptor(helper, ModEntities.TRICERATOPS.get());
+    }
+
+    @GameTest(template = EMPTY)
+    public static void triceratopsIsADefensiveHerdTank(GameTestHelper helper) {
+        Species trike = Species.of(helper.getLevel().registryAccess(), ModEntities.TRICERATOPS.get()).orElseThrow();
+        BehaviorProfile behavior = trike.behavior().orElseThrow();
+        var wariness = behavior.wariness().orElseThrow();
+        helper.assertTrue(!behavior.aggressive() && behavior.groupDefense() && behavior.herdRadius() > 0,
+                "pacífico, de manada, defende o grupo");
+        helper.assertTrue(wariness.chargeRadius() > 0 && wariness.knockback() >= 1.0, "investe com os chifres e arremessa");
+        helper.assertTrue(trike.mount().isPresent(), "montável");
+        helper.assertTrue(helper.getLevel().registryAccess().registryOrThrow(net.minecraft.core.registries.Registries.ENTITY_TYPE)
+                .wrapAsHolder(ModEntities.TRICERATOPS.get())
+                .is(net.minecraft.tags.TagKey.create(net.minecraft.core.registries.Registries.ENTITY_TYPE,
+                        net.minecraft.resources.ResourceLocation.fromNamespaceAndPath(IceAgeSurvival.MODID, "large_prey"))), "presa dos grandes predadores");
+        helper.succeed();
+    }
 }

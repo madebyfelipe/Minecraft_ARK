@@ -54,6 +54,8 @@ public record CreatureAppearance(
                     "idle", "walk", "attack_back_left", "sleep_1", "walk", "run")),
             Map.entry("gallimimus", new CreatureAppearance("gallimimus", "gallimimus/gallimimus_male.png",
                     "idle", "walk", "attack", "sleep/sit", "walk", "run")),
+            Map.entry("triceratops", new CreatureAppearance("triceratops", "triceratops/triceratops_male.png",
+                    "idle", "walk", "attack_1", "sleep_1", "walk", "run")),
             Map.entry("pteranodon", new CreatureAppearance("pteranodon", "pteranodon/pteranodon_male.png",
                     "idle", "walk", "attack", "sleep", "fly", "walk", "dive"))
     );

@@ -72,6 +72,9 @@ public final class ModItems {
     public static final RegistryObject<ForgeSpawnEggItem> GALLIMIMUS_SPAWN_EGG = ITEMS.register(
             "gallimimus_spawn_egg",
             () -> new ForgeSpawnEggItem(ModEntities.GALLIMIMUS, 0x9C7B4E, 0xE0C89A, new Item.Properties()));
+    public static final RegistryObject<ForgeSpawnEggItem> TRICERATOPS_SPAWN_EGG = ITEMS.register(
+            "triceratops_spawn_egg",
+            () -> new ForgeSpawnEggItem(ModEntities.TRICERATOPS, 0x6E5A3A, 0xB8432F, new Item.Properties()));
     public static final RegistryObject<ForgeSpawnEggItem> DODO_SPAWN_EGG = ITEMS.register(
             "dodo_spawn_egg",
             () -> new ForgeSpawnEggItem(ModEntities.DODO, 0x8E8A7C, 0xD9C27A, new Item.Properties()));
@@ -169,6 +172,7 @@ public final class ModItems {
             event.accept(DIREBEAR_SPAWN_EGG);
             event.accept(DODO_SPAWN_EGG);
             event.accept(GALLIMIMUS_SPAWN_EGG);
+            event.accept(TRICERATOPS_SPAWN_EGG);
             event.accept(ELASMOTHERIUM_SPAWN_EGG);
         } else if (event.getTabKey() == CreativeModeTabs.COMBAT) {
             event.accept(TRANQ_ARROW);

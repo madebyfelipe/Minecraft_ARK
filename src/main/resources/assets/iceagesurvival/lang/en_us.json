@@ -184,5 +184,7 @@
   "iceagesurvival.locator.empty": "No tamed creatures",
   "iceagesurvival.locator.other_dimension": "In another dimension",
   "entity.iceagesurvival.gallimimus": "Gallimimus",
-  "item.iceagesurvival.gallimimus_spawn_egg": "Gallimimus Spawn Egg"
+  "item.iceagesurvival.gallimimus_spawn_egg": "Gallimimus Spawn Egg",
+  "entity.iceagesurvival.triceratops": "Triceratops",
+  "item.iceagesurvival.triceratops_spawn_egg": "Triceratops Spawn Egg"
 }
