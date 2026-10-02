@@ -2807,14 +2807,21 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     }
 
     /**
-     * O bote: o bando inteiro que espreita a mesma presa larga a espreita junto.
+     * O bote: o bando inteiro que espreita a mesma presa, ou outro animal da manada dela, larga a espreita junto —
+     * com a manada em alerta, a surpresa acabou para todos.
      */
     public void signalPounce(LivingEntity prey) {
         double radius = Math.max(behavior().map(BehaviorProfile::herdRadius).orElse(0), 16) * 2.0;
         for (PrehistoricCreature other : level().getEntitiesOfClass(PrehistoricCreature.class,
-                getBoundingBox().inflate(radius), o -> o != this && sameGroup(o) && o.getTarget() == prey)) {
+                getBoundingBox().inflate(radius), o -> o != this && sameGroup(o) && sameHerdAs(o.getTarget(), prey))) {
             other.blowStalk();
         }
+    }
+
+    /** O alvo é a presa ou alguém da manada dela. */
+    private static boolean sameHerdAs(@Nullable LivingEntity target, LivingEntity prey) {
+        return target != null && (target == prey
+                || prey instanceof PrehistoricCreature herdMember && herdMember.sameGroup(target));
     }
 
     /**
