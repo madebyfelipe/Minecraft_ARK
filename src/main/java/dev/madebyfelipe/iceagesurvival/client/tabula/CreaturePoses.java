@@ -68,7 +68,7 @@ final class CreaturePoses {
                          float renderScale) {
         if (creature.isCorpse()) {
             // Corpo da domesticada: cai e fica na última pose da morte.
-            return model.has(DYING) ? Choice.once(DYING) : Choice.loop(SLEEPING);
+            return Choice.once(model.has(DYING) ? DYING : SLEEPING);
         }
         if (creature.deathTime > 0 || !creature.isAlive()) {
             PoseClip dying = model.clip(DYING);
@@ -76,7 +76,10 @@ final class CreaturePoses {
             return new Choice(DYING, false, rate, false);
         }
         if (creature.isUnconscious() || creature.isResting()) {
-            return Choice.loop(SLEEPING);
+            // O SLEEPING do Jurassic Reborn é o ato de deitar (de pé → deitada de lado), não um laço: tocado em
+            // laço, voltava da última pose à primeira e o bicho levantava e deitava de novo a cada volta. Toca uma
+            // vez e fica na última pose, como a morte.
+            return Choice.once(SLEEPING);
         }
 
         CreatureAction action = creature.currentAction();
