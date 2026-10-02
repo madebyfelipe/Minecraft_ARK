@@ -51,6 +51,20 @@ public class CreatureRenderer extends GeoEntityRenderer<LandCreature> {
         }
     }
 
+    @Override
+    protected void applyRotations(LandCreature animatable, PoseStack poseStack, float ageInTicks, float rotationYaw,
+                                  float partialTick) {
+        super.applyRotations(animatable, poseStack, ageInTicks, rotationYaw, partialTick);
+        float pitch = animatable.isFlightMount() ? animatable.bodyFlightPitch(partialTick) : 0.0F;
+        if (Math.abs(pitch) > 0.1F) {
+            // Gira em torno do meio do corpo: o modelo olha para -Z, e girar em +X levanta o bico.
+            float pivot = animatable.getBbHeight() * 0.5F;
+            poseStack.translate(0.0F, pivot, 0.0F);
+            poseStack.mulPose(com.mojang.math.Axis.XP.rotationDegrees(pitch));
+            poseStack.translate(0.0F, -pivot, 0.0F);
+        }
+    }
+
     private static class Model extends DefaultedEntityGeoModel<LandCreature> {
         Model(ResourceLocation typeId) {
             // Sem o "turnsHead" do GeckoLib: ele SUBSTITUI a rotação do osso pelo olhar e apaga a

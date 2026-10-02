@@ -19,13 +19,30 @@ public final class StatProfile {
 
     private final Map<Stat, Entry> entries;
 
+    /** Sem fôlego de voo: a espécie não voa. */
+    public static final Entry NO_FLIGHT = new Entry(0.0, 0.0);
+
     public StatProfile(Map<Stat, Entry> entries) {
+        EnumMap<Stat, Entry> all = new EnumMap<>(Stat.class);
+        all.putAll(entries);
+        // Só o fôlego de voo é opcional: a espécie que não o declara não voa.
+        all.putIfAbsent(Stat.FLIGHT_STAMINA, NO_FLIGHT);
         for (Stat stat : Stat.values()) {
-            if (!entries.containsKey(stat)) {
+            if (!all.containsKey(stat)) {
                 throw new IllegalArgumentException("Atributo ausente no perfil: " + stat.id());
             }
         }
-        this.entries = new EnumMap<>(entries);
+        this.entries = all;
+    }
+
+    /** Se a espécie tem fôlego de voo (voa). */
+    public boolean flies() {
+        return entries.get(Stat.FLIGHT_STAMINA).base() > 0.0;
+    }
+
+    /** Atributos que recebem pontos de nível nesta espécie. */
+    public java.util.List<Stat> scalableStats() {
+        return Stat.wildScalableStats(flies());
     }
 
     public Entry entry(Stat stat) {
@@ -33,7 +50,12 @@ public final class StatProfile {
     }
 
     public Map<Stat, Entry> entries() {
-        return new EnumMap<>(entries);
+        EnumMap<Stat, Entry> out = new EnumMap<>(entries);
+        // Ao gravar, a espécie que não voa continua sem o campo.
+        if (out.get(Stat.FLIGHT_STAMINA).equals(NO_FLIGHT)) {
+            out.remove(Stat.FLIGHT_STAMINA);
+        }
+        return out;
     }
 
     /** Valor final do atributo para a quantidade de pontos investida. */

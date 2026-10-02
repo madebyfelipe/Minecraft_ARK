@@ -90,7 +90,7 @@ public class BreedingTests {
     @GameTest(template = ARENA, batch = "breeding_4")
     public static void offspringIsATamedBabyWithTheGivenGenome(GameTestHelper helper) {
         Player owner = helper.makeMockSurvivalPlayer();
-        Genome genome = new Genome(StatPoints.NONE.with(Stat.ATTACK, 6), new int[]{0, 3, 2, 0, 0}, true);
+        Genome genome = new Genome(StatPoints.NONE.with(Stat.ATTACK, 6), new int[]{0, 3, 2, 0, 0, 0}, true);
         PrehistoricCreature baby = PrehistoricCreature.spawnOffspring(helper.getLevel(), ModEntities.SMILODON.get(),
                 genome, owner.getUUID(), helper.absoluteVec(new net.minecraft.world.phys.Vec3(4.5, 1, 4.5)));
         helper.assertTrue(baby != null && baby.isBaby(), "não nasceu filhote");
@@ -107,7 +107,7 @@ public class BreedingTests {
         LandCreature plain = helper.spawnWithNoFreeWill(ModEntities.SMILODON.get(), 2, 1, 2);
         LandCreature mutant = helper.spawnWithNoFreeWill(ModEntities.SMILODON.get(), 6, 1, 2);
         plain.setGenome(Genome.wild(StatPoints.NONE, false));
-        mutant.setGenome(new Genome(StatPoints.NONE, new int[]{0, 0, 10, 0, 0}, false));
+        mutant.setGenome(new Genome(StatPoints.NONE, new int[]{0, 0, 10, 0, 0, 0}, false));
         double ratio = mutant.getAttributeBaseValue(net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED)
                 / plain.getAttributeBaseValue(net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED);
         helper.assertTrue(Math.abs(ratio - 1.3) < 1e-6, "10 mutações de velocidade deram ×" + ratio);
@@ -117,7 +117,7 @@ public class BreedingTests {
     @GameTest(template = ARENA, batch = "breeding_6")
     public static void genomeSexAndGestationSurviveSaveAndLoad(GameTestHelper helper) {
         LandCreature original = helper.spawnWithNoFreeWill(ModEntities.MAMMOTH.get(), 4, 1, 4);
-        Genome genome = new Genome(StatPoints.NONE.with(Stat.HEALTH, 4), new int[]{2, 1, 0, 0, 0}, true);
+        Genome genome = new Genome(StatPoints.NONE.with(Stat.HEALTH, 4), new int[]{2, 1, 0, 0, 0, 0}, true);
         original.setGenome(genome);
         original.setFemale(true);
         original.setMatingEnabled(true);

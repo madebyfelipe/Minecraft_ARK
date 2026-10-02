@@ -35,6 +35,7 @@ import dev.madebyfelipe.iceagesurvival.species.StorageProfile;
 import dev.madebyfelipe.iceagesurvival.species.WarinessProfile;
 import dev.madebyfelipe.iceagesurvival.species.FamilyProfile;
 import dev.madebyfelipe.iceagesurvival.core.mount.FlightModel;
+import dev.madebyfelipe.iceagesurvival.core.mount.FlightStamina;
 import dev.madebyfelipe.iceagesurvival.core.ecology.Hunger;
 import dev.madebyfelipe.iceagesurvival.core.ecology.Perception;
 import dev.madebyfelipe.iceagesurvival.core.ecology.Stress;
@@ -133,6 +134,9 @@ public abstract class PrehistoricCreature extends TamableAnimal {
             SynchedEntityData.defineId(PrehistoricCreature.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> DATA_SADDLED =
             SynchedEntityData.defineId(PrehistoricCreature.class, EntityDataSerializers.BOOLEAN);
+    /** Fôlego de voo restante, de 0 a 1 (o cliente de quem monta precisa dele para limitar a subida). */
+    private static final EntityDataAccessor<Float> DATA_FLIGHT_STAMINA =
+            SynchedEntityData.defineId(PrehistoricCreature.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Boolean> DATA_FLYING =
             SynchedEntityData.defineId(PrehistoricCreature.class, EntityDataSerializers.BOOLEAN);
     /** Estresse, de 0 a 100: o painel sob a mira mostra o humor. */
@@ -174,6 +178,7 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     private static final String TAG_MUTATIONS = "Mutations";
     private static final String TAG_HEALTH_GENE = "HealthGene";
     private static final String TAG_FEMALE = "Female";
+    private static final String TAG_FLIGHT_STAMINA = "FlightStamina";
     private static final String TAG_MATING = "Mating";
     private static final String TAG_NEXT_MATING = "NextMating";
     private static final String TAG_GESTATION_END = "GestationEnd";
@@ -335,6 +340,17 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     /** Rumo e inclinação da trajetória no voo montado: seguem o olhar com curva limitada. */
     private float flightYaw;
     private float flightPitch;
+    /** Só no cliente: a inclinação do corpo em voo (graus, + sobe o bico), seguindo a trajetória. */
+    private float bodyFlightPitch;
+    private float prevBodyFlightPitch;
+    /** Esgotou o fôlego de voo: só decola de novo com {@link #TAKEOFF_STAMINA}. */
+    private boolean flightExhausted;
+    /** Fôlego mínimo para decolar depois de esgotar. */
+    public static final float TAKEOFF_STAMINA = 0.3F;
+    /** Segundos pousada para encher o fôlego de voo do zero. */
+    private static final double FLIGHT_STAMINA_REFILL_SECONDS = 10.0;
+    /** Inclinação máxima do corpo no voo, em graus. */
+    private static final float MAX_BODY_FLIGHT_PITCH = 45.0F;
     /** Ticks sem quadro novo (montaria fora da tela) até voltar ao assento dos dados. */
     private static final int ANIMATED_SEAT_MAX_AGE = 5;
     /**
@@ -568,6 +584,7 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         entityData.define(DATA_FEMALE, false);
         entityData.define(DATA_MATING, false);
         entityData.define(DATA_FLYING, false);
+        entityData.define(DATA_FLIGHT_STAMINA, 1.0F);
         entityData.define(DATA_STRESS, 0.0F);
     }
 
@@ -1471,6 +1488,16 @@ public abstract class PrehistoricCreature extends TamableAnimal {
             setNoGravity(false);
         }
         super.tick();
+        if (level().isClientSide && isFlightMount()) {
+            updateBodyFlightPitch();
+        }
+        if (isFlightMount()) {
+            if (level().isClientSide) {
+                updateFlightExhaustion();
+            } else {
+                tickFlightStamina();
+            }
+        }
         if (!level().isClientSide && !zoneChecked) {
             zoneChecked = true;
             if (outsideDangerZone()) {
@@ -1532,6 +1559,83 @@ public abstract class PrehistoricCreature extends TamableAnimal {
 
     public void setFemale(boolean female) {
         entityData.set(DATA_FEMALE, female);
+    }
+
+    /**
+     * Cliente: o bico aponta para onde o voo vai — para cima subindo, para baixo mergulhando. Calculado do
+     * próprio movimento, vale para o voo selvagem (que o cliente não conhece) e para o montado.
+     */
+    private void updateBodyFlightPitch() {
+        prevBodyFlightPitch = bodyFlightPitch;
+        float target = 0.0F;
+        if (isFlying() && !onGround()) {
+            double dy = getY() - yo;
+            double horizontal = Math.sqrt((getX() - xo) * (getX() - xo) + (getZ() - zo) * (getZ() - zo));
+            if (Math.abs(dy) + horizontal > 0.01) {
+                target = Mth.clamp((float) Math.toDegrees(Math.atan2(dy, horizontal)),
+                        -MAX_BODY_FLIGHT_PITCH, MAX_BODY_FLIGHT_PITCH);
+            }
+        }
+        bodyFlightPitch += (target - bodyFlightPitch) * 0.2F;
+    }
+
+    /** A inclinação do corpo em voo neste quadro, em graus (+ sobe o bico). */
+    public float bodyFlightPitch(float partialTick) {
+        return Mth.lerp(partialTick, prevBodyFlightPitch, bodyFlightPitch);
+    }
+
+    // ---- Fôlego de voo ----
+
+    /** Fôlego de voo máximo, em segundos (atributo {@code flight_stamina}; 0 = não voa). */
+    public double maxFlightStamina() {
+        return species().map(species -> species.stats().value(Stat.FLIGHT_STAMINA, statPoints)).orElse(0.0);
+    }
+
+    /** Fôlego de voo restante, de 0 a 1. */
+    public float flightStaminaFraction() {
+        return entityData.get(DATA_FLIGHT_STAMINA);
+    }
+
+    public void setFlightStaminaFraction(float fraction) {
+        entityData.set(DATA_FLIGHT_STAMINA, Mth.clamp(fraction, 0.0F, 1.0F));
+        updateFlightExhaustion();
+    }
+
+    /** Esgotada: não bate as asas, só plana, e não decola até recuperar {@link #TAKEOFF_STAMINA}. */
+    public boolean isFlightExhausted() {
+        return flightExhausted;
+    }
+
+    /** Nos dois lados (o cliente de quem monta decide a decolagem): esgota no zero, recupera em 30%. */
+    private void updateFlightExhaustion() {
+        flightExhausted = FlightStamina.exhausted(flightExhausted, flightStaminaFraction(), TAKEOFF_STAMINA);
+    }
+
+    /**
+     * Servidor: voando gasta (subindo o dobro, planando em descida um quinto), pousada recarrega. O valor vai
+     * sincronizado: o cliente de quem monta limita a subida com ele.
+     */
+    private void tickFlightStamina() {
+        double max = maxFlightStamina();
+        if (max <= 0.0) {
+            return;
+        }
+        float fraction = flightStaminaFraction();
+        if (isFlying() && !onGround()) {
+            double dy = getY() - yo;
+            double rate = FlightStamina.drainRate(dy);
+            fraction -= (float) (rate / 20.0 / max);
+            if (fraction <= 0.0F) {
+                fraction = 0.0F;
+                if (wildFlight) {
+                    // O selvagem esgotado não voa mais: plana até o chão.
+                    setWildFlying(false);
+                }
+            }
+        } else if (onGround() || isInWater()) {
+            fraction += (float) (1.0 / (FLIGHT_STAMINA_REFILL_SECONDS * 20.0));
+        }
+        setFlightStaminaFraction(fraction);
     }
 
     /** ♀ ou ♂. */
@@ -2264,7 +2368,7 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         double maxSpeed = mount.flightSpeed();
         FlightModel.Tuning tuning = FlightModel.Tuning.forMaxSpeed(maxSpeed, mount.flightTurnRate());
         if (!isFlying()) {
-            if (jumpPressed && isRideReady()) {
+            if (jumpPressed && isRideReady() && !isFlightExhausted()) {
                 setFlying(true);
                 flightSpeed = maxSpeed * FlightModel.TAKEOFF_SPEED_FRACTION;
                 flightYaw = getYRot();
@@ -2274,9 +2378,13 @@ public abstract class PrehistoricCreature extends TamableAnimal {
             }
             return;
         }
-        FlightModel.Input input = new FlightModel.Input(player.zza, player.xxa, riderJumpHeld, riderBoost);
+        boolean exhausted = flightStaminaFraction() <= 0.0F;
+        // Sem fôlego, não bate as asas nem dá impulso: só plana, sem subir.
+        FlightModel.Input input = new FlightModel.Input(player.zza, player.xxa,
+                riderJumpHeld && !exhausted, riderBoost && !exhausted);
         flightYaw = FlightModel.nextYaw(flightYaw, player.getYRot(), flightSpeed, tuning);
-        flightPitch = FlightModel.nextPitch(flightPitch, player.getXRot(), tuning);
+        flightPitch = FlightModel.nextPitch(flightPitch, exhausted ? Math.max(player.getXRot(), 12.0F) : player.getXRot(),
+                tuning);
         flightSpeed = FlightModel.nextSpeed(flightSpeed, flightPitch, input, tuning);
         FlightModel.Velocity velocity = FlightModel.velocity(flightSpeed, flightYaw, flightPitch, input, tuning);
         if (onGround() && velocity.y() < 0) {
@@ -2607,7 +2715,8 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         if (level().isClientSide) {
             return;
         }
-        species().ifPresent(species -> setStatPoints(StatPoints.rollWild(newLevel, randomGenerator()), species));
+        species().ifPresent(species -> setStatPoints(
+                StatPoints.rollWild(newLevel, randomGenerator(), species.stats().scalableStats()), species));
         setHealth(getMaxHealth());
         setTorpor(Math.min(torpor, maxTorpor()));
     }
@@ -2617,7 +2726,8 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         double effectiveness = tamingSession.effectiveness();
         int bonus = TamingRules.bonusPoints(
                 statPoints.level(), ServerConfig.TAMING_BONUS_LEVEL_FRACTION.get(), effectiveness);
-        species().ifPresent(species -> setStatPoints(statPoints.addRandom(bonus, randomGenerator()), species));
+        species().ifPresent(species -> setStatPoints(
+                statPoints.addRandom(bonus, randomGenerator(), species.stats().scalableStats()), species));
         affinity = (float) (effectiveness * MAX_INITIAL_AFFINITY);
 
         setMovement(DEFAULT_MOVEMENT);
@@ -2682,6 +2792,7 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         compound.put(TAG_MUTATIONS, mutationTag);
         compound.putBoolean(TAG_HEALTH_GENE, healthGene);
         compound.putBoolean(TAG_FEMALE, isFemale());
+        compound.putFloat(TAG_FLIGHT_STAMINA, flightStaminaFraction());
         compound.putBoolean(TAG_MATING, isMatingEnabled());
         compound.putLong(TAG_NEXT_MATING, nextMatingTime);
         compound.putBoolean(TAG_ZONE_CHECKED, zoneChecked);
@@ -2711,6 +2822,7 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         }
         // Criaturas de antes da reprodução não tinham sexo: sorteia uma vez.
         setFemale(compound.contains(TAG_FEMALE) ? compound.getBoolean(TAG_FEMALE) : random.nextBoolean());
+        setFlightStaminaFraction(compound.contains(TAG_FLIGHT_STAMINA) ? compound.getFloat(TAG_FLIGHT_STAMINA) : 1.0F);
         entityData.set(DATA_MATING, compound.getBoolean(TAG_MATING));
         nextMatingTime = compound.getLong(TAG_NEXT_MATING);
         zoneChecked = compound.getBoolean(TAG_ZONE_CHECKED);

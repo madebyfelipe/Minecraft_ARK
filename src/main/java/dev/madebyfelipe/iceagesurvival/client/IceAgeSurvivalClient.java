@@ -73,5 +73,6 @@ public class IceAgeSurvivalClient {
         event.registerAboveAll("creature_hud", CreatureHud::render);
         event.registerAbove(VanillaGuiOverlay.HOTBAR.id(), "thermometer", Thermometer::render);
         event.registerAbove(VanillaGuiOverlay.HOTBAR.id(), "creature_tracker", CreatureTracker::render);
+        event.registerAbove(VanillaGuiOverlay.HOTBAR.id(), "flight_stamina", CreatureHud::renderFlightStamina);
     }
 }

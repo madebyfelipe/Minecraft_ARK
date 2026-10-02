@@ -19,6 +19,10 @@ import net.minecraft.world.phys.Vec3;
 public class WildFlightGoal extends Goal {
     /** Chance por tick de decolar em repouso: em média a cada ~20 s no chão. */
     private static final int TAKEOFF_CHANCE = 400;
+    /** Fôlego mínimo para decolar sem motivo. */
+    private static final float REST_TAKEOFF_STAMINA = 0.6F;
+    /** Com o fôlego abaixo disto, procura onde pousar. */
+    private static final float LAND_STAMINA = 0.25F;
     private static final int MIN_FLIGHT_TICKS = 600;
     private static final int EXTRA_FLIGHT_TICKS = 1200;
     private static final int MIN_ALTITUDE = 10;
@@ -48,10 +52,15 @@ public class WildFlightGoal extends Goal {
         if (!creature.canFlyWild()) {
             return false;
         }
+        if (creature.isFlightExhausted()) {
+            return false; // sem fôlego: fica no chão até recuperar
+        }
         boolean airborne = !creature.onGround() && creature.fallDistance > 1.5F;
         boolean hurt = creature.hurtTime > 0 && creature.getLastHurtByMob() != null;
+        // Decolar à toa só com fôlego de sobra; ferida ou na água, decola com o que tiver.
         return creature.isFlying() || airborne || hurt || creature.isInWater()
-                || creature.getRandom().nextInt(TAKEOFF_CHANCE) == 0;
+                || creature.flightStaminaFraction() >= REST_TAKEOFF_STAMINA
+                && creature.getRandom().nextInt(TAKEOFF_CHANCE) == 0;
     }
 
     @Override
@@ -87,6 +96,9 @@ public class WildFlightGoal extends Goal {
 
     @Override
     public void tick() {
+        if (!landing && creature.flightStaminaFraction() < LAND_STAMINA) {
+            remainingTicks = 0; // cansada: pousa antes de esgotar
+        }
         if (!landing && --remainingTicks <= 0) {
             landing = pickLandingWaypoint();
             if (!landing) {

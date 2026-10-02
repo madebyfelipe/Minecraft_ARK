@@ -214,7 +214,15 @@ public class CreatureStatusScreen extends Screen {
                 (float) (status.torpor() / Math.max(status.value(Stat.TORPOR), 1.0)), 0xFF9B59D0);
         y += ROW_HEIGHT + 2;
         statRow(graphics, x, right, y, Stat.ARMOR, String.format(Locale.ROOT, "%.1f", status.value(Stat.ARMOR)));
-        y += ROW_HEIGHT + 4;
+        y += ROW_HEIGHT;
+        if (status.value(Stat.FLIGHT_STAMINA) > 0) {
+            // Só de quem voa: segundos de voo com o fôlego cheio.
+            statRow(graphics, x, right, y, Stat.FLIGHT_STAMINA,
+                    String.format(Locale.ROOT, "%.0f s", status.value(Stat.FLIGHT_STAMINA)));
+            CreatureHud.drawBar(graphics, x, y + 9, right - x, 2, creature.flightStaminaFraction(), 0xFF6FC3E8);
+            y += ROW_HEIGHT + 2;
+        }
+        y += 4;
 
         graphics.drawString(font, Component.translatable("iceagesurvival.status.affinity"), x, y, LABEL);
         String affinity = String.format(Locale.ROOT, "%.0f / %.0f", status.affinity(), PrehistoricCreature.MAX_AFFINITY);

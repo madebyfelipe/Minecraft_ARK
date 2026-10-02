@@ -37,6 +37,7 @@ public final class CreatureHud {
     private static final int WARNING_DIM = 0xFFC9822E;
     private static final int MALE = 0xFF5BA8FF;
     private static final int FEMALE = 0xFFFF7BC4;
+    private static final int FLIGHT = 0xFF6FC3E8;
 
     private CreatureHud() {
     }
@@ -129,6 +130,29 @@ public final class CreatureHud {
             Component hint = Component.translatable("iceagesurvival.hud.status_hint", CommandInput.statusKeyName());
             graphics.drawString(font, hint, right - font.width(hint), y, SUBTLE);
         }
+    }
+
+    /**
+     * Fôlego de voo da montaria voadora, acima da barra de experiência, enquanto o jogador monta. Esgotada, pisca:
+     * não sobe mais, só plana.
+     */
+    public static void renderFlightStamina(ForgeGui gui, GuiGraphics graphics, float partialTick, int screenWidth,
+                                           int screenHeight) {
+        Minecraft minecraft = Minecraft.getInstance();
+        if (minecraft.options.hideGui || minecraft.player == null
+                || !(minecraft.player.getVehicle() instanceof PrehistoricCreature mount)
+                || !mount.isFlightMount() || mount.maxFlightStamina() <= 0) {
+            return;
+        }
+        int width = 182;
+        int x = (screenWidth - width) / 2;
+        int y = screenHeight - 32 - 3 - 8;
+        float fraction = mount.flightStaminaFraction();
+        boolean blink = mount.isFlightExhausted() && (minecraft.level.getGameTime() / 6) % 2 == 0;
+        drawBar(graphics, x, y, width, 4, fraction, blink ? WARNING_DIM : FLIGHT);
+        Component label = Component.translatable("iceagesurvival.hud.flight_stamina", percent(fraction));
+        graphics.drawString(minecraft.font, label, (screenWidth - minecraft.font.width(label)) / 2, y - 10,
+                mount.isFlightExhausted() ? WARNING : TEXT);
     }
 
     private static Component relation(PrehistoricCreature creature, boolean own) {

@@ -18,6 +18,10 @@
     "armor": {
       "base": 2,
       "per_point": 0.03
+    },
+    "flight_stamina": {
+      "base": 30,
+      "per_point": 0.04
     }
   },
   "body": {

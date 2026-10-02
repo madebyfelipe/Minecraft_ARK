@@ -20,10 +20,15 @@ public final class StatPoints {
 
     /** Distribui {@code level - 1} pontos ao acaso entre os atributos escaláveis. */
     public static StatPoints rollWild(int level, RandomGenerator random) {
+        return rollWild(level, random, Stat.wildScalableStats());
+    }
+
+    /** Como {@link #rollWild(int, RandomGenerator)}, entre os atributos dados. */
+    public static StatPoints rollWild(int level, RandomGenerator random, java.util.List<Stat> scalable) {
         if (level < 1) {
             throw new IllegalArgumentException("Nível inválido: " + level);
         }
-        return NONE.addRandom(level - 1, random);
+        return NONE.addRandom(level - 1, random, scalable);
     }
 
     public int get(Stat stat) {
@@ -32,11 +37,15 @@ public final class StatPoints {
 
     /** Acrescenta {@code count} pontos ao acaso entre os atributos escaláveis. */
     public StatPoints addRandom(int count, RandomGenerator random) {
+        return addRandom(count, random, Stat.wildScalableStats());
+    }
+
+    /** Acrescenta {@code count} pontos ao acaso entre os atributos dados. */
+    public StatPoints addRandom(int count, RandomGenerator random, java.util.List<Stat> scalable) {
         if (count < 0) {
             throw new IllegalArgumentException("Quantidade negativa: " + count);
         }
         int[] copy = points.clone();
-        var scalable = Stat.wildScalableStats();
         for (int i = 0; i < count; i++) {
             copy[scalable.get(random.nextInt(scalable.size())).ordinal()]++;
         }
