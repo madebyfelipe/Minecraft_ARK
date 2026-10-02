@@ -57,6 +57,11 @@ BIOMES = {
     'windswept_savanna': 'savana ventosa', 'wooded_badlands': 'terras áridas arborizadas', 'sparse_jungle': 'selva esparsa',
 }
 PREFERENCE = {3: 'favorita', 2: 'boa', 1: 'aceitável', 0: 'último recurso'}
+SPECIAL = {
+    'ambush': 'emboscada: arrancada +50% por 4 s no bote, e o primeiro golpe agarra (presa lenta 2 s)',
+    'pack_leap': 'salto: no bote, pula sobre a presa a 3–10 blocos',
+    'beak_strike': 'bicada: 30% do dano a mais ignorando armadura, e recua 1,5 s depois de acertar',
+}
 
 
 def esc(text):
@@ -90,6 +95,7 @@ sizes = {name: (float(w), float(h)) for name, w, h in
          re.findall(r'landCreature\("(\w+)",\s*([\d.]+)F,\s*([\d.]+)F\)', ENTITIES.read_text())}
 species = {f.stem: json.loads(f.read_text()) for f in sorted(SPECIES.glob('*.json')) if f.stem != 'test_creature'}
 disabled = set(tag_values('entity_types', '#iceagesurvival:disabled'))
+apex = set(tag_values('entity_types', '#iceagesurvival:apex'))
 
 
 def name(entity_id):
@@ -182,6 +188,8 @@ def card(key):
         badges.append('<span class="badge off">Desligado</span>')
     if b.get('aggressive'):
         badges.append('<span class="badge">Agressivo</span>')
+    if entity in apex:
+        badges.append('<span class="badge off">Apex</span>')
 
     social = []
     herd = b.get('herd_radius', 0)
@@ -196,6 +204,11 @@ def card(key):
     if b.get('flee_health_fraction'):
         social.append(row('Foge ferido', f'abaixo de {num(b["flee_health_fraction"] * 100)}% da vida'))
     social.append(row('Nervosismo', num(eco['nervousness'])))
+    if entity in apex:
+        social.append(row('Apex', 'não cai com tranquilizante; só se doma vencendo o desafio com a cabeça de outro da espécie'))
+    flight = data.get('stats', {}).get('flight_stamina')
+    if flight:
+        social.append(row('Fôlego de voo', f'{num(flight["base"])} s no nível 1 (+{num(flight.get("per_point", 0) * 100)}% por ponto)'))
 
     sense = []
     if w:
@@ -230,6 +243,11 @@ def card(key):
             row('Caça', ('espreita e dispara' if b.get('hunt_style', 'stalk') == 'stalk' else 'vai direto')
                 + f'; fôlego de {eco["chase_seconds"]} s; desiste se a presa abrir {CHASE_GIVE_UP} blocos'),
         ]
+        if b.get('hunt_special') in SPECIAL:
+            rows.append(row('Marca', esc(SPECIAL[b['hunt_special']])))
+        pack = data.get('pack_bonus')
+        if pack:
+            rows.append(row('Bônus de bando', f'+{num(pack["attack_multiplier"] * 100)}% de dano e velocidade com aliado do bando a {pack["radius"]} blocos'))
         table = diet(key)
         by_pref = {}
         for prey, preference in table.items():

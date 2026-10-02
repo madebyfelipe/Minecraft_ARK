@@ -71,7 +71,8 @@ public class StalkTests {
     private static List<LandCreature> herd(GameTestHelper helper, EntityType<LandCreature> type, int... xs) {
         UUID group = UUID.randomUUID();
         return java.util.Arrays.stream(xs).mapToObj(x -> {
-            LandCreature member = helper.spawn(type, x, 0, 2);
+            // Parada: aqui importa a ronda do predador; manada andando se desgarra e vira outro teste.
+            LandCreature member = helper.spawnWithNoFreeWill(type, x, 0, 2);
             member.setGroupId(group);
             return member;
         }).toList();

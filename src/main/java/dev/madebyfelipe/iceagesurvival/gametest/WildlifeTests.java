@@ -276,7 +276,8 @@ public class WildlifeTests {
         var level = helper.getLevel();
         for (EntityType<?> type : new EntityType<?>[] {ModEntities.BRONTOSAURUS.get(), ModEntities.TYRANNOSAURUS.get()}) {
             helper.assertTrue(GroupSpacing.spacing(level, type) == 300, "espaçamento de 300 blocos");
-            int base = 2_000_000 + (type == ModEntities.TYRANNOSAURUS.get() ? 10_000 : 0) + level.random.nextInt(1000) * 2000;
+            // O mundo de teste guarda as marcas entre rodadas: sorteio largo para não cair numa região já usada.
+            int base = 2_000_000 + (type == ModEntities.TYRANNOSAURUS.get() ? 1_000 : 0) + level.random.nextInt(12_000) * 2000;
             BlockPos first = new BlockPos(base, 80, base);
             helper.assertTrue(GroupSpacing.permitsSpawn(level, type, first), "primeiro grupo da região");
             helper.assertTrue(GroupSpacing.permitsSpawn(level, type, first.offset(4, 0, -3)), "membro do mesmo grupo");

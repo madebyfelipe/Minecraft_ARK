@@ -142,7 +142,7 @@
     <div class="eyebrow">Ice Age Survival · documentação técnica</div>
     <h1>Ecologia de predadores, presas e manadas</h1>
     <p class="lead">As criaturas selvagens vivem em bandos com território, fome compartilhada e uma cadeia alimentar em que o jogador também entra. O carnívoro espreita a manada antes de disparar; a presa encara ou foge conforme o porte e quem a defende.</p>
-    <div class="stamp">Revisão: 1 de outubro de 2026 · Minecraft 1.20.1 / Forge</div>
+    <div class="stamp">Revisão: 2 de outubro de 2026 · Minecraft 1.20.1 / Forge</div>
   </header>
 
   <main>
@@ -245,6 +245,19 @@
       </article>
     </div>
 
+    <h3>A marca de cada caçador</h3>
+    <p>Pela biologia real, os três caçadores médios caçam de jeitos diferentes (<code>behavior.hunt_special</code>):</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Caçador</th><th>Marca</th><th>Na vida real</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Smilodon</strong></td><td>Emboscada: no bote, a arrancada mais rápida dos três (+50% por 4 s); o primeiro golpe agarra e prende a presa (lenta por 2 s). Solitário, fôlego curto.</td><td>160–280 kg, patas dianteiras mais fortes que as de qualquer felino vivo: arrancadas curtas e luta corpo a corpo.</td></tr>
+          <tr><td><strong>Utahraptor</strong></td><td>Bando: o maior bônus de bando (+40% de dano e velocidade) e, no bote, salta sobre a presa a 3–10 blocos.</td><td>O maior dromeossaurídeo, 6–7 m e ~500 kg.</td></tr>
+          <tr><td><strong>Kelenken</strong></td><td>A mais forte sozinha: a bicada passa da armadura (30% a mais) e ela recua um instante depois de acertar; corredora de fôlego longo (40 s).</td><td>A maior ave-terrível, 2,5–3 m, 40–50 km/h; bico fundido ao crânio, "golpe e recua".</td></tr>
+        </tbody>
+      </table>
+    </div>
+
     <h2>5. Lutar ou fugir</h2>
     <p>Espécies com <code>behavior.wariness</code> avaliam ameaças numa faixa de percepção. A decisão considera a
       distância entre as bordas das hitboxes, a proporção de tamanho, quantos caçam e quantos defendem, se a ameaça se
@@ -303,6 +316,12 @@
           jogador, revida: é defesa, não caçada.</p>
       </article>
       <article class="card">
+        <h3>Apex: tributo e desafio</h3>
+        <p>T-Rex e Espinossauro não caem com tranquilizante. Quem traz a cabeça de outro da espécie (dropada ao matá-lo) é
+          reconhecido como caçador hábil: o apex não o ataca, e com um clique a cabeça abre o desafio — o jogador e até 3
+          criaturas dele; uma quarta, ou outro jogador, cancela. Vencido, o apex cai desmaiado e é domado com carne.</p>
+      </article>
+      <article class="card">
         <h3>Herbívoro cauteloso</h3>
         <p>Com <code>wariness.players</code>, percebe o jogador como outra ameaça. Agachar reduz o alcance conforme
           <code>sneak_factor</code>.</p>
@@ -334,7 +353,7 @@
       <li><code>behavior.ecology.hunt_radius</code>, <code>hunger_seconds</code>, <code>chase_seconds</code>, <code>rival_radius</code> e <code>sated_seconds</code>.</li>
       <li><code>behavior.herd_radius</code>, <code>group_defense</code>, <code>migrates</code> e <code>spawn.group_min/max</code>: bando e limite.</li>
       <li><code>behavior.wariness</code>: alerta, investida, blefe, recuo, filhote, jogador.</li>
-      <li><code>spawn.weight</code>, <code>favored</code>, <code>max_nearby</code>, <code>spacing</code> e <code>min_distance</code>: onde e quanto nasce. O teto total efetivo é 40% de <code>wildSpawnMaxTotal</code> (28 por jogador).</li>
+      <li><code>spawn.weight</code>, <code>favored</code>, <code>max_nearby</code>, <code>spacing</code> e <code>min_distance</code>: onde e quanto nasce. O teto total efetivo é 50% de <code>wildSpawnMaxTotal</code> (36 por jogador), do qual os herbívoros ocupam no máximo 3/4.</li>
     </ul>
     <p>Implementação: <a href="../src/main/java/dev/madebyfelipe/iceagesurvival/entity/ai/HuntGoal.java"><code>HuntGoal</code></a>,
       <a href="../src/main/java/dev/madebyfelipe/iceagesurvival/entity/ai/StalkGoal.java"><code>StalkGoal</code></a>,
@@ -344,7 +363,9 @@
       <a href="../src/main/java/dev/madebyfelipe/iceagesurvival/entity/ai/WaryGoal.java"><code>WaryGoal</code></a> e
       <a href="../src/main/java/dev/madebyfelipe/iceagesurvival/entity/ai/RivalryGoal.java"><code>RivalryGoal</code></a>;
       regras puras em <a href="../src/main/java/dev/madebyfelipe/iceagesurvival/core/ecology/HuntChoice.java"><code>HuntChoice</code></a>,
-      <a href="../src/main/java/dev/madebyfelipe/iceagesurvival/core/ecology/Perception.java"><code>Perception</code></a> e
+      <a href="../src/main/java/dev/madebyfelipe/iceagesurvival/core/ecology/Perception.java"><code>Perception</code></a>,
+      <a href="../src/main/java/dev/madebyfelipe/iceagesurvival/core/ecology/HuntSpecials.java"><code>HuntSpecials</code></a>,
+      <a href="../src/main/java/dev/madebyfelipe/iceagesurvival/core/ecology/ApexDuel.java"><code>ApexDuel</code></a> e
       <a href="../src/main/java/dev/madebyfelipe/iceagesurvival/core/ecology/ThreatResponse.java"><code>ThreatResponse</code></a>.</p>
 
     <h2>10. Limites e leitura de comportamento</h2>
