@@ -206,5 +206,11 @@
   "iceagesurvival.revive_table.hint": "Implant + diamond → revive",
   "iceagesurvival.corpse.fallen": "%s has fallen (%s). The body stays for 20 min with its inventory and implant.",
   "entity.iceagesurvival.kelenken": "Kelenken",
-  "item.iceagesurvival.kelenken_spawn_egg": "Kelenken Spawn Egg"
+  "item.iceagesurvival.kelenken_spawn_egg": "Kelenken Spawn Egg",
+  "block.iceagesurvival.tyrannosaurus_head": "Tyrannosaurus Head",
+  "block.iceagesurvival.spinosaurus_head": "Spinosaurus Head",
+  "iceagesurvival.apex.challenge": "%s accepts the challenge. Fight with up to %s of your creatures; one more, or another player, cancels the ritual.",
+  "iceagesurvival.apex.interfered": "Someone interfered: %s ends the challenge.",
+  "iceagesurvival.apex.abandoned": "You walked away: %s ends the challenge.",
+  "iceagesurvival.apex.won": "%s has fallen, defeated. Feed it meat to tame it."
 }

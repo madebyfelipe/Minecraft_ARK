@@ -73,7 +73,8 @@ public class TranqArrow extends AbstractArrow {
     @Override
     protected void doPostHurtEffects(LivingEntity target) {
         super.doPostHurtEffects(target);
-        if (target instanceof PrehistoricCreature creature) {
+        if (target instanceof PrehistoricCreature creature && !creature.isApex()) {
+            // O apex não cai com tranquilizante: só vencendo o desafio.
             double torpor = fixedTorpor > 0.0 ? fixedTorpor
                     : ServerConfig.TRANQ_ARROW_TORPOR.get() * speedAtImpact / FULL_DRAW_SPEED * powerMultiplier();
             creature.addTorpor(torpor, getOwner() instanceof Player player ? player : null);

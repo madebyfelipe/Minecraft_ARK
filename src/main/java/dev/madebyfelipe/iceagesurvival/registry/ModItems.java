@@ -138,6 +138,12 @@ public final class ModItems {
     public static final RegistryObject<BlockItem> INCUBATOR = blockItem("incubator", ModBlocks.INCUBATOR);
     public static final RegistryObject<BlockItem> CHEMISTRY_BENCH = blockItem("chemistry_bench", ModBlocks.CHEMISTRY_BENCH);
     public static final RegistryObject<BlockItem> PREP_STATION = blockItem("prep_station", ModBlocks.PREP_STATION);
+    public static final RegistryObject<BlockItem> TYRANNOSAURUS_HEAD = ITEMS.register("tyrannosaurus_head",
+            () -> new BlockItem(ModBlocks.TYRANNOSAURUS_HEAD.get(), new Item.Properties().stacksTo(16)
+                    .rarity(net.minecraft.world.item.Rarity.RARE)));
+    public static final RegistryObject<BlockItem> SPINOSAURUS_HEAD = ITEMS.register("spinosaurus_head",
+            () -> new BlockItem(ModBlocks.SPINOSAURUS_HEAD.get(), new Item.Properties().stacksTo(16)
+                    .rarity(net.minecraft.world.item.Rarity.RARE)));
     public static final RegistryObject<BlockItem> REVIVE_TABLE = blockItem("revive_table", ModBlocks.REVIVE_TABLE);
 
     /** Fica no corpo da criatura domesticada que morreu; revive-a na mesa de reviver com um diamante. */
@@ -230,6 +236,8 @@ public final class ModItems {
             event.accept(CHEMISTRY_BENCH);
             event.accept(PREP_STATION);
             event.accept(REVIVE_TABLE);
+            event.accept(TYRANNOSAURUS_HEAD);
+            event.accept(SPINOSAURUS_HEAD);
         } else if (event.getTabKey() == CreativeModeTabs.NATURAL_BLOCKS) {
             event.accept(BLACK_FRUIT_LEAVES);
             event.accept(BLACK_FRUIT_SAPLING);

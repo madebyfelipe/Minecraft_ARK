@@ -206,5 +206,11 @@
   "iceagesurvival.revive_table.hint": "Implante + diamante → revive",
   "iceagesurvival.corpse.fallen": "%s caiu (%s). O corpo fica 20 min com o inventário e o implante.",
   "entity.iceagesurvival.kelenken": "Kelenken",
-  "item.iceagesurvival.kelenken_spawn_egg": "Ovo Gerador de Kelenken"
+  "item.iceagesurvival.kelenken_spawn_egg": "Ovo Gerador de Kelenken",
+  "block.iceagesurvival.tyrannosaurus_head": "Cabeça de Tiranossauro",
+  "block.iceagesurvival.spinosaurus_head": "Cabeça de Espinossauro",
+  "iceagesurvival.apex.challenge": "%s aceita o desafio. Lute com até %s criaturas suas; outra a mais, ou outro jogador, cancela o ritual.",
+  "iceagesurvival.apex.interfered": "Alguém interferiu: %s encerra o desafio.",
+  "iceagesurvival.apex.abandoned": "Você se afastou: %s encerra o desafio.",
+  "iceagesurvival.apex.won": "%s caiu, vencido. Dê carne para domá-lo."
 }

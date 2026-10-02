@@ -22,6 +22,10 @@ public final class ModTags {
     public static final TagKey<net.minecraft.world.entity.EntityType<?>> DISABLED =
             TagKey.create(Registries.ENTITY_TYPE, IceAgeSurvival.id("disabled"));
 
+    /** Apex: só se doma vencendo o desafio, depois de trazer a cabeça de outro da espécie. */
+    public static final TagKey<net.minecraft.world.entity.EntityType<?>> APEX =
+            TagKey.create(Registries.ENTITY_TYPE, IceAgeSurvival.id("apex"));
+
     private ModTags() {
     }
 }

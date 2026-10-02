@@ -359,6 +359,9 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     private LivingEntity retreatFrom;
     private static final java.util.UUID AMBUSH_SPEED_MODIFIER =
             java.util.UUID.fromString("6d2b7c1a-3a8e-4c55-9b77-2a7d3e9c1f10");
+    /** O desafio em curso, se um caçador trouxe a cabeça de outro da espécie (só apex). */
+    @Nullable
+    private dev.madebyfelipe.iceagesurvival.core.ecology.ApexDuel duel;
     /** Há quanto tempo é corpo, em ticks. */
     private int corpseTicks;
     /** Vinte minutos: depois disso o corpo some e o que sobrou cai no chão. */
@@ -1236,6 +1239,17 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         huntStartTime = level().getGameTime();
     }
 
+    /** Já deu o bote nesta caçada: a presa pode saber que é caçada. Quem espreita começa escondido. */
+    private boolean huntRevealed;
+
+    public boolean huntRevealed() {
+        return huntRevealed;
+    }
+
+    public void setHuntRevealed(boolean revealed) {
+        huntRevealed = revealed;
+    }
+
     /** Perseguindo presa (não um jogador, não um rival). */
     public boolean isHunting() {
         return huntStartTime >= 0 && getTarget() != null;
@@ -1615,6 +1629,9 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         }
         if (!level().isClientSide) {
             tickHuntSpecials();
+            if (isApex() && !isTame()) {
+                tickApex();
+            }
         }
         if (!level().isClientSide && !zoneChecked) {
             zoneChecked = true;
@@ -1701,6 +1718,116 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     public float bodyFlightPitch(float partialTick) {
         return Mth.lerp(partialTick, prevBodyFlightPitch, bodyFlightPitch);
     }
+
+    // ---- Apex: tributo e desafio ----
+
+    /** T-Rex e Espinossauro: só se domam vencendo o desafio ({@link dev.madebyfelipe.iceagesurvival.core.ecology.ApexDuel}). */
+    public boolean isApex() {
+        return getType().is(dev.madebyfelipe.iceagesurvival.registry.ModTags.APEX);
+    }
+
+    /** A cabeça-troféu desta espécie ({@code <espécie>_head}), ou ar se não houver. */
+    public static net.minecraft.world.item.Item trophyFor(net.minecraft.world.entity.EntityType<?> type) {
+        var id = net.minecraft.core.registries.BuiltInRegistries.ENTITY_TYPE.getKey(type);
+        return net.minecraftforge.registries.ForgeRegistries.ITEMS.getValue(
+                new net.minecraft.resources.ResourceLocation(id.getNamespace(), id.getPath() + "_head"));
+    }
+
+    private boolean isTrophyOf(ItemStack stack) {
+        net.minecraft.world.item.Item trophy = trophyFor(getType());
+        return trophy != null && trophy != Items.AIR && stack.is(trophy);
+    }
+
+    /**
+     * O tributo: com a cabeça de outro da espécie na mão, o apex reconhece um caçador hábil — não o caça nem o
+     * ataca; encara e ruge.
+     */
+    public boolean respectsTribute(Player player) {
+        return isApex() && !isTame() && duel == null
+                && (isTrophyOf(player.getMainHandItem()) || isTrophyOf(player.getOffhandItem()));
+    }
+
+    public boolean isDueling() {
+        return duel != null;
+    }
+
+    private void startDuel(Player player, InteractionHand hand, ItemStack trophy) {
+        if (!player.getAbilities().instabuild) {
+            trophy.shrink(1);
+        }
+        duel = new dev.madebyfelipe.iceagesurvival.core.ecology.ApexDuel(player.getUUID());
+        setTarget(player);
+        playAlert();
+        player.sendSystemMessage(Component.translatable("iceagesurvival.apex.challenge", getDisplayName(),
+                dev.madebyfelipe.iceagesurvival.core.ecology.ApexDuel.MAX_CREATURES));
+    }
+
+    /** Juiz do desafio: quem bate fora das regras cancela o ritual. */
+    private void refereeDuel(DamageSource source) {
+        net.minecraft.world.entity.Entity attacker = source.getEntity();
+        java.util.UUID player = attacker instanceof Player p ? p.getUUID() : null;
+        java.util.UUID creature = attacker != null && !(attacker instanceof Player) ? attacker.getUUID() : null;
+        java.util.UUID owner = attacker instanceof net.minecraft.world.entity.OwnableEntity pet ? pet.getOwnerUUID() : null;
+        if (duel.hitBy(player, creature, owner) == dev.madebyfelipe.iceagesurvival.core.ecology.ApexDuel.Verdict.CANCEL) {
+            cancelDuel("iceagesurvival.apex.interfered");
+        }
+    }
+
+    private void cancelDuel(String reasonKey) {
+        if (duel == null) {
+            return;
+        }
+        Player challenger = level().getPlayerByUUID(duel.challenger());
+        duel = null;
+        if (challenger != null) {
+            challenger.sendSystemMessage(Component.translatable(reasonKey, getDisplayName()));
+        }
+    }
+
+    /** Vencido: não morre, cai desmaiado no nome do desafiante, que o doma com carne como qualquer outro. */
+    private void winDuel() {
+        java.util.UUID challenger = duel.challenger();
+        duel = null;
+        setHealth(Math.max(1.0F, getMaxHealth() * 0.1F));
+        setTarget(null);
+        setTorpor(maxTorpor());
+        tamerUUID = challenger;
+        Player player = level().getPlayerByUUID(challenger);
+        if (player != null) {
+            player.sendSystemMessage(Component.translatable("iceagesurvival.apex.won", getDisplayName()));
+        }
+    }
+
+    private void tickApex() {
+        if (duel != null) {
+            if (tickCount % 20 != 0) {
+                return;
+            }
+            Player challenger = level().getPlayerByUUID(duel.challenger());
+            if (challenger == null || !challenger.isAlive()
+                    || challenger.distanceTo(this) > dev.madebyfelipe.iceagesurvival.core.ecology.ApexDuel.MAX_DISTANCE) {
+                cancelDuel("iceagesurvival.apex.abandoned");
+            } else if (getTarget() == null) {
+                setTarget(challenger);
+            }
+            return;
+        }
+        // Tributo à vista: encara quem traz a cabeça, ruge de vez em quando, e não o ataca.
+        Player bearer = level().getNearestPlayer(getX(), getY(), getZ(), TRIBUTE_SIGHT,
+                candidate -> candidate instanceof Player p && respectsTribute(p));
+        if (bearer != null) {
+            getLookControl().setLookAt(bearer, 10.0F, 10.0F);
+            if (getTarget() == bearer) {
+                setTarget(null);
+            }
+            if (tickCount % 100 == 0) {
+                playAlert();
+            }
+        }
+    }
+
+    /** De quão longe o apex nota a cabeça na mão do jogador. */
+    private static final double TRIBUTE_SIGHT = 24.0;
 
     // ---- Corpo e implante ----
 
@@ -2651,6 +2778,10 @@ public abstract class PrehistoricCreature extends TamableAnimal {
 
     @Override
     public void die(DamageSource source) {
+        if (!level().isClientSide && duel != null && !source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)) {
+            winDuel();
+            return;
+        }
         if (!level().isClientSide && isTame() && !isCorpse() && !source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)) {
             becomeCorpse(source);
             return;
@@ -2682,6 +2813,9 @@ public abstract class PrehistoricCreature extends TamableAnimal {
 
     @Override
     public boolean hurt(DamageSource source, float amount) {
+        if (!level().isClientSide && duel != null) {
+            refereeDuel(source);
+        }
         boolean hurt = super.hurt(source, amount);
         if (hurt && !level().isClientSide && isUnconscious() && !isTame()) {
             tamingSession.recordDamage(amount / getMaxHealth());
@@ -2711,6 +2845,12 @@ public abstract class PrehistoricCreature extends TamableAnimal {
 
     @Override
     public InteractionResult mobInteract(Player player, InteractionHand hand) {
+        if (isApex() && !isTame() && !isUnconscious() && duel == null && isTrophyOf(player.getItemInHand(hand))) {
+            if (!level().isClientSide) {
+                startDuel(player, hand, player.getItemInHand(hand));
+            }
+            return InteractionResult.sidedSuccess(level().isClientSide);
+        }
         if (isCorpse()) {
             // O corpo só se abre: o inventário e o implante.
             if (!level().isClientSide && canAccessInventory(player)) {

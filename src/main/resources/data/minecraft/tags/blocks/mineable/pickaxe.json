@@ -2,6 +2,8 @@
   "replace": false,
   "values": [
     "iceagesurvival:incubator",
-    "iceagesurvival:revive_table"
+    "iceagesurvival:revive_table",
+    "iceagesurvival:tyrannosaurus_head",
+    "iceagesurvival:spinosaurus_head"
   ]
 }

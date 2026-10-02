@@ -151,6 +151,7 @@ public class StalkGoal extends Goal {
             return;
         }
         creature.playAlert();
+        creature.setHuntRevealed(true);
         // O fôlego da perseguição conta daqui.
         creature.beginHunt();
         creature.signalPounce(target);

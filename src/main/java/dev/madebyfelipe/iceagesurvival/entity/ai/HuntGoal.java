@@ -66,6 +66,9 @@ public class HuntGoal extends Goal {
         if (candidate instanceof Player player && !net.minecraft.world.entity.EntitySelector.NO_CREATIVE_OR_SPECTATOR.test(player)) {
             return false;
         }
+        if (candidate instanceof Player player && hunter.respectsTribute(player)) {
+            return false; // traz a cabeça de outro da espécie: um caçador hábil, não comida
+        }
         if (candidate instanceof OwnableEntity ownable && ownable.getOwnerUUID() != null) {
             return false;
         }
@@ -192,6 +195,7 @@ public class HuntGoal extends Goal {
     public void start() {
         creature.setTarget(quarry);
         creature.beginHunt();
+        creature.setHuntRevealed(false);
         creature.rallyPack(quarry);
         // Quem espreita não se anuncia: a manada só se sabe caçada no bote (StalkGoal).
         if (quarry instanceof PrehistoricCreature hunted && !creature.stalks()) {
@@ -216,7 +220,9 @@ public class HuntGoal extends Goal {
     @Override
     public void tick() {
         // A presa segue se sabendo caçada enquanto o predador vem.
-        if (quarry instanceof PrehistoricCreature hunted && !creature.isStalking() && creature.tickCount % 20 == 0) {
+        // Quem espreita só renova o aviso depois do bote; antes disso a manada não sabe de nada.
+        boolean revealed = !creature.stalks() || creature.huntRevealed();
+        if (quarry instanceof PrehistoricCreature hunted && revealed && !creature.isStalking() && creature.tickCount % 20 == 0) {
             hunted.stillHunted(creature, packSize());
         }
     }

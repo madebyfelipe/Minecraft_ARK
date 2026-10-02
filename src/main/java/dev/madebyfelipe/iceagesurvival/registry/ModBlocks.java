@@ -44,6 +44,17 @@ public final class ModBlocks {
             "chemistry_bench",
             () -> new ChemistryBenchBlock(BlockBehaviour.Properties.copy(Blocks.CRAFTING_TABLE)));
 
+    /** Cabeças-troféu dos apex: decoração, e o tributo para desafiar outro da espécie. */
+    public static final RegistryObject<dev.madebyfelipe.iceagesurvival.block.TrophyHeadBlock> TYRANNOSAURUS_HEAD =
+            trophyHead("tyrannosaurus_head");
+    public static final RegistryObject<dev.madebyfelipe.iceagesurvival.block.TrophyHeadBlock> SPINOSAURUS_HEAD =
+            trophyHead("spinosaurus_head");
+
+    private static RegistryObject<dev.madebyfelipe.iceagesurvival.block.TrophyHeadBlock> trophyHead(String name) {
+        return BLOCKS.register(name, () -> new dev.madebyfelipe.iceagesurvival.block.TrophyHeadBlock(
+                BlockBehaviour.Properties.copy(Blocks.BONE_BLOCK).noOcclusion()));
+    }
+
     public static final RegistryObject<dev.madebyfelipe.iceagesurvival.block.PrepStationBlock> PREP_STATION =
             BLOCKS.register("prep_station", () -> new dev.madebyfelipe.iceagesurvival.block.PrepStationBlock(
                     BlockBehaviour.Properties.copy(Blocks.CRAFTING_TABLE)));
