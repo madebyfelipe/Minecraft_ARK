@@ -1,0 +1,49 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:cod",
+    "minecraft:salmon",
+    "minecraft:tropical_fish",
+    "minecraft:pufferfish",
+    {
+      "id": "tfc:cod",
+      "required": false
+    },
+    {
+      "id": "tfc:salmon",
+      "required": false
+    },
+    {
+      "id": "tfc:tropical_fish",
+      "required": false
+    },
+    {
+      "id": "tfc:pufferfish",
+      "required": false
+    },
+    {
+      "id": "tfc:bluegill",
+      "required": false
+    },
+    {
+      "id": "tfc:crappie",
+      "required": false
+    },
+    {
+      "id": "tfc:lake_trout",
+      "required": false
+    },
+    {
+      "id": "tfc:largemouth_bass",
+      "required": false
+    },
+    {
+      "id": "tfc:rainbow_trout",
+      "required": false
+    },
+    {
+      "id": "tfc:smallmouth_bass",
+      "required": false
+    }
+  ]
+}

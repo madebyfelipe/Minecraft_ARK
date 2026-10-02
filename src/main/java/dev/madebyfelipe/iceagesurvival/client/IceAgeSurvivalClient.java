@@ -47,7 +47,15 @@ public class IceAgeSurvivalClient {
         event.registerEntityRenderer(ModEntities.TEST_CREATURE.get(), TestCreatureRenderer::new);
         event.registerEntityRenderer(ModEntities.TRANQ_ARROW.get(), TranqArrowRenderer::new);
         for (var creature : ModEntities.LAND_CREATURES) {
-            event.registerEntityRenderer(creature.get(), context -> new CreatureRenderer(context, creature.getId()));
+            // Espécies com modelo Tabula do Jurassic Reborn usam o renderer de poses; as demais, o GeckoLib.
+            if (dev.madebyfelipe.iceagesurvival.client.tabula.JurassicRebornAppearance.forEntity(creature.getId())
+                    .isPresent()) {
+                event.registerEntityRenderer(creature.get(), context ->
+                        new dev.madebyfelipe.iceagesurvival.client.tabula.TabulaCreatureRenderer(context,
+                                creature.getId()));
+            } else {
+                event.registerEntityRenderer(creature.get(), context -> new CreatureRenderer(context, creature.getId()));
+            }
         }
     }
 
@@ -72,6 +80,7 @@ public class IceAgeSurvivalClient {
 
     private static void registerReloadListeners(RegisterClientReloadListenersEvent event) {
         event.registerReloadListener(CreatureModelSettings.INSTANCE);
+        event.registerReloadListener(dev.madebyfelipe.iceagesurvival.client.tabula.TabulaModels.INSTANCE);
     }
 
     private static void registerGuiOverlays(RegisterGuiOverlaysEvent event) {

@@ -1,0 +1,55 @@
+{
+  "replace": false,
+  "values": [
+    "#iceagesurvival:fish",
+    "iceagesurvival:dodo",
+    "iceagesurvival:gallimimus",
+    "iceagesurvival:ornitholestes",
+    "iceagesurvival:velociraptor",
+    "minecraft:sheep",
+    "minecraft:pig",
+    "minecraft:goat",
+    "minecraft:rabbit",
+    "minecraft:chicken",
+    {
+      "id": "tfc:sheep",
+      "required": false
+    },
+    {
+      "id": "tfc:pig",
+      "required": false
+    },
+    {
+      "id": "tfc:goat",
+      "required": false
+    },
+    {
+      "id": "tfc:rabbit",
+      "required": false
+    },
+    {
+      "id": "tfc:chicken",
+      "required": false
+    },
+    {
+      "id": "tfc:duck",
+      "required": false
+    },
+    {
+      "id": "tfc:grouse",
+      "required": false
+    },
+    {
+      "id": "tfc:pheasant",
+      "required": false
+    },
+    {
+      "id": "tfc:turkey",
+      "required": false
+    },
+    {
+      "id": "tfc:boar",
+      "required": false
+    }
+  ]
+}
