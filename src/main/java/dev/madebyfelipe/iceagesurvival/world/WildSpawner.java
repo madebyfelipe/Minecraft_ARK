@@ -132,10 +132,13 @@ public final class WildSpawner {
             if (reports.isEmpty()) {
                 continue;
             }
+            // Um quarto do teto é dos carnívoros: herbívoro só entra no sorteio enquanto há vaga de herbívoro.
+            int herbivoreRoom = WildSpawnRules.herbivoreRoom(effectiveMaximumPopulation(), herbivoresNearby(level, nearby));
             List<WildSpawnRules.Candidate> candidates = new ArrayList<>(reports.size());
             for (Report report : reports) {
+                boolean blocked = !isCarnivore(level, report.type()) && herbivoreRoom <= 0;
                 candidates.add(new WildSpawnRules.Candidate(
-                        report.weight(), report.nearby(), report.profile().maxNearby()));
+                        blocked ? 0 : report.weight(), report.nearby(), report.profile().maxNearby()));
             }
             int chosen = WildSpawnRules.pick(candidates, random);
             if (chosen < 0) {
@@ -143,6 +146,9 @@ public final class WildSpawner {
             }
             Report report = reports.get(chosen);
             int room = Math.min(report.profile().maxNearby() - report.nearby(), totalRoom);
+            if (!isCarnivore(level, report.type())) {
+                room = Math.min(room, herbivoreRoom);
+            }
             int group = WildSpawnRules.groupSize(report.profile().groupMin(), report.profile().groupMax(), room, random);
             BlockPos origin = surfacePos(level, x, z, report.type());
             if (group <= 0 || origin == null || !canSpawnAt(level, report.type(), origin, report.profile())) {
@@ -197,6 +203,23 @@ public final class WildSpawner {
      */
     public static double densityRadius() {
         return Math.max(ServerConfig.WILD_SPAWN_DENSITY_RADIUS.get(), ServerConfig.WILD_SPAWN_MAX_DISTANCE.get() + 32);
+    }
+
+    /** Carnívoro: a espécie tem presa ({@code behavior.prey}). */
+    public static boolean isCarnivore(ServerLevel level, EntityType<?> type) {
+        return Species.of(level.registryAccess(), type).flatMap(Species::behavior)
+                .flatMap(dev.madebyfelipe.iceagesurvival.species.BehaviorProfile::prey).isPresent();
+    }
+
+    /** Quantos herbívoros selvagens há nestas contagens. */
+    public static int herbivoresNearby(ServerLevel level, Object2IntMap<EntityType<?>> nearby) {
+        int herbivores = 0;
+        for (var entry : nearby.object2IntEntrySet()) {
+            if (!isCarnivore(level, entry.getKey())) {
+                herbivores += entry.getIntValue();
+            }
+        }
+        return herbivores;
     }
 
     /** Uma varredura só, para todas as espécies: contagens de criaturas do mod perto do jogador. */

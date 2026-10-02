@@ -16,6 +16,22 @@ public final class WildSpawnRules {
     private WildSpawnRules() {
     }
 
+    /**
+     * Fração do teto total que os herbívoros podem ocupar. O resto fica para os carnívoros: com pesos e
+     * manadas maiores, os herbívoros enchiam o teto e o Smilodon e o Utahraptor quase nunca tinham vaga.
+     */
+    public static final double HERBIVORE_SHARE = 0.75;
+
+    /** Quantos herbívoros cabem neste teto total (o resto é dos carnívoros). */
+    public static int herbivoreCap(int totalCap) {
+        return (int) Math.floor(Math.max(0, totalCap) * HERBIVORE_SHARE);
+    }
+
+    /** Quantas vagas de herbívoro ainda há, com tantos herbívoros já por perto. */
+    public static int herbivoreRoom(int totalCap, int herbivoresNearby) {
+        return Math.max(0, herbivoreCap(totalCap) - herbivoresNearby);
+    }
+
     /** Deslocamento horizontal em blocos, em relação ao jogador. */
     public record Offset(int x, int z) {
     }

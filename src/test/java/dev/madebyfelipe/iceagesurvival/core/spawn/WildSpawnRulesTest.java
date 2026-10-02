@@ -99,4 +99,13 @@ class WildSpawnRulesTest {
         }
         assertTrue(north && south && east && west, "a reposição não cobriu as quatro direções");
     }
+
+    @Test
+    void aQuarterOfTheCapIsLeftForCarnivores() {
+        // Teto de 28: no máximo 21 herbívoros, 7 vagas que só carnívoro ocupa.
+        assertEquals(21, WildSpawnRules.herbivoreCap(28));
+        assertEquals(5, WildSpawnRules.herbivoreRoom(28, 16));
+        assertEquals(0, WildSpawnRules.herbivoreRoom(28, 21));
+        assertEquals(0, WildSpawnRules.herbivoreRoom(28, 25), "herbívoro a mais não abre vaga negativa");
+    }
 }
