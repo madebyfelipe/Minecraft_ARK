@@ -7,6 +7,38 @@
     "minecraft:savanna",
     "minecraft:windswept_savanna",
     "minecraft:plains",
-    "minecraft:badlands"
+    "minecraft:badlands",
+    {
+      "id": "tfc:plains",
+      "required": false
+    },
+    {
+      "id": "tfc:lowlands",
+      "required": false
+    },
+    {
+      "id": "tfc:hills",
+      "required": false
+    },
+    {
+      "id": "tfc:rolling_hills",
+      "required": false
+    },
+    {
+      "id": "tfc:badlands",
+      "required": false
+    },
+    {
+      "id": "tfc:inverted_badlands",
+      "required": false
+    },
+    {
+      "id": "tfc:canyons",
+      "required": false
+    },
+    {
+      "id": "tfc:low_canyons",
+      "required": false
+    }
   ]
 }

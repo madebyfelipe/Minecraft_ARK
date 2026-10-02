@@ -1,0 +1,13 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "dev.madebyfelipe.iceagesurvival.mixin",
+  "plugin": "dev.madebyfelipe.iceagesurvival.compat.IceAgeMixinPlugin",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+    "tfc.ChooseBiomesMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

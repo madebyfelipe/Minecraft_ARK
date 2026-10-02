@@ -9,6 +9,8 @@
     {"name": "MoreHitboxes", "project": "BOVAW87Z", "version": "1.9.2", "side": "both", "why": "dependência do Revival"},
     {"name": "Architectury API", "project": "lhGA9TYQ", "version": "9.2.14", "side": "both", "why": "dependência do Revival"},
     {"name": "TerraBlender", "project": "kkmrDlKT", "version": "3.0.1.10", "side": "both", "why": "biomas do Revival"},
+    {"name": "TerraFirmaCraft", "project": "JaCEZUhg", "version": "3.2.26", "side": "both", "why": "mundo: Era do Gelo adaptada e mundo padrão com biomas primitivos"},
+    {"name": "Patchouli", "project": "nU0bVIaL", "version": "1.20.1-85-forge", "side": "both", "why": "dependência do TerraFirmaCraft"},
     {"name": "JEI", "project": "u6dRKJwZ", "version": "15.62.0.217", "side": "client", "why": "receitas"},
     {"name": "Jade", "project": "nvQzSEkH", "version": "11.13.3", "side": "client", "why": "informação do que se olha"},
     {"name": "AppleSkin", "project": "EsAfCjCV", "version": "2.5.1", "side": "client", "why": "fome e saturação"},

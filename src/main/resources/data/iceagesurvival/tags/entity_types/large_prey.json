@@ -16,6 +16,62 @@
     "iceagesurvival:gallimimus",
     "iceagesurvival:triceratops",
     "minecraft:villager",
-    "minecraft:wandering_trader"
+    "minecraft:wandering_trader",
+    {
+      "id": "tfc:cow",
+      "required": false
+    },
+    {
+      "id": "tfc:sheep",
+      "required": false
+    },
+    {
+      "id": "tfc:pig",
+      "required": false
+    },
+    {
+      "id": "tfc:goat",
+      "required": false
+    },
+    {
+      "id": "tfc:horse",
+      "required": false
+    },
+    {
+      "id": "tfc:donkey",
+      "required": false
+    },
+    {
+      "id": "tfc:mule",
+      "required": false
+    },
+    {
+      "id": "tfc:deer",
+      "required": false
+    },
+    {
+      "id": "tfc:gazelle",
+      "required": false
+    },
+    {
+      "id": "tfc:boar",
+      "required": false
+    },
+    {
+      "id": "tfc:alpaca",
+      "required": false
+    },
+    {
+      "id": "tfc:bongo",
+      "required": false
+    },
+    {
+      "id": "tfc:caribou",
+      "required": false
+    },
+    {
+      "id": "tfc:wildebeest",
+      "required": false
+    }
   ]
 }

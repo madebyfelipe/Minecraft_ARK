@@ -27,24 +27,16 @@
     "feed_interval_seconds": 4,
     "foods": [
       {
-        "items": [
-          "minecraft:sweet_berries",
-          "iceagesurvival:black_fruit"
-        ],
+        "items": "#iceagesurvival:taming/berries",
         "value": 8
       },
       {
-        "items": [
-          "minecraft:wheat_seeds",
-          "minecraft:beetroot_seeds",
-          "minecraft:melon_seeds",
-          "minecraft:pumpkin_seeds"
-        ],
+        "items": "#iceagesurvival:taming/seeds",
         "value": 4,
         "quality": 0.6
       },
       {
-        "items": "minecraft:wheat",
+        "items": "#iceagesurvival:taming/grain",
         "value": 5,
         "quality": 0.5
       }

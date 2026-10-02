@@ -10,6 +10,22 @@
     "minecraft:plains",
     "minecraft:savanna",
     "minecraft:meadow",
-    "minecraft:windswept_hills"
+    "minecraft:windswept_hills",
+    {
+      "id": "tfc:plains",
+      "required": false
+    },
+    {
+      "id": "tfc:lowlands",
+      "required": false
+    },
+    {
+      "id": "tfc:hills",
+      "required": false
+    },
+    {
+      "id": "tfc:rolling_hills",
+      "required": false
+    }
   ]
 }

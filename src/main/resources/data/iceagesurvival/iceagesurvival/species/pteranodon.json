@@ -35,11 +35,11 @@
     "feed_interval_seconds": 7,
     "foods": [
       {
-        "items": "minecraft:cod",
+        "items": "#iceagesurvival:taming/raw_whitefish",
         "value": 25
       },
       {
-        "items": "minecraft:salmon",
+        "items": "#iceagesurvival:taming/raw_salmonid",
         "value": 30
       },
       {

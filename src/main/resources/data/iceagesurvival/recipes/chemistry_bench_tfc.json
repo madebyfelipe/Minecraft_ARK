@@ -1,0 +1,30 @@
+{
+  "conditions": [
+    {
+      "type": "forge:mod_loaded",
+      "modid": "tfc"
+    }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "VVV",
+    "PCP",
+    "P P"
+  ],
+  "key": {
+    "V": {
+      "tag": "tfc:glass_bottles"
+    },
+    "C": {
+      "item": "minecraft:cauldron"
+    },
+    "P": {
+      "tag": "minecraft:planks"
+    }
+  },
+  "result": {
+    "count": 1,
+    "item": "iceagesurvival:chemistry_bench"
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:cooked_salmon",
+    "minecraft:cooked_cod",
+    {
+      "id": "tfc:food/cooked_salmon",
+      "required": false
+    },
+    {
+      "id": "tfc:food/cooked_cod",
+      "required": false
+    },
+    {
+      "id": "tfc:food/cooked_lake_trout",
+      "required": false
+    },
+    {
+      "id": "tfc:food/cooked_rainbow_trout",
+      "required": false
+    },
+    {
+      "id": "tfc:food/cooked_bluegill",
+      "required": false
+    },
+    {
+      "id": "tfc:food/cooked_crappie",
+      "required": false
+    },
+    {
+      "id": "tfc:food/cooked_largemouth_bass",
+      "required": false
+    },
+    {
+      "id": "tfc:food/cooked_smallmouth_bass",
+      "required": false
+    }
+  ]
+}

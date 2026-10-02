@@ -1,0 +1,33 @@
+{
+  "conditions": [
+    {
+      "type": "forge:mod_loaded",
+      "modid": "tfc"
+    }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "GGG",
+    "WFW",
+    "III"
+  ],
+  "key": {
+    "G": {
+      "item": "minecraft:glass"
+    },
+    "W": {
+      "tag": "minecraft:wool"
+    },
+    "F": {
+      "item": "tfc:fire_bricks"
+    },
+    "I": {
+      "tag": "forge:ingots/wrought_iron"
+    }
+  },
+  "result": {
+    "count": 1,
+    "item": "iceagesurvival:incubator"
+  }
+}

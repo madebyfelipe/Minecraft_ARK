@@ -37,15 +37,12 @@
         "value": 40
       },
       {
-        "items": [
-          "minecraft:sweet_berries",
-          "iceagesurvival:black_fruit"
-        ],
+        "items": "#iceagesurvival:taming/berries",
         "value": 18,
         "quality": 0.9
       },
       {
-        "items": "minecraft:wheat",
+        "items": "#iceagesurvival:taming/grain",
         "value": 15,
         "quality": 0.8
       },

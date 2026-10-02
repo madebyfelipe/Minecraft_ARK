@@ -38,20 +38,12 @@
         "value": 30
       },
       {
-        "items": [
-          "minecraft:wheat",
-          "minecraft:sweet_berries",
-          "iceagesurvival:black_fruit"
-        ],
+        "items": "#iceagesurvival:taming/grain_and_berries",
         "value": 12,
         "quality": 0.8
       },
       {
-        "items": [
-          "minecraft:carrot",
-          "minecraft:beetroot",
-          "minecraft:potato"
-        ],
+        "items": "#iceagesurvival:taming/roots",
         "value": 10,
         "quality": 0.7
       },

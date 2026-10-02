@@ -1,0 +1,40 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:cooked_chicken",
+    "minecraft:cooked_rabbit",
+    "iceagesurvival:cooked_dodo_meat",
+    {
+      "id": "tfc:food/cooked_chicken",
+      "required": false
+    },
+    {
+      "id": "tfc:food/cooked_rabbit",
+      "required": false
+    },
+    {
+      "id": "tfc:food/cooked_duck",
+      "required": false
+    },
+    {
+      "id": "tfc:food/cooked_grouse",
+      "required": false
+    },
+    {
+      "id": "tfc:food/cooked_pheasant",
+      "required": false
+    },
+    {
+      "id": "tfc:food/cooked_quail",
+      "required": false
+    },
+    {
+      "id": "tfc:food/cooked_turkey",
+      "required": false
+    },
+    {
+      "id": "tfc:food/cooked_peafowl",
+      "required": false
+    }
+  ]
+}

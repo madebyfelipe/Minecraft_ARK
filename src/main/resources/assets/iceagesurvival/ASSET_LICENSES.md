@@ -14,3 +14,9 @@ Os modelos 3D e as texturas das armas tranquilizantes (`models/item/tranq_rifle.
 `models/item/tranq_crossbow.json`, `textures/item/tranq_rifle.png`, `textures/item/tranq_crossbow.png`
 e `textures/item/tranq_dart.png`) são autorais, gerados por `tools/gen_weapons.py`; nenhum asset de
 terceiros foi usado.
+
+O preset `datapacks/tfc_compat/data/iceagesurvival/worldgen/world_preset/ice_age.json` reproduz a
+estrutura e as camadas de rocha (`rock_layer_settings`) do preset `tfc:overworld` do
+**TerraFirmaCraft** (licença EUPL-1.2), mudando só a temperatura para uma constante fria. Esse
+pacote só é ativado quando o TerraFirmaCraft está instalado; o TFC não é distribuído no jar do Ice
+Age Survival e deve ser instalado separadamente.

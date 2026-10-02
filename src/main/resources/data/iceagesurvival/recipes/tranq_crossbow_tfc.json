@@ -1,0 +1,21 @@
+{
+  "conditions": [
+    {
+      "type": "forge:mod_loaded",
+      "modid": "tfc"
+    }
+  ],
+  "type": "minecraft:crafting_shapeless",
+  "category": "equipment",
+  "ingredients": [
+    {
+      "item": "minecraft:crossbow"
+    },
+    {
+      "tag": "forge:ingots/wrought_iron"
+    }
+  ],
+  "result": {
+    "item": "iceagesurvival:tranq_crossbow"
+  }
+}

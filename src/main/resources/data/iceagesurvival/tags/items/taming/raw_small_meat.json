@@ -1,0 +1,40 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:chicken",
+    "minecraft:rabbit",
+    "iceagesurvival:dodo_meat",
+    {
+      "id": "tfc:food/chicken",
+      "required": false
+    },
+    {
+      "id": "tfc:food/rabbit",
+      "required": false
+    },
+    {
+      "id": "tfc:food/duck",
+      "required": false
+    },
+    {
+      "id": "tfc:food/grouse",
+      "required": false
+    },
+    {
+      "id": "tfc:food/pheasant",
+      "required": false
+    },
+    {
+      "id": "tfc:food/quail",
+      "required": false
+    },
+    {
+      "id": "tfc:food/turkey",
+      "required": false
+    },
+    {
+      "id": "tfc:food/peafowl",
+      "required": false
+    }
+  ]
+}

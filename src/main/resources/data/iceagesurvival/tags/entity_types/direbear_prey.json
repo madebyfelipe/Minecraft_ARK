@@ -1,0 +1,18 @@
+{
+  "replace": false,
+  "values": [
+    "#iceagesurvival:large_prey",
+    {
+      "id": "tfc:moose",
+      "required": false
+    },
+    {
+      "id": "tfc:musk_ox",
+      "required": false
+    },
+    {
+      "id": "tfc:yak",
+      "required": false
+    }
+  ]
+}

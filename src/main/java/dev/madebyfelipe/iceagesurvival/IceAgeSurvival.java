@@ -52,6 +52,7 @@ public class IceAgeSurvival {
 
         modEventBus.addListener(Species::registerRegistry);
         modEventBus.addListener(ModEntities::registerAttributes);
+        modEventBus.addListener(dev.madebyfelipe.iceagesurvival.compat.tfc.TfcCompat::addPackFinders);
         modEventBus.addListener(ModEntities::registerSpawnPlacements);
         modEventBus.addListener(ModItems::addToCreativeTabs);
         modEventBus.addListener(EventPriority.LOWEST, RevivalCleanup::hideRevivalItems);
@@ -62,6 +63,7 @@ public class IceAgeSurvival {
         MinecraftForge.EVENT_BUS.addListener(ColdExposure::onPlayerTick);
         MinecraftForge.EVENT_BUS.addListener(WildSpawner::onServerTick);
         MinecraftForge.EVENT_BUS.addListener(StarterApexKeeper::onServerTick);
+        MinecraftForge.EVENT_BUS.addListener(dev.madebyfelipe.iceagesurvival.compat.tfc.TfcCompat::onLevelLoad);
         MinecraftForge.EVENT_BUS.addListener(GroupSpacing::onServerTick);
         MinecraftForge.EVENT_BUS.addListener(VillageInteractions::onEntityJoin);
         MinecraftForge.EVENT_BUS.addListener(GroupSpacing::onLevelLoad);

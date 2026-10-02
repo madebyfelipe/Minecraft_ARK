@@ -1,0 +1,54 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:wheat",
+    {
+      "id": "tfc:food/wheat",
+      "required": false
+    },
+    {
+      "id": "tfc:food/barley",
+      "required": false
+    },
+    {
+      "id": "tfc:food/oat",
+      "required": false
+    },
+    {
+      "id": "tfc:food/rye",
+      "required": false
+    },
+    {
+      "id": "tfc:food/maize",
+      "required": false
+    },
+    {
+      "id": "tfc:food/rice",
+      "required": false
+    },
+    {
+      "id": "tfc:food/wheat_grain",
+      "required": false
+    },
+    {
+      "id": "tfc:food/barley_grain",
+      "required": false
+    },
+    {
+      "id": "tfc:food/oat_grain",
+      "required": false
+    },
+    {
+      "id": "tfc:food/rye_grain",
+      "required": false
+    },
+    {
+      "id": "tfc:food/maize_grain",
+      "required": false
+    },
+    {
+      "id": "tfc:food/rice_grain",
+      "required": false
+    }
+  ]
+}

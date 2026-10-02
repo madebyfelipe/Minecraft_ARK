@@ -37,7 +37,7 @@
         "value": 40
       },
       {
-        "items": "minecraft:wheat",
+        "items": "#iceagesurvival:taming/grain",
         "value": 15,
         "quality": 0.8
       },

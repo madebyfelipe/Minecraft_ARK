@@ -13,6 +13,22 @@
     "minecraft:meadow",
     "minecraft:forest",
     "minecraft:birch_forest",
-    "minecraft:beach"
+    "minecraft:beach",
+    {
+      "id": "tfc:plains",
+      "required": false
+    },
+    {
+      "id": "tfc:lowlands",
+      "required": false
+    },
+    {
+      "id": "tfc:hills",
+      "required": false
+    },
+    {
+      "id": "tfc:rolling_hills",
+      "required": false
+    }
   ]
 }

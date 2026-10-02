@@ -9,6 +9,26 @@
     "minecraft:grove",
     "minecraft:snowy_slopes",
     "minecraft:forest",
-    "minecraft:dark_forest"
+    "minecraft:dark_forest",
+    {
+      "id": "tfc:hills",
+      "required": false
+    },
+    {
+      "id": "tfc:rolling_hills",
+      "required": false
+    },
+    {
+      "id": "tfc:highlands",
+      "required": false
+    },
+    {
+      "id": "tfc:plateau",
+      "required": false
+    },
+    {
+      "id": "tfc:old_mountains",
+      "required": false
+    }
   ]
 }

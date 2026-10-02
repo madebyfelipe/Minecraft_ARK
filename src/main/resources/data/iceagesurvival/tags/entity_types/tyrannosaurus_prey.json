@@ -4,6 +4,18 @@
     "#iceagesurvival:large_prey",
     "iceagesurvival:brontosaurus",
     "iceagesurvival:mammoth",
-    "iceagesurvival:elasmotherium"
+    "iceagesurvival:elasmotherium",
+    {
+      "id": "tfc:moose",
+      "required": false
+    },
+    {
+      "id": "tfc:musk_ox",
+      "required": false
+    },
+    {
+      "id": "tfc:yak",
+      "required": false
+    }
   ]
 }

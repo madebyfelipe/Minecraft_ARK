@@ -1,0 +1,26 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:cod",
+    {
+      "id": "tfc:food/cod",
+      "required": false
+    },
+    {
+      "id": "tfc:food/bluegill",
+      "required": false
+    },
+    {
+      "id": "tfc:food/crappie",
+      "required": false
+    },
+    {
+      "id": "tfc:food/largemouth_bass",
+      "required": false
+    },
+    {
+      "id": "tfc:food/smallmouth_bass",
+      "required": false
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:beef",
+    "minecraft:mutton",
+    "minecraft:porkchop",
+    {
+      "id": "tfc:food/beef",
+      "required": false
+    },
+    {
+      "id": "tfc:food/mutton",
+      "required": false
+    },
+    {
+      "id": "tfc:food/pork",
+      "required": false
+    },
+    {
+      "id": "tfc:food/venison",
+      "required": false
+    },
+    {
+      "id": "tfc:food/chevon",
+      "required": false
+    },
+    {
+      "id": "tfc:food/camelidae",
+      "required": false
+    },
+    {
+      "id": "tfc:food/bear",
+      "required": false
+    },
+    {
+      "id": "tfc:food/horse_meat",
+      "required": false
+    }
+  ]
+}

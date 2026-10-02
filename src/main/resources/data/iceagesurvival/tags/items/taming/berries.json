@@ -1,0 +1,51 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:sweet_berries",
+    "iceagesurvival:black_fruit",
+    {
+      "id": "tfc:food/blueberry",
+      "required": false
+    },
+    {
+      "id": "tfc:food/blackberry",
+      "required": false
+    },
+    {
+      "id": "tfc:food/raspberry",
+      "required": false
+    },
+    {
+      "id": "tfc:food/cloudberry",
+      "required": false
+    },
+    {
+      "id": "tfc:food/snowberry",
+      "required": false
+    },
+    {
+      "id": "tfc:food/bunchberry",
+      "required": false
+    },
+    {
+      "id": "tfc:food/cranberry",
+      "required": false
+    },
+    {
+      "id": "tfc:food/elderberry",
+      "required": false
+    },
+    {
+      "id": "tfc:food/gooseberry",
+      "required": false
+    },
+    {
+      "id": "tfc:food/strawberry",
+      "required": false
+    },
+    {
+      "id": "tfc:food/wintergreen_berry",
+      "required": false
+    }
+  ]
+}

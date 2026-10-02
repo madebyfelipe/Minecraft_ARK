@@ -33,10 +33,7 @@
     "feed_interval_seconds": 10,
     "foods": [
       {
-        "items": [
-          "minecraft:salmon",
-          "minecraft:cod"
-        ],
+        "items": "#iceagesurvival:taming/raw_fish",
         "value": 30
       },
       {
@@ -47,21 +44,12 @@
         "quality": 0.9
       },
       {
-        "items": [
-          "minecraft:beef",
-          "minecraft:mutton",
-          "minecraft:porkchop",
-          "iceagesurvival:dodo_meat"
-        ],
+        "items": "#iceagesurvival:taming/raw_red_meat_and_dodo",
         "value": 30,
         "quality": 0.7
       },
       {
-        "items": [
-          "minecraft:cooked_salmon",
-          "minecraft:cooked_cod",
-          "iceagesurvival:cooked_dodo_meat"
-        ],
+        "items": "#iceagesurvival:taming/cooked_fish_and_dodo",
         "value": 15,
         "quality": 0.4
       }

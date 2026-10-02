@@ -1,0 +1,30 @@
+{
+  "conditions": [
+    {
+      "type": "forge:mod_loaded",
+      "modid": "tfc"
+    }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "IDI",
+    "ICI",
+    "I I"
+  ],
+  "key": {
+    "I": {
+      "tag": "forge:ingots/wrought_iron"
+    },
+    "D": {
+      "tag": "forge:gems/diamond"
+    },
+    "C": {
+      "item": "iceagesurvival:chemistry_bench"
+    }
+  },
+  "result": {
+    "item": "iceagesurvival:revive_table",
+    "count": 1
+  }
+}

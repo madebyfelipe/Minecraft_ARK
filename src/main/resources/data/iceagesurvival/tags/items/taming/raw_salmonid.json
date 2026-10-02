@@ -1,0 +1,18 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:salmon",
+    {
+      "id": "tfc:food/salmon",
+      "required": false
+    },
+    {
+      "id": "tfc:food/lake_trout",
+      "required": false
+    },
+    {
+      "id": "tfc:food/rainbow_trout",
+      "required": false
+    }
+  ]
+}

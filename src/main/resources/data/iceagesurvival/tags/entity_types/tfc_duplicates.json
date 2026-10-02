@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "tfc:sabertooth",
+      "required": false
+    },
+    {
+      "id": "tfc:direwolf",
+      "required": false
+    }
+  ]
+}

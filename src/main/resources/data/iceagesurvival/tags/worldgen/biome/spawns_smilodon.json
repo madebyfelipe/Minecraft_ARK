@@ -12,6 +12,26 @@
     "minecraft:savanna",
     "minecraft:savanna_plateau",
     "minecraft:forest",
-    "minecraft:windswept_savanna"
+    "minecraft:windswept_savanna",
+    {
+      "id": "tfc:hills",
+      "required": false
+    },
+    {
+      "id": "tfc:rolling_hills",
+      "required": false
+    },
+    {
+      "id": "tfc:highlands",
+      "required": false
+    },
+    {
+      "id": "tfc:plateau",
+      "required": false
+    },
+    {
+      "id": "tfc:old_mountains",
+      "required": false
+    }
   ]
 }

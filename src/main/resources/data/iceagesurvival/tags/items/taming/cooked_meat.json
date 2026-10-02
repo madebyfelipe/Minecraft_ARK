@@ -1,0 +1,41 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:cooked_beef",
+    "minecraft:cooked_mutton",
+    "minecraft:cooked_porkchop",
+    {
+      "id": "tfc:food/cooked_beef",
+      "required": false
+    },
+    {
+      "id": "tfc:food/cooked_mutton",
+      "required": false
+    },
+    {
+      "id": "tfc:food/cooked_pork",
+      "required": false
+    },
+    {
+      "id": "tfc:food/cooked_venison",
+      "required": false
+    },
+    {
+      "id": "tfc:food/cooked_chevon",
+      "required": false
+    },
+    {
+      "id": "tfc:food/cooked_camelidae",
+      "required": false
+    },
+    {
+      "id": "tfc:food/cooked_bear",
+      "required": false
+    },
+    {
+      "id": "tfc:food/cooked_horse_meat",
+      "required": false
+    },
+    "#iceagesurvival:taming/cooked_small_meat"
+  ]
+}

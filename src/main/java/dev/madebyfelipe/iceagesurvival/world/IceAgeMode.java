@@ -38,7 +38,10 @@ public final class IceAgeMode {
     public static boolean isIceAgePreset(MinecraftServer server) {
         if (server != cachedServer) {
             ServerLevel overworld = server.overworld();
-            cachedPreset = overworld != null && isIceAgeSource(overworld.getChunkSource().getGenerator().getBiomeSource());
+            // Sem o TFC: a fonte de biomas remapeada. Com o TFC: o gerador dele, frio (datapack tfc_compat).
+            cachedPreset = overworld != null && (isIceAgeSource(overworld.getChunkSource().getGenerator().getBiomeSource())
+                    || dev.madebyfelipe.iceagesurvival.compat.tfc.TfcCompat.isIceAgeGenerator(
+                            overworld.getChunkSource().getGenerator()));
             cachedServer = server;
         }
         return cachedPreset;

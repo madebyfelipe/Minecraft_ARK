@@ -32,11 +32,7 @@
     "feed_interval_seconds": 8,
     "foods": [
       {
-        "items": [
-          "minecraft:beef",
-          "minecraft:mutton",
-          "minecraft:porkchop"
-        ],
+        "items": "#iceagesurvival:taming/raw_red_meat",
         "value": 25
       },
       {
@@ -47,23 +43,12 @@
         "quality": 0.9
       },
       {
-        "items": [
-          "minecraft:chicken",
-          "minecraft:rabbit",
-          "iceagesurvival:dodo_meat"
-        ],
+        "items": "#iceagesurvival:taming/raw_small_meat",
         "value": 15,
         "quality": 0.7
       },
       {
-        "items": [
-          "minecraft:cooked_beef",
-          "minecraft:cooked_mutton",
-          "minecraft:cooked_porkchop",
-          "minecraft:cooked_chicken",
-          "minecraft:cooked_rabbit",
-          "iceagesurvival:cooked_dodo_meat"
-        ],
+        "items": "#iceagesurvival:taming/cooked_meat",
         "value": 15,
         "quality": 0.4
       },

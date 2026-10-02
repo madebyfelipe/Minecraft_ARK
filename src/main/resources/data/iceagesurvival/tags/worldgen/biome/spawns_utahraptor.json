@@ -9,6 +9,42 @@
     "minecraft:forest",
     "minecraft:birch_forest",
     "minecraft:sparse_jungle",
-    "minecraft:jungle"
+    "minecraft:jungle",
+    {
+      "id": "tfc:hills",
+      "required": false
+    },
+    {
+      "id": "tfc:rolling_hills",
+      "required": false
+    },
+    {
+      "id": "tfc:highlands",
+      "required": false
+    },
+    {
+      "id": "tfc:plateau",
+      "required": false
+    },
+    {
+      "id": "tfc:old_mountains",
+      "required": false
+    },
+    {
+      "id": "tfc:badlands",
+      "required": false
+    },
+    {
+      "id": "tfc:inverted_badlands",
+      "required": false
+    },
+    {
+      "id": "tfc:canyons",
+      "required": false
+    },
+    {
+      "id": "tfc:low_canyons",
+      "required": false
+    }
   ]
 }

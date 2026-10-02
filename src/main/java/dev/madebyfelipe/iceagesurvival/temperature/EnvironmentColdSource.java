@@ -31,7 +31,7 @@ public final class EnvironmentColdSource implements ColdSource {
         BlockPos pos = player.blockPosition();
         boolean sheltered = !level.canSeeSky(pos);
         ColdReading reading = new ColdReading(
-                level.getBiome(pos).value().getBaseTemperature(),
+                biomeTemperature(level, pos),
                 pos.getY() - level.getChunkSource().getGenerator().getSeaLevel(),
                 level.isNight(),
                 level.isRaining() && !sheltered,
@@ -40,6 +40,15 @@ public final class EnvironmentColdSource implements ColdSource {
                 insulation(player) + bodyHeat(player),
                 player.isInWaterOrRain());
         return Coldness.severity(reading, tuning());
+    }
+
+    /**
+     * A temperatura do bioma; num mundo do TerraFirmaCraft, a do clima dele (todo bioma do TFC diz 0,5 e o frio
+     * de verdade vem da posição).
+     */
+    private static double biomeTemperature(ServerLevel level, BlockPos pos) {
+        return dev.madebyfelipe.iceagesurvival.compat.tfc.TfcCompat.biomeTemperature(level, pos)
+                .orElseGet(() -> level.getBiome(pos).value().getBaseTemperature());
     }
 
     private static ColdTuning tuning() {
