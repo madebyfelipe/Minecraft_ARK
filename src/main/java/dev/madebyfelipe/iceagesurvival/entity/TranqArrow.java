@@ -24,9 +24,15 @@ public class TranqArrow extends AbstractArrow {
     /** Bônus de torpor por nível de Força, igual ao do dano clássico do arco (+25% por nível, +25% fixo). */
     private static final double POWER_BONUS_PER_LEVEL = 0.25;
     private static final String WEAPON_TAG = "Weapon";
+    private static final String FIXED_TORPOR_TAG = "FixedTorpor";
+    private static final String PICKUP_TAG = "Pickup";
 
     private double speedAtImpact;
     private ItemStack weapon = ItemStack.EMPTY;
+    /** Torpor fixo de arma de fogo (rifle, besta de dardos); 0 = o do arco, pela velocidade do impacto. */
+    private double fixedTorpor;
+    /** O que se recolhe do chão: a flecha tranquilizante, ou o dardo. */
+    private ItemStack pickupStack = ItemStack.EMPTY;
 
     public TranqArrow(EntityType<? extends TranqArrow> type, Level level) {
         super(type, level);
@@ -38,6 +44,18 @@ public class TranqArrow extends AbstractArrow {
         super(ModEntities.TRANQ_ARROW.get(), owner, level);
         this.weapon = weapon == null ? ItemStack.EMPTY : weapon.copy();
         setBaseDamage(BASE_DAMAGE);
+    }
+
+    /** Disparo de arma tranquilizante: torpor fixo, recolhe-se a munição que foi usada. */
+    public TranqArrow(Level level, LivingEntity owner, ItemStack ammo, double fixedTorpor) {
+        super(ModEntities.TRANQ_ARROW.get(), owner, level);
+        this.fixedTorpor = fixedTorpor;
+        this.pickupStack = ammo.copyWithCount(1);
+        setBaseDamage(BASE_DAMAGE);
+    }
+
+    public double fixedTorpor() {
+        return fixedTorpor;
     }
 
     public TranqArrow(Level level, double x, double y, double z, ItemStack pickupItem, @Nullable ItemStack weapon) {
@@ -56,8 +74,9 @@ public class TranqArrow extends AbstractArrow {
     protected void doPostHurtEffects(LivingEntity target) {
         super.doPostHurtEffects(target);
         if (target instanceof PrehistoricCreature creature) {
-            creature.addTorpor(ServerConfig.TRANQ_ARROW_TORPOR.get() * speedAtImpact / FULL_DRAW_SPEED * powerMultiplier(),
-                    getOwner() instanceof Player player ? player : null);
+            double torpor = fixedTorpor > 0.0 ? fixedTorpor
+                    : ServerConfig.TRANQ_ARROW_TORPOR.get() * speedAtImpact / FULL_DRAW_SPEED * powerMultiplier();
+            creature.addTorpor(torpor, getOwner() instanceof Player player ? player : null);
         }
     }
 
@@ -67,6 +86,12 @@ public class TranqArrow extends AbstractArrow {
         if (!weapon.isEmpty()) {
             tag.put(WEAPON_TAG, weapon.save(new CompoundTag()));
         }
+        if (fixedTorpor > 0.0) {
+            tag.putDouble(FIXED_TORPOR_TAG, fixedTorpor);
+        }
+        if (!pickupStack.isEmpty()) {
+            tag.put(PICKUP_TAG, pickupStack.save(new CompoundTag()));
+        }
     }
 
     @Override
@@ -74,6 +99,9 @@ public class TranqArrow extends AbstractArrow {
         super.readAdditionalSaveData(tag);
         weapon = tag.contains(WEAPON_TAG, CompoundTag.TAG_COMPOUND)
                 ? ItemStack.of(tag.getCompound(WEAPON_TAG))
+                : ItemStack.EMPTY;
+        fixedTorpor = tag.getDouble(FIXED_TORPOR_TAG);
+        pickupStack = tag.contains(PICKUP_TAG, CompoundTag.TAG_COMPOUND) ? ItemStack.of(tag.getCompound(PICKUP_TAG))
                 : ItemStack.EMPTY;
     }
 
@@ -90,6 +118,9 @@ public class TranqArrow extends AbstractArrow {
 
     @Override
     protected ItemStack getPickupItem() {
+        if (!pickupStack.isEmpty()) {
+            return pickupStack.copy();
+        }
         return new ItemStack(ModItems.TRANQ_ARROW.get());
     }
 }

@@ -89,8 +89,8 @@ public class PackTests {
     @GameTest(template = ARENA, batch = "pack_war", timeoutTicks = 200)
     public static void rivalPacksOfTheSameSpeciesFight(GameTestHelper helper) {
         HuntTests.clearStrays(helper);
-        LandCreature a = helper.spawn(ModEntities.TRICERATOPS.get(), 6, 0, 6);
-        LandCreature b = helper.spawn(ModEntities.TRICERATOPS.get(), 12, 0, 10);
+        LandCreature a = helper.spawn(ModEntities.TRICERATOPS.get(), 4, 0, 4);
+        LandCreature b = helper.spawn(ModEntities.TRICERATOPS.get(), 14, 0, 12);
         a.setGroupId(UUID.randomUUID());
         b.setGroupId(UUID.randomUUID());
         helper.onEachTick(() -> {

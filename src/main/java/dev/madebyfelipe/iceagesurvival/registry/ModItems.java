@@ -3,6 +3,7 @@ package dev.madebyfelipe.iceagesurvival.registry;
 import dev.madebyfelipe.iceagesurvival.IceAgeSurvival;
 import dev.madebyfelipe.iceagesurvival.item.CreatureEggItem;
 import dev.madebyfelipe.iceagesurvival.item.TranqArrowItem;
+import dev.madebyfelipe.iceagesurvival.item.TranqGunItem;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTabs;
@@ -108,6 +109,20 @@ public final class ModItems {
     public static final RegistryObject<TranqArrowItem> TRANQ_ARROW =
             ITEMS.register("tranq_arrow", () -> new TranqArrowItem(new Item.Properties()));
 
+    /** Dardo sedativo: pepita de ferro com narcótico. Munição do rifle e da besta de dardos. */
+    public static final RegistryObject<Item> TRANQ_DART = simpleItem("tranq_dart");
+
+    /** Rifle tranquilizante: o dardo sai reto e rápido, com 3× o torpor da flecha; recarga lenta. */
+    public static final RegistryObject<TranqGunItem> TRANQ_RIFLE = ITEMS.register("tranq_rifle",
+            () -> new TranqGunItem(new Item.Properties().durability(400), 3.0, 6.0F, 0.2F, 40,
+                    stack -> stack.is(TRANQ_DART.get()), net.minecraft.sounds.SoundEvents.FIREWORK_ROCKET_BLAST_FAR));
+
+    /** Besta de dardos: o meio-termo entre o arco e o rifle — dardo ou flecha tranquilizante, 2× o torpor. */
+    public static final RegistryObject<TranqGunItem> TRANQ_CROSSBOW = ITEMS.register("tranq_crossbow",
+            () -> new TranqGunItem(new Item.Properties().durability(326), 2.0, 4.0F, 0.6F, 20,
+                    stack -> stack.is(TRANQ_DART.get()) || stack.is(TRANQ_ARROW.get()),
+                    net.minecraft.sounds.SoundEvents.CROSSBOW_SHOOT));
+
     /** Fruta da árvore de fruta-negra; ingrediente do narcótico. */
     public static final RegistryObject<Item> BLACK_FRUIT = simpleItem("black_fruit");
 
@@ -175,6 +190,9 @@ public final class ModItems {
             event.accept(ELASMOTHERIUM_SPAWN_EGG);
         } else if (event.getTabKey() == CreativeModeTabs.COMBAT) {
             event.accept(TRANQ_ARROW);
+            event.accept(TRANQ_DART);
+            event.accept(TRANQ_CROSSBOW);
+            event.accept(TRANQ_RIFLE);
             event.accept(FEATHER_HELMET);
             event.accept(FEATHER_CHESTPLATE);
             event.accept(FEATHER_LEGGINGS);

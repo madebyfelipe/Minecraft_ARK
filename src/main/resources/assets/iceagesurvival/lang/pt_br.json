@@ -189,5 +189,8 @@
   "item.iceagesurvival.triceratops_spawn_egg": "Ovo Gerador de Tricerátopo",
   "iceagesurvival.debug.hunger": "%s predadores famintos num raio de %s blocos",
   "iceagesurvival.stat.flight_stamina": "Fôlego de voo",
-  "iceagesurvival.hud.flight_stamina": "Fôlego de voo: %s%%"
+  "iceagesurvival.hud.flight_stamina": "Fôlego de voo: %s%%",
+  "item.iceagesurvival.tranq_dart": "Dardo Sedativo",
+  "item.iceagesurvival.tranq_rifle": "Rifle Tranquilizante",
+  "item.iceagesurvival.tranq_crossbow": "Besta de Dardos"
 }

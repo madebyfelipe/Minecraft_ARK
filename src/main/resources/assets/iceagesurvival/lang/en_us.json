@@ -189,5 +189,8 @@
   "item.iceagesurvival.triceratops_spawn_egg": "Triceratops Spawn Egg",
   "iceagesurvival.debug.hunger": "%s predators starved within %s blocks",
   "iceagesurvival.stat.flight_stamina": "Flight stamina",
-  "iceagesurvival.hud.flight_stamina": "Flight stamina: %s%%"
+  "iceagesurvival.hud.flight_stamina": "Flight stamina: %s%%",
+  "item.iceagesurvival.tranq_dart": "Sedative Dart",
+  "item.iceagesurvival.tranq_rifle": "Tranquilizer Rifle",
+  "item.iceagesurvival.tranq_crossbow": "Dart Crossbow"
 }
