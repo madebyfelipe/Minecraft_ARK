@@ -78,7 +78,31 @@ public class FleeWhenWeakGoal extends PanicGoal {
         return BlockPos.findClosestMatch(origin, WATER_SEARCH, 4,
                         pos -> isWater(level, pos) && (attacker == null
                                 || attacker.distanceToSqr(Vec3.atCenterOf(pos)) > creature.distanceToSqr(Vec3.atCenterOf(pos))))
-                .map(Vec3::atBottomCenterOf).orElse(null);
+                .map(edge -> intoWater(creature, edge)).orElse(null);
+    }
+
+    /**
+     * A água mais perto é a da margem: com ela de destino, a navegação dá a fuga por cumprida com o corpo ainda em
+     * terra. O destino avança na mesma direção, por dentro d'água, até a largura do corpo mais dois blocos.
+     */
+    private static Vec3 intoWater(PrehistoricCreature creature, BlockPos edge) {
+        Level level = creature.level();
+        double dx = edge.getX() + 0.5 - creature.getX();
+        double dz = edge.getZ() + 0.5 - creature.getZ();
+        double length = Math.sqrt(dx * dx + dz * dz);
+        BlockPos best = edge;
+        if (length > 1.0E-3) {
+            int reach = (int) Math.ceil(creature.getBbWidth()) + 2;
+            for (int step = 1; step <= reach; step++) {
+                BlockPos next = BlockPos.containing(edge.getX() + 0.5 + dx / length * step, edge.getY(),
+                        edge.getZ() + 0.5 + dz / length * step);
+                if (!isWater(level, next)) {
+                    break;
+                }
+                best = next;
+            }
+        }
+        return Vec3.atBottomCenterOf(best);
     }
 
     private static boolean isWater(Level level, BlockPos pos) {

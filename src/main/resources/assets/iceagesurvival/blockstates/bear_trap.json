@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "stage=armed": {
+      "model": "iceagesurvival:block/bear_trap"
+    },
+    "stage=holding": {
+      "model": "iceagesurvival:block/bear_trap_closed"
+    },
+    "stage=sprung": {
+      "model": "iceagesurvival:block/bear_trap_closed"
+    }
+  }
+}

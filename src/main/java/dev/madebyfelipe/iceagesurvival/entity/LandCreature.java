@@ -15,6 +15,7 @@ import dev.madebyfelipe.iceagesurvival.entity.ai.RivalryGoal;
 import dev.madebyfelipe.iceagesurvival.entity.ai.TerritoryGoal;
 import dev.madebyfelipe.iceagesurvival.entity.ai.YieldGoal;
 import dev.madebyfelipe.iceagesurvival.core.ecology.Stress;
+import dev.madebyfelipe.iceagesurvival.defense.BreakDefenseGoal;
 import dev.madebyfelipe.iceagesurvival.entity.ai.StalkGoal;
 import dev.madebyfelipe.iceagesurvival.entity.ai.FollowMotherGoal;
 import dev.madebyfelipe.iceagesurvival.entity.ai.WaryGoal;
@@ -123,6 +124,7 @@ public class LandCreature extends PrehistoricCreature implements GeoEntity, Geck
         // Espécie cautelosa persegue quem a feriu na velocidade da investida.
         double chase = behavior.wariness().map(WarinessProfile::chargeSpeed).orElse(CHASE_SPEED);
         goalSelector.addGoal(3, new ChaseGoal(this, chase));
+        goalSelector.addGoal(2, new BreakDefenseGoal(this));
         if (behavior.wariness().isPresent()) {
             goalSelector.addGoal(2, new WaryGoal(this, calm));
         }

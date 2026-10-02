@@ -1,0 +1,24 @@
+{
+  "conditions": [
+    {
+      "type": "forge:mod_loaded",
+      "modid": "tfc"
+    }
+  ],
+  "type": "iceagesurvival:bench",
+  "bench": "construction",
+  "ingredients": [
+    {
+      "tag": "forge:ingots/wrought_iron",
+      "count": 3
+    },
+    {
+      "item": "minecraft:tripwire_hook",
+      "count": 1
+    }
+  ],
+  "result": {
+    "item": "iceagesurvival:bear_trap",
+    "count": 1
+  }
+}

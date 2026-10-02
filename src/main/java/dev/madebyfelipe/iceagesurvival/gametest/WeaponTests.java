@@ -174,12 +174,12 @@ public class WeaponTests {
         helper.succeed();
     }
 
-    /** Dardo = pepita de ferro + narcótico; rifle e besta têm receita. */
+    /** Dardo = pepita de ferro + narcótico; rifle e besta têm receita, todas na Bancada de Armeiro. */
     @GameTest(template = EMPTY, batch = "weapons")
     public static void weaponRecipesExist(GameTestHelper helper) {
         var recipes = helper.getLevel().getServer().getRecipeManager();
         for (String name : List.of("tranq_dart", "tranq_rifle", "tranq_crossbow")) {
-            helper.assertTrue(recipes.byKey(new ResourceLocation(IceAgeSurvival.MODID, name)).isPresent(),
+            helper.assertTrue(recipes.byKey(new ResourceLocation(IceAgeSurvival.MODID, "bench/armory/" + name)).isPresent(),
                     "sem receita: " + name);
         }
         helper.succeed();

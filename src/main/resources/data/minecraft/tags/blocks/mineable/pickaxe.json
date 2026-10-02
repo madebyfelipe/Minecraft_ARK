@@ -4,6 +4,14 @@
     "iceagesurvival:incubator",
     "iceagesurvival:revive_table",
     "iceagesurvival:tyrannosaurus_head",
-    "iceagesurvival:spinosaurus_head"
+    "iceagesurvival:spinosaurus_head",
+    "iceagesurvival:stone_wall",
+    "iceagesurvival:stone_gate",
+    "iceagesurvival:large_stone_gate",
+    "iceagesurvival:bear_trap",
+    "iceagesurvival:primitive_grill",
+    "iceagesurvival:kiln",
+    "iceagesurvival:kiln_bricks",
+    "iceagesurvival:stone_anvil"
   ]
 }

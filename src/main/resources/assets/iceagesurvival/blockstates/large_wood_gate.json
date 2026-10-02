@@ -1,0 +1,34 @@
+{
+  "variants": {
+    "facing=north,open=false": {
+      "model": "iceagesurvival:block/large_wood_gate"
+    },
+    "facing=north,open=true": {
+      "model": "iceagesurvival:block/large_wood_gate",
+      "y": 90
+    },
+    "facing=east,open=false": {
+      "model": "iceagesurvival:block/large_wood_gate",
+      "y": 90
+    },
+    "facing=east,open=true": {
+      "model": "iceagesurvival:block/large_wood_gate",
+      "y": 180
+    },
+    "facing=south,open=false": {
+      "model": "iceagesurvival:block/large_wood_gate",
+      "y": 180
+    },
+    "facing=south,open=true": {
+      "model": "iceagesurvival:block/large_wood_gate",
+      "y": 270
+    },
+    "facing=west,open=false": {
+      "model": "iceagesurvival:block/large_wood_gate",
+      "y": 270
+    },
+    "facing=west,open=true": {
+      "model": "iceagesurvival:block/large_wood_gate"
+    }
+  }
+}

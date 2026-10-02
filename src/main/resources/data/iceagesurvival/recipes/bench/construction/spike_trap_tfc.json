@@ -1,0 +1,28 @@
+{
+  "conditions": [
+    {
+      "type": "forge:mod_loaded",
+      "modid": "tfc"
+    }
+  ],
+  "type": "iceagesurvival:bench",
+  "bench": "construction",
+  "ingredients": [
+    {
+      "tag": "forge:ingots/wrought_iron",
+      "count": 2
+    },
+    {
+      "tag": "forge:rods/wooden",
+      "count": 4
+    },
+    {
+      "tag": "minecraft:planks",
+      "count": 2
+    }
+  ],
+  "result": {
+    "item": "iceagesurvival:spike_trap",
+    "count": 1
+  }
+}

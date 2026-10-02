@@ -50,6 +50,8 @@ import dev.madebyfelipe.iceagesurvival.core.ecology.Stress;
 import dev.madebyfelipe.iceagesurvival.core.ecology.ThreatResponse;
 import dev.madebyfelipe.iceagesurvival.species.EcologyProfile;
 import dev.madebyfelipe.iceagesurvival.core.mount.MountedReach;
+import dev.madebyfelipe.iceagesurvival.defense.DefenseBlock;
+import dev.madebyfelipe.iceagesurvival.defense.DefenseBlocks;
 import dev.madebyfelipe.iceagesurvival.species.TamingProfile;
 import dev.madebyfelipe.iceagesurvival.menu.CreatureStorageMenu;
 import java.util.List;
@@ -1040,6 +1042,47 @@ public abstract class PrehistoricCreature extends TamableAnimal {
 
     public long lastGaffedTime() {
         return lastGaffedTime;
+    }
+
+    /** Degrau máximo junto de um bloco de defesa: abaixo da colisão de 1,5 do muro, que nenhuma criatura transpõe. */
+    private static final float DEFENSE_STEP = 1.0F;
+    /**
+     * Onde (bloco dos pés) e em que tick foi a última conferência de defesa por perto, e o resultado: o degrau é lido
+     * várias vezes por tick, quase sempre do mesmo lugar.
+     */
+    private long defenseCheckTick = Long.MIN_VALUE;
+    private long defenseCheckPos;
+    private boolean defenseNearby;
+
+    /**
+     * O degrau da espécie ({@code body.step_height}), menos junto de muro, portão ou armadilha: aí no máximo
+     * {@link #DEFENSE_STEP}. Sem isso o T-Rex e o Espinossauro (2,1) e o Bronto (2,6) subiriam o muro de um bloco
+     * como um degrau — a colisão do jogo só olha um bloco abaixo, então nenhuma forma de bloco o seguraria.
+     */
+    @Override
+    public float maxUpStep() {
+        float step = super.maxUpStep();
+        return step > DEFENSE_STEP && isNextToDefense() ? DEFENSE_STEP : step;
+    }
+
+    private boolean isNextToDefense() {
+        long now = level().getGameTime();
+        long at = blockPosition().asLong();
+        if (now != defenseCheckTick || at != defenseCheckPos) {
+            defenseCheckTick = now;
+            defenseCheckPos = at;
+            defenseNearby = false;
+            AABB around = getBoundingBox().inflate(1.0, 0.0, 1.0);
+            int minY = Mth.floor(around.minY);
+            for (BlockPos pos : BlockPos.betweenClosed(Mth.floor(around.minX), minY, Mth.floor(around.minZ),
+                    Mth.floor(around.maxX), minY + 1, Mth.floor(around.maxZ))) {
+                if (level().getBlockState(pos).getBlock() instanceof DefenseBlock) {
+                    defenseNearby = true;
+                    break;
+                }
+            }
+        }
+        return defenseNearby;
     }
 
     /** Bicada: depois de acertar, recua de {@link #retreatTarget()} por um instante. */
@@ -3201,6 +3244,11 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         }
         for (BlockPos pos : bitten) {
             var state = level().getBlockState(pos);
+            if (DefenseBlocks.isDefense(state)) {
+                // Defesa nunca quebra direto: o gigante conta um golpe na madeira; qualquer outra, nada.
+                DefenseBlocks.biteHit(this, rider, pos, state);
+                continue;
+            }
             float hardness = state.getDestroySpeed(level(), pos);
             if (state.isAir() || hardness < 0.0F || hardness > maxHardness || state.hasBlockEntity()
                     || mount.breakBlocks().isPresent() && !state.is(mount.breakBlocks().get())

@@ -1,0 +1,18 @@
+{
+  "type": "iceagesurvival:bench",
+  "bench": "construction",
+  "ingredients": [
+    {
+      "tag": "minecraft:leaves",
+      "count": 3
+    },
+    {
+      "tag": "forge:rods/wooden",
+      "count": 2
+    }
+  ],
+  "result": {
+    "item": "iceagesurvival:foliage_cover",
+    "count": 2
+  }
+}

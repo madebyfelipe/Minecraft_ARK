@@ -1,0 +1,22 @@
+{
+  "type": "iceagesurvival:bench",
+  "bench": "armory",
+  "ingredients": [
+    {
+      "item": "minecraft:iron_ingot",
+      "count": 3
+    },
+    {
+      "tag": "minecraft:planks",
+      "count": 2
+    },
+    {
+      "item": "minecraft:gunpowder",
+      "count": 1
+    }
+  ],
+  "result": {
+    "item": "iceagesurvival:tranq_rifle",
+    "count": 1
+  }
+}

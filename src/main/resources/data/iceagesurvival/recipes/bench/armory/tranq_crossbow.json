@@ -1,0 +1,18 @@
+{
+  "type": "iceagesurvival:bench",
+  "bench": "armory",
+  "ingredients": [
+    {
+      "item": "minecraft:crossbow",
+      "count": 1
+    },
+    {
+      "item": "minecraft:iron_ingot",
+      "count": 1
+    }
+  ],
+  "result": {
+    "item": "iceagesurvival:tranq_crossbow",
+    "count": 1
+  }
+}

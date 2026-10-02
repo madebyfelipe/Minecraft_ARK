@@ -1,0 +1,28 @@
+{
+  "conditions": [
+    {
+      "type": "forge:mod_loaded",
+      "modid": "tfc"
+    }
+  ],
+  "type": "iceagesurvival:bench",
+  "bench": "armory",
+  "ingredients": [
+    {
+      "tag": "forge:ingots/wrought_iron",
+      "count": 3
+    },
+    {
+      "tag": "minecraft:planks",
+      "count": 2
+    },
+    {
+      "item": "minecraft:gunpowder",
+      "count": 1
+    }
+  ],
+  "result": {
+    "item": "iceagesurvival:tranq_rifle",
+    "count": 1
+  }
+}

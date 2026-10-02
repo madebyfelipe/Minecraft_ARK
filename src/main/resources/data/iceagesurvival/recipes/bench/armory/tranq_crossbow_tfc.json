@@ -1,0 +1,24 @@
+{
+  "conditions": [
+    {
+      "type": "forge:mod_loaded",
+      "modid": "tfc"
+    }
+  ],
+  "type": "iceagesurvival:bench",
+  "bench": "armory",
+  "ingredients": [
+    {
+      "item": "minecraft:crossbow",
+      "count": 1
+    },
+    {
+      "tag": "forge:ingots/wrought_iron",
+      "count": 1
+    }
+  ],
+  "result": {
+    "item": "iceagesurvival:tranq_crossbow",
+    "count": 1
+  }
+}

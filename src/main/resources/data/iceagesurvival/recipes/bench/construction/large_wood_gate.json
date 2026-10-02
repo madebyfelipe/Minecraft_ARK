@@ -1,0 +1,22 @@
+{
+  "type": "iceagesurvival:bench",
+  "bench": "construction",
+  "ingredients": [
+    {
+      "tag": "minecraft:logs",
+      "count": 20
+    },
+    {
+      "tag": "minecraft:planks",
+      "count": 20
+    },
+    {
+      "tag": "forge:rods/wooden",
+      "count": 10
+    }
+  ],
+  "result": {
+    "item": "iceagesurvival:large_wood_gate",
+    "count": 1
+  }
+}

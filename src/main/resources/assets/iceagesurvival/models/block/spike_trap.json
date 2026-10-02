@@ -1,0 +1,233 @@
+{
+  "parent": "minecraft:block/block",
+  "ambientocclusion": false,
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "particle": "iceagesurvival:block/spike_trap_base",
+    "base": "iceagesurvival:block/spike_trap_base",
+    "spikes": "iceagesurvival:block/spike_trap_spikes"
+  },
+  "elements": [
+    {
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        16,
+        1,
+        16
+      ],
+      "faces": {
+        "up": {
+          "texture": "#base",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
+        },
+        "down": {
+          "texture": "#base",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "cullface": "down"
+        },
+        "north": {
+          "texture": "#base",
+          "uv": [
+            0,
+            15,
+            16,
+            16
+          ]
+        },
+        "south": {
+          "texture": "#base",
+          "uv": [
+            0,
+            15,
+            16,
+            16
+          ]
+        },
+        "east": {
+          "texture": "#base",
+          "uv": [
+            0,
+            15,
+            16,
+            16
+          ]
+        },
+        "west": {
+          "texture": "#base",
+          "uv": [
+            0,
+            15,
+            16,
+            16
+          ]
+        }
+      }
+    },
+    {
+      "from": [
+        0,
+        1,
+        8
+      ],
+      "to": [
+        16,
+        8,
+        8
+      ],
+      "rotation": {
+        "origin": [
+          8,
+          8,
+          8
+        ],
+        "axis": "y",
+        "angle": 45,
+        "rescale": true
+      },
+      "shade": false,
+      "faces": {
+        "north": {
+          "texture": "#spikes",
+          "uv": [
+            0,
+            9,
+            16,
+            16
+          ]
+        },
+        "south": {
+          "texture": "#spikes",
+          "uv": [
+            0,
+            9,
+            16,
+            16
+          ]
+        }
+      }
+    },
+    {
+      "from": [
+        0,
+        1,
+        8
+      ],
+      "to": [
+        16,
+        8,
+        8
+      ],
+      "rotation": {
+        "origin": [
+          8,
+          8,
+          8
+        ],
+        "axis": "y",
+        "angle": -45,
+        "rescale": true
+      },
+      "shade": false,
+      "faces": {
+        "north": {
+          "texture": "#spikes",
+          "uv": [
+            0,
+            9,
+            16,
+            16
+          ]
+        },
+        "south": {
+          "texture": "#spikes",
+          "uv": [
+            0,
+            9,
+            16,
+            16
+          ]
+        }
+      }
+    },
+    {
+      "from": [
+        0,
+        1,
+        3
+      ],
+      "to": [
+        16,
+        8,
+        3
+      ],
+      "shade": false,
+      "faces": {
+        "north": {
+          "texture": "#spikes",
+          "uv": [
+            0,
+            9,
+            16,
+            16
+          ]
+        },
+        "south": {
+          "texture": "#spikes",
+          "uv": [
+            0,
+            9,
+            16,
+            16
+          ]
+        }
+      }
+    },
+    {
+      "from": [
+        0,
+        1,
+        13
+      ],
+      "to": [
+        16,
+        8,
+        13
+      ],
+      "shade": false,
+      "faces": {
+        "north": {
+          "texture": "#spikes",
+          "uv": [
+            0,
+            9,
+            16,
+            16
+          ]
+        },
+        "south": {
+          "texture": "#spikes",
+          "uv": [
+            0,
+            9,
+            16,
+            16
+          ]
+        }
+      }
+    }
+  ]
+}

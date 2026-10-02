@@ -2,6 +2,25 @@
   "replace": false,
   "values": [
     "iceagesurvival:chemistry_bench",
-    "iceagesurvival:prep_station"
+    "iceagesurvival:prep_station",
+    "iceagesurvival:construction_bench",
+    "iceagesurvival:armory_bench",
+    "iceagesurvival:wood_wall",
+    "iceagesurvival:wood_gate",
+    "iceagesurvival:large_wood_gate",
+    "iceagesurvival:spike_trap",
+    "iceagesurvival:thorn_palisade",
+    "iceagesurvival:cutting_log",
+    "iceagesurvival:oak_drying_rack",
+    "iceagesurvival:spruce_drying_rack",
+    "iceagesurvival:birch_drying_rack",
+    "iceagesurvival:jungle_drying_rack",
+    "iceagesurvival:acacia_drying_rack",
+    "iceagesurvival:dark_oak_drying_rack",
+    "iceagesurvival:mangrove_drying_rack",
+    "iceagesurvival:cherry_drying_rack",
+    "iceagesurvival:bamboo_drying_rack",
+    "iceagesurvival:crimson_drying_rack",
+    "iceagesurvival:warped_drying_rack"
   ]
 }

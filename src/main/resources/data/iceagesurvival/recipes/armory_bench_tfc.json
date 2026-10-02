@@ -6,24 +6,25 @@
     }
   ],
   "type": "minecraft:crafting_shaped",
-  "category": "equipment",
+  "category": "misc",
   "pattern": [
     "III",
-    "WG ",
-    "W  "
+    "PCP",
+    "P P"
   ],
   "key": {
     "I": {
       "tag": "forge:ingots/wrought_iron"
     },
-    "G": {
-      "item": "minecraft:gunpowder"
+    "C": {
+      "item": "minecraft:crafting_table"
     },
-    "W": {
+    "P": {
       "tag": "minecraft:planks"
     }
   },
   "result": {
-    "item": "iceagesurvival:tranq_rifle"
+    "count": 1,
+    "item": "iceagesurvival:armory_bench"
   }
 }

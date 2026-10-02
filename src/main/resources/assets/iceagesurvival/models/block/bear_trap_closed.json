@@ -1,0 +1,114 @@
+{
+  "parent": "minecraft:block/block",
+  "ambientocclusion": false,
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "particle": "iceagesurvival:block/bear_trap_jaw",
+    "top": "iceagesurvival:block/bear_trap",
+    "jaw": "iceagesurvival:block/bear_trap_jaw"
+  },
+  "elements": [
+    {
+      "from": [
+        1,
+        0,
+        6.5
+      ],
+      "to": [
+        15,
+        6,
+        9.5
+      ],
+      "faces": {
+        "north": {
+          "texture": "#jaw",
+          "uv": [
+            1,
+            10,
+            15,
+            16
+          ]
+        },
+        "south": {
+          "texture": "#jaw",
+          "uv": [
+            1,
+            10,
+            15,
+            16
+          ]
+        },
+        "east": {
+          "texture": "#jaw",
+          "uv": [
+            6,
+            10,
+            9,
+            16
+          ]
+        },
+        "west": {
+          "texture": "#jaw",
+          "uv": [
+            6,
+            10,
+            9,
+            16
+          ]
+        },
+        "up": {
+          "texture": "#jaw",
+          "uv": [
+            1,
+            12,
+            15,
+            13
+          ]
+        },
+        "down": {
+          "texture": "#jaw",
+          "uv": [
+            1,
+            14,
+            15,
+            15
+          ],
+          "cullface": "down"
+        }
+      }
+    },
+    {
+      "from": [
+        2,
+        0,
+        2
+      ],
+      "to": [
+        14,
+        0.5,
+        14
+      ],
+      "faces": {
+        "up": {
+          "texture": "#top",
+          "uv": [
+            2,
+            2,
+            14,
+            14
+          ]
+        },
+        "down": {
+          "texture": "#top",
+          "uv": [
+            2,
+            14,
+            14,
+            2
+          ],
+          "cullface": "down"
+        }
+      }
+    }
+  ]
+}

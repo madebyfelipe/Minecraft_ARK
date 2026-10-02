@@ -1,0 +1,18 @@
+{
+  "type": "iceagesurvival:bench",
+  "bench": "construction",
+  "ingredients": [
+    {
+      "tag": "minecraft:stone_bricks",
+      "count": 30
+    },
+    {
+      "tag": "forge:stone",
+      "count": 20
+    }
+  ],
+  "result": {
+    "item": "iceagesurvival:large_stone_gate",
+    "count": 1
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "type": "iceagesurvival:bench",
+  "bench": "construction",
+  "ingredients": [
+    {
+      "tag": "minecraft:logs",
+      "count": 2
+    },
+    {
+      "tag": "forge:rods/wooden",
+      "count": 4
+    }
+  ],
+  "result": {
+    "item": "iceagesurvival:wood_wall",
+    "count": 1
+  }
+}

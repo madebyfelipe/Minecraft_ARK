@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "end": "iceagesurvival:block/wood_wall_top",
+    "side": "iceagesurvival:block/wood_wall_side"
+  }
+}

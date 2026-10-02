@@ -1,0 +1,18 @@
+{
+  "type": "iceagesurvival:bench",
+  "bench": "armory",
+  "ingredients": [
+    {
+      "item": "minecraft:iron_nugget",
+      "count": 1
+    },
+    {
+      "item": "iceagesurvival:narcotic",
+      "count": 1
+    }
+  ],
+  "result": {
+    "item": "iceagesurvival:tranq_dart",
+    "count": 4
+  }
+}

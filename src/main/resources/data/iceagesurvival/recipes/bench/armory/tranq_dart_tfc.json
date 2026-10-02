@@ -5,14 +5,16 @@
       "modid": "tfc"
     }
   ],
-  "type": "minecraft:crafting_shapeless",
-  "category": "equipment",
+  "type": "iceagesurvival:bench",
+  "bench": "armory",
   "ingredients": [
     {
-      "tag": "forge:rods/wrought_iron"
+      "tag": "forge:rods/wrought_iron",
+      "count": 1
     },
     {
-      "item": "iceagesurvival:narcotic"
+      "item": "iceagesurvival:narcotic",
+      "count": 1
     }
   ],
   "result": {

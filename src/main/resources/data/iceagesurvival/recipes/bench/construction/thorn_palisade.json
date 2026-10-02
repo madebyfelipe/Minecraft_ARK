@@ -1,0 +1,22 @@
+{
+  "type": "iceagesurvival:bench",
+  "bench": "construction",
+  "ingredients": [
+    {
+      "item": "minecraft:cactus",
+      "count": 2
+    },
+    {
+      "tag": "forge:rods/wooden",
+      "count": 4
+    },
+    {
+      "tag": "minecraft:logs",
+      "count": 1
+    }
+  ],
+  "result": {
+    "item": "iceagesurvival:thorn_palisade",
+    "count": 1
+  }
+}

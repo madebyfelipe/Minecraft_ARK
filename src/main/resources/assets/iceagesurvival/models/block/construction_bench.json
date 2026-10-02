@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "iceagesurvival:block/construction_bench_front",
+    "north": "iceagesurvival:block/construction_bench_front",
+    "west": "iceagesurvival:block/construction_bench_front",
+    "south": "iceagesurvival:block/construction_bench_side",
+    "east": "iceagesurvival:block/construction_bench_side",
+    "up": "iceagesurvival:block/construction_bench_top",
+    "down": "minecraft:block/spruce_planks"
+  }
+}

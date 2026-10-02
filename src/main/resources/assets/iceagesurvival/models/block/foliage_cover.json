@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "top": "iceagesurvival:block/foliage_cover_top",
+    "bottom": "iceagesurvival:block/foliage_cover_side",
+    "side": "iceagesurvival:block/foliage_cover_side"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "type": "iceagesurvival:bench",
+  "bench": "construction",
+  "ingredients": [
+    {
+      "item": "minecraft:iron_ingot",
+      "count": 2
+    },
+    {
+      "tag": "forge:rods/wooden",
+      "count": 4
+    },
+    {
+      "tag": "minecraft:planks",
+      "count": 2
+    }
+  ],
+  "result": {
+    "item": "iceagesurvival:spike_trap",
+    "count": 1
+  }
+}
