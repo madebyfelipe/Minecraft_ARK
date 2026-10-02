@@ -46,9 +46,14 @@
         "quality": 0.85
       },
       {
-        "items": "#iceagesurvival:taming/raw_red_meat",
+        "items": "#iceagesurvival:taming/raw_red_meat_and_dodo",
         "value": 25,
         "quality": 0.6
+      },
+      {
+        "items": "#iceagesurvival:taming/cooked_fish_and_dodo",
+        "value": 15,
+        "quality": 0.4
       }
     ]
   },

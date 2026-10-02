@@ -225,5 +225,21 @@
   "iceagesurvival.direction.south": "south",
   "iceagesurvival.direction.southwest": "southwest",
   "iceagesurvival.direction.west": "west",
-  "iceagesurvival.direction.northwest": "northwest"
+  "iceagesurvival.direction.northwest": "northwest",
+  "block.iceagesurvival.primitive_grill": "Primitive Grill",
+  "block.iceagesurvival.kiln": "Kiln",
+  "block.iceagesurvival.kiln_bricks": "Kiln Bricks",
+  "block.iceagesurvival.cutting_log": "Cutting Log",
+  "block.iceagesurvival.stone_anvil": "Stone Anvil",
+  "block.iceagesurvival.oak_drying_rack": "Oak Drying Rack",
+  "block.iceagesurvival.spruce_drying_rack": "Spruce Drying Rack",
+  "block.iceagesurvival.birch_drying_rack": "Birch Drying Rack",
+  "block.iceagesurvival.jungle_drying_rack": "Jungle Drying Rack",
+  "block.iceagesurvival.acacia_drying_rack": "Acacia Drying Rack",
+  "block.iceagesurvival.dark_oak_drying_rack": "Dark Oak Drying Rack",
+  "block.iceagesurvival.mangrove_drying_rack": "Mangrove Drying Rack",
+  "block.iceagesurvival.cherry_drying_rack": "Cherry Drying Rack",
+  "block.iceagesurvival.bamboo_drying_rack": "Bamboo Drying Rack",
+  "block.iceagesurvival.crimson_drying_rack": "Crimson Drying Rack",
+  "block.iceagesurvival.warped_drying_rack": "Warped Drying Rack"
 }

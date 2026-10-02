@@ -4,6 +4,7 @@ import dev.madebyfelipe.iceagesurvival.IceAgeSurvival;
 import dev.madebyfelipe.iceagesurvival.item.CreatureEggItem;
 import dev.madebyfelipe.iceagesurvival.item.TranqArrowItem;
 import dev.madebyfelipe.iceagesurvival.item.TranqGunItem;
+import dev.madebyfelipe.iceagesurvival.item.TranqRifleItem;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTabs;
@@ -122,9 +123,9 @@ public final class ModItems {
     /** Dardo sedativo: pepita de ferro com narcótico. Munição do rifle e da besta de dardos. */
     public static final RegistryObject<Item> TRANQ_DART = simpleItem("tranq_dart");
 
-    /** Rifle tranquilizante: 8× o torpor da flecha (200) a cada 2,5 s — 80/s, o maior de todos, acima do arco Força V (62,5/s). */
-    public static final RegistryObject<TranqGunItem> TRANQ_RIFLE = ITEMS.register("tranq_rifle",
-            () -> new TranqGunItem(new Item.Properties().durability(400), 8.0, 6.0F, 0.2F, 50,
+    /** Rifle tranquilizante (tiro instantâneo, só o traçante): 8× o torpor da flecha (200) a cada 2,5 s — 80/s, o maior de todos, acima do arco Força V (62,5/s). */
+    public static final RegistryObject<TranqRifleItem> TRANQ_RIFLE = ITEMS.register("tranq_rifle",
+            () -> new TranqRifleItem(new Item.Properties().durability(400), 8.0, 50,
                     stack -> stack.is(TRANQ_DART.get()), net.minecraft.sounds.SoundEvents.FIREWORK_ROCKET_BLAST_FAR));
 
     /** Besta de dardos: 2× o torpor da flecha (50) a cada 2 s — 25/s, nunca acima do arco Força V; sem puxar e mais precisa. */

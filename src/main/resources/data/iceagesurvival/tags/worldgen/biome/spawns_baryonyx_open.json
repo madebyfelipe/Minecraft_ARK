@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:snowy_plains",
+    "minecraft:snowy_taiga",
+    "minecraft:plains",
+    "minecraft:taiga",
+    {
+      "id": "tfc:lowlands",
+      "required": false
+    }
+  ]
+}

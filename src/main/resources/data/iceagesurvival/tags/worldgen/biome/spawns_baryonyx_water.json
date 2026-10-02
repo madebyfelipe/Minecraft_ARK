@@ -1,0 +1,44 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:frozen_river",
+    "minecraft:snowy_beach",
+    "minecraft:frozen_ocean",
+    "minecraft:river",
+    "minecraft:swamp",
+    "minecraft:mangrove_swamp",
+    "minecraft:beach",
+    {
+      "id": "tfc:river",
+      "required": false
+    },
+    {
+      "id": "tfc:lake",
+      "required": false
+    },
+    {
+      "id": "tfc:mountain_lake",
+      "required": false
+    },
+    {
+      "id": "tfc:old_mountain_lake",
+      "required": false
+    },
+    {
+      "id": "tfc:plateau_lake",
+      "required": false
+    },
+    {
+      "id": "tfc:shore",
+      "required": false
+    },
+    {
+      "id": "tfc:salt_marsh",
+      "required": false
+    },
+    {
+      "id": "tfc:tidal_flats",
+      "required": false
+    }
+  ]
+}

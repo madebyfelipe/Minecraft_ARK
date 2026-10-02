@@ -225,5 +225,21 @@
   "iceagesurvival.direction.south": "sul",
   "iceagesurvival.direction.southwest": "sudoeste",
   "iceagesurvival.direction.west": "oeste",
-  "iceagesurvival.direction.northwest": "noroeste"
+  "iceagesurvival.direction.northwest": "noroeste",
+  "block.iceagesurvival.primitive_grill": "Grelha Primitiva",
+  "block.iceagesurvival.kiln": "Forno de Olaria",
+  "block.iceagesurvival.kiln_bricks": "Tijolos de Forno",
+  "block.iceagesurvival.cutting_log": "Tora de Corte",
+  "block.iceagesurvival.stone_anvil": "Bigorna de Pedra",
+  "block.iceagesurvival.oak_drying_rack": "Varal de Secagem de Carvalho",
+  "block.iceagesurvival.spruce_drying_rack": "Varal de Secagem de Pinheiro",
+  "block.iceagesurvival.birch_drying_rack": "Varal de Secagem de Bétula",
+  "block.iceagesurvival.jungle_drying_rack": "Varal de Secagem de Selva",
+  "block.iceagesurvival.acacia_drying_rack": "Varal de Secagem de Acácia",
+  "block.iceagesurvival.dark_oak_drying_rack": "Varal de Secagem de Carvalho Escuro",
+  "block.iceagesurvival.mangrove_drying_rack": "Varal de Secagem de Mangue",
+  "block.iceagesurvival.cherry_drying_rack": "Varal de Secagem de Cerejeira",
+  "block.iceagesurvival.bamboo_drying_rack": "Varal de Secagem de Bambu",
+  "block.iceagesurvival.crimson_drying_rack": "Varal de Secagem de Carmesim",
+  "block.iceagesurvival.warped_drying_rack": "Varal de Secagem de Distorcido"
 }

@@ -75,7 +75,9 @@ public final class PrimalStations {
     public static final RegistryObject<KilnBlock> KILN = BLOCKS.register("kiln",
             () -> new KilnBlock(BlockBehaviour.Properties.copy(Blocks.BRICKS).noOcclusion()));
     public static final RegistryObject<CuttingLogBlock> CUTTING_LOG = BLOCKS.register("cutting_log",
-            () -> new CuttingLogBlock(BlockBehaviour.Properties.copy(Blocks.OAK_LOG).noOcclusion()));
+            () -> new CuttingLogBlock(BlockBehaviour.Properties.copy(Blocks.OAK_LOG)
+                    // A cor de mapa do tronco lê o eixo, que a tora de corte não tem.
+                    .mapColor(net.minecraft.world.level.material.MapColor.WOOD).noOcclusion()));
     public static final RegistryObject<StoneAnvilBlock> STONE_ANVIL = BLOCKS.register("stone_anvil",
             () -> new StoneAnvilBlock(BlockBehaviour.Properties.copy(Blocks.STONE).strength(2.0F).noOcclusion()));
 
