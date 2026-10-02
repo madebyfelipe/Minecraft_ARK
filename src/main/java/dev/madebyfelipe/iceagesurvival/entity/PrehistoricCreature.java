@@ -564,10 +564,8 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         if (!(getType().create(level.getLevel()) instanceof PrehistoricCreature mate)) {
             return;
         }
-        double angle = level.getRandom().nextDouble() * Math.PI * 2.0;
-        double offset = getBbWidth() + 0.5;
-        mate.moveTo(getX() + Math.cos(angle) * offset, getY(), getZ() + Math.sin(angle) * offset,
-                level.getRandom().nextFloat() * 360.0F, 0.0F);
+        Vec3 spot = familySpot(level);
+        mate.moveTo(spot.x, spot.y, spot.z, level.getRandom().nextFloat() * 360.0F, 0.0F);
         mate.finalizeSpawn(level, difficulty, MobSpawnType.NATURAL, FamilyMember.INSTANCE, null);
         mate.groupId = groupId;
         mate.rollWildStats();
@@ -575,15 +573,32 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         level.addFreshEntity(mate);
     }
 
+    /**
+     * Onde o parente nasce: ao lado, a uma largura de corpo, num chunk que o mundo aceita agora. Na geração do
+     * terreno só o chunk do meio recebe entidades — um parente no vizinho derrubava o servidor (visto com o TFC e as
+     * criaturas grandes) —, então tenta outras direções e, sem nenhuma, nasce no mesmo ponto.
+     */
+    private Vec3 familySpot(ServerLevelAccessor level) {
+        double offset = getBbWidth() + 0.5;
+        for (int attempt = 0; attempt < 8; attempt++) {
+            double angle = level.getRandom().nextDouble() * Math.PI * 2.0;
+            double x = getX() + Math.cos(angle) * offset;
+            double z = getZ() + Math.sin(angle) * offset;
+            if (level.hasChunk(net.minecraft.core.SectionPos.blockToSectionCoord(x),
+                    net.minecraft.core.SectionPos.blockToSectionCoord(z))) {
+                return new Vec3(x, getY(), z);
+            }
+        }
+        return position();
+    }
+
     @Nullable
     private PrehistoricCreature spawnRelative(ServerLevelAccessor level, DifficultyInstance difficulty) {
         if (!(getType().create(level.getLevel()) instanceof PrehistoricCreature relative)) {
             return null;
         }
-        double angle = level.getRandom().nextDouble() * Math.PI * 2.0;
-        double offset = getBbWidth() + 0.5;
-        relative.moveTo(getX() + Math.cos(angle) * offset, getY(), getZ() + Math.sin(angle) * offset,
-                level.getRandom().nextFloat() * 360.0F, 0.0F);
+        Vec3 spot = familySpot(level);
+        relative.moveTo(spot.x, spot.y, spot.z, level.getRandom().nextFloat() * 360.0F, 0.0F);
         relative.finalizeSpawn(level, difficulty, MobSpawnType.NATURAL, FamilyMember.INSTANCE, null);
         relative.groupId = groupId;
         level.addFreshEntity(relative);
