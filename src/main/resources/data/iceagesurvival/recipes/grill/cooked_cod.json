@@ -1,0 +1,10 @@
+{
+  "type": "iceagesurvival:grill",
+  "ingredient": {
+    "item": "minecraft:cod"
+  },
+  "result": {
+    "item": "minecraft:cooked_cod"
+  },
+  "time": 600
+}

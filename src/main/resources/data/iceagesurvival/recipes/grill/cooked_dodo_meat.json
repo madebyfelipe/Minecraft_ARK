@@ -1,0 +1,10 @@
+{
+  "type": "iceagesurvival:grill",
+  "ingredient": {
+    "item": "iceagesurvival:dodo_meat"
+  },
+  "result": {
+    "item": "iceagesurvival:cooked_dodo_meat"
+  },
+  "time": 600
+}

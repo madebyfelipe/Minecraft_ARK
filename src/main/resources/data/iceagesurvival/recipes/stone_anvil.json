@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "SSS",
+    "L L",
+    "L L"
+  ],
+  "key": {
+    "S": {
+      "tag": "forge:stone"
+    },
+    "L": {
+      "tag": "minecraft:logs"
+    }
+  },
+  "result": {
+    "item": "iceagesurvival:stone_anvil"
+  }
+}

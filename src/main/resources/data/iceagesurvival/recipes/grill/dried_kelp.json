@@ -1,0 +1,10 @@
+{
+  "type": "iceagesurvival:grill",
+  "ingredient": {
+    "item": "minecraft:kelp"
+  },
+  "result": {
+    "item": "minecraft:dried_kelp"
+  },
+  "time": 600
+}

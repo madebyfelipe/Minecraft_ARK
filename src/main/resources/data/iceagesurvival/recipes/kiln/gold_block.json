@@ -1,0 +1,10 @@
+{
+  "type": "iceagesurvival:kiln",
+  "ingredient": {
+    "item": "minecraft:raw_gold_block"
+  },
+  "result": {
+    "item": "minecraft:gold_block"
+  },
+  "time": 1200
+}

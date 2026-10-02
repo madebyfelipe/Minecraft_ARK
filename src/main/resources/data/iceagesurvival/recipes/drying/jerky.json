@@ -1,0 +1,10 @@
+{
+  "type": "iceagesurvival:drying",
+  "ingredient": {
+    "tag": "iceagesurvival:jerky_meat"
+  },
+  "result": {
+    "item": "iceagesurvival:jerky"
+  },
+  "time": 2400
+}

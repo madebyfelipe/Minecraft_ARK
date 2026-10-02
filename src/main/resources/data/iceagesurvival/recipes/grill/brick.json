@@ -1,0 +1,10 @@
+{
+  "type": "iceagesurvival:grill",
+  "ingredient": {
+    "item": "minecraft:clay_ball"
+  },
+  "result": {
+    "item": "minecraft:brick"
+  },
+  "time": 600
+}

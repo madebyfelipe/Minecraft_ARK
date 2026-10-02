@@ -26,7 +26,7 @@ public final class TabulaModels extends SimplePreparableReloadListener<Map<Resou
 
     /** O que a leitura produz, ainda sem nada do Minecraft além do id. */
     record Loaded(JurassicRebornAppearance appearance, TabulaModelData base, TabulaRig rig,
-                  Map<String, PoseClip> clips) {
+                  Map<String, PoseClip> clips, boolean eyelids) {
     }
 
     private volatile Map<ResourceLocation, BakedTabulaModel> models = Map.of();
@@ -106,7 +106,9 @@ public final class TabulaModels extends SimplePreparableReloadListener<Map<Resou
             }
             clips.put(animation.getKey(), new PoseClip(clipFrames, ticks));
         }
-        return Optional.of(new Loaded(appearance, base, rig, clips));
+        boolean eyelids = resources.getResource(appearance.eyelidResource(false)).isPresent()
+                && resources.getResource(appearance.eyelidResource(true)).isPresent();
+        return Optional.of(new Loaded(appearance, base, rig, clips, eyelids));
     }
 
     private static TabulaModelData readPose(ResourceManager resources, ResourceLocation id) throws IOException {
@@ -122,7 +124,7 @@ public final class TabulaModels extends SimplePreparableReloadListener<Map<Resou
         loaded.forEach((id, species) -> {
             try {
                 baked.put(id, BakedTabulaModel.bake(species.appearance(), species.base(), species.rig(),
-                        species.clips()));
+                        species.clips(), species.eyelids()));
             } catch (RuntimeException e) {
                 IceAgeSurvival.LOGGER.warn("Modelo do Jurassic Reborn de {} não montou ({}); a criatura não será "
                         + "desenhada.", id, e.toString());

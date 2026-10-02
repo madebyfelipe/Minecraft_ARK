@@ -1,0 +1,6 @@
+{
+  "parent": "iceagesurvival:block/drying_rack",
+  "textures": {
+    "texture": "minecraft:block/stripped_cherry_log"
+  }
+}

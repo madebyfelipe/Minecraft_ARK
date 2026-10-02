@@ -1,0 +1,10 @@
+{
+  "type": "iceagesurvival:grill",
+  "ingredient": {
+    "item": "minecraft:chicken"
+  },
+  "result": {
+    "item": "minecraft:cooked_chicken"
+  },
+  "time": 600
+}

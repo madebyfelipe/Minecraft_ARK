@@ -23,9 +23,10 @@ public final class BakedTabulaModel {
     private final Map<String, PoseClip> clips;
     private final int[] headChain;
     private final int[] breathing;
+    private final boolean eyelids;
 
     private BakedTabulaModel(JurassicRebornAppearance appearance, TabulaRig rig, ModelPart root, ModelPart[] parts,
-                             Map<String, PoseClip> clips) {
+                             Map<String, PoseClip> clips, boolean eyelids) {
         this.appearance = appearance;
         this.rig = rig;
         this.root = root;
@@ -33,11 +34,12 @@ public final class BakedTabulaModel {
         this.clips = Map.copyOf(clips);
         this.headChain = indices(rig, appearance.headChain());
         this.breathing = indices(rig, appearance.breathing());
+        this.eyelids = eyelids;
     }
 
     /** Monta as partes. Roda na thread principal (no {@code apply} do recarregamento). */
     public static BakedTabulaModel bake(JurassicRebornAppearance appearance, TabulaModelData base, TabulaRig rig,
-                                        Map<String, PoseClip> clips) {
+                                        Map<String, PoseClip> clips, boolean eyelids) {
         MeshDefinition mesh = new MeshDefinition();
         PartDefinition[] definitions = new PartDefinition[rig.size()];
         for (int i = 0; i < rig.size(); i++) {
@@ -60,7 +62,7 @@ public final class BakedTabulaModel {
             ModelPart parent = rig.parent(i) < 0 ? root : parts[rig.parent(i)];
             parts[i] = parent.getChild(partName(i));
         }
-        return new BakedTabulaModel(appearance, rig, root, parts, clips);
+        return new BakedTabulaModel(appearance, rig, root, parts, clips, eyelids);
     }
 
     private static String partName(int index) {
@@ -73,6 +75,11 @@ public final class BakedTabulaModel {
 
     public JurassicRebornAppearance appearance() {
         return appearance;
+    }
+
+    /** Se as texturas de pálpebra existem (sem elas, a camada não desenha: a textura faltando cobriria tudo). */
+    public boolean hasEyelids() {
+        return eyelids;
     }
 
     public TabulaRig rig() {

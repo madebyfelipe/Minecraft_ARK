@@ -1,0 +1,10 @@
+{
+  "type": "iceagesurvival:grill",
+  "ingredient": {
+    "item": "minecraft:potato"
+  },
+  "result": {
+    "item": "minecraft:baked_potato"
+  },
+  "time": 600
+}

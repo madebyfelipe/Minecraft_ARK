@@ -1,0 +1,10 @@
+{
+  "type": "iceagesurvival:kiln",
+  "ingredient": {
+    "item": "minecraft:raw_copper_block"
+  },
+  "result": {
+    "item": "minecraft:copper_block"
+  },
+  "time": 1200
+}

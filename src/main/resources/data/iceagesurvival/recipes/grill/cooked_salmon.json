@@ -1,0 +1,10 @@
+{
+  "type": "iceagesurvival:grill",
+  "ingredient": {
+    "item": "minecraft:salmon"
+  },
+  "result": {
+    "item": "minecraft:cooked_salmon"
+  },
+  "time": 600
+}

@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    " K ",
+    "K K",
+    "KKK"
+  ],
+  "key": {
+    "K": {
+      "item": "iceagesurvival:kiln_bricks"
+    }
+  },
+  "result": {
+    "item": "iceagesurvival:kiln"
+  }
+}

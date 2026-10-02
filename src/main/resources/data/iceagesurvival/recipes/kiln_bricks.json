@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "BS",
+    "SB"
+  ],
+  "key": {
+    "B": {
+      "item": "minecraft:brick"
+    },
+    "S": {
+      "tag": "minecraft:sand"
+    }
+  },
+  "result": {
+    "item": "iceagesurvival:kiln_bricks",
+    "count": 2
+  }
+}

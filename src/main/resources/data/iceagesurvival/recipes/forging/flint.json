@@ -1,0 +1,10 @@
+{
+  "type": "iceagesurvival:forging",
+  "ingredient": {
+    "item": "minecraft:gravel"
+  },
+  "result": {
+    "item": "minecraft:flint"
+  },
+  "hits": 3
+}

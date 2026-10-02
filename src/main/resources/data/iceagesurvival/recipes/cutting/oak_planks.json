@@ -1,0 +1,11 @@
+{
+  "type": "iceagesurvival:cutting",
+  "ingredient": {
+    "tag": "minecraft:oak_logs"
+  },
+  "result": {
+    "item": "minecraft:oak_planks",
+    "count": 6
+  },
+  "hits": 2
+}

@@ -1,0 +1,11 @@
+{
+  "type": "iceagesurvival:cutting",
+  "ingredient": {
+    "tag": "minecraft:jungle_logs"
+  },
+  "result": {
+    "item": "minecraft:jungle_planks",
+    "count": 6
+  },
+  "hits": 2
+}

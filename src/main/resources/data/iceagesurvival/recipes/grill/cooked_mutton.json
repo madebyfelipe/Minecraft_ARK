@@ -1,0 +1,10 @@
+{
+  "type": "iceagesurvival:grill",
+  "ingredient": {
+    "item": "minecraft:mutton"
+  },
+  "result": {
+    "item": "minecraft:cooked_mutton"
+  },
+  "time": 600
+}

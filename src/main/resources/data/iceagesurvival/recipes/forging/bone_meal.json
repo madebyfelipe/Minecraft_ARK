@@ -1,0 +1,11 @@
+{
+  "type": "iceagesurvival:forging",
+  "ingredient": {
+    "item": "minecraft:bone"
+  },
+  "result": {
+    "item": "minecraft:bone_meal",
+    "count": 4
+  },
+  "hits": 2
+}

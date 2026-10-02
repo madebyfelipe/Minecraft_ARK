@@ -1,0 +1,10 @@
+{
+  "type": "iceagesurvival:kiln",
+  "ingredient": {
+    "item": "minecraft:clay"
+  },
+  "result": {
+    "item": "minecraft:terracotta"
+  },
+  "time": 600
+}

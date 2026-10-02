@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "iceagesurvival:block/kiln"
+    },
+    "facing=east": {
+      "model": "iceagesurvival:block/kiln",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "iceagesurvival:block/kiln",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "iceagesurvival:block/kiln",
+      "y": 270
+    }
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "type": "iceagesurvival:grill",
+  "ingredient": {
+    "item": "minecraft:rabbit"
+  },
+  "result": {
+    "item": "minecraft:cooked_rabbit"
+  },
+  "time": 600
+}
