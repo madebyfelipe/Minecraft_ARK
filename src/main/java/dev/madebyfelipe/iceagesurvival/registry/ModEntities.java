@@ -54,6 +54,17 @@ public final class ModEntities {
      * do Jurassic Reborn em runtime.
      */
     public static final RegistryObject<EntityType<LandCreature>> BARYONYX = landCreature("baryonyx", 1.8F, 2.7F);
+    /**
+     * Quetzalcoatlus, o maior pterossauro: 10–11 m de envergadura, ~220 kg, de pé da altura de uma girafa. Modelo e
+     * animações do Revival em runtime.
+     */
+    public static final RegistryObject<EntityType<LandCreature>> QUETZALCOATLUS =
+            landCreature("quetzalcoatlus", 2.2F, 4.5F);
+    /**
+     * Megalania (Varanus priscus), o lagarto-monitor gigante do Pleistoceno australiano: 3,5–5,5 m, até ~600 kg, baixo
+     * e comprido. Modelo, animações e sons do Revival em runtime.
+     */
+    public static final RegistryObject<EntityType<LandCreature>> MEGALANIA = landCreature("megalania", 1.5F, 1.1F);
 
     public static final RegistryObject<EntityType<TestCreature>> TEST_CREATURE =
             ENTITY_TYPES.register("test_creature", () -> EntityType.Builder.of(TestCreature::new, MobCategory.CREATURE)

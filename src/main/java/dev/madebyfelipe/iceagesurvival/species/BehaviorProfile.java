@@ -29,7 +29,8 @@ import net.minecraft.world.entity.EntityType;
  * @param wariness           reação a ameaças (lutar ou fugir); ausente = ignora quem chega perto
  * @param ecology            fome, raio de caça, rivais e temperamento
  * @param huntSpecial        o golpe próprio do caçador: {@code ambush} (Smilodon), {@code pack_leap} (Utahraptor),
- *                           {@code beak_strike} (ave-terrível), {@code grab} (Ornitholestes), {@code gaff} (Baryonyx); {@code none} por padrão
+ *                           {@code beak_strike} (ave-terrível), {@code grab} (Ornitholestes), {@code gaff} (Baryonyx),
+ *                           {@code swallow} (Quetzalcoatlus), {@code venom} (Megalania); {@code none} por padrão
  * @param habits             horário, camuflagem, carniça, sentinela e pesca ({@link HabitsProfile})
  * @param fearsWater         selvagem, tem pavor de água: não entra nem segue presa para dentro dela e, se cair, nada
  *                           direto para a margem (Smilodon)
@@ -68,7 +69,17 @@ public record BehaviorProfile(
          * Garra-gancho: o primeiro golpe depois do bote (da caçada ou da pesca) fisga a presa na água, ou a do porte do
          * caçador para baixo, puxa-a para perto e a prende (a presa fica lenta).
          */
-        GAFF("gaff");
+        GAFF("gaff"),
+        /**
+         * Engole inteira (Quetzalcoatlus, caçador a pé como a cegonha): o golpe na presa pequena a engole de uma vez
+         * ({@code entity/SwallowStrike}).
+         */
+        SWALLOW("swallow"),
+        /**
+         * Peçonha (Megalania): morde, solta e segue o rastro da presa envenenada até ela cair
+         * ({@code entity/VenomBite}).
+         */
+        VENOM("venom");
 
         public static final Codec<HuntSpecial> CODEC = StringRepresentable.fromEnum(HuntSpecial::values);
         private final String id;

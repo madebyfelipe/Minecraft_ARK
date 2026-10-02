@@ -62,6 +62,11 @@ public class LandCreature extends PrehistoricCreature implements GeoEntity, Geck
     private static final String ATTACK_TRIGGER = "attack";
     /** A chamada do sentinela ({@code behavior.habits.sentinel_radius}): a animação {@code call} do modelo. */
     private static final String CALL_TRIGGER = "call";
+    /**
+     * Gestos de uma vez pedidos pelo servidor ({@link #gesture}), pelo nome da animação do modelo: comer, a língua
+     * da Megalania e a segunda mordida. Espécie sem a animação simplesmente não a toca.
+     */
+    private static final java.util.List<String> GESTURES = java.util.List.of("eat", "tongueflick", "attack_2", "speak");
     /** Amplitude da passada acima da qual a criatura está correndo, não andando. */
     private static final float RUN_LIMB_SWING = 0.75F;
 
@@ -116,6 +121,10 @@ public class LandCreature extends PrehistoricCreature implements GeoEntity, Geck
         if (behavior.prey().isPresent() && behavior.huntStyle() == BehaviorProfile.HuntStyle.STALK) {
             // Abaixo do WaryGoal: quem espreita também cede a um herbívoro que o encara.
             goalSelector.addGoal(3, new StalkGoal(this, STALK_SPEED));
+        }
+        if (behavior.huntSpecial() == BehaviorProfile.HuntSpecial.VENOM) {
+            // Peçonha: depois da mordida, segue o rastro da presa envenenada em vez de persegui-la.
+            goalSelector.addGoal(2, new dev.madebyfelipe.iceagesurvival.entity.ai.VenomTrackGoal(this, calm * 1.2));
         }
         if (behavior.huntSpecial() == BehaviorProfile.HuntSpecial.BEAK_STRIKE) {
             // Acima da perseguição: depois da bicada, recua um instante.
@@ -262,6 +271,13 @@ public class LandCreature extends PrehistoricCreature implements GeoEntity, Geck
     }
 
     @Override
+    public void gesture(String name) {
+        if (GESTURES.contains(name)) {
+            triggerAnim(ATTACK_CONTROLLER, name);
+        }
+    }
+
+    @Override
     protected void sentinelCall() {
         triggerAnim(ATTACK_CONTROLLER, CALL_TRIGGER);
     }
@@ -310,9 +326,13 @@ public class LandCreature extends PrehistoricCreature implements GeoEntity, Geck
             // Passada larga (investida, fuga): a animação de corrida, se a espécie tiver uma.
             return state.setAndContinue(state.getLimbSwingAmount() > RUN_LIMB_SWING ? run : walk);
         }));
-        controllers.add(new AnimationController<>(this, ATTACK_CONTROLLER, 0, state -> PlayState.STOP)
+        AnimationController<LandCreature> gestures = new AnimationController<>(this, ATTACK_CONTROLLER, 0, state -> PlayState.STOP)
                 .triggerableAnim(ATTACK_TRIGGER, attack)
-                .triggerableAnim(CALL_TRIGGER, RawAnimation.begin().then(prefix + CALL_TRIGGER, Animation.LoopType.PLAY_ONCE)));
+                .triggerableAnim(CALL_TRIGGER, RawAnimation.begin().then(prefix + CALL_TRIGGER, Animation.LoopType.PLAY_ONCE));
+        for (String gesture : GESTURES) {
+            gestures.triggerableAnim(gesture, RawAnimation.begin().then(prefix + gesture, Animation.LoopType.PLAY_ONCE));
+        }
+        controllers.add(gestures);
     }
 
     @Override

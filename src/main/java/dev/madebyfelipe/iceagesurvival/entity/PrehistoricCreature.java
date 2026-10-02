@@ -948,6 +948,8 @@ public abstract class PrehistoricCreature extends TamableAnimal {
                 grabTicks = HuntSpecials.GRAB_WINDOW_TICKS;
             }
             case GAFF -> armGaff();
+            case SWALLOW -> SwallowStrike.onPounce(this, target);
+            case VENOM -> VenomBite.onPounce(this, target);
             case PACK_LEAP -> {
                 if (onGround() && HuntSpecials.inLeapRange(distanceTo(target))) {
                     double[] leap = HuntSpecials.leapVelocity(target.getX() - getX(), target.getZ() - getZ());
@@ -996,9 +998,18 @@ public abstract class PrehistoricCreature extends TamableAnimal {
                 retreatTicks = HuntSpecials.RETREAT_TICKS;
                 retreatFrom = target;
             }
+            case SWALLOW -> SwallowStrike.onStrike(this, target);
+            case VENOM -> VenomBite.onStrike(this, target);
             default -> {
             }
         }
+    }
+
+    /**
+     * Um gesto de uma vez do modelo (ex.: {@code eat}, {@code tongueflick}): no GeckoLib, a animação de mesmo nome; nos
+     * outros renderers, nada. Só no servidor.
+     */
+    public void gesture(String name) {
     }
 
     /**
