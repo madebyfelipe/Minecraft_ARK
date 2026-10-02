@@ -36,6 +36,7 @@ import dev.madebyfelipe.iceagesurvival.species.WarinessProfile;
 import dev.madebyfelipe.iceagesurvival.species.FamilyProfile;
 import dev.madebyfelipe.iceagesurvival.core.mount.FlightModel;
 import dev.madebyfelipe.iceagesurvival.core.ecology.Hunger;
+import dev.madebyfelipe.iceagesurvival.core.ecology.Perception;
 import dev.madebyfelipe.iceagesurvival.core.ecology.Stress;
 import dev.madebyfelipe.iceagesurvival.core.ecology.ThreatResponse;
 import dev.madebyfelipe.iceagesurvival.species.EcologyProfile;
@@ -284,6 +285,11 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     private boolean breaksLeaves;
     /** Espreitando o alvo em vez de persegui-lo (só no servidor). */
     private boolean stalking;
+    /** Até quando a presa sabe que esta criatura a espreita (viu, ou o bando deu o bote). */
+    private long stalkBlownUntil = Long.MIN_VALUE;
+    @Nullable
+    private Species perceptionSpecies;
+    private double perceptionRadius;
     /** Ameaça avisada por outro da manada, para o {@code WaryGoal} pegar; expira sozinha. */
     @Nullable
     private LivingEntity noticedThreat;
@@ -1212,7 +1218,7 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         boolean acquired = target != null && getTarget() == null;
         super.setTarget(target);
         // Quem espreita fica quieto: o alerta sai no bote (StalkGoal).
-        boolean stalker = behavior().map(b -> b.huntStyle() == BehaviorProfile.HuntStyle.STALK).orElse(false);
+        boolean stalker = stalks();
         if (acquired && !level().isClientSide && getTarget() == target && (isTame() || !stalker)) {
             playAlert();
         }
@@ -1282,7 +1288,7 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         Optional<BehaviorProfile> behavior = behavior();
         // O alcance do caminho cobre a caçada e a disputa entre machos da mesma espécie.
         behavior.ifPresent(profile -> setBase(Attributes.FOLLOW_RANGE, Math.max(profile.aggroRadius(),
-                Math.max(profile.prey().isPresent() ? profile.ecology().huntRadius() : 0.0,
+                Math.max(profile.prey().isPresent() ? huntRadius() : 0.0,
                         profile.ecology().rivalRadius()))));
         int territory = territoryOverride > 0 ? territoryOverride
                 : behavior.map(BehaviorProfile::territoryRadius).orElse(0);
@@ -1700,6 +1706,69 @@ public abstract class PrehistoricCreature extends TamableAnimal {
 
     public void setStalking(boolean stalking) {
         this.stalking = stalking;
+    }
+
+    /** Carnívoro que espreita antes do bote ({@code hunt_style} {@code stalk}, o padrão de quem tem presa). */
+    public boolean stalks() {
+        return behavior().map(b -> b.prey().isPresent() && b.huntStyle() == BehaviorProfile.HuntStyle.STALK)
+                .orElse(false);
+    }
+
+    /** A espreita acabou: a presa viu esta criatura, ou o bando já deu o bote. */
+    public void blowStalk() {
+        stalkBlownUntil = level().getGameTime() + 40;
+    }
+
+    public boolean stalkBlown() {
+        return level().getGameTime() <= stalkBlownUntil;
+    }
+
+    /**
+     * O bote: o bando inteiro que espreita a mesma presa larga a espreita junto.
+     */
+    public void signalPounce(LivingEntity prey) {
+        double radius = Math.max(behavior().map(BehaviorProfile::herdRadius).orElse(0), 16) * 2.0;
+        for (PrehistoricCreature other : level().getEntitiesOfClass(PrehistoricCreature.class,
+                getBoundingBox().inflate(radius), o -> o != this && sameGroup(o) && o.getTarget() == prey)) {
+            other.blowStalk();
+        }
+    }
+
+    /**
+     * O faro de caça que vale ({@link Perception}): o {@code hunt_radius} da espécie, nunca abaixo do maior
+     * alerta das presas da dieta + a folga. Calculado de novo quando os dados da espécie recarregam.
+     */
+    public double huntRadius() {
+        Species species = species().orElse(null);
+        if (species == null) {
+            return ecology().huntRadius();
+        }
+        if (species != perceptionSpecies) {
+            perceptionSpecies = species;
+            perceptionRadius = Perception.huntRadius(ecology().huntRadius(), largestPreyAlert());
+        }
+        return perceptionRadius;
+    }
+
+    /** O maior raio de alerta (ou de filhote) entre as espécies do mod que esta caça; 0 se nenhuma. */
+    public double largestPreyAlert() {
+        var preyTag = behavior().flatMap(BehaviorProfile::prey).orElse(null);
+        var registry = level().registryAccess().registry(Species.REGISTRY_KEY).orElse(null);
+        if (preyTag == null || registry == null) {
+            return 0.0;
+        }
+        double largest = 0.0;
+        for (var entry : registry.entrySet()) {
+            var type = net.minecraft.core.registries.BuiltInRegistries.ENTITY_TYPE.getOptional(entry.getKey().location());
+            if (type.isEmpty() || !type.get().is(preyTag) || type.get() == getType()) {
+                continue;
+            }
+            var wariness = entry.getValue().behavior().flatMap(BehaviorProfile::wariness);
+            if (wariness.isPresent()) {
+                largest = Math.max(largest, Math.max(wariness.get().alertRadius(), wariness.get().calfRadius()));
+            }
+        }
+        return largest;
     }
 
     /** Se atravessa a vegetação da superfície quebrando. */

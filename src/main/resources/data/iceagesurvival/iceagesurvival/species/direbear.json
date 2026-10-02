@@ -84,7 +84,7 @@
       "flee_speed": 1.4
     },
     "ecology": {
-      "hunt_radius": 40,
+      "hunt_radius": 44,
       "hunger_seconds": 420,
       "chase_seconds": 15,
       "rival_radius": 40,

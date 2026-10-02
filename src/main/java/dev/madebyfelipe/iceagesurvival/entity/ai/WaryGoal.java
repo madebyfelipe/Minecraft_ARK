@@ -2,6 +2,7 @@ package dev.madebyfelipe.iceagesurvival.entity.ai;
 
 import dev.madebyfelipe.iceagesurvival.core.ecology.Hunger;
 import dev.madebyfelipe.iceagesurvival.core.ecology.Stress;
+import dev.madebyfelipe.iceagesurvival.core.ecology.Perception;
 import dev.madebyfelipe.iceagesurvival.core.ecology.ThreatResponse;
 import dev.madebyfelipe.iceagesurvival.core.ecology.ThreatResponse.Reaction;
 import dev.madebyfelipe.iceagesurvival.entity.PrehistoricCreature;
@@ -120,6 +121,10 @@ public class WaryGoal extends Goal {
         snortCooldown = 0;
         outOfRangeTicks = 0;
         lastDistance = gap(threat);
+        // Notado, quem espreitava perde a surpresa e dá o bote (StalkGoal).
+        if (threat instanceof PrehistoricCreature stalker && stalker.isStalking()) {
+            stalker.blowStalk();
+        }
         // Primeira reação: pego de surpresa perto, investe na hora.
         decide(true);
         if (state == Reaction.ALERT || state == Reaction.BLUFF) {
@@ -150,8 +155,7 @@ public class WaryGoal extends Goal {
         stateTicks++;
         WarinessProfile profile = profile();
         double distance = gap(threat);
-        double radius = ThreatResponse.detectionRadius(profile.tuning(), sneaking(threat),
-                creature.hasCalfNearby(profile.calfRadius()), creature.stress());
+        double radius = detectionRadius(threat, profile, creature.hasCalfNearby(profile.calfRadius()));
         outOfRangeTicks = distance > radius * 1.3 && !creature.isHunted() ? outOfRangeTicks + 1 : 0;
         if (stateTicks % 20 == 0 && distance <= radius) {
             // A ameaça ali estressa: o predador muito, o jogador menos, e menos ainda agachado.
@@ -334,8 +338,7 @@ public class WaryGoal extends Goal {
         for (LivingEntity candidate : creature.level().getEntitiesOfClass(LivingEntity.class,
                 creature.getBoundingBox().inflate(reach, 6.0, reach), other -> isThreat(other, profile))) {
             double distance = gap(candidate);
-            double radius = ThreatResponse.detectionRadius(profile.tuning(), sneaking(candidate), calf,
-                    creature.stress());
+            double radius = detectionRadius(candidate, profile, calf);
             if (distance <= radius && distance < best) {
                 best = distance;
                 nearest = candidate;
@@ -413,6 +416,13 @@ public class WaryGoal extends Goal {
     /** Distância entre as bordas dos corpos: os raios valem igual para um dodô e para um Brontossauro. */
     private double gap(LivingEntity other) {
         return Math.max(0.0, creature.distanceTo(other) - (creature.getBbWidth() + other.getBbWidth()) / 2.0);
+    }
+
+    /** Até onde nota esta ameaça agora; quem espreita, só à metade ({@link Perception#STALKER_FACTOR}). */
+    private double detectionRadius(LivingEntity threat, WarinessProfile profile, boolean calf) {
+        double radius = ThreatResponse.detectionRadius(profile.tuning(), sneaking(threat), calf, creature.stress());
+        return threat instanceof PrehistoricCreature stalker && stalker.isStalking()
+                ? Perception.stalkerNoticeRadius(radius) : radius;
     }
 
     private static boolean sneaking(LivingEntity threat) {

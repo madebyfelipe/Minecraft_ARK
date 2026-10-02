@@ -104,7 +104,7 @@ public class LandCreature extends PrehistoricCreature implements GeoEntity, Geck
         }
         goalSelector.addGoal(1, new FleeWhenWeakGoal(this, FLEE_SPEED));
         goalSelector.addGoal(1, new YieldGoal(this, FLEE_SPEED));
-        if (behavior.huntStyle() == BehaviorProfile.HuntStyle.STALK) {
+        if (behavior.prey().isPresent() && behavior.huntStyle() == BehaviorProfile.HuntStyle.STALK) {
             // Abaixo do WaryGoal: quem espreita também cede a um herbívoro que o encara.
             goalSelector.addGoal(3, new StalkGoal(this, STALK_SPEED));
         }

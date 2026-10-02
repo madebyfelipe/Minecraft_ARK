@@ -86,6 +86,32 @@ public final class HuntChoice {
     }
 
     /**
+     * A presa que vale <b>acompanhar</b> sem poder atacar agora: a da manada que o caçador sozinho não
+     * encara. Espreitando, ele espera que ela se desgarre ({@code StalkGoal}). A nota é a de como ela
+     * ficaria sozinha, sem o bônus de desgarrada; −1 se nem assim valeria.
+     *
+     * @return o índice, ou −1
+     */
+    public static int chooseToStalk(List<Prey> candidates, double huntRadius, int pack) {
+        int best = -1;
+        double bestScore = 0.0;
+        for (int index = 0; index < candidates.size(); index++) {
+            Prey prey = candidates.get(index);
+            if (prey.isolated()) {
+                continue; // a desgarrada se caça direto ({@link #choose})
+            }
+            Prey alone = new Prey(prey.distance(), prey.sizeRatio(), prey.baby(), prey.healthFraction(), true,
+                    prey.preference(), 1);
+            double score = score(alone, huntRadius, pack) - 1.0;
+            if (score >= bestScore && (best < 0 || score > bestScore)) {
+                best = index;
+                bestScore = score;
+            }
+        }
+        return best;
+    }
+
+    /**
      * O índice da presa escolhida, ou −1.
      *
      * @param drive com {@link Hunger.Drive#OPPORTUNISTIC} só presa fácil e perto; saciado, nenhuma

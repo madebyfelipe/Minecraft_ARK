@@ -289,9 +289,11 @@ public class EcologyTests {
         for (WildSpawner.Report report : reports) {
             helper.assertTrue(biome.is(report.profile().biomes()), report.type() + " oferecida fora do bioma");
         }
-        helper.assertTrue(reports.stream().noneMatch(report -> report.type() == ModEntities.SPINOSAURUS.get())
-                        || biome.is(net.minecraft.tags.BiomeTags.IS_RIVER) || biome.is(net.minecraft.tags.BiomeTags.IS_BEACH),
-                "Espinossauro oferecido longe da água");
+        // O peso é o do bioma: o Espinossauro vale mais na beira d'água (spawn.favored) que longe dela.
+        for (WildSpawner.Report report : reports) {
+            helper.assertTrue(report.weight() == report.profile().weightIn(biome),
+                    report.type() + " com peso " + report.weight() + " diferente do peso do bioma");
+        }
         helper.succeed();
     }
 

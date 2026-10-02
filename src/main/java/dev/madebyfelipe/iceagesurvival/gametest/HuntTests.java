@@ -92,7 +92,10 @@ public class HuntTests {
                 + " caçado " + galli.isHunted() + " andou " + galli.position().distanceTo(start)));
     }
 
-    /** O T-Rex faminto vai atrás do Elasmotério, que foge. */
+    /**
+     * O T-Rex faminto vai atrás do Elasmotério. Espreita primeiro (o Elasmotério solitário não se desgarra
+     * de ninguém): até o bote, a presa não se sabe caçada.
+     */
     @GameTest(template = ARENA, batch = "hunt_rex", timeoutTicks = 300)
     public static void tyrannosaurusHuntsAnElasmotherium(GameTestHelper helper) {
         clearStrays(helper);
@@ -102,7 +105,8 @@ public class HuntTests {
                         rex.behavior().orElseThrow().prey().orElseThrow()),
                 "o T-Rex faminto não considerou o Elasmotério isolado uma presa");
         helper.onEachTick(() -> {
-            if (rex.getTarget() == elasmo && elasmo.isHunted() && rex.isHunting()) {
+            if (rex.getTarget() == elasmo && rex.isHunting()) {
+                helper.assertTrue(!rex.isStalking() || !elasmo.isHunted(), "a presa se sabe caçada antes do bote");
                 helper.succeed();
             }
         });

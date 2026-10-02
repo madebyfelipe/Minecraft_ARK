@@ -3,6 +3,7 @@ package dev.madebyfelipe.iceagesurvival.species;
 import com.mojang.serialization.Codec;
 import java.util.Optional;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.biome.Biome;
@@ -26,9 +27,29 @@ import net.minecraft.world.level.biome.Biome;
  * @param spacing     distância mínima entre dois grupos selvagens da espécie, em blocos; 0 = sem
  *                    regra. O Brontossauro e o T-Rex usam 300: uma manada (ou um T-Rex) por região
  * @param family      espécie solitária que às vezes nasce em família (mãe e filhote, ou o casal)
+ * @param favored     biomas preferidos, dentro de {@code biomes}, com peso próprio: o Espinossauro nasce em
+ *                    biomas abertos, mas sobretudo perto da água
  */
 public record SpawnProfile(TagKey<Biome> biomes, int weight, int groupMin, int groupMax, int maxNearby, int minDistance,
-                           int spacing, Optional<FamilyProfile> family) {
+                           int spacing, Optional<FamilyProfile> family, Optional<Favored> favored) {
+    public SpawnProfile(TagKey<Biome> biomes, int weight, int groupMin, int groupMax, int maxNearby, int minDistance,
+                        int spacing, Optional<FamilyProfile> family) {
+        this(biomes, weight, groupMin, groupMax, maxNearby, minDistance, spacing, family, Optional.empty());
+    }
+
+    /** Biomas preferidos e o peso no sorteio dentro deles. */
+    public record Favored(TagKey<Biome> biomes, int weight) {
+        public static final Codec<Favored> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+                TagKey.hashedCodec(Registries.BIOME).fieldOf("biomes").forGetter(Favored::biomes),
+                Codec.intRange(0, 1000).fieldOf("weight").forGetter(Favored::weight)
+        ).apply(instance, Favored::new));
+    }
+
+    /** O peso no sorteio neste bioma: o dos preferidos, se ele for um deles. */
+    public int weightIn(Holder<Biome> biome) {
+        return favored.filter(f -> biome.is(f.biomes())).map(Favored::weight).orElse(weight);
+    }
+
     public SpawnProfile {
         groupMin = Math.max(1, groupMin);
         groupMax = Math.max(groupMin, groupMax);
@@ -42,6 +63,7 @@ public record SpawnProfile(TagKey<Biome> biomes, int weight, int groupMin, int g
             Codec.intRange(0, 64).optionalFieldOf("max_nearby", 4).forGetter(SpawnProfile::maxNearby),
             Codec.intRange(0, 1_000_000).optionalFieldOf("min_distance", 0).forGetter(SpawnProfile::minDistance),
             Codec.intRange(0, 4096).optionalFieldOf("spacing", 0).forGetter(SpawnProfile::spacing),
-            FamilyProfile.CODEC.optionalFieldOf("family").forGetter(SpawnProfile::family)
+            FamilyProfile.CODEC.optionalFieldOf("family").forGetter(SpawnProfile::family),
+            Favored.CODEC.optionalFieldOf("favored").forGetter(SpawnProfile::favored)
     ).apply(instance, SpawnProfile::new));
 }

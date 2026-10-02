@@ -21,8 +21,8 @@ import net.minecraft.world.entity.EntityType;
  * @param groupDefense       quando uma é atacada, as outras da mesma espécie por perto revidam juntas
  * @param migrates           líder faz viagens longas e o restante da manada o acompanha
  * @param prey               tag de tipos de entidade que ela caça
- * @param huntStyle          {@code chase}: vai direto no alvo; {@code stalk}: espreita e só dá o bote
- *                           quando chega perto ou quando o alvo a vê
+ * @param huntStyle          {@code stalk} (padrão de todo carnívoro): ronda a manada sem ser notado e
+ *                           só dispara na hora certa; {@code chase}: vai direto no alvo
  * @param satedSeconds       depois de abater uma presa, o predador passa este tempo sem caçar
  * @param diet               tabela de preferência de presas ({@link DietEntry}); a primeira linha que
  *                           casa vale, e presa da tag fora da tabela tem preferência 1
@@ -81,7 +81,7 @@ public record BehaviorProfile(
 
     /** Espécie sem bloco de comportamento: passiva, solitária, sem território. */
     public static final BehaviorProfile PASSIVE =
-            new BehaviorProfile(false, 16.0, 0, 0.0, 0, false, false, Optional.empty(), HuntStyle.CHASE, 180,
+            new BehaviorProfile(false, 16.0, 0, 0.0, 0, false, false, Optional.empty(), HuntStyle.STALK, 180,
                     java.util.List.of(), Optional.empty(), EcologyProfile.DEFAULT);
 
     public static final Codec<BehaviorProfile> CODEC = RecordCodecBuilder.create(instance -> instance.group(
@@ -93,7 +93,7 @@ public record BehaviorProfile(
             Codec.BOOL.optionalFieldOf("group_defense", PASSIVE.groupDefense()).forGetter(BehaviorProfile::groupDefense),
             Codec.BOOL.optionalFieldOf("migrates", PASSIVE.migrates()).forGetter(BehaviorProfile::migrates),
             TagKey.hashedCodec(Registries.ENTITY_TYPE).optionalFieldOf("prey").forGetter(BehaviorProfile::prey),
-            HuntStyle.CODEC.optionalFieldOf("hunt_style", HuntStyle.CHASE).forGetter(BehaviorProfile::huntStyle),
+            HuntStyle.CODEC.optionalFieldOf("hunt_style", PASSIVE.huntStyle()).forGetter(BehaviorProfile::huntStyle),
             Codec.intRange(0, 3600).optionalFieldOf("sated_seconds", PASSIVE.satedSeconds())
                     .forGetter(BehaviorProfile::satedSeconds),
             DietEntry.CODEC.listOf().optionalFieldOf("diet", java.util.List.of()).forGetter(BehaviorProfile::diet),

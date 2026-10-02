@@ -25,9 +25,10 @@ import net.minecraft.world.entity.player.Player;
  *       oportunista, só pega presa fácil e perto; saciado, descansa.</li>
  *   <li>Nunca caça criatura domesticada: os animais da base do jogador não viram comida.</li>
  *   <li>Caçador de bando arrasta o bando, e o bando encara presa maior (a manada de mamutes).</li>
- *   <li>A presa e a manada dela ficam sabendo ({@link PrehistoricCreature#onHunted}) e disparam.</li>
- *   <li>A perseguição tem fôlego ({@code chase_seconds}) e alcance: a presa que abre distância
- *       escapa, e o predador frustrado espera antes de tentar de novo.</li>
+ *   <li>A presa e a manada dela ficam sabendo ({@link PrehistoricCreature#onHunted}) e disparam — quem
+ *       espreita ({@link StalkGoal}) só se revela no bote.</li>
+ *   <li>A perseguição tem fôlego ({@code chase_seconds}) e alcance: a presa que abre
+ *       {@link #CHASE_GIVE_UP_DISTANCE} blocos escapa, e o predador frustrado espera antes de tentar de novo.</li>
  * </ul>
  */
 public class HuntGoal extends Goal {
@@ -35,8 +36,10 @@ public class HuntGoal extends Goal {
     private static final double PLAYER_ALLY_RADIUS = 16.0;
     /** Intervalo da procura com fome; oportunista procura com metade da frequência. */
     private static final int SCAN_INTERVAL = 40;
-    /** Além deste múltiplo do raio de caça, a presa escapou. */
+    /** Espreitando, além deste múltiplo do raio de caça a presa escapou. */
     private static final double ESCAPE_FACTOR = 1.5;
+    /** Na perseguição (depois da disparada), a presa que abre esta distância do predador escapou. */
+    public static final double CHASE_GIVE_UP_DISTANCE = 30.0;
 
     private final PrehistoricCreature creature;
     private final TagKey<EntityType<?>> prey;
@@ -79,7 +82,7 @@ public class HuntGoal extends Goal {
             return false;
         }
         HuntGoal probe = new HuntGoal(hunter, prey);
-        return HuntChoice.choose(List.of(probe.prospect(candidate)), hunter.ecology().huntRadius(),
+        return HuntChoice.choose(List.of(probe.prospect(candidate)), hunter.huntRadius(),
                 probe.packSize(), drive) == 0;
     }
 
@@ -134,9 +137,7 @@ public class HuntGoal extends Goal {
 
     @Nullable
     private LivingEntity choose(Hunger.Drive drive) {
-        EcologyProfile ecology = creature.ecology();
-        double radius = ecology.huntRadius();
-        return pick(drive);
+        return pick(drive, true);
     }
 
     /**
@@ -144,8 +145,8 @@ public class HuntGoal extends Goal {
      * a defende. O jogador só entra com fome de verdade, como as presas grandes.
      */
     @Nullable
-    private LivingEntity pick(Hunger.Drive drive) {
-        double radius = creature.ecology().huntRadius();
+    private LivingEntity pick(Hunger.Drive drive, boolean shadow) {
+        double radius = creature.huntRadius();
         List<LivingEntity> found = creature.level().getEntitiesOfClass(LivingEntity.class,
                 creature.getBoundingBox().inflate(radius, 12.0, radius),
                 other -> isPrey(creature, other, prey) && (!(other instanceof Player) || drive == Hunger.Drive.HUNTING));
@@ -157,6 +158,10 @@ public class HuntGoal extends Goal {
             options.add(prospect(candidate));
         }
         int chosen = HuntChoice.choose(options, radius, packSize(), drive);
+        if (chosen < 0 && shadow && drive == Hunger.Drive.HUNTING && creature.stalks()) {
+            // Nenhuma dá para atacar agora: acompanha a manada esperando uma se desgarrar (StalkGoal).
+            chosen = HuntChoice.chooseToStalk(options, radius, packSize());
+        }
         return chosen < 0 ? null : found.get(chosen);
     }
 
@@ -170,7 +175,12 @@ public class HuntGoal extends Goal {
         if (preyTag == null || hunter.isSated()) {
             return null;
         }
-        return new HuntGoal(hunter, preyTag).pick(hunter.hungerDrive());
+        return new HuntGoal(hunter, preyTag).pick(hunter.hungerDrive(), false);
+    }
+
+    /** Na perseguição, a presa abriu mais de {@link #CHASE_GIVE_UP_DISTANCE} blocos: o predador desiste. */
+    public static boolean escaped(PrehistoricCreature hunter, LivingEntity prey) {
+        return hunter.distanceTo(prey) > CHASE_GIVE_UP_DISTANCE;
     }
 
     /** Quantos da espécie caçam juntos aqui (1 = sozinho). */
@@ -183,7 +193,8 @@ public class HuntGoal extends Goal {
         creature.setTarget(quarry);
         creature.beginHunt();
         creature.rallyPack(quarry);
-        if (quarry instanceof PrehistoricCreature hunted) {
+        // Quem espreita não se anuncia: a manada só se sabe caçada no bote (StalkGoal).
+        if (quarry instanceof PrehistoricCreature hunted && !creature.stalks()) {
             hunted.onHunted(creature, packSize());
         }
     }
@@ -195,14 +206,17 @@ public class HuntGoal extends Goal {
             return false;
         }
         EcologyProfile ecology = creature.ecology();
-        return creature.huntTicks() < ecology.chaseSeconds() * 20L
-                && creature.distanceTo(target) < ecology.huntRadius() * ESCAPE_FACTOR;
+        // O fôlego conta da disparada: rondando a manada, o predador ainda não correu.
+        if (creature.isStalking()) {
+            return creature.distanceTo(target) < creature.huntRadius() * ESCAPE_FACTOR;
+        }
+        return creature.huntTicks() < ecology.chaseSeconds() * 20L && !escaped(creature, target);
     }
 
     @Override
     public void tick() {
         // A presa segue se sabendo caçada enquanto o predador vem.
-        if (quarry instanceof PrehistoricCreature hunted && creature.tickCount % 20 == 0) {
+        if (quarry instanceof PrehistoricCreature hunted && !creature.isStalking() && creature.tickCount % 20 == 0) {
             hunted.stillHunted(creature, packSize());
         }
     }

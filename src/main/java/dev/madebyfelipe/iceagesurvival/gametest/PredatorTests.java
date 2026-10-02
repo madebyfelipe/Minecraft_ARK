@@ -222,6 +222,10 @@ public class PredatorTests {
         LandCreature rex = helper.spawn(ModEntities.TYRANNOSAURUS.get(), 6, 0, 2);
         Player player = survivalPlayer(helper);
         player.moveTo(helper.absoluteVec(new Vec3(6.5, 0, 22.5)));
+        // Olhando para o T-Rex: visto, ele não espreita, dispara (StalkGoal). Aqui mede-se a corrida.
+        player.setYRot(180.0F);
+        player.setYHeadRot(180.0F);
+        player.setXRot(0.0F);
         rex.setTarget(player);
         Vec3[] start = new Vec3[1];
         helper.runAtTickTime(15, () -> start[0] = rex.position());

@@ -210,7 +210,7 @@ public final class DebugCommands {
             source.sendSuccess(() -> Component.literal(String.format(
                     "%s · %d/%d no raio · peso %d · grupo %d–%d",
                     EntityType.getKey(report.type()).getPath(), report.nearby(), report.profile().maxNearby(),
-                    report.profile().weight(), report.profile().groupMin(), report.profile().groupMax())), false);
+                    report.weight(), report.profile().groupMin(), report.profile().groupMax())), false);
         }
         return reports.size();
     }

@@ -47,7 +47,7 @@ public class ChaseGoal extends Goal {
         if (creature.isHunting()) {
             // Caçada: segue a presa para fora do território, mas o fôlego e o alcance acabam.
             return creature.huntTicks() < creature.ecology().chaseSeconds() * 20L
-                    && creature.distanceTo(target) < creature.ecology().huntRadius() * 1.5;
+                    && !HuntGoal.escaped(creature, target);
         }
         if (target instanceof PrehistoricCreature rival && rival.yieldingFrom() == creature) {
             // O macho da mesma espécie desistiu e foi embora: a disputa acabou.

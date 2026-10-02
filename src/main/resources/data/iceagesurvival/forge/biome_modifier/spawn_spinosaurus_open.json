@@ -1,10 +1,10 @@
 {
   "type": "forge:add_spawns",
-  "biomes": "#iceagesurvival:spawns_spinosaurus_water",
+  "biomes": "#iceagesurvival:spawns_spinosaurus_open",
   "spawners": [
     {
       "type": "iceagesurvival:spinosaurus",
-      "weight": 3,
+      "weight": 1,
       "minCount": 1,
       "maxCount": 1
     }

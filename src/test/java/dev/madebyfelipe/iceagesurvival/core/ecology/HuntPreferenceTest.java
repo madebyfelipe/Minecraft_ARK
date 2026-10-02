@@ -47,6 +47,27 @@ class HuntPreferenceTest {
     }
 
     @Test
+    void aLoneHunterShadowsAHerdItWouldNotAttack() {
+        // Sozinho, o Alossauro não ataca o Galimimo no meio da manada, mas o acompanha esperando que se desgarre.
+        Prey inHerd = new Prey(30, vsAllosaurus(1.2, 2.3), false, 1.0, false, 3, 3);
+        assertEquals(-1, HuntChoice.choose(List.of(inHerd), RADIUS, 1, Hunger.Drive.HUNTING));
+        assertEquals(0, HuntChoice.chooseToStalk(List.of(inHerd), RADIUS, 1));
+    }
+
+    @Test
+    void nothingIsShadowedThatWouldBeTooMuchEvenAlone() {
+        // Um Brontossauro, nem desgarrado, é presa do Alossauro sozinho: não vale acompanhar a manada.
+        Prey bronto = new Prey(30, vsAllosaurus(4.0, 8.0), false, 1.0, false, 2, 3);
+        assertEquals(-1, HuntChoice.chooseToStalk(List.of(bronto), RADIUS, 1));
+    }
+
+    @Test
+    void aStragglerIsHuntedNotShadowed() {
+        Prey straggler = new Prey(30, vsAllosaurus(1.2, 2.3), false, 1.0, true, 3, 1);
+        assertEquals(-1, HuntChoice.chooseToStalk(List.of(straggler), RADIUS, 1));
+    }
+
+    @Test
     void aPlayerWithAlliesIsDefendedLikeAHerd() {
         double player = vsAllosaurus(0.6, 1.8);
         Prey alone = new Prey(10, player, false, 1.0, true, 1, 1);

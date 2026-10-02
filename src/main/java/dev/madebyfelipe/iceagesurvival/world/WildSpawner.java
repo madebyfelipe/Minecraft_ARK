@@ -48,7 +48,8 @@ public final class WildSpawner {
     }
 
     /** Uma espécie candidata à reposição, com a contagem do que já existe perto. */
-    public record Report(EntityType<?> type, SpawnProfile profile, int nearby) {
+    /** @param weight o peso da espécie no sorteio, neste bioma ({@link SpawnProfile#weightIn}) */
+    public record Report(EntityType<?> type, SpawnProfile profile, int nearby, int weight) {
     }
 
     public static void onServerTick(TickEvent.ServerTickEvent event) {
@@ -134,7 +135,7 @@ public final class WildSpawner {
             List<WildSpawnRules.Candidate> candidates = new ArrayList<>(reports.size());
             for (Report report : reports) {
                 candidates.add(new WildSpawnRules.Candidate(
-                        report.profile().weight(), report.nearby(), report.profile().maxNearby()));
+                        report.weight(), report.nearby(), report.profile().maxNearby()));
             }
             int chosen = WildSpawnRules.pick(candidates, random);
             if (chosen < 0) {
@@ -180,7 +181,7 @@ public final class WildSpawner {
             if (profile.isEmpty() || !biome.is(profile.get().biomes())) {
                 continue;
             }
-            reports.add(new Report(type, profile.get(), nearby.getInt(type)));
+            reports.add(new Report(type, profile.get(), nearby.getInt(type), profile.get().weightIn(biome)));
         }
         return reports;
     }

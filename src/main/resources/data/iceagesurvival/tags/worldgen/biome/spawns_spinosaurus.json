@@ -1,12 +1,7 @@
 {
   "replace": false,
   "values": [
-    "minecraft:frozen_river",
-    "minecraft:snowy_beach",
-    "minecraft:frozen_ocean",
-    "minecraft:river",
-    "minecraft:swamp",
-    "minecraft:mangrove_swamp",
-    "minecraft:beach"
+    "#iceagesurvival:spawns_spinosaurus_water",
+    "#iceagesurvival:spawns_spinosaurus_open"
   ]
 }
