@@ -207,10 +207,21 @@
   "iceagesurvival.corpse.fallen": "%s caiu (%s). O corpo fica 20 min com o inventário e o implante.",
   "entity.iceagesurvival.kelenken": "Kelenken",
   "item.iceagesurvival.kelenken_spawn_egg": "Ovo Gerador de Kelenken",
+  "entity.iceagesurvival.ornitholestes": "Ornitholestes",
+  "item.iceagesurvival.ornitholestes_spawn_egg": "Ovo Gerador de Ornitholestes",
   "block.iceagesurvival.tyrannosaurus_head": "Cabeça de Tiranossauro",
   "block.iceagesurvival.spinosaurus_head": "Cabeça de Espinossauro",
   "iceagesurvival.apex.challenge": "%s aceita o desafio e ruge: você tem 5 s para se afastar e deixar suas criaturas lutarem. Lute com até %s delas; outra a mais, ou outro jogador, cancela o ritual.",
   "iceagesurvival.apex.interfered": "Alguém interferiu: %s encerra o desafio.",
   "iceagesurvival.apex.abandoned": "Você se afastou: %s encerra o desafio.",
-  "iceagesurvival.apex.won": "%s caiu, vencido. Dê carne para domá-lo."
+  "iceagesurvival.apex.won": "%s caiu, vencido. Dê carne para domá-lo.",
+  "iceagesurvival.sentinel.warning": "%s sentiu %s a %s blocos, ao %s",
+  "iceagesurvival.direction.north": "norte",
+  "iceagesurvival.direction.northeast": "nordeste",
+  "iceagesurvival.direction.east": "leste",
+  "iceagesurvival.direction.southeast": "sudeste",
+  "iceagesurvival.direction.south": "sul",
+  "iceagesurvival.direction.southwest": "sudoeste",
+  "iceagesurvival.direction.west": "oeste",
+  "iceagesurvival.direction.northwest": "noroeste"
 }

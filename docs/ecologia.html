@@ -254,6 +254,7 @@
           <tr><td><strong>Smilodon</strong></td><td>Emboscada: no bote, a arrancada mais rápida dos três (+50% por 4 s); o primeiro golpe agarra e prende a presa (lenta por 2 s). Solitário, fôlego curto.</td><td>160–280 kg, patas dianteiras mais fortes que as de qualquer felino vivo: arrancadas curtas e luta corpo a corpo.</td></tr>
           <tr><td><strong>Utahraptor</strong></td><td>Bando: o maior bônus de bando (+40% de dano e velocidade) e, no bote, salta sobre a presa a 3–10 blocos.</td><td>O maior dromeossaurídeo, 6–7 m e ~500 kg.</td></tr>
           <tr><td><strong>Kelenken</strong></td><td>A mais forte sozinha: a bicada passa da armadura (30% a mais) e ela recua um instante depois de acertar; corredora de fôlego longo (40 s).</td><td>A maior ave-terrível, 2,5–3 m, 40–50 km/h; bico fundido ao crânio, "golpe e recua".</td></tr>
+          <tr><td><strong>Ornitholestes</strong></td><td>Agarrão: sem arrancada, o primeiro golpe do bote prende a presa pequena. Noturno, camuflado no sub-bosque e na neve alta, come carniça longe de predador maior; domesticado, é sentinela (<code>behavior.habits</code>).</td><td>Terópode de 2 m e 15 kg do sub-bosque jurássico; mãos longas de garras, órbitas grandes (provável hábito noturno), oportunista.</td></tr>
         </tbody>
       </table>
     </div>
@@ -273,6 +274,8 @@
           <tr><td>Ameaça dentro do raio de investida</td><td>Investida defensiva; surpreendida muito perto, ataca sem blefar.</td></tr>
           <tr><td>Ameaça se aproxima e ainda há distância</td><td>Blefe, investida ou recuo, conforme as chances da espécie.</td></tr>
           <tr><td>Filhote próximo</td><td>Percepção maior e defesa mais determinada.</td></tr>
+          <tr><td>Ameaça camuflada (<code>habits.camouflage</code>) em folhas, mato ou neve alta</td><td>Só é notada à fração da camuflagem do raio (Ornitholestes: 50%); vale também para o predador que a procura como presa.</td></tr>
+          <tr><td>Criatura dormindo fora do seu horário (<code>habits.activity</code>)</td><td>Nota a ameaça a metade do raio; notada, acorda e reage como acordada.</td></tr>
         </tbody>
       </table>
     </div>

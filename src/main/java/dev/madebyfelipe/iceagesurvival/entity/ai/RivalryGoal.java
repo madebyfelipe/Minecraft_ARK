@@ -33,6 +33,7 @@ public class RivalryGoal extends Goal {
     public boolean canUse() {
         if (creature.isTame() || creature.isBaby() || creature.isUnconscious() || creature.isVehicle()
                 || creature.isFemale() || creature.getTarget() != null || creature.yieldingFrom() != null
+                || creature.restsNow() // fora do horário dela, dorme: a disputa é de quem está acordado
                 || --scanCooldown > 0) {
             return false;
         }

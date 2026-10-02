@@ -40,6 +40,8 @@ import net.minecraft.world.phys.Vec3;
  */
 public class WaryGoal extends Goal {
     private static final int SCAN_INTERVAL = 10;
+    /** Dormindo, nota as ameaças a esta fração do raio. */
+    private static final double RESTING_FACTOR = 0.5;
     private static final int DECISION_INTERVAL = 20;
     private static final int SNORT_INTERVAL = 50;
     private static final int CALM_DOWN_TICKS = 60;
@@ -418,11 +420,19 @@ public class WaryGoal extends Goal {
         return Math.max(0.0, creature.distanceTo(other) - (creature.getBbWidth() + other.getBbWidth()) / 2.0);
     }
 
-    /** Até onde nota esta ameaça agora; quem espreita, só à metade ({@link Perception#STALKER_FACTOR}). */
+    /**
+     * Até onde nota esta ameaça agora; quem espreita, só à metade ({@link Perception#STALKER_FACTOR}); a ameaça
+     * escondida no sub-bosque, à fração da camuflagem; dormindo, à metade.
+     */
     private double detectionRadius(LivingEntity threat, WarinessProfile profile, boolean calf) {
         double radius = ThreatResponse.detectionRadius(profile.tuning(), sneaking(threat), calf, creature.stress());
-        return threat instanceof PrehistoricCreature stalker && stalker.isStalking()
-                ? Perception.stalkerNoticeRadius(radius) : radius;
+        if (threat instanceof PrehistoricCreature stalker && stalker.isStalking()) {
+            radius = Perception.stalkerNoticeRadius(radius);
+        }
+        if (creature.isResting()) {
+            radius *= RESTING_FACTOR;
+        }
+        return PrehistoricCreature.perceivedRadius(threat, radius);
     }
 
     private static boolean sneaking(LivingEntity threat) {

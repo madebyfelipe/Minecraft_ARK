@@ -100,7 +100,8 @@
           "iceagesurvival:gallimimus",
           "minecraft:fox",
           "minecraft:chicken",
-          "iceagesurvival:velociraptor"
+          "iceagesurvival:velociraptor",
+          "iceagesurvival:ornitholestes"
         ],
         "preference": 2
       },

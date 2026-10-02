@@ -8,6 +8,8 @@ package dev.madebyfelipe.iceagesurvival.core.ecology;
  *   <li><b>Salto</b> (Utahraptor, caçador de bando): pula sobre a presa a média distância.</li>
  *   <li><b>Bicada</b> (Kelenken, a maior ave-terrível): o bico fundido ao crânio golpeia como uma marreta (parte do
  *   dano ignora armadura) e a ave recua em seguida — golpe e recua. Num escudo erguido, o bico trava: a fraqueza.</li>
+ *   <li><b>Agarrão</b> (Ornitholestes, 15 kg, mãos longas de garras afiadas): sem arrancada; o primeiro golpe do bote
+ *   prende a presa pequena, que não escapa correndo.</li>
  * </ul>
  * Sem classes do Minecraft (D10).
  */
@@ -30,6 +32,11 @@ public final class HuntSpecials {
     public static final double LEAP_SPEED = 0.9;
     public static final double LEAP_LIFT = 0.45;
 
+    /** Agarrão: o bote deixa o golpe pronto por este tempo. */
+    public static final int GRAB_WINDOW_TICKS = 80;
+    /** Agarrão: só prende presa até este porte relativo (área de colisão da presa ÷ a do caçador). */
+    public static final double GRAB_MAX_SIZE_RATIO = 1.0;
+
     private HuntSpecials() {
     }
 
@@ -44,6 +51,11 @@ public final class HuntSpecials {
             return new double[] {0.0, LEAP_LIFT, 0.0};
         }
         return new double[] {dx / length * LEAP_SPEED, LEAP_LIFT, dz / length * LEAP_SPEED};
+    }
+
+    /** O agarrão segura presa do porte do caçador para baixo; a maior se solta. */
+    public static boolean grabs(double sizeRatio) {
+        return sizeRatio <= GRAB_MAX_SIZE_RATIO;
     }
 
     /** O dano extra da bicada, que ignora armadura. */

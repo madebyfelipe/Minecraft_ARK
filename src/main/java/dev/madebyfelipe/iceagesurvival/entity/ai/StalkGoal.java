@@ -113,7 +113,8 @@ public class StalkGoal extends Goal {
             return;
         }
         stalkTicks++;
-        double notice = noticeRadius(target);
+        // Escondido no sub-bosque, o espreitador chega mais perto antes de ser notado.
+        double notice = PrehistoricCreature.perceivedRadius(creature, noticeRadius(target));
         if (timeToPounce(target, notice)) {
             pounce(target);
             return;
@@ -187,7 +188,7 @@ public class StalkGoal extends Goal {
 
     private boolean tooClose(Vec3 point, List<PrehistoricCreature> herd) {
         for (PrehistoricCreature member : herd) {
-            double reach = noticeRadius(member) + RING_MARGIN + (creature.getBbWidth() + member.getBbWidth()) / 2.0;
+            double reach = PrehistoricCreature.perceivedRadius(creature, noticeRadius(member)) + RING_MARGIN + (creature.getBbWidth() + member.getBbWidth()) / 2.0;
             if (member.position().distanceToSqr(point) < reach * reach) {
                 return true;
             }

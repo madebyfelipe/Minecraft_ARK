@@ -61,7 +61,10 @@ SPECIAL = {
     'ambush': 'emboscada: arrancada +50% por 4 s no bote, e o primeiro golpe agarra (presa lenta 2 s)',
     'pack_leap': 'salto: no bote, pula sobre a presa a 3–10 blocos',
     'beak_strike': 'bicada: 30% do dano a mais ignorando armadura, e recua 1,5 s depois de acertar',
+    'grab': 'agarrão: sem arrancada; o primeiro golpe do bote prende a presa do porte dele para baixo (lenta 2 s)',
 }
+ACTIVITY = {'nocturnal': 'noturno: de dia dorme escondido e não caça; acorda ferido ou com a ameaça',
+            'diurnal': 'diurno: à noite dorme escondido e não caça; acorda ferido ou com a ameaça'}
 
 
 def esc(text):
@@ -206,6 +209,16 @@ def card(key):
     social.append(row('Nervosismo', num(eco['nervousness'])))
     if entity in apex:
         social.append(row('Apex', 'não cai com tranquilizante; só se doma vencendo o desafio com a cabeça de outro da espécie'))
+    habits = b.get('habits', {})
+    if habits.get('activity') in ACTIVITY:
+        social.append(row('Horário', ACTIVITY[habits['activity']]))
+    if habits.get('camouflage', 1) < 1:
+        social.append(row('Camuflagem', f'escondido em folhas, mato ou neve alta, é notado a '
+                           f'{num(habits["camouflage"] * 100)}% do raio'))
+    if habits.get('scavenges'):
+        social.append(row('Carniça', 'com fome, come carne crua do chão, longe de predador maior (16 blocos)'))
+    if habits.get('sentinel_radius'):
+        social.append(row('Sentinela', f'domesticado, avisa o dono de predador selvagem a {num(habits["sentinel_radius"])} blocos'))
     flight = data.get('stats', {}).get('flight_stamina')
     if flight:
         social.append(row('Fôlego de voo', f'{num(flight["base"])} s no nível 1 (+{num(flight.get("per_point", 0) * 100)}% por ponto)'))

@@ -13,6 +13,7 @@
     "minecraft:wandering_trader",
     "iceagesurvival:elasmotherium",
     "iceagesurvival:velociraptor",
+    "iceagesurvival:ornitholestes",
     {
       "id": "tfc:sheep",
       "required": false

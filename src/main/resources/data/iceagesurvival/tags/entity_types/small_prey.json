@@ -7,6 +7,7 @@
     "minecraft:pig",
     "minecraft:fox",
     "iceagesurvival:dodo",
+    "iceagesurvival:ornitholestes",
     {
       "id": "tfc:rabbit",
       "required": false
