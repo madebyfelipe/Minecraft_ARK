@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Ficha de comportamento de cada espécie do Ice Age Survival: bando, território, percepção, dieta, quem a caça e onde nasce.">
+  <title>Comportamento — Ice Age Survival</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #10191b;
+      --panel: #182629;
+      --panel-soft: #1e3032;
+      --text: #e6efeb;
+      --muted: #afc1ba;
+      --accent: #8fd4bf;
+      --ice: #a9d9e8;
+      --line: #365153;
+      --warn: #f1cb85;
+      --code: #122022;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: radial-gradient(ellipse at 50% -15%, #284346 0, var(--bg) 55rem);
+      color: var(--text);
+      font-size: 1rem;
+      line-height: 1.7;
+    }
+
+    a { color: var(--ice); }
+    a:hover { color: #d1f1f7; }
+    code, pre { font-family: ui-monospace, "SFMono-Regular", Consolas, monospace; }
+    code {
+      padding: .1em .35em;
+      border: 1px solid var(--line);
+      border-radius: .35rem;
+      background: var(--code);
+      color: #c4eadb;
+      overflow-wrap: anywhere;
+    }
+
+    header, main, footer { width: min(100% - 2rem, 1080px); margin-inline: auto; }
+    header { padding: 4.5rem 0 2.5rem; }
+    header p { max-width: 720px; color: var(--muted); font-size: 1.15rem; }
+    main { padding-bottom: 4rem; }
+    footer { padding: 1.5rem 0 3rem; border-top: 1px solid var(--line); color: var(--muted); }
+    h1, h2, h3 { line-height: 1.2; letter-spacing: -.025em; }
+    h1 { max-width: 850px; margin: .7rem 0 1rem; font-size: clamp(2.3rem, 7vw, 4.8rem); }
+    h2 { margin-top: 3.2rem; font-size: clamp(1.6rem, 4vw, 2.2rem); }
+    h3 { margin-top: 0; font-size: 1.15rem; }
+    p, li { color: var(--muted); }
+    strong { color: var(--text); }
+    .eyebrow { color: var(--accent); font-size: .78rem; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; }
+    .lead { max-width: 760px; font-size: 1.12rem; }
+    .stamp { color: var(--muted); font-size: .9rem; }
+
+    .notice {
+      margin: 1.5rem 0;
+      padding: 1rem 1.2rem;
+      border: 1px solid #59746e;
+      border-left: 4px solid var(--accent);
+      border-radius: .6rem;
+      background: #172827;
+    }
+
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+    .card {
+      padding: 1.25rem;
+      border: 1px solid var(--line);
+      border-radius: .8rem;
+      background: linear-gradient(145deg, var(--panel), #142123);
+    }
+    .card p:last-child, .card ul:last-child { margin-bottom: 0; }
+    .tag { color: var(--accent); font-weight: 750; }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: .75rem;
+      margin: 1.5rem 0;
+      padding: 0;
+      list-style: none;
+      counter-reset: step;
+    }
+    .flow li {
+      position: relative;
+      min-height: 128px;
+      padding: 1rem;
+      border: 1px solid var(--line);
+      border-radius: .75rem;
+      background: var(--panel);
+      counter-increment: step;
+    }
+    .flow li::before {
+      content: "0" counter(step);
+      display: block;
+      margin-bottom: .55rem;
+      color: var(--accent);
+      font-size: .76rem;
+      font-weight: 800;
+      letter-spacing: .1em;
+    }
+
+    .table-wrap { overflow-x: auto; margin: 1.25rem 0; border: 1px solid var(--line); border-radius: .75rem; }
+    table { width: 100%; border-collapse: collapse; background: var(--panel); }
+    th, td { padding: .85rem 1rem; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+    th { color: var(--text); background: var(--panel-soft); font-size: .88rem; }
+    td { color: var(--muted); }
+    tr:last-child td { border-bottom: 0; }
+
+    .formula {
+      display: block;
+      margin: 1rem 0;
+      padding: 1rem 1.2rem;
+      border: 1px solid var(--line);
+      border-radius: .65rem;
+      background: var(--code);
+      color: #d1eee3;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .small { font-size: .9rem; }
+    @media (max-width: 760px) {
+      .grid { grid-template-columns: 1fr; }
+      .flow { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      header { padding-top: 3rem; }
+    }
+    @media (max-width: 440px) {
+      .flow { grid-template-columns: 1fr; }
+      header, main, footer { width: min(100% - 1.25rem, 1080px); }
+      th, td { padding: .7rem; }
+    }
+  
+    .species { margin: 1.25rem 0; padding: 1.25rem; border: 1px solid var(--line); border-radius: .8rem;
+      background: linear-gradient(145deg, var(--panel), #142123); }
+    .species > header { display: flex; flex-wrap: wrap; align-items: baseline; gap: .4rem .8rem; width: auto;
+      margin: 0; padding: 0; }
+    .species > header h3 { margin: 0; font-size: 1.4rem; }
+    .species h4 { margin: 1.1rem 0 .4rem; color: var(--accent); font-size: .8rem; letter-spacing: .12em;
+      text-transform: uppercase; }
+    .species table { background: transparent; }
+    .species th { width: 34%; background: transparent; color: var(--text); font-weight: 600; }
+    .species th, .species td { padding: .4rem .6rem .4rem 0; font-size: .92rem; }
+    .badges { display: flex; flex-wrap: wrap; gap: .35rem; }
+    .badge { padding: .05rem .5rem; border: 1px solid var(--line); border-radius: 999px; color: var(--muted);
+      font-size: .74rem; }
+    .badge.meat { border-color: #8a5a4c; color: #f0b4a0; }
+    .badge.leaf { border-color: #4f7a5c; color: #a8dcb4; }
+    .badge.off { border-color: #7a6a3a; color: var(--warn); }
+    .diet { margin: .3rem 0; padding-left: 1.1rem; }
+    .pref { display: inline-block; min-width: 7.5rem; color: var(--text); font-size: .82rem; font-weight: 700; }
+    .pref.p3 { color: #f1cb85; } .pref.p2 { color: var(--accent); } .pref.p0 { color: #8fa39c; }
+    .toc { columns: 3 12rem; padding-left: 1.1rem; }
+  </style>
+</head>
+<body>
+  <!-- Gerado por tools/gen_comportamento.py a partir dos JSON de espécie. Não editar à mão. -->
+  <header>
+    <div class="eyebrow">Ice Age Survival · documentação técnica</div>
+    <h1>Comportamento por espécie</h1>
+    <p class="lead">Uma ficha por criatura, lida dos dados do mod: com quem anda, o que defende, de quão longe percebe,
+      o que come, quem a caça e onde nasce. As regras gerais estão em <a href="ecologia.html">Ecologia</a>.</p>
+    <div class="stamp">Gerado de <code>species/*.json</code> · Minecraft 1.20.1 / Forge</div>
+  </header>
+  <main>
+    <aside class="notice"><strong>Como ler:</strong> o <em>faro de caça</em> é o efetivo, sempre pelo menos o maior
+      alerta das presas + 8 blocos (o carnívoro percebe antes de ser percebido). Quem espreita é
+      notado a 50% do alerta, e ronda logo além disso (+3). Preferência da dieta:
+      favorita › boa › aceitável › último recurso.</aside>
+
+    <h2>Resumo</h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Espécie</th><th>Papel</th><th>Bando</th><th>Alerta</th><th>Faro de caça</th><th>Predadores</th></tr></thead>
+      <tbody><tr><td><a href="#allosaurus">Alossauro</a></td><td>Carnívoro</td><td>2–3</td><td>30</td><td>64</td><td>0</td></tr><tr><td><a href="#spinosaurus">Espinossauro</a></td><td>Carnívoro</td><td>1</td><td>32</td><td>56</td><td>0</td></tr><tr><td><a href="#dire_wolf">Lobo-Terrível</a> <span class="badge off">desligado</span></td><td>Carnívoro</td><td>1</td><td>22</td><td>56</td><td>0</td></tr><tr><td><a href="#smilodon">Smilodon</a></td><td>Carnívoro</td><td>1</td><td>24</td><td>48</td><td>0</td></tr><tr><td><a href="#tyrannosaurus">Tiranossauro Rex</a></td><td>Carnívoro</td><td>1</td><td>36</td><td>72</td><td>0</td></tr><tr><td><a href="#direbear">Urso-Terrível</a></td><td>Carnívoro</td><td>1</td><td>28</td><td>44</td><td>0</td></tr><tr><td><a href="#utahraptor">Utahraptor</a></td><td>Carnívoro</td><td>2–3</td><td>26</td><td>56</td><td>0</td></tr><tr><td><a href="#velociraptor">Velociraptor</a></td><td>Carnívoro</td><td>1–2</td><td>20</td><td>32</td><td>0</td></tr><tr><td><a href="#brontosaurus">Brontossauro</a></td><td>Herbívoro</td><td>2–4</td><td>36</td><td>—</td><td>6</td></tr><tr><td><a href="#dodo">Dodô</a></td><td>Herbívoro</td><td>2–5</td><td>8</td><td>—</td><td>7</td></tr><tr><td><a href="#elasmotherium">Elasmotério</a></td><td>Herbívoro</td><td>1</td><td>28</td><td>—</td><td>6</td></tr><tr><td><a href="#stegosaurus">Estegossauro</a></td><td>Herbívoro</td><td>2–4</td><td>24</td><td>—</td><td>6</td></tr><tr><td><a href="#gallimimus">Galimimo</a></td><td>Herbívoro</td><td>3–5</td><td>24</td><td>—</td><td>6</td></tr><tr><td><a href="#mammoth">Mamute-Lanoso</a></td><td>Herbívoro</td><td>3–5</td><td>32</td><td>—</td><td>6</td></tr><tr><td><a href="#pteranodon">Pteranodonte</a></td><td>Herbívoro</td><td>2–4</td><td>—</td><td>—</td><td>0</td></tr><tr><td><a href="#triceratops">Tricerátopo</a></td><td>Herbívoro</td><td>2–4</td><td>28</td><td>—</td><td>6</td></tr></tbody>
+    </table></div>
+
+    <h2>Fichas</h2>
+    
+    <article class="species" id="allosaurus">
+      <header><h3>Alossauro</h3><code>allosaurus</code><div class="badges"><span class="badge meat">Carnívoro</span><span class="badge">Montável</span><span class="badge">Agressivo</span></div></header>
+      <p class="small">1,8 × 3,4 blocos · velocidade 0,4</p>
+      <h4>Bando e território</h4><table><tr><th>Bando</th><td>2–3 (limite 3); manada de raio 12; defende o grupo</td></tr><tr><th>Território do bando</th><td>18 blocos em volta de cada membro; passeia num raio de 56 da toca</td></tr><tr><th>Foge ferido</th><td>abaixo de 15% da vida</td></tr><tr><th>Nervosismo</th><td>0,7</td></tr></table>
+      <h4>Percepção</h4><table><tr><th>Alerta</th><td>30 blocos</td></tr><tr><th>Nota quem espreita a</th><td>15 blocos</td></tr><tr><th>Lutar ou fugir</th><td>investe a 5 blocos, 10% recua</td></tr><tr><th>Jogador</th><td>não o teme</td></tr></table>
+      <h4>Caça</h4><table><tr><th>Faro de caça</th><td><strong>64</strong> blocos (maior alerta das presas: 36, de Brontossauro, + 8)</td></tr><tr><th>Fome</th><td>caça de novo depois de 360 s sem comer; saciado por 180 s (o bando inteiro)</td></tr><tr><th>Caça</th><td>espreita e dispara; fôlego de 30 s; desiste se a presa abrir 30 blocos</td></tr></table><h4>Dieta</h4><ul class="diet"><li><span class="pref p3">favorita</span> Estegossauro, Galimimo</li><li><span class="pref p2">boa</span> Brontossauro, Elasmotério</li><li><span class="pref p1">aceitável</span> <strong>Jogador</strong>, Mamute-Lanoso, Tricerátopo, aldeão, burro, cavalo, lhama, mercador, vaca</li><li><span class="pref p0">último recurso</span> Dodô, cabra, ovelha, porco</li></ul><p class="small">Ao espreitar, ronda a esta distância da presa: Estegossauro a ~15; Galimimo a ~15; Brontossauro a ~21; Elasmotério a ~17; Tricerátopo a ~17; Mamute-Lanoso a ~19 blocos.</p>
+      <p class="small"><strong>Caçado por:</strong> ninguém.</p>
+      <h4>Spawn</h4><table><tr><th>Biomas</th><td>planície nevada, encostas nevadas, bosque nevado, savana, savana ventosa, planície, terras áridas</td></tr><tr><th>Frequência</th><td>peso 1; até 3 perto do jogador; a 400+ blocos do spawn</td></tr></table>
+    </article>
+    <article class="species" id="spinosaurus">
+      <header><h3>Espinossauro</h3><code>spinosaurus</code><div class="badges"><span class="badge meat">Carnívoro</span><span class="badge">Montável</span><span class="badge">Agressivo</span></div></header>
+      <p class="small">2,7 × 5,6 blocos · velocidade 0,3</p>
+      <h4>Bando e território</h4><table><tr><th>Bando</th><td>1 (limite 1); solitário</td></tr><tr><th>Território do bando</th><td>14,8 blocos em volta de cada membro; passeia num raio de 40 da toca</td></tr><tr><th>Foge ferido</th><td>abaixo de 10% da vida</td></tr><tr><th>Nervosismo</th><td>0,5</td></tr></table>
+      <h4>Percepção</h4><table><tr><th>Alerta</th><td>32 blocos</td></tr><tr><th>Nota quem espreita a</th><td>16 blocos</td></tr><tr><th>Lutar ou fugir</th><td>investe a 5 blocos, 10% recua</td></tr><tr><th>Jogador</th><td>não o teme</td></tr></table>
+      <h4>Caça</h4><table><tr><th>Faro de caça</th><td><strong>56</strong> blocos (maior alerta das presas: 36, de Brontossauro, + 8)</td></tr><tr><th>Fome</th><td>caça de novo depois de 420 s sem comer; saciado por 180 s (o bando inteiro)</td></tr><tr><th>Caça</th><td>espreita e dispara; fôlego de 18 s; desiste se a presa abrir 30 blocos</td></tr></table><h4>Dieta</h4><ul class="diet"><li><span class="pref p2">boa</span> Dodô, Galimimo</li><li><span class="pref p1">aceitável</span> aldeão, burro, cabra, cavalo, lhama, mercador, ovelha, porco, vaca</li><li><span class="pref p0">último recurso</span> <strong>Jogador</strong>, Brontossauro, Elasmotério, Estegossauro, Mamute-Lanoso, Tricerátopo</li></ul><p class="small">Ao espreitar, ronda a esta distância da presa: Galimimo a ~15; Dodô a ~7; Elasmotério a ~17; Mamute-Lanoso a ~19; Estegossauro a ~15; Tricerátopo a ~17 blocos.</p>
+      <p class="small"><strong>Caçado por:</strong> ninguém.</p>
+      <h4>Spawn</h4><table><tr><th>Biomas</th><td>rio congelado, praia nevada, oceano congelado, rio, pântano, mangue, praia, planície nevada, taiga nevada, planície, taiga</td></tr><tr><th>Frequência</th><td>peso 1; 3 em rio congelado, praia nevada, oceano congelado, rio, pântano, mangue, praia; até 1 perto do jogador; a 400+ blocos do spawn</td></tr></table>
+    </article>
+    <article class="species" id="dire_wolf">
+      <header><h3>Lobo-Terrível</h3><code>dire_wolf</code><div class="badges"><span class="badge meat">Carnívoro</span><span class="badge off">Desligado</span><span class="badge">Agressivo</span></div></header>
+      <p class="small">0,8 × 1,2 blocos · velocidade 0,34</p>
+      <h4>Bando e território</h4><table><tr><th>Bando</th><td>1 (limite 1); manada de raio 10; defende o grupo</td></tr><tr><th>Território do bando</th><td>16 blocos em volta de cada membro; passeia num raio de 40 da toca</td></tr><tr><th>Foge ferido</th><td>abaixo de 20% da vida</td></tr><tr><th>Nervosismo</th><td>1</td></tr></table>
+      <h4>Percepção</h4><table><tr><th>Alerta</th><td>22 blocos</td></tr><tr><th>Nota quem espreita a</th><td>11 blocos</td></tr><tr><th>Lutar ou fugir</th><td>investe a 3 blocos, 20% recua</td></tr><tr><th>Jogador</th><td>não o teme</td></tr></table>
+      <h4>Caça</h4><table><tr><th>Faro de caça</th><td><strong>56</strong> blocos (maior alerta das presas: 32, de Mamute-Lanoso, + 8)</td></tr><tr><th>Fome</th><td>caça de novo depois de 300 s sem comer; saciado por 180 s (o bando inteiro)</td></tr><tr><th>Caça</th><td>espreita e dispara; fôlego de 40 s; desiste se a presa abrir 30 blocos</td></tr></table><h4>Dieta</h4><ul class="diet"><li><span class="pref p1">aceitável</span> Dodô, Mamute-Lanoso, coelho, galinha, ovelha, porco, raposa</li></ul><p class="small">Ao espreitar, ronda a esta distância da presa: Dodô a ~7; Mamute-Lanoso a ~19 blocos.</p>
+      <p class="small"><strong>Caçado por:</strong> ninguém.</p>
+      <h4>Spawn</h4><table><tr><th>Spawn</th><td>não nasce sozinho</td></tr></table>
+    </article>
+    <article class="species" id="smilodon">
+      <header><h3>Smilodon</h3><code>smilodon</code><div class="badges"><span class="badge meat">Carnívoro</span><span class="badge">Montável</span><span class="badge">Agressivo</span></div></header>
+      <p class="small">1,3 × 2,3 blocos · velocidade 0,4</p>
+      <h4>Bando e território</h4><table><tr><th>Bando</th><td>1 (limite 1); solitário</td></tr><tr><th>Território do bando</th><td>9,2 blocos em volta de cada membro; passeia num raio de 32 da toca</td></tr><tr><th>Foge ferido</th><td>abaixo de 25% da vida</td></tr><tr><th>Nervosismo</th><td>0,8</td></tr></table>
+      <h4>Percepção</h4><table><tr><th>Alerta</th><td>24 blocos</td></tr><tr><th>Nota quem espreita a</th><td>12 blocos</td></tr><tr><th>Lutar ou fugir</th><td>investe a 4 blocos, 15% recua</td></tr><tr><th>Jogador</th><td>não o teme</td></tr></table>
+      <h4>Caça</h4><table><tr><th>Faro de caça</th><td><strong>48</strong> blocos (maior alerta das presas: 36, de Brontossauro, + 8)</td></tr><tr><th>Fome</th><td>caça de novo depois de 360 s sem comer; saciado por 180 s (o bando inteiro)</td></tr><tr><th>Caça</th><td>espreita e dispara; fôlego de 12 s; desiste se a presa abrir 30 blocos</td></tr></table><h4>Dieta</h4><ul class="diet"><li><span class="pref p3">favorita</span> Elasmotério, burro, cabra, cavalo, lhama, vaca</li><li><span class="pref p2">boa</span> Galimimo, ovelha, porco</li><li><span class="pref p1">aceitável</span> <strong>Jogador</strong>, Mamute-Lanoso, aldeão, mercador</li><li><span class="pref p0">último recurso</span> Brontossauro, Dodô, Estegossauro, Tricerátopo</li></ul><p class="small">Ao espreitar, ronda a esta distância da presa: Elasmotério a ~17; Galimimo a ~15; Mamute-Lanoso a ~19; Dodô a ~7; Estegossauro a ~15; Tricerátopo a ~17 blocos.</p>
+      <p class="small"><strong>Caçado por:</strong> ninguém.</p>
+      <h4>Spawn</h4><table><tr><th>Biomas</th><td>taiga, taiga nevada, taiga antiga de pinheiros, taiga antiga de abetos, bosque nevado, encostas nevadas, planície nevada, picos de gelo, savana, planalto de savana, floresta, savana ventosa</td></tr><tr><th>Frequência</th><td>peso 4; até 1 perto do jogador; desde o spawn</td></tr></table>
+    </article>
+    <article class="species" id="tyrannosaurus">
+      <header><h3>Tiranossauro Rex</h3><code>tyrannosaurus</code><div class="badges"><span class="badge meat">Carnívoro</span><span class="badge">Montável</span><span class="badge">Agressivo</span></div></header>
+      <p class="small">2,7 × 5,4 blocos · velocidade 0,3</p>
+      <h4>Bando e território</h4><table><tr><th>Bando</th><td>1 (limite 1); solitário</td></tr><tr><th>Território do bando</th><td>14,8 blocos em volta de cada membro; passeia num raio de 160 da toca</td></tr><tr><th>Foge ferido</th><td>abaixo de 10% da vida</td></tr><tr><th>Nervosismo</th><td>0,4</td></tr></table>
+      <h4>Percepção</h4><table><tr><th>Alerta</th><td>36 blocos</td></tr><tr><th>Nota quem espreita a</th><td>18 blocos</td></tr><tr><th>Lutar ou fugir</th><td>investe a 6 blocos, 5% recua</td></tr><tr><th>Jogador</th><td>não o teme</td></tr></table>
+      <h4>Caça</h4><table><tr><th>Faro de caça</th><td><strong>72</strong> blocos (maior alerta das presas: 36, de Brontossauro, + 8)</td></tr><tr><th>Fome</th><td>caça de novo depois de 480 s sem comer; saciado por 180 s (o bando inteiro)</td></tr><tr><th>Caça</th><td>espreita e dispara; fôlego de 20 s; desiste se a presa abrir 30 blocos</td></tr></table><h4>Dieta</h4><ul class="diet"><li><span class="pref p3">favorita</span> Tricerátopo</li><li><span class="pref p2">boa</span> Brontossauro, Elasmotério, Estegossauro, Mamute-Lanoso</li><li><span class="pref p1">aceitável</span> <strong>Jogador</strong>, Galimimo, aldeão, burro, cavalo, lhama, mercador, vaca</li><li><span class="pref p0">último recurso</span> Dodô, cabra, ovelha, porco</li></ul><p class="small">Ao espreitar, ronda a esta distância da presa: Tricerátopo a ~17; Brontossauro a ~21; Estegossauro a ~15; Mamute-Lanoso a ~19; Elasmotério a ~17; Galimimo a ~15 blocos.</p>
+      <p class="small"><strong>Caçado por:</strong> ninguém.</p>
+      <h4>Spawn</h4><table><tr><th>Biomas</th><td>planície nevada, taiga, taiga nevada, taiga antiga de pinheiros, encostas nevadas, planície, savana, planalto de savana, floresta</td></tr><tr><th>Frequência</th><td>peso 1; até 1 perto do jogador; um grupo a cada 300 blocos; a 300+ blocos do spawn</td></tr></table>
+    </article>
+    <article class="species" id="direbear">
+      <header><h3>Urso-Terrível</h3><code>direbear</code><div class="badges"><span class="badge meat">Carnívoro</span><span class="badge">Montável</span><span class="badge">Agressivo</span></div></header>
+      <p class="small">2 × 3 blocos · velocidade 0,32</p>
+      <h4>Bando e território</h4><table><tr><th>Bando</th><td>1 (limite 1); solitário</td></tr><tr><th>Território do bando</th><td>12 blocos em volta de cada membro; passeia num raio de 64 da toca</td></tr><tr><th>Foge ferido</th><td>abaixo de 15% da vida</td></tr><tr><th>Nervosismo</th><td>0,6</td></tr></table>
+      <h4>Percepção</h4><table><tr><th>Alerta</th><td>28 blocos</td></tr><tr><th>Nota quem espreita a</th><td>14 blocos</td></tr><tr><th>Lutar ou fugir</th><td>investe a 5 blocos, 10% recua</td></tr><tr><th>Jogador</th><td>não o teme</td></tr></table>
+      <h4>Caça</h4><table><tr><th>Faro de caça</th><td><strong>44</strong> blocos (maior alerta das presas: 36, de Brontossauro, + 8)</td></tr><tr><th>Fome</th><td>caça de novo depois de 420 s sem comer; saciado por 180 s (o bando inteiro)</td></tr><tr><th>Caça</th><td>espreita e dispara; fôlego de 15 s; desiste se a presa abrir 30 blocos</td></tr></table><h4>Dieta</h4><ul class="diet"><li><span class="pref p2">boa</span> cabra, ovelha, porco, vaca</li><li><span class="pref p1">aceitável</span> <strong>Jogador</strong>, Dodô, Galimimo, aldeão, burro, cavalo, lhama, mercador</li><li><span class="pref p0">último recurso</span> Brontossauro, Elasmotério, Estegossauro, Mamute-Lanoso, Tricerátopo</li></ul><p class="small">Ao espreitar, ronda a esta distância da presa: Dodô a ~7; Galimimo a ~15; Elasmotério a ~17; Mamute-Lanoso a ~19; Estegossauro a ~15; Tricerátopo a ~17 blocos.</p>
+      <p class="small"><strong>Caçado por:</strong> ninguém.</p>
+      <h4>Spawn</h4><table><tr><th>Biomas</th><td>taiga, taiga nevada, taiga antiga de pinheiros, taiga antiga de abetos, bosque nevado, encostas nevadas, floresta, floresta escura</td></tr><tr><th>Frequência</th><td>peso 1; até 1 perto do jogador; a 300+ blocos do spawn</td></tr></table>
+    </article>
+    <article class="species" id="utahraptor">
+      <header><h3>Utahraptor</h3><code>utahraptor</code><div class="badges"><span class="badge meat">Carnívoro</span><span class="badge">Montável</span><span class="badge">Agressivo</span></div></header>
+      <p class="small">1,2 × 2,3 blocos · velocidade 0,4</p>
+      <h4>Bando e território</h4><table><tr><th>Bando</th><td>2–3 (limite 3); manada de raio 12; defende o grupo</td></tr><tr><th>Território do bando</th><td>18 blocos em volta de cada membro; passeia num raio de 48 da toca</td></tr><tr><th>Foge ferido</th><td>abaixo de 20% da vida</td></tr><tr><th>Nervosismo</th><td>0,9</td></tr></table>
+      <h4>Percepção</h4><table><tr><th>Alerta</th><td>26 blocos</td></tr><tr><th>Nota quem espreita a</th><td>13 blocos</td></tr><tr><th>Lutar ou fugir</th><td>investe a 4 blocos, 20% recua</td></tr><tr><th>Jogador</th><td>não o teme</td></tr></table>
+      <h4>Caça</h4><table><tr><th>Faro de caça</th><td><strong>56</strong> blocos (maior alerta das presas: 36, de Brontossauro, + 8)</td></tr><tr><th>Fome</th><td>caça de novo depois de 300 s sem comer; saciado por 180 s (o bando inteiro)</td></tr><tr><th>Caça</th><td>espreita e dispara; fôlego de 30 s; desiste se a presa abrir 30 blocos</td></tr></table><h4>Dieta</h4><ul class="diet"><li><span class="pref p3">favorita</span> Galimimo</li><li><span class="pref p2">boa</span> <strong>Jogador</strong>, Dodô, cabra, ovelha, porco</li><li><span class="pref p1">aceitável</span> Elasmotério, aldeão, burro, cavalo, lhama, mercador, vaca</li><li><span class="pref p0">último recurso</span> Brontossauro, Estegossauro, Mamute-Lanoso, Tricerátopo</li></ul><p class="small">Ao espreitar, ronda a esta distância da presa: Galimimo a ~15; Dodô a ~7; Elasmotério a ~17; Estegossauro a ~15; Tricerátopo a ~17; Brontossauro a ~21 blocos.</p>
+      <p class="small"><strong>Caçado por:</strong> ninguém.</p>
+      <h4>Spawn</h4><table><tr><th>Biomas</th><td>taiga nevada, taiga, taiga antiga de abetos, encostas nevadas, floresta, floresta de bétulas, selva esparsa, selva</td></tr><tr><th>Frequência</th><td>peso 2; até 3 perto do jogador; a 350+ blocos do spawn</td></tr></table>
+    </article>
+    <article class="species" id="velociraptor">
+      <header><h3>Velociraptor</h3><code>velociraptor</code><div class="badges"><span class="badge meat">Carnívoro</span></div></header>
+      <p class="small">0,6 × 0,9 blocos · velocidade 0,4</p>
+      <h4>Bando e território</h4><table><tr><th>Bando</th><td>1–2 (limite 2); manada de raio 8; defende o grupo</td></tr><tr><th>Território do bando</th><td>14 blocos em volta de cada membro; passeia num raio de 40 da toca</td></tr><tr><th>Foge ferido</th><td>abaixo de 50% da vida</td></tr><tr><th>Nervosismo</th><td>1,4</td></tr></table>
+      <h4>Percepção</h4><table><tr><th>Alerta</th><td>20 blocos</td></tr><tr><th>Nota quem espreita a</th><td>10 blocos</td></tr><tr><th>Lutar ou fugir</th><td>investe a 2,5 blocos, 50% blefe, 50% recua</td></tr><tr><th>Jogador</th><td>é ameaça (agachado, a 50% do alerta)</td></tr></table>
+      <h4>Caça</h4><table><tr><th>Faro de caça</th><td><strong>32</strong> blocos (maior alerta das presas: 12, de Dodô, + 8)</td></tr><tr><th>Fome</th><td>caça de novo depois de 300 s sem comer; saciado por 120 s (o bando inteiro)</td></tr><tr><th>Caça</th><td>espreita e dispara; fôlego de 15 s; desiste se a presa abrir 30 blocos</td></tr></table><h4>Dieta</h4><ul class="diet"><li><span class="pref p3">favorita</span> coelho</li><li><span class="pref p2">boa</span> Dodô, galinha</li><li><span class="pref p1">aceitável</span> raposa, sapo</li></ul><p class="small">Ao espreitar, ronda a esta distância da presa: Dodô a ~7 blocos.</p>
+      <p class="small"><strong>Caçado por:</strong> ninguém.</p>
+      <h4>Spawn</h4><table><tr><th>Biomas</th><td>planície nevada, taiga, taiga nevada, bosque nevado, picos de gelo, encostas nevadas, savana, planície, terras áridas, terras áridas arborizadas</td></tr><tr><th>Frequência</th><td>peso 5; até 2 perto do jogador; a 300+ blocos do spawn</td></tr></table>
+    </article>
+    <article class="species" id="brontosaurus">
+      <header><h3>Brontossauro</h3><code>brontosaurus</code><div class="badges"><span class="badge leaf">Herbívoro</span><span class="badge">Montável</span></div></header>
+      <p class="small">4 × 8 blocos · velocidade 0,2</p>
+      <h4>Bando e território</h4><table><tr><th>Bando</th><td>2–4 (limite 4); manada de raio 18; defende o grupo; migra</td></tr><tr><th>Território do bando</th><td>24 blocos em volta de cada membro</td></tr><tr><th>Nervosismo</th><td>0,6</td></tr></table>
+      <h4>Percepção</h4><table><tr><th>Alerta</th><td>36 blocos</td></tr><tr><th>Nota quem espreita a</th><td>18 blocos</td></tr><tr><th>Lutar ou fugir</th><td>investe a 3 blocos, 70% blefe, 40% recua</td></tr><tr><th>Jogador</th><td>é ameaça (agachado, a 50% do alerta)</td></tr></table>
+      
+      <p class="small"><strong>Caçado por:</strong> Alossauro (boa), Tiranossauro Rex (boa), Espinossauro (último recurso), Smilodon (último recurso), Urso-Terrível (último recurso), Utahraptor (último recurso)</p>
+      <h4>Spawn</h4><table><tr><th>Biomas</th><td>planície nevada, bosque nevado, taiga nevada, encostas nevadas, planície, savana, prado, planície de girassóis</td></tr><tr><th>Frequência</th><td>peso 6; até 4 perto do jogador; um grupo a cada 300 blocos; desde o spawn</td></tr></table>
+    </article>
+    <article class="species" id="dodo">
+      <header><h3>Dodô</h3><code>dodo</code><div class="badges"><span class="badge leaf">Herbívoro</span></div></header>
+      <p class="small">0,7 × 0,9 blocos · velocidade 0,1</p>
+      <h4>Bando e território</h4><table><tr><th>Bando</th><td>2–5 (limite 5); manada de raio 8; defende o grupo</td></tr><tr><th>Território do bando</th><td>14 blocos em volta de cada membro</td></tr><tr><th>Foge ferido</th><td>abaixo de 35% da vida</td></tr><tr><th>Nervosismo</th><td>0,3</td></tr></table>
+      <h4>Percepção</h4><table><tr><th>Alerta</th><td>8 blocos (12 com filhote)</td></tr><tr><th>Nota quem espreita a</th><td>4 blocos</td></tr><tr><th>Lutar ou fugir</th><td>não investe: foge</td></tr><tr><th>Jogador</th><td>não o teme</td></tr></table>
+      
+      <p class="small"><strong>Caçado por:</strong> Espinossauro (boa), Utahraptor (boa), Velociraptor (boa), Urso-Terrível (aceitável), Alossauro (último recurso), Smilodon (último recurso), Tiranossauro Rex (último recurso)</p>
+      <h4>Spawn</h4><table><tr><th>Biomas</th><td>planície nevada, taiga nevada, bosque nevado, praia nevada, taiga, picos de gelo, encostas nevadas, planície, planície de girassóis, prado, floresta, floresta de bétulas, praia</td></tr><tr><th>Frequência</th><td>peso 14; até 10 perto do jogador; desde o spawn</td></tr></table>
+    </article>
+    <article class="species" id="elasmotherium">
+      <header><h3>Elasmotério</h3><code>elasmotherium</code><div class="badges"><span class="badge leaf">Herbívoro</span><span class="badge">Montável</span></div></header>
+      <p class="small">1,8 × 2,4 blocos · velocidade 0,26</p>
+      <h4>Bando e território</h4><table><tr><th>Bando</th><td>1 (limite 1); solitário</td></tr><tr><th>Território do bando</th><td>11,2 blocos em volta de cada membro</td></tr><tr><th>Foge ferido</th><td>abaixo de 10% da vida</td></tr><tr><th>Nervosismo</th><td>1,2</td></tr></table>
+      <h4>Percepção</h4><table><tr><th>Alerta</th><td>28 blocos</td></tr><tr><th>Nota quem espreita a</th><td>14 blocos</td></tr><tr><th>Lutar ou fugir</th><td>investe a 4 blocos, 55,% blefe, 35% recua</td></tr><tr><th>Jogador</th><td>é ameaça (agachado, a 50% do alerta)</td></tr></table>
+      
+      <p class="small"><strong>Caçado por:</strong> Smilodon (favorita), Alossauro (boa), Tiranossauro Rex (boa), Utahraptor (aceitável), Espinossauro (último recurso), Urso-Terrível (último recurso)</p>
+      <h4>Spawn</h4><table><tr><th>Biomas</th><td>planície nevada, taiga nevada, bosque nevado, picos de gelo, encostas nevadas, taiga, planície, savana, prado, colinas ventosas</td></tr><tr><th>Frequência</th><td>peso 12; até 1 perto do jogador; desde o spawn</td></tr></table>
+    </article>
+    <article class="species" id="stegosaurus">
+      <header><h3>Estegossauro</h3><code>stegosaurus</code><div class="badges"><span class="badge leaf">Herbívoro</span></div></header>
+      <p class="small">2,2 × 3,2 blocos · velocidade 0,22</p>
+      <h4>Bando e território</h4><table><tr><th>Bando</th><td>2–4 (limite 4); manada de raio 14; defende o grupo; migra</td></tr><tr><th>Território do bando</th><td>20 blocos em volta de cada membro</td></tr><tr><th>Nervosismo</th><td>0,9</td></tr></table>
+      <h4>Percepção</h4><table><tr><th>Alerta</th><td>24 blocos</td></tr><tr><th>Nota quem espreita a</th><td>12 blocos</td></tr><tr><th>Lutar ou fugir</th><td>investe a 3 blocos, 20% blefe, 30% recua</td></tr><tr><th>Jogador</th><td>é ameaça (agachado, a 50% do alerta)</td></tr></table>
+      
+      <p class="small"><strong>Caçado por:</strong> Alossauro (favorita), Tiranossauro Rex (boa), Espinossauro (último recurso), Smilodon (último recurso), Urso-Terrível (último recurso), Utahraptor (último recurso)</p>
+      <h4>Spawn</h4><table><tr><th>Biomas</th><td>planície nevada, taiga nevada, bosque nevado, encostas nevadas, planície, floresta, savana, floresta de flores</td></tr><tr><th>Frequência</th><td>peso 12; até 4 perto do jogador; desde o spawn</td></tr></table>
+    </article>
+    <article class="species" id="gallimimus">
+      <header><h3>Galimimo</h3><code>gallimimus</code><div class="badges"><span class="badge leaf">Herbívoro</span><span class="badge">Montável</span></div></header>
+      <p class="small">1,2 × 2,3 blocos · velocidade 0,42</p>
+      <h4>Bando e território</h4><table><tr><th>Bando</th><td>3–5 (limite 5); manada de raio 12</td></tr><tr><th>Território do bando</th><td>18 blocos em volta de cada membro</td></tr><tr><th>Foge ferido</th><td>abaixo de 90% da vida</td></tr><tr><th>Nervosismo</th><td>1,6</td></tr></table>
+      <h4>Percepção</h4><table><tr><th>Alerta</th><td>24 blocos</td></tr><tr><th>Nota quem espreita a</th><td>12 blocos</td></tr><tr><th>Lutar ou fugir</th><td>não investe: foge</td></tr><tr><th>Jogador</th><td>é ameaça (agachado, a 50% do alerta)</td></tr></table>
+      
+      <p class="small"><strong>Caçado por:</strong> Alossauro (favorita), Utahraptor (favorita), Espinossauro (boa), Smilodon (boa), Tiranossauro Rex (aceitável), Urso-Terrível (aceitável)</p>
+      <h4>Spawn</h4><table><tr><th>Biomas</th><td>planície nevada, picos de gelo, taiga nevada, taiga, bosque nevado, planície, savana, deserto, planície de girassóis</td></tr><tr><th>Frequência</th><td>peso 7; até 5 perto do jogador; desde o spawn</td></tr></table>
+    </article>
+    <article class="species" id="mammoth">
+      <header><h3>Mamute-Lanoso</h3><code>mammoth</code><div class="badges"><span class="badge leaf">Herbívoro</span><span class="badge">Montável</span></div></header>
+      <p class="small">3 × 4,65 blocos · velocidade 0,22</p>
+      <h4>Bando e território</h4><table><tr><th>Bando</th><td>3–5 (limite 5); manada de raio 14; defende o grupo; migra</td></tr><tr><th>Território do bando</th><td>20 blocos em volta de cada membro</td></tr><tr><th>Nervosismo</th><td>0,8</td></tr></table>
+      <h4>Percepção</h4><table><tr><th>Alerta</th><td>32 blocos</td></tr><tr><th>Nota quem espreita a</th><td>16 blocos</td></tr><tr><th>Lutar ou fugir</th><td>investe a 4 blocos, 60% blefe, 20% recua</td></tr><tr><th>Jogador</th><td>é ameaça (agachado, a 50% do alerta)</td></tr></table>
+      
+      <p class="small"><strong>Caçado por:</strong> Tiranossauro Rex (boa), Alossauro (aceitável), Smilodon (aceitável), Espinossauro (último recurso), Urso-Terrível (último recurso), Utahraptor (último recurso)</p>
+      <h4>Spawn</h4><table><tr><th>Biomas</th><td>planície nevada, picos de gelo, taiga nevada, encostas nevadas, prado, colinas ventosas, planície</td></tr><tr><th>Frequência</th><td>peso 10; até 5 perto do jogador; desde o spawn</td></tr></table>
+    </article>
+    <article class="species" id="pteranodon">
+      <header><h3>Pteranodonte</h3><code>pteranodon</code><div class="badges"><span class="badge leaf">Herbívoro</span><span class="badge">Montável</span></div></header>
+      <p class="small">1,6 × 2 blocos · velocidade 0,32</p>
+      <h4>Bando e território</h4><table><tr><th>Bando</th><td>2–4 (limite 4); manada de raio 18; defende o grupo</td></tr><tr><th>Território do bando</th><td>24 blocos em volta de cada membro</td></tr><tr><th>Nervosismo</th><td>1,2</td></tr></table>
+      <h4>Percepção</h4><table><tr><th>Cautela</th><td>sem perfil de cautela</td></tr></table>
+      
+      <p class="small"><strong>Caçado por:</strong> ninguém.</p>
+      <h4>Spawn</h4><table><tr><th>Biomas</th><td></td></tr><tr><th>Frequência</th><td>peso 10; até 8 perto do jogador; desde o spawn</td></tr></table>
+    </article>
+    <article class="species" id="triceratops">
+      <header><h3>Tricerátopo</h3><code>triceratops</code><div class="badges"><span class="badge leaf">Herbívoro</span><span class="badge">Montável</span></div></header>
+      <p class="small">2,4 × 2,8 blocos · velocidade 0,24</p>
+      <h4>Bando e território</h4><table><tr><th>Bando</th><td>2–4 (limite 4); manada de raio 14; defende o grupo; migra</td></tr><tr><th>Território do bando</th><td>20 blocos em volta de cada membro</td></tr><tr><th>Nervosismo</th><td>0,7</td></tr></table>
+      <h4>Percepção</h4><table><tr><th>Alerta</th><td>28 blocos</td></tr><tr><th>Nota quem espreita a</th><td>14 blocos</td></tr><tr><th>Lutar ou fugir</th><td>investe a 6 blocos, 40% blefe, 10% recua</td></tr><tr><th>Jogador</th><td>é ameaça (agachado, a 50% do alerta)</td></tr></table>
+      
+      <p class="small"><strong>Caçado por:</strong> Tiranossauro Rex (favorita), Alossauro (aceitável), Espinossauro (último recurso), Smilodon (último recurso), Urso-Terrível (último recurso), Utahraptor (último recurso)</p>
+      <h4>Spawn</h4><table><tr><th>Biomas</th><td>planície nevada, taiga nevada, taiga, bosque nevado, encostas nevadas, planície, savana, floresta, prado</td></tr><tr><th>Frequência</th><td>peso 8; até 4 perto do jogador; desde o spawn</td></tr></table>
+    </article>
+  </main>
+  <footer><p>Gerado por <code>tools/gen_comportamento.py</code>. Para decisões e roadmap, consulte
+    <a href="../CLOUD.md">CLOUD.md</a>.</p></footer>
+</body>
+</html>
