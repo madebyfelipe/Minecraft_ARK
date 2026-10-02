@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "rolls": 1,
+      "conditions": [
+        {
+          "condition": "minecraft:survives_explosion"
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "iceagesurvival:revive_table"
+        }
+      ]
+    }
+  ],
+  "random_sequence": "iceagesurvival:blocks/revive_table"
+}

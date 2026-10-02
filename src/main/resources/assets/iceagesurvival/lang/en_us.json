@@ -192,5 +192,17 @@
   "iceagesurvival.hud.flight_stamina": "Flight stamina: %s%%",
   "item.iceagesurvival.tranq_dart": "Sedative Dart",
   "item.iceagesurvival.tranq_rifle": "Tranquilizer Rifle",
-  "item.iceagesurvival.tranq_crossbow": "Dart Crossbow"
+  "item.iceagesurvival.tranq_crossbow": "Dart Crossbow",
+  "block.iceagesurvival.prep_station": "Preparation Station",
+  "block.iceagesurvival.revive_table": "Revival Table",
+  "item.iceagesurvival.prep_station": "Preparation Station",
+  "item.iceagesurvival.revive_table": "Revival Table",
+  "item.iceagesurvival.implant": "Implant",
+  "item.iceagesurvival.implant.empty": "Empty",
+  "item.iceagesurvival.implant.creature": "%s · level %s",
+  "item.iceagesurvival.implant.hint": "Revival table + 1 diamond: brings it back",
+  "item.iceagesurvival.jerky": "Jerky",
+  "iceagesurvival.prep_station.hint": "Meat → rotten · meat + sugar → jerky",
+  "iceagesurvival.revive_table.hint": "Implant + diamond → revive",
+  "iceagesurvival.corpse.fallen": "%s has fallen (%s). The body stays for 20 min with its inventory and implant."
 }

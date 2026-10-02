@@ -40,6 +40,13 @@
       },
       {
         "items": [
+          "iceagesurvival:jerky"
+        ],
+        "value": 25,
+        "quality": 0.9
+      },
+      {
+        "items": [
           "minecraft:beef",
           "minecraft:mutton",
           "minecraft:porkchop"

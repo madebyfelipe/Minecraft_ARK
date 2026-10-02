@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "side": "iceagesurvival:block/revive_table_side",
+    "top": "iceagesurvival:block/revive_table_top",
+    "bottom": "minecraft:block/iron_block",
+    "particle": "iceagesurvival:block/revive_table_top"
+  }
+}

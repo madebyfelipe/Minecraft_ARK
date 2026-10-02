@@ -42,6 +42,13 @@
       },
       {
         "items": [
+          "iceagesurvival:jerky"
+        ],
+        "value": 25,
+        "quality": 0.9
+      },
+      {
+        "items": [
           "minecraft:chicken",
           "minecraft:rabbit",
           "iceagesurvival:dodo_meat"

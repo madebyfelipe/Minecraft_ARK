@@ -22,6 +22,16 @@ public final class ModBlockEntities {
             BLOCK_ENTITIES.register("chemistry_bench", () -> BlockEntityType.Builder
                     .of(ChemistryBenchBlockEntity::new, ModBlocks.CHEMISTRY_BENCH.get()).build(null));
 
+    public static final RegistryObject<BlockEntityType<dev.madebyfelipe.iceagesurvival.block.PrepStationBlockEntity>>
+            PREP_STATION = BLOCK_ENTITIES.register("prep_station", () -> BlockEntityType.Builder
+                    .of(dev.madebyfelipe.iceagesurvival.block.PrepStationBlockEntity::new, ModBlocks.PREP_STATION.get())
+                    .build(null));
+
+    public static final RegistryObject<BlockEntityType<dev.madebyfelipe.iceagesurvival.block.ReviveTableBlockEntity>>
+            REVIVE_TABLE = BLOCK_ENTITIES.register("revive_table", () -> BlockEntityType.Builder
+                    .of(dev.madebyfelipe.iceagesurvival.block.ReviveTableBlockEntity::new, ModBlocks.REVIVE_TABLE.get())
+                    .build(null));
+
     private ModBlockEntities() {
     }
 }

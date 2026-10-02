@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "side": "iceagesurvival:block/prep_station_side",
+    "top": "iceagesurvival:block/prep_station_top",
+    "bottom": "minecraft:block/spruce_planks",
+    "particle": "iceagesurvival:block/prep_station_top"
+  }
+}

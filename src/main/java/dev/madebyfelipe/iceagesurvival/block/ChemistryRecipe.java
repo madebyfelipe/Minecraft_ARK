@@ -22,13 +22,47 @@ public record ChemistryRecipe(Supplier<Item> first, int firstCount, Supplier<Ite
             // Mesa de trabalho: 1 flecha + 1 narcótico → 1 flecha tranquilizante.
             new ChemistryRecipe(() -> Items.ARROW, 4, ModItems.NARCOTIC::get, 1, ModItems.TRANQ_ARROW::get, 4, 120));
 
+    /** Um minuto para a carne apodrecer na estação de preparação. */
+    private static final int ROT_TICKS = 1200;
+    private static final int JERKY_TICKS = 600;
+
+    /**
+     * Estação de preparação: carne e peixe crus apodrecem (a carne podre é insumo do narcótico); carne com
+     * açúcar vira charque, que não estraga e alimenta mais. Entrada única quando {@code second} é nulo.
+     */
+    public static final List<ChemistryRecipe> PREPARATION = List.of(
+            rot(() -> Items.BEEF), rot(() -> Items.PORKCHOP), rot(() -> Items.MUTTON), rot(() -> Items.CHICKEN),
+            rot(() -> Items.RABBIT), rot(ModItems.DODO_MEAT::get), rot(() -> Items.COD), rot(() -> Items.SALMON),
+            jerky(() -> Items.BEEF), jerky(() -> Items.PORKCHOP), jerky(() -> Items.MUTTON),
+            jerky(() -> Items.CHICKEN), jerky(ModItems.DODO_MEAT::get));
+
+    private static ChemistryRecipe rot(Supplier<Item> raw) {
+        return new ChemistryRecipe(raw, 1, null, 0, () -> Items.ROTTEN_FLESH, 1, ROT_TICKS);
+    }
+
+    private static ChemistryRecipe jerky(Supplier<Item> raw) {
+        return new ChemistryRecipe(raw, 2, () -> Items.SUGAR, 1, ModItems.JERKY::get, 2, JERKY_TICKS);
+    }
+
     /** Receita que as entradas atendem, em qualquer ordem. */
     public static Optional<ChemistryRecipe> find(ItemStack a, ItemStack b) {
-        return ALL.stream().filter(recipe -> recipe.matches(a, b) || recipe.matches(b, a)).findFirst();
+        return find(ALL, a, b);
+    }
+
+    /** Receita desta lista que as entradas atendem, em qualquer ordem; as de duas entradas têm preferência. */
+    public static Optional<ChemistryRecipe> find(List<ChemistryRecipe> recipes, ItemStack a, ItemStack b) {
+        return recipes.stream().filter(recipe -> recipe.second != null)
+                .filter(recipe -> recipe.matches(a, b) || recipe.matches(b, a)).findFirst()
+                .or(() -> recipes.stream().filter(recipe -> recipe.second == null)
+                        .filter(recipe -> recipe.matches(a, b) || recipe.matches(b, a)).findFirst());
     }
 
     public boolean matches(ItemStack a, ItemStack b) {
-        return a.is(first.get()) && a.getCount() >= firstCount && b.is(second.get()) && b.getCount() >= secondCount;
+        if (!a.is(first.get()) || a.getCount() < firstCount) {
+            return false;
+        }
+        // Entrada única: a outra fica vazia.
+        return second == null ? b.isEmpty() : b.is(second.get()) && b.getCount() >= secondCount;
     }
 
     public ItemStack output() {
@@ -37,6 +71,11 @@ public record ChemistryRecipe(Supplier<Item> first, int firstCount, Supplier<Ite
 
     /** Se o item é ingrediente de alguma receita (para o que a tela aceita nas entradas). */
     public static boolean isIngredient(ItemStack stack) {
-        return ALL.stream().anyMatch(recipe -> stack.is(recipe.first.get()) || stack.is(recipe.second.get()));
+        return isIngredient(ALL, stack);
+    }
+
+    public static boolean isIngredient(List<ChemistryRecipe> recipes, ItemStack stack) {
+        return recipes.stream().anyMatch(recipe -> stack.is(recipe.first.get())
+                || recipe.second != null && stack.is(recipe.second.get()));
     }
 }

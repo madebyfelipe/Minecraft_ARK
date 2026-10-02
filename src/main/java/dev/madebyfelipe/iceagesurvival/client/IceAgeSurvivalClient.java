@@ -61,6 +61,8 @@ public class IceAgeSurvivalClient {
         event.enqueueWork(() -> {
             MenuScreens.register(ModMenus.INCUBATOR.get(), IncubatorScreen::new);
             MenuScreens.register(ModMenus.CHEMISTRY_BENCH.get(), ChemistryBenchScreen::new);
+            MenuScreens.register(ModMenus.PREP_STATION.get(), ChemistryBenchScreen::new);
+            MenuScreens.register(ModMenus.REVIVE_TABLE.get(), ChemistryBenchScreen::new);
             MenuScreens.register(ModMenus.CREATURE_STORAGE.get(), CreatureStorageScreen::new);
         });
     }

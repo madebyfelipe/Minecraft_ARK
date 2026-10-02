@@ -134,6 +134,16 @@ public final class ModItems {
 
     public static final RegistryObject<BlockItem> INCUBATOR = blockItem("incubator", ModBlocks.INCUBATOR);
     public static final RegistryObject<BlockItem> CHEMISTRY_BENCH = blockItem("chemistry_bench", ModBlocks.CHEMISTRY_BENCH);
+    public static final RegistryObject<BlockItem> PREP_STATION = blockItem("prep_station", ModBlocks.PREP_STATION);
+    public static final RegistryObject<BlockItem> REVIVE_TABLE = blockItem("revive_table", ModBlocks.REVIVE_TABLE);
+
+    /** Fica no corpo da criatura domesticada que morreu; revive-a na mesa de reviver com um diamante. */
+    public static final RegistryObject<dev.madebyfelipe.iceagesurvival.item.ImplantItem> IMPLANT = ITEMS.register(
+            "implant", () -> new dev.madebyfelipe.iceagesurvival.item.ImplantItem(new Item.Properties()));
+
+    /** Charque: carne com açúcar na estação de preparação. Não estraga e sacia mais que a carne assada. */
+    public static final RegistryObject<Item> JERKY = ITEMS.register("jerky", () -> new Item(new Item.Properties()
+            .food(new FoodProperties.Builder().nutrition(8).saturationMod(0.9F).meat().build())));
 
     /** Ovo fecundado: espécie, genoma e dono do filhote. */
     public static final RegistryObject<CreatureEggItem> CREATURE_EGG =
@@ -210,9 +220,12 @@ public final class ModItems {
         } else if (event.getTabKey() == CreativeModeTabs.FOOD_AND_DRINKS) {
             event.accept(DODO_MEAT);
             event.accept(COOKED_DODO_MEAT);
+            event.accept(JERKY);
         } else if (event.getTabKey() == CreativeModeTabs.FUNCTIONAL_BLOCKS) {
             event.accept(INCUBATOR);
             event.accept(CHEMISTRY_BENCH);
+            event.accept(PREP_STATION);
+            event.accept(REVIVE_TABLE);
         } else if (event.getTabKey() == CreativeModeTabs.NATURAL_BLOCKS) {
             event.accept(BLACK_FRUIT_LEAVES);
             event.accept(BLACK_FRUIT_SAPLING);

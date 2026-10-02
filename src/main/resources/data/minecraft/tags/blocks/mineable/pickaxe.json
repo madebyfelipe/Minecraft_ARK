@@ -1,6 +1,7 @@
 {
   "replace": false,
   "values": [
-    "iceagesurvival:incubator"
+    "iceagesurvival:incubator",
+    "iceagesurvival:revive_table"
   ]
 }

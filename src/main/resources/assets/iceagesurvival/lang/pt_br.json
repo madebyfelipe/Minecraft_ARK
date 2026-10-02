@@ -192,5 +192,17 @@
   "iceagesurvival.hud.flight_stamina": "Fôlego de voo: %s%%",
   "item.iceagesurvival.tranq_dart": "Dardo Sedativo",
   "item.iceagesurvival.tranq_rifle": "Rifle Tranquilizante",
-  "item.iceagesurvival.tranq_crossbow": "Besta de Dardos"
+  "item.iceagesurvival.tranq_crossbow": "Besta de Dardos",
+  "block.iceagesurvival.prep_station": "Estação de Preparação",
+  "block.iceagesurvival.revive_table": "Mesa de Reviver",
+  "item.iceagesurvival.prep_station": "Estação de Preparação",
+  "item.iceagesurvival.revive_table": "Mesa de Reviver",
+  "item.iceagesurvival.implant": "Implante",
+  "item.iceagesurvival.implant.empty": "Vazio",
+  "item.iceagesurvival.implant.creature": "%s · nível %s",
+  "item.iceagesurvival.implant.hint": "Mesa de reviver + 1 diamante: traz de volta",
+  "item.iceagesurvival.jerky": "Charque",
+  "iceagesurvival.prep_station.hint": "Carne → podre · carne + açúcar → charque",
+  "iceagesurvival.revive_table.hint": "Implante + diamante → revive",
+  "iceagesurvival.corpse.fallen": "%s caiu (%s). O corpo fica 20 min com o inventário e o implante."
 }

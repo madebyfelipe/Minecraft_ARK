@@ -73,6 +73,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
@@ -137,6 +138,9 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     /** Fôlego de voo restante, de 0 a 1 (o cliente de quem monta precisa dele para limitar a subida). */
     private static final EntityDataAccessor<Float> DATA_FLIGHT_STAMINA =
             SynchedEntityData.defineId(PrehistoricCreature.class, EntityDataSerializers.FLOAT);
+    /** Domesticada que morreu: o corpo fica no chão com o inventário e o implante. */
+    private static final EntityDataAccessor<Boolean> DATA_CORPSE =
+            SynchedEntityData.defineId(PrehistoricCreature.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> DATA_FLYING =
             SynchedEntityData.defineId(PrehistoricCreature.class, EntityDataSerializers.BOOLEAN);
     /** Estresse, de 0 a 100: o painel sob a mira mostra o humor. */
@@ -179,6 +183,8 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     private static final String TAG_HEALTH_GENE = "HealthGene";
     private static final String TAG_FEMALE = "Female";
     private static final String TAG_FLIGHT_STAMINA = "FlightStamina";
+    private static final String TAG_CORPSE = "Corpse";
+    private static final String TAG_CORPSE_TICKS = "CorpseTicks";
     private static final String TAG_MATING = "Mating";
     private static final String TAG_NEXT_MATING = "NextMating";
     private static final String TAG_GESTATION_END = "GestationEnd";
@@ -343,6 +349,10 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     /** Só no cliente: a inclinação do corpo em voo (graus, + sobe o bico), seguindo a trajetória. */
     private float bodyFlightPitch;
     private float prevBodyFlightPitch;
+    /** Há quanto tempo é corpo, em ticks. */
+    private int corpseTicks;
+    /** Vinte minutos: depois disso o corpo some e o que sobrou cai no chão. */
+    public static final int CORPSE_TICKS = 20 * 60 * 20;
     /** Esgotou o fôlego de voo: só decola de novo com {@link #TAKEOFF_STAMINA}. */
     private boolean flightExhausted;
     /** Fôlego mínimo para decolar depois de esgotar. */
@@ -585,6 +595,7 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         entityData.define(DATA_MATING, false);
         entityData.define(DATA_FLYING, false);
         entityData.define(DATA_FLIGHT_STAMINA, 1.0F);
+        entityData.define(DATA_CORPSE, false);
         entityData.define(DATA_STRESS, 0.0F);
     }
 
@@ -1391,7 +1402,7 @@ public abstract class PrehistoricCreature extends TamableAnimal {
 
     /** Disponível também no cliente. */
     public boolean isUnconscious() {
-        return entityData.get(DATA_UNCONSCIOUS);
+        return entityData.get(DATA_UNCONSCIOUS) || isCorpse();
     }
 
     public void addTorpor(double amount) {
@@ -1422,7 +1433,7 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         entityData.set(DATA_TORPOR_FRACTION, max > 0 ? (float) (torpor / max) : 0.0F);
         if (!isUnconscious() && max > 0 && torpor >= max) {
             knockOut();
-        } else if (isUnconscious() && torpor <= 0) {
+        } else if (entityData.get(DATA_UNCONSCIOUS) && torpor <= 0) {
             wakeUp();
         }
     }
@@ -1497,6 +1508,10 @@ public abstract class PrehistoricCreature extends TamableAnimal {
             } else {
                 tickFlightStamina();
             }
+        }
+        if (!level().isClientSide && isCorpse()) {
+            tickCorpse();
+            return;
         }
         if (!level().isClientSide && !zoneChecked) {
             zoneChecked = true;
@@ -1582,6 +1597,64 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     /** A inclinação do corpo em voo neste quadro, em graus (+ sobe o bico). */
     public float bodyFlightPitch(float partialTick) {
         return Mth.lerp(partialTick, prevBodyFlightPitch, bodyFlightPitch);
+    }
+
+    // ---- Corpo e implante ----
+
+    public boolean isCorpse() {
+        return entityData.get(DATA_CORPSE);
+    }
+
+    /**
+     * A domesticada não some ao morrer: fica caída por {@link #CORPSE_TICKS} com o inventário e o implante (a
+     * criatura inteira, para a mesa de reviver). Sem espaço no inventário, o implante cai ao lado.
+     */
+    private void becomeCorpse(DamageSource source) {
+        ejectPassengers();
+        setTarget(null);
+        getNavigation().stop();
+        setDeltaMovement(0.0, getDeltaMovement().y, 0.0);
+        setHealth(1.0F);
+        ItemStack implant = dev.madebyfelipe.iceagesurvival.item.ImplantItem.of(this, ModItems.IMPLANT.get());
+        entityData.set(DATA_CORPSE, true);
+        corpseTicks = 0;
+        ItemStack left = inventory.addItem(implant);
+        if (!left.isEmpty()) {
+            spawnAtLocation(left);
+        }
+        if (getOwner() instanceof Player owner) {
+            owner.sendSystemMessage(Component.translatable("iceagesurvival.corpse.fallen", getDisplayName(),
+                    source.getLocalizedDeathMessage(this)));
+        }
+    }
+
+    /** Os dados que o implante guarda: a criatura inteira, menos o que fica no corpo e o que é do lugar. */
+    public CompoundTag implantData() {
+        CompoundTag tag = saveWithoutId(new CompoundTag());
+        for (String key : new String[] {TAG_INVENTORY, TAG_CORPSE, TAG_CORPSE_TICKS, TAG_HOME, "UUID", "Pos", "Motion",
+                "Rotation", "Passengers", "Leash", "Health", "DeathTime", "HurtTime", "HurtByTimestamp"}) {
+            tag.remove(key);
+        }
+        tag.putBoolean(TAG_SADDLED, false);
+        return tag;
+    }
+
+    private void tickCorpse() {
+        corpseTicks++;
+        // Some no fim do prazo, ou quando já tiraram tudo (e o implante).
+        boolean emptied = corpseTicks > 40 && corpseTicks % 20 == 0 && inventory.isEmpty() && !isSaddled();
+        if (corpseTicks >= CORPSE_TICKS || emptied) {
+            if (isSaddled()) {
+                spawnAtLocation(new ItemStack(SADDLE_ITEM));
+            }
+            Containers.dropContents(level(), this, inventory);
+            discard();
+        }
+    }
+
+    @Override
+    public boolean isInvulnerableTo(DamageSource source) {
+        return isCorpse() && !source.is(DamageTypeTags.BYPASSES_INVULNERABILITY) || super.isInvulnerableTo(source);
     }
 
     // ---- Fôlego de voo ----
@@ -2475,6 +2548,10 @@ public abstract class PrehistoricCreature extends TamableAnimal {
 
     @Override
     public void die(DamageSource source) {
+        if (!level().isClientSide && isTame() && !isCorpse() && !source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)) {
+            becomeCorpse(source);
+            return;
+        }
         if (!level().isClientSide && !isTame()) {
             stressHerd(Stress.Event.HERD_KILLED);
         }
@@ -2531,6 +2608,13 @@ public abstract class PrehistoricCreature extends TamableAnimal {
 
     @Override
     public InteractionResult mobInteract(Player player, InteractionHand hand) {
+        if (isCorpse()) {
+            // O corpo só se abre: o inventário e o implante.
+            if (!level().isClientSide && canAccessInventory(player)) {
+                openInventory(player);
+            }
+            return InteractionResult.sidedSuccess(level().isClientSide);
+        }
         ItemStack held = player.getItemInHand(hand);
         if (held.is(ModItems.STIMULANT.get()) && torpor > 0) {
             if (!level().isClientSide) {
@@ -2793,6 +2877,10 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         compound.putBoolean(TAG_HEALTH_GENE, healthGene);
         compound.putBoolean(TAG_FEMALE, isFemale());
         compound.putFloat(TAG_FLIGHT_STAMINA, flightStaminaFraction());
+        if (isCorpse()) {
+            compound.putBoolean(TAG_CORPSE, true);
+            compound.putInt(TAG_CORPSE_TICKS, corpseTicks);
+        }
         compound.putBoolean(TAG_MATING, isMatingEnabled());
         compound.putLong(TAG_NEXT_MATING, nextMatingTime);
         compound.putBoolean(TAG_ZONE_CHECKED, zoneChecked);
@@ -2823,6 +2911,8 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         // Criaturas de antes da reprodução não tinham sexo: sorteia uma vez.
         setFemale(compound.contains(TAG_FEMALE) ? compound.getBoolean(TAG_FEMALE) : random.nextBoolean());
         setFlightStaminaFraction(compound.contains(TAG_FLIGHT_STAMINA) ? compound.getFloat(TAG_FLIGHT_STAMINA) : 1.0F);
+        entityData.set(DATA_CORPSE, compound.getBoolean(TAG_CORPSE));
+        corpseTicks = compound.getInt(TAG_CORPSE_TICKS);
         entityData.set(DATA_MATING, compound.getBoolean(TAG_MATING));
         nextMatingTime = compound.getLong(TAG_NEXT_MATING);
         zoneChecked = compound.getBoolean(TAG_ZONE_CHECKED);

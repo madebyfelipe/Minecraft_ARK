@@ -44,6 +44,14 @@ public final class ModBlocks {
             "chemistry_bench",
             () -> new ChemistryBenchBlock(BlockBehaviour.Properties.copy(Blocks.CRAFTING_TABLE)));
 
+    public static final RegistryObject<dev.madebyfelipe.iceagesurvival.block.PrepStationBlock> PREP_STATION =
+            BLOCKS.register("prep_station", () -> new dev.madebyfelipe.iceagesurvival.block.PrepStationBlock(
+                    BlockBehaviour.Properties.copy(Blocks.CRAFTING_TABLE)));
+
+    public static final RegistryObject<dev.madebyfelipe.iceagesurvival.block.ReviveTableBlock> REVIVE_TABLE =
+            BLOCKS.register("revive_table", () -> new dev.madebyfelipe.iceagesurvival.block.ReviveTableBlock(
+                    BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK).noOcclusion()));
+
     private ModBlocks() {
     }
 }

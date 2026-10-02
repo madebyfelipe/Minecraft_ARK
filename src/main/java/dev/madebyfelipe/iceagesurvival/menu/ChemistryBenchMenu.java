@@ -23,7 +23,23 @@ public class ChemistryBenchMenu extends StationMenu {
     }
 
     public ChemistryBenchMenu(int containerId, Inventory playerInventory, Container container, ContainerData data) {
-        super(ModMenus.CHEMISTRY_BENCH.get(), containerId, playerInventory, container, data);
+        this(ModMenus.CHEMISTRY_BENCH.get(), containerId, playerInventory, container, data);
+    }
+
+    /** Para outras estações de duas entradas e uma saída. */
+    protected ChemistryBenchMenu(net.minecraft.world.inventory.MenuType<?> type, int containerId,
+                                 Inventory playerInventory, Container container, ContainerData data) {
+        super(type, containerId, playerInventory, container, data);
+    }
+
+    /** O que as entradas aceitam (consultado no clique, depois da construção). */
+    protected boolean accepts(ItemStack stack) {
+        return ChemistryRecipe.isIngredient(stack);
+    }
+
+    /** Chave da dica sob as entradas. */
+    public String hintKey() {
+        return "iceagesurvival.chemistry_bench.hint";
     }
 
     @Override
@@ -42,7 +58,7 @@ public class ChemistryBenchMenu extends StationMenu {
         return new Slot(container, index, x, INPUT_Y) {
             @Override
             public boolean mayPlace(ItemStack stack) {
-                return ChemistryRecipe.isIngredient(stack);
+                return accepts(stack);
             }
         };
     }

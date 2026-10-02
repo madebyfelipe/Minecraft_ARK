@@ -1,6 +1,7 @@
 {
   "replace": false,
   "values": [
-    "iceagesurvival:chemistry_bench"
+    "iceagesurvival:chemistry_bench",
+    "iceagesurvival:prep_station"
   ]
 }

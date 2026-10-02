@@ -23,7 +23,7 @@ public class ChemistryBenchBlockEntity extends StationBlockEntity {
     private int progress;
     private int total;
 
-    private final ContainerData data = new ContainerData() {
+    protected final ContainerData data = new ContainerData() {
         @Override
         public int get(int index) {
             return index == DATA_PROGRESS ? progress : total;
@@ -40,12 +40,23 @@ public class ChemistryBenchBlockEntity extends StationBlockEntity {
     };
 
     public ChemistryBenchBlockEntity(BlockPos pos, BlockState state) {
-        super(ModBlockEntities.CHEMISTRY_BENCH.get(), pos, state, 3);
+        this(ModBlockEntities.CHEMISTRY_BENCH.get(), pos, state);
+    }
+
+    /** Para outras estações de duas entradas e uma saída, com as receitas delas ({@link #recipes()}). */
+    protected ChemistryBenchBlockEntity(net.minecraft.world.level.block.entity.BlockEntityType<?> type, BlockPos pos,
+                                        BlockState state) {
+        super(type, pos, state, 3);
+    }
+
+    /** As receitas desta estação. */
+    protected java.util.List<ChemistryRecipe> recipes() {
+        return ChemistryRecipe.ALL;
     }
 
     @Override
     public void serverTick() {
-        Optional<ChemistryRecipe> recipe = ChemistryRecipe.find(getItem(INPUT_A), getItem(INPUT_B))
+        Optional<ChemistryRecipe> recipe = ChemistryRecipe.find(recipes(), getItem(INPUT_A), getItem(INPUT_B))
                 .filter(this::fitsOutput);
         if (recipe.isEmpty()) {
             progress = 0;
@@ -71,7 +82,9 @@ public class ChemistryBenchBlockEntity extends StationBlockEntity {
         ItemStack a = getItem(INPUT_A);
         boolean inOrder = recipe.matches(a, getItem(INPUT_B));
         getItem(inOrder ? INPUT_A : INPUT_B).shrink(recipe.firstCount());
-        getItem(inOrder ? INPUT_B : INPUT_A).shrink(recipe.secondCount());
+        if (recipe.secondCount() > 0) {
+            getItem(inOrder ? INPUT_B : INPUT_A).shrink(recipe.secondCount());
+        }
         ItemStack output = getItem(OUTPUT);
         if (output.isEmpty()) {
             setItem(OUTPUT, recipe.output());
@@ -82,7 +95,7 @@ public class ChemistryBenchBlockEntity extends StationBlockEntity {
 
     @Override
     public boolean canPlaceItem(int slot, ItemStack stack) {
-        return slot != OUTPUT && ChemistryRecipe.isIngredient(stack);
+        return slot != OUTPUT && ChemistryRecipe.isIngredient(recipes(), stack);
     }
 
     @Override
