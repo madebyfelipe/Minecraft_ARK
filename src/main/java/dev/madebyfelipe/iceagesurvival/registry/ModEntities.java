@@ -47,6 +47,8 @@ public final class ModEntities {
     public static final RegistryObject<EntityType<LandCreature>> ELASMOTHERIUM = landCreature("elasmotherium", 1.8F, 2.4F);
     /** Kelenken, a maior ave-terrível: 2,5–3 m de altura. */
     public static final RegistryObject<EntityType<LandCreature>> KELENKEN = landCreature("kelenken", 1.1F, 2.6F);
+    /** Ornitholestes, pequeno terópode do sub-bosque: ~2 m de comprimento e 15 kg, do porte do Velociraptor. */
+    public static final RegistryObject<EntityType<LandCreature>> ORNITHOLESTES = landCreature("ornitholestes", 0.7F, 1.1F);
 
     public static final RegistryObject<EntityType<TestCreature>> TEST_CREATURE =
             ENTITY_TYPES.register("test_creature", () -> EntityType.Builder.of(TestCreature::new, MobCategory.CREATURE)

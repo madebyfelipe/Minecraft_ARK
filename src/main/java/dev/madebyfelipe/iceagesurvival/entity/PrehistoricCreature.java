@@ -36,7 +36,11 @@ import dev.madebyfelipe.iceagesurvival.species.WarinessProfile;
 import dev.madebyfelipe.iceagesurvival.species.FamilyProfile;
 import dev.madebyfelipe.iceagesurvival.core.mount.FlightModel;
 import dev.madebyfelipe.iceagesurvival.core.mount.FlightStamina;
+import dev.madebyfelipe.iceagesurvival.core.ecology.Activity;
+import dev.madebyfelipe.iceagesurvival.core.ecology.Camouflage;
+import dev.madebyfelipe.iceagesurvival.core.ecology.Carrion;
 import dev.madebyfelipe.iceagesurvival.core.ecology.Hunger;
+import dev.madebyfelipe.iceagesurvival.core.ecology.Sentinel;
 import dev.madebyfelipe.iceagesurvival.core.ecology.Perception;
 import dev.madebyfelipe.iceagesurvival.core.ecology.HuntSpecials;
 import dev.madebyfelipe.iceagesurvival.core.ecology.Stress;
@@ -147,6 +151,9 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     /** Estresse, de 0 a 100: o painel sob a mira mostra o humor. */
     private static final EntityDataAccessor<Float> DATA_STRESS =
             SynchedEntityData.defineId(PrehistoricCreature.class, EntityDataSerializers.FLOAT);
+    /** Dormindo fora do seu horário de atividade ({@code behavior.habits.activity}): o cliente toca o sono. */
+    private static final EntityDataAccessor<Boolean> DATA_RESTING =
+            SynchedEntityData.defineId(PrehistoricCreature.class, EntityDataSerializers.BOOLEAN);
     private static final String TAG_STRESS = "Stress";
     private static final String TAG_TICKS_SINCE_MEAL = "TicksSinceMeal";
     /** Intervalo da atualização do estresse (volta ao repouso). */
@@ -353,6 +360,16 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     /** Emboscada (Smilodon): ticks de arrancada que restam, e se o próximo golpe agarra. */
     private int ambushTicks;
     private boolean grabReady;
+    /** Agarrão: o bote deixa o golpe pronto por este tempo. */
+    private int grabTicks;
+    /** Camuflagem: se está escondido, conferido a cada segundo. */
+    private boolean concealed;
+    /** Tick da última conferência; negativo o bastante para a primeira chamada conferir. */
+    private int concealedCheckedAt = -CONCEALED_CHECK_TICKS;
+    /** Sentinela: quando avisou o dono de cada predador. */
+    private static final int CONCEALED_CHECK_TICKS = 20;
+    private final java.util.Map<UUID, Long> sentinelWarnings = new java.util.HashMap<>();
+    private long lastSentinelWarning = Long.MIN_VALUE;
     /** Bicada (ave-terrível): ticks de recuo depois de acertar, e de quem se afasta. */
     private int retreatTicks;
     @Nullable
@@ -610,6 +627,7 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         entityData.define(DATA_FLIGHT_STAMINA, 1.0F);
         entityData.define(DATA_CORPSE, false);
         entityData.define(DATA_STRESS, 0.0F);
+        entityData.define(DATA_RESTING, false);
     }
 
     public Optional<Species> species() {
@@ -618,6 +636,71 @@ public abstract class PrehistoricCreature extends TamableAnimal {
 
     public Optional<BehaviorProfile> behavior() {
         return species().flatMap(Species::behavior);
+    }
+
+    /** Horário, camuflagem, carniça e sentinela da espécie. */
+    public dev.madebyfelipe.iceagesurvival.species.HabitsProfile habits() {
+        return behavior().map(BehaviorProfile::habits)
+                .orElse(dev.madebyfelipe.iceagesurvival.species.HabitsProfile.DEFAULT);
+    }
+
+    /** Selvagem, fora do seu horário de atividade: é hora de dormir, não de caçar. Domesticada segue o dono. */
+    public boolean restsNow() {
+        return !isTame() && Activity.rests(habits().activity(), level().getDayTime());
+    }
+
+    /** Dormindo (o {@code RestGoal}): no cliente toca a animação de sono. */
+    public boolean isResting() {
+        return entityData.get(DATA_RESTING);
+    }
+
+    public void setResting(boolean resting) {
+        entityData.set(DATA_RESTING, resting);
+    }
+
+    /** Se está escondido agora: folhas, mato ou neve alta em volta ({@link Camouflage}). */
+    public boolean isConcealed() {
+        if (habits().camouflage() >= Camouflage.NONE) {
+            return false;
+        }
+        if (tickCount - concealedCheckedAt >= CONCEALED_CHECK_TICKS || tickCount < concealedCheckedAt) {
+            concealedCheckedAt = tickCount;
+            concealed = Camouflage.hidden(coverBlocksAt(level(), blockPosition()));
+        }
+        return concealed;
+    }
+
+    /** Blocos de esconderijo nos pés, na cabeça e nos quatro vizinhos de cada. */
+    public static int coverBlocksAt(Level level, BlockPos feet) {
+        int cover = 0;
+        for (int dy = 0; dy <= 1; dy++) {
+            BlockPos center = feet.above(dy);
+            for (BlockPos pos : new BlockPos[] {center, center.north(), center.south(), center.east(), center.west()}) {
+                if (isCover(level.getBlockState(pos))) {
+                    cover++;
+                }
+            }
+        }
+        return cover;
+    }
+
+    private static boolean isCover(net.minecraft.world.level.block.state.BlockState state) {
+        if (state.is(ModTags.UNDERGROWTH)) {
+            return true;
+        }
+        return state.is(net.minecraft.world.level.block.Blocks.SNOW)
+                && state.getValue(net.minecraft.world.level.block.SnowLayerBlock.LAYERS) >= Camouflage.MIN_SNOW_LAYERS;
+    }
+
+    /**
+     * Até onde {@code radius} vale para notar {@code target}: a fração da camuflagem se ele está escondido.
+     * Vale para a presa que vigia, o predador que caça e o jogador que o procura com a vista não entra aqui.
+     */
+    public static double perceivedRadius(LivingEntity target, double radius) {
+        if (target instanceof PrehistoricCreature creature && creature.isConcealed()) {
+            return Camouflage.perceivedRadius(radius, creature.habits().camouflage(), true);
+        }
+        return radius;
     }
 
     private Optional<TamingProfile> tamingProfile() {
@@ -762,6 +845,10 @@ public abstract class PrehistoricCreature extends TamableAnimal {
                             net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.MULTIPLY_TOTAL));
                 }
             }
+            case GRAB -> {
+                grabReady = true;
+                grabTicks = HuntSpecials.GRAB_WINDOW_TICKS;
+            }
             case PACK_LEAP -> {
                 if (onGround() && HuntSpecials.inLeapRange(distanceTo(target))) {
                     double[] leap = HuntSpecials.leapVelocity(target.getX() - getX(), target.getZ() - getZ());
@@ -774,11 +861,19 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         }
     }
 
-    /** O que o golpe faz a mais: a emboscada agarra; a bicada fura a armadura e manda recuar. */
+    /** O que o golpe faz a mais: a emboscada e o agarrão prendem; a bicada fura a armadura e manda recuar. */
     private void applyHuntSpecial(LivingEntity target) {
         switch (huntSpecial()) {
             case AMBUSH -> {
                 if (grabReady) {
+                    grabReady = false;
+                    target.addEffect(new net.minecraft.world.effect.MobEffectInstance(
+                            net.minecraft.world.effect.MobEffects.MOVEMENT_SLOWDOWN, HuntSpecials.GRAB_TICKS,
+                            HuntSpecials.GRAB_AMPLIFIER), this);
+                }
+            }
+            case GRAB -> {
+                if (grabReady && HuntSpecials.grabs(sizeRatioOf(target))) {
                     grabReady = false;
                     target.addEffect(new net.minecraft.world.effect.MobEffectInstance(
                             net.minecraft.world.effect.MobEffects.MOVEMENT_SLOWDOWN, HuntSpecials.GRAB_TICKS,
@@ -817,6 +912,9 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     private void tickHuntSpecials() {
         if (retreatTicks > 0 && --retreatTicks == 0) {
             retreatFrom = null;
+        }
+        if (grabTicks > 0 && --grabTicks == 0 && huntSpecial() == BehaviorProfile.HuntSpecial.GRAB) {
+            grabReady = false;
         }
         if (ambushTicks > 0 && --ambushTicks == 0) {
             grabReady = false;
@@ -1324,6 +1422,89 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         return yieldingFrom;
     }
 
+    /**
+     * Refeição: mata {@code fraction} da fome (do bando inteiro, D26), recupera vida e encerra as caçadas.
+     *
+     * @param victim a presa abatida; nula para a carniça
+     */
+    private void eat(double fraction, @Nullable LivingEntity victim) {
+        long hungerTicks = ecology().hungerSeconds() * 20L;
+        ticksSinceMeal();
+        lastMealTime = Math.max(lastMealTime, level().getGameTime() - Math.round((1.0 - fraction) * hungerTicks));
+        for (PrehistoricCreature member : groupMembers(GROUP_RANGE)) {
+            member.lastMealTime = Math.max(member.lastMealTime, lastMealTime);
+            if (victim != null && member.getTarget() == victim || member.isHunting()) {
+                member.setTarget(null);
+                member.endHunt();
+            }
+        }
+        huntStartTime = -1;
+        heal((float) (getMaxHealth() * 0.25 * fraction));
+        setTarget(null);
+        addStress(Stress.Event.FED);
+    }
+
+    /** O necrófago comeu um pedaço de carne do chão ({@link Carrion}). */
+    public void eatCarrion() {
+        eat(Carrion.MEAL_FRACTION, null);
+        playSound(SoundEvents.GENERIC_EAT, 0.8F, 0.9F + getRandom().nextFloat() * 0.2F);
+    }
+
+    /**
+     * Sentinela domesticado: o predador selvagem mais perto que ainda não foi avisado faz a criatura chamar o dono,
+     * com o rumo e a distância a partir dele ({@link Sentinel}).
+     */
+    private void tickSentinel() {
+        if (isUnconscious() || !(getOwner() instanceof ServerPlayer owner) || owner.level() != level()
+                || owner.distanceTo(this) > Sentinel.OWNER_RANGE) {
+            return;
+        }
+        double radius = habits().sentinelRadius();
+        long now = level().getGameTime();
+        // Quem já passou da espera pode ser avisado de novo.
+        sentinelWarnings.values().removeIf(at -> Sentinel.shouldWarn(at, now));
+        LivingEntity nearest = null;
+        double best = Double.MAX_VALUE;
+        for (LivingEntity candidate : level().getEntitiesOfClass(LivingEntity.class, getBoundingBox().inflate(radius),
+                other -> isWildPredator(other) && !sentinelWarnings.containsKey(other.getUUID()))) {
+            double distance = distanceTo(candidate);
+            if (distance <= radius && distance < best) {
+                best = distance;
+                nearest = candidate;
+            }
+        }
+        if (nearest == null) {
+            return;
+        }
+        sentinelWarnings.put(nearest.getUUID(), now);
+        lastSentinelWarning = now;
+        Sentinel.Direction direction = Sentinel.direction(nearest.getX() - owner.getX(), nearest.getZ() - owner.getZ());
+        owner.displayClientMessage(Component.translatable("iceagesurvival.sentinel.warning", getName(),
+                nearest.getName(), Math.round(owner.distanceTo(nearest)),
+                Component.translatable("iceagesurvival.direction." + direction.key())), true);
+        playAmbientSound();
+        sentinelCall();
+    }
+
+    private boolean isWildPredator(LivingEntity other) {
+        if (other == this || !other.isAlive() || other.getType() == getType() || !other.getType().is(ModTags.PREDATORS)) {
+            return false;
+        }
+        if (other instanceof net.minecraft.world.entity.OwnableEntity ownable && ownable.getOwnerUUID() != null) {
+            return false;
+        }
+        return !(other instanceof PrehistoricCreature creature) || !creature.isUnconscious();
+    }
+
+    /** O gesto do aviso do sentinela; as criaturas com modelo tocam a chamada. */
+    protected void sentinelCall() {
+    }
+
+    /** Hora do último aviso do sentinela, ou {@link Long#MIN_VALUE} se nunca avisou. */
+    public long lastSentinelWarning() {
+        return lastSentinelWarning;
+    }
+
     @Override
     public boolean killedEntity(ServerLevel level, LivingEntity victim) {
         boolean result = super.killedEntity(level, victim);
@@ -1337,20 +1518,7 @@ public abstract class PrehistoricCreature extends TamableAnimal {
             List<PrehistoricCreature> eaters = groupMembers(MEAL_SHARE_RADIUS);
             double fraction = victim instanceof Player ? 1.0
                     : Mth.clamp(sizeRatioOf(victim) / (1 + eaters.size()), MIN_MEAL_FRACTION, 1.0);
-            long hungerTicks = ecology().hungerSeconds() * 20L;
-            ticksSinceMeal();
-            lastMealTime = Math.max(lastMealTime, level.getGameTime() - Math.round((1.0 - fraction) * hungerTicks));
-            for (PrehistoricCreature member : groupMembers(GROUP_RANGE)) {
-                member.lastMealTime = Math.max(member.lastMealTime, lastMealTime);
-                if (member.getTarget() == victim || member.isHunting()) {
-                    member.setTarget(null);
-                    member.endHunt();
-                }
-            }
-            huntStartTime = -1;
-            heal((float) (getMaxHealth() * 0.25 * fraction));
-            setTarget(null);
-            addStress(Stress.Event.FED);
+            eat(fraction, victim);
         }
         return result;
     }
@@ -1629,6 +1797,12 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         }
         if (!level().isClientSide) {
             tickHuntSpecials();
+            if (isResting() && !restsNow()) {
+                setResting(false); // domesticada ou amanheceu a hora dela: o sono não fica preso
+            }
+            if (isTame() && habits().sentinelRadius() > 0 && tickCount % 20 == 0) {
+                tickSentinel();
+            }
             if (isApex() && !isTame()) {
                 tickApex();
             }
@@ -2817,6 +2991,9 @@ public abstract class PrehistoricCreature extends TamableAnimal {
             refereeDuel(source);
         }
         boolean hurt = super.hurt(source, amount);
+        if (hurt && !level().isClientSide && isResting()) {
+            setResting(false); // ferido, acorda
+        }
         if (hurt && !level().isClientSide && isUnconscious() && !isTame()) {
             tamingSession.recordDamage(amount / getMaxHealth());
         }

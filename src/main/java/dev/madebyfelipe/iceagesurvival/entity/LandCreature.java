@@ -57,6 +57,8 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 public class LandCreature extends PrehistoricCreature implements GeoEntity, GeckoLibMultiPartEntity<LandCreature> {
     private static final String ATTACK_CONTROLLER = "attack";
     private static final String ATTACK_TRIGGER = "attack";
+    /** A chamada do sentinela ({@code behavior.habits.sentinel_radius}): a animação {@code call} do modelo. */
+    private static final String CALL_TRIGGER = "call";
     /** Amplitude da passada acima da qual a criatura está correndo, não andando. */
     private static final float RUN_LIMB_SWING = 0.75F;
 
@@ -119,6 +121,13 @@ public class LandCreature extends PrehistoricCreature implements GeoEntity, Geck
             goalSelector.addGoal(2, new WaryGoal(this, calm));
         }
         goalSelector.addGoal(5, new FollowMotherGoal(this, calm * 1.6));
+        if (behavior.habits().activity() != dev.madebyfelipe.iceagesurvival.core.ecology.Activity.Pattern.ALWAYS) {
+            // Abaixo da cautela, da fuga e da caçada: quem dorme acorda com a ameaça.
+            goalSelector.addGoal(4, new dev.madebyfelipe.iceagesurvival.entity.ai.RestGoal(this, calm * 1.3));
+        }
+        if (behavior.habits().scavenges()) {
+            goalSelector.addGoal(4, new dev.madebyfelipe.iceagesurvival.entity.ai.ScavengeGoal(this, calm * 1.5));
+        }
         addOrderGoals(2, 4, FOLLOW_SPEED);
         if (behavior.herdRadius() > 0) {
             goalSelector.addGoal(5, new FollowHerdGoal(this, calm * 1.5, behavior.herdRadius()));
@@ -233,6 +242,11 @@ public class LandCreature extends PrehistoricCreature implements GeoEntity, Geck
     }
 
     @Override
+    protected void sentinelCall() {
+        triggerAnim(ATTACK_CONTROLLER, CALL_TRIGGER);
+    }
+
+    @Override
     protected void swingAttack() {
         super.swingAttack();
         triggerAnim(ATTACK_CONTROLLER, ATTACK_TRIGGER);
@@ -263,7 +277,7 @@ public class LandCreature extends PrehistoricCreature implements GeoEntity, Geck
         RawAnimation attack = RawAnimation.begin().then(prefix + attackName, Animation.LoopType.PLAY_ONCE);
 
         controllers.add(new AnimationController<>(this, "movement", 5, state -> {
-            if (isUnconscious()) {
+            if (isUnconscious() || isResting()) {
                 return state.setAndContinue(unconscious);
             }
             if (isFlying()) {
@@ -277,7 +291,8 @@ public class LandCreature extends PrehistoricCreature implements GeoEntity, Geck
             return state.setAndContinue(state.getLimbSwingAmount() > RUN_LIMB_SWING ? run : walk);
         }));
         controllers.add(new AnimationController<>(this, ATTACK_CONTROLLER, 0, state -> PlayState.STOP)
-                .triggerableAnim(ATTACK_TRIGGER, attack));
+                .triggerableAnim(ATTACK_TRIGGER, attack)
+                .triggerableAnim(CALL_TRIGGER, RawAnimation.begin().then(prefix + CALL_TRIGGER, Animation.LoopType.PLAY_ONCE)));
     }
 
     @Override

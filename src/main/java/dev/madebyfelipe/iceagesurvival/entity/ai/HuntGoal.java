@@ -118,7 +118,7 @@ public class HuntGoal extends Goal {
 
     private boolean able() {
         return !creature.isTame() && !creature.isBaby() && !creature.isUnconscious() && !creature.isVehicle()
-                && creature.yieldingFrom() == null;
+                && creature.yieldingFrom() == null && !creature.restsNow();
     }
 
     @Override
@@ -152,7 +152,10 @@ public class HuntGoal extends Goal {
         double radius = creature.huntRadius();
         List<LivingEntity> found = creature.level().getEntitiesOfClass(LivingEntity.class,
                 creature.getBoundingBox().inflate(radius, 12.0, radius),
-                other -> isPrey(creature, other, prey) && (!(other instanceof Player) || drive == Hunger.Drive.HUNTING));
+                other -> isPrey(creature, other, prey) && (!(other instanceof Player) || drive == Hunger.Drive.HUNTING)
+                        // Escondida no sub-bosque, a presa só é achada mais perto; as outras, como sempre (a caixa toda).
+                        && (!(other instanceof PrehistoricCreature hidden && hidden.isConcealed())
+                        || creature.distanceTo(other) <= PrehistoricCreature.perceivedRadius(other, radius)));
         if (found.isEmpty()) {
             return null;
         }

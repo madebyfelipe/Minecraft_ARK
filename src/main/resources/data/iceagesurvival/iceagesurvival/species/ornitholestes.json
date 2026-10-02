@@ -1,18 +1,18 @@
 {
   "stats": {
     "health": {
-      "base": 16,
+      "base": 12,
       "per_point": 0.08
     },
     "attack": {
-      "base": 4,
+      "base": 3,
       "per_point": 0.04
     },
     "speed": {
-      "base": 0.4
+      "base": 0.42
     },
     "torpor": {
-      "base": 60,
+      "base": 30,
       "per_point": 0.06
     },
     "armor": {
@@ -25,10 +25,10 @@
     "step_height": 1.0
   },
   "taming": {
-    "torpor_decay_per_second": 1.2,
-    "required_food": 70,
+    "torpor_decay_per_second": 0.8,
+    "required_food": 50,
     "required_food_per_level": 0.015,
-    "feed_interval_seconds": 6,
+    "feed_interval_seconds": 5,
     "foods": [
       {
         "items": [
@@ -42,7 +42,7 @@
         "items": [
           "iceagesurvival:jerky"
         ],
-        "value": 25,
+        "value": 20,
         "quality": 0.9
       },
       {
@@ -51,11 +51,14 @@
           "minecraft:mutton",
           "minecraft:porkchop"
         ],
-        "value": 25,
+        "value": 20,
         "quality": 0.8
       },
       {
         "items": [
+          "minecraft:cooked_beef",
+          "minecraft:cooked_mutton",
+          "minecraft:cooked_porkchop",
           "minecraft:cooked_chicken",
           "minecraft:cooked_rabbit",
           "iceagesurvival:cooked_dodo_meat"
@@ -65,89 +68,91 @@
       },
       {
         "items": "minecraft:rotten_flesh",
-        "value": 4,
-        "quality": 0.2
+        "value": 5,
+        "quality": 0.3
       }
     ]
   },
   "behavior": {
     "aggressive": false,
-    "aggro_radius": 16,
-    "territory_radius": 40,
+    "aggro_radius": 12,
+    "territory_radius": 32,
     "sated_seconds": 120,
-    "flee_health_fraction": 0.5,
-    "herd_radius": 8,
-    "group_defense": true,
-    "prey": "#iceagesurvival:velociraptor_prey",
+    "flee_health_fraction": 0.4,
+    "herd_radius": 0,
+    "prey": "#iceagesurvival:ornitholestes_prey",
     "hunt_style": "stalk",
+    "hunt_special": "grab",
     "wariness": {
       "threats": "#iceagesurvival:predators",
       "players": true,
       "alert_radius": 20,
-      "charge_radius": 2.5,
-      "bluff_chance": 0.5,
-      "retreat_chance": 0.5,
-      "charge_chance": 0.15,
+      "charge_radius": 2,
+      "bluff_chance": 0.2,
+      "retreat_chance": 0.6,
+      "charge_chance": 0.25,
       "sneak_factor": 0.5,
       "charge_speed": 1.6,
-      "flee_speed": 1.6
+      "flee_speed": 1.7
     },
     "ecology": {
       "hunt_radius": 32,
       "hunger_seconds": 300,
-      "chase_seconds": 15,
-      "rival_radius": 24,
-      "nervousness": 1.4
+      "chase_seconds": 12,
+      "rival_radius": 20,
+      "nervousness": 1.5
     },
     "diet": [
       {
         "prey": [
-          "minecraft:rabbit"
+          "minecraft:rabbit",
+          "minecraft:frog"
         ],
         "preference": 3
       },
       {
         "prey": [
-          "iceagesurvival:dodo",
-          "minecraft:chicken"
+          "minecraft:chicken",
+          "iceagesurvival:dodo"
         ],
         "preference": 2
       },
       {
         "prey": [
-          "minecraft:frog",
-          "minecraft:fox",
-          "iceagesurvival:ornitholestes"
+          "minecraft:fox"
         ],
-        "preference": 1
+        "preference": 0
       }
-    ]
+    ],
+    "habits": {
+      "activity": "nocturnal",
+      "camouflage": 0.5,
+      "scavenges": true,
+      "sentinel_radius": 32
+    }
   },
   "spawn": {
-    "biomes": "#iceagesurvival:spawns_velociraptor",
-    "weight": 5,
+    "biomes": "#iceagesurvival:spawns_ornitholestes",
+    "weight": 4,
     "group_min": 1,
-    "group_max": 2,
+    "group_max": 1,
     "max_nearby": 2,
-    "min_distance": 300
+    "min_distance": 0,
+    "family": {
+      "pair_chance": 0.35
+    }
   },
   "sounds": {
+    "ambient": "fossil:ornitholestes_ambient",
+    "hurt": "fossil:ornitholestes_hurt",
+    "death": "fossil:ornitholestes_death",
     "attack": "minecraft:entity.fox.bite",
-    "ambient": "fossil:velociraptor_ambient",
-    "hurt": "fossil:velociraptor_hurt",
-    "death": "fossil:velociraptor_death",
-    "volume": 1.0
+    "volume": 0.9
   },
   "breeding": {
     "offspring": "egg",
-    "incubation_seconds": 300,
+    "incubation_seconds": 240,
     "maturation_seconds": 900,
     "cooldown_seconds": 600
-  },
-  "pack_bonus": {
-    "radius": 16,
-    "minimum_allies": 1,
-    "speed_multiplier": 0.25,
-    "attack_multiplier": 0.25
   }
 }

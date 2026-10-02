@@ -26,6 +26,18 @@ public final class ModTags {
     public static final TagKey<net.minecraft.world.entity.EntityType<?>> APEX =
             TagKey.create(Registries.ENTITY_TYPE, IceAgeSurvival.id("apex"));
 
+    /** Esconderijo da camuflagem: folhas, mato, arbustos, neve fofa ({@code behavior.habits.camouflage}). */
+    public static final TagKey<Block> UNDERGROWTH =
+            TagKey.create(Registries.BLOCK, IceAgeSurvival.id("undergrowth"));
+
+    /** Carne crua que o necrófago come do chão ({@code behavior.habits.scavenges}). */
+    public static final TagKey<net.minecraft.world.item.Item> CARRION =
+            TagKey.create(Registries.ITEM, IceAgeSurvival.id("carrion"));
+
+    /** Predadores: o sentinela avisa deles, e o necrófago não chega perto da carne com um deles ali. */
+    public static final TagKey<net.minecraft.world.entity.EntityType<?>> PREDATORS =
+            TagKey.create(Registries.ENTITY_TYPE, IceAgeSurvival.id("predators"));
+
     private ModTags() {
     }
 }

@@ -29,7 +29,8 @@ import net.minecraft.world.entity.EntityType;
  * @param wariness           reação a ameaças (lutar ou fugir); ausente = ignora quem chega perto
  * @param ecology            fome, raio de caça, rivais e temperamento
  * @param huntSpecial        o golpe próprio do caçador: {@code ambush} (Smilodon), {@code pack_leap} (Utahraptor),
- *                           {@code beak_strike} (ave-terrível); {@code none} por padrão
+ *                           {@code beak_strike} (ave-terrível), {@code grab} (Ornitholestes); {@code none} por padrão
+ * @param habits             horário, camuflagem, carniça e sentinela ({@link HabitsProfile})
  */
 public record BehaviorProfile(
         boolean aggressive,
@@ -45,7 +46,8 @@ public record BehaviorProfile(
         java.util.List<DietEntry> diet,
         Optional<WarinessProfile> wariness,
         EcologyProfile ecology,
-        HuntSpecial huntSpecial) {
+        HuntSpecial huntSpecial,
+        HabitsProfile habits) {
 
     /** O golpe próprio de cada caçador (ver {@code core/ecology/HuntSpecials}). */
     public enum HuntSpecial implements StringRepresentable {
@@ -56,7 +58,9 @@ public record BehaviorProfile(
         /** Salto: no bote, pula sobre a presa a média distância. */
         PACK_LEAP("pack_leap"),
         /** Bicada: parte do dano ignora armadura, e depois de acertar recua um instante (golpe e recua). */
-        BEAK_STRIKE("beak_strike");
+        BEAK_STRIKE("beak_strike"),
+        /** Agarrão: sem arrancada; o primeiro golpe do bote prende a presa pequena (a presa fica lenta). */
+        GRAB("grab");
 
         public static final Codec<HuntSpecial> CODEC = StringRepresentable.fromEnum(HuntSpecial::values);
         private final String id;
@@ -109,7 +113,8 @@ public record BehaviorProfile(
     /** Espécie sem bloco de comportamento: passiva, solitária, sem território. */
     public static final BehaviorProfile PASSIVE =
             new BehaviorProfile(false, 16.0, 0, 0.0, 0, false, false, Optional.empty(), HuntStyle.STALK, 180,
-                    java.util.List.of(), Optional.empty(), EcologyProfile.DEFAULT, HuntSpecial.NONE);
+                    java.util.List.of(), Optional.empty(), EcologyProfile.DEFAULT, HuntSpecial.NONE,
+                    HabitsProfile.DEFAULT);
 
     public static final Codec<BehaviorProfile> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.BOOL.optionalFieldOf("aggressive", PASSIVE.aggressive()).forGetter(BehaviorProfile::aggressive),
@@ -126,6 +131,7 @@ public record BehaviorProfile(
             DietEntry.CODEC.listOf().optionalFieldOf("diet", java.util.List.of()).forGetter(BehaviorProfile::diet),
             WarinessProfile.CODEC.optionalFieldOf("wariness").forGetter(BehaviorProfile::wariness),
             EcologyProfile.CODEC.optionalFieldOf("ecology", EcologyProfile.DEFAULT).forGetter(BehaviorProfile::ecology),
-            HuntSpecial.CODEC.optionalFieldOf("hunt_special", HuntSpecial.NONE).forGetter(BehaviorProfile::huntSpecial)
+            HuntSpecial.CODEC.optionalFieldOf("hunt_special", HuntSpecial.NONE).forGetter(BehaviorProfile::huntSpecial),
+            HabitsProfile.CODEC.optionalFieldOf("habits", HabitsProfile.DEFAULT).forGetter(BehaviorProfile::habits)
     ).apply(instance, BehaviorProfile::new));
 }

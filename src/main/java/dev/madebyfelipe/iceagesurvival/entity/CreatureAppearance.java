@@ -58,6 +58,8 @@ public record CreatureAppearance(
                     "idle", "walk", "attack_1", "sleep_1", "walk", "run")),
             Map.entry("kelenken", new CreatureAppearance("kelenken", "kelenken/kelenken_male.png",
                     "idle_1", "walk", "attack", "sleep", "walk", "run")),
+            Map.entry("ornitholestes", new CreatureAppearance("ornitholestes", "ornitholestes/ornitholestes_male.png",
+                    "idle", "walk", "attack", "sleep", "walk", "run")),
             Map.entry("pteranodon", new CreatureAppearance("pteranodon", "pteranodon/pteranodon_male.png",
                     "idle", "walk", "attack", "sleep", "fly", "walk", "dive"))
     );

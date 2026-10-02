@@ -35,7 +35,7 @@ public class ProwlGoal extends Goal {
 
     private boolean hungry() {
         return !creature.isTame() && !creature.isBaby() && !creature.isUnconscious() && !creature.isVehicle()
-                && creature.getTarget() == null && creature.yieldingFrom() == null
+                && creature.getTarget() == null && creature.yieldingFrom() == null && !creature.restsNow()
                 && creature.behavior().flatMap(BehaviorProfile::prey).isPresent()
                 && creature.hungerDrive() == Hunger.Drive.HUNTING;
     }

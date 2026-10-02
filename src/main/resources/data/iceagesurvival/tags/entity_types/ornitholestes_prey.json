@@ -2,10 +2,9 @@
   "replace": false,
   "values": [
     "minecraft:rabbit",
+    "minecraft:frog",
     "minecraft:chicken",
     "minecraft:fox",
-    "minecraft:frog",
-    "iceagesurvival:dodo",
-    "iceagesurvival:ornitholestes"
+    "iceagesurvival:dodo"
   ]
 }

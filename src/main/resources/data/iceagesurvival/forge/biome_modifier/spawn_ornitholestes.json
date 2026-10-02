@@ -1,0 +1,12 @@
+{
+  "type": "forge:add_spawns",
+  "biomes": "#iceagesurvival:spawns_ornitholestes",
+  "spawners": [
+    {
+      "type": "iceagesurvival:ornitholestes",
+      "weight": 3,
+      "minCount": 1,
+      "maxCount": 1
+    }
+  ]
+}
