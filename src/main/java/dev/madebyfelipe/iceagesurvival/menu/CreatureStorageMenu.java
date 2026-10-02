@@ -12,13 +12,19 @@ import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.inventory.SimpleContainerData;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import javax.annotation.Nullable;
 
 public class CreatureStorageMenu extends AbstractContainerMenu {
+    /** Posição do slot de sela, à esquerda do painel. */
+    public static final int SADDLE_X = -24;
+    public static final int SADDLE_Y = 18;
+
     private final Container storage;
     private final ContainerData data;
     private final int rows;
+    private final boolean saddleSlot;
 
-    private record ClientData(Container storage, int rows, int pages) {
+    private record ClientData(Container storage, int rows, int pages, boolean saddleSlot) {
     }
 
     public CreatureStorageMenu(int containerId, Inventory playerInventory, FriendlyByteBuf extraData) {
@@ -27,19 +33,22 @@ public class CreatureStorageMenu extends AbstractContainerMenu {
 
     private CreatureStorageMenu(int containerId, Inventory playerInventory, ClientData clientData) {
         this(containerId, playerInventory, clientData.storage(), null,
-                clientData.rows(), clientData.pages(), 0);
+                clientData.rows(), clientData.pages(), 0, clientData.saddleSlot() ? new SimpleContainer(1) : null);
     }
 
     public CreatureStorageMenu(int containerId, Inventory playerInventory, PrehistoricCreature creature) {
         this(containerId, playerInventory, creature.inventory(), creature,
                 rowsFor(creature.inventory().getContainerSize()),
-                Math.max(1, (creature.inventory().getContainerSize() + 53) / 54), 0);
+                Math.max(1, (creature.inventory().getContainerSize() + 53) / 54), 0,
+                creature.canBeSaddled() ? new SaddleContainer(creature) : null);
     }
 
     private CreatureStorageMenu(int containerId, Inventory playerInventory, Container backing,
-                                PrehistoricCreature creature, int rows, int pages, int page) {
+                                PrehistoricCreature creature, int rows, int pages, int page,
+                                @Nullable Container saddle) {
         super(ModMenus.CREATURE_STORAGE.get(), containerId);
         this.rows = rows;
+        this.saddleSlot = saddle != null;
         this.data = new SimpleContainerData(2);
         data.set(0, page);
         data.set(1, pages);
@@ -61,6 +70,26 @@ public class CreatureStorageMenu extends AbstractContainerMenu {
         for (int column = 0; column < 9; column++) {
             addSlot(new Slot(playerInventory, column, 8 + column * 18, inventoryY + 58));
         }
+        if (saddle != null) {
+            // Por último: os índices do armazenamento e do inventário do jogador não mudam.
+            addSlot(new Slot(saddle, 0, SADDLE_X, SADDLE_Y) {
+                @Override
+                public boolean mayPlace(ItemStack stack) {
+                    return stack.is(PrehistoricCreature.SADDLE_ITEM);
+                }
+
+                @Override
+                public int getMaxStackSize() {
+                    return 1;
+                }
+
+                @Override
+                public boolean mayPickup(Player player) {
+                    // Com alguém montado, a sela não sai.
+                    return creature == null || !creature.isVehicle();
+                }
+            });
+        }
         addDataSlots(data);
     }
 
@@ -69,13 +98,14 @@ public class CreatureStorageMenu extends AbstractContainerMenu {
         int slots = data.readVarInt();
         int rows = data.readVarInt();
         int pages = data.readVarInt();
+        boolean saddleSlot = data.readBoolean();
         Container storage;
         if (playerInventory.player.level().getEntity(entityId) instanceof PrehistoricCreature creature) {
             storage = creature.inventory();
         } else {
             storage = new SimpleContainer(Math.max(9, slots));
         }
-        return new ClientData(storage, rows, pages);
+        return new ClientData(storage, rows, pages, saddleSlot);
     }
 
     private static int rowsFor(int slots) {
@@ -84,6 +114,11 @@ public class CreatureStorageMenu extends AbstractContainerMenu {
 
     public int rows() {
         return rows;
+    }
+
+    /** Se este inventário tem o slot de sela (espécie montável que usa sela). */
+    public boolean hasSaddleSlot() {
+        return saddleSlot;
     }
 
     public int page() {
@@ -128,8 +163,15 @@ public class CreatureStorageMenu extends AbstractContainerMenu {
         ItemStack stack = slot.getItem();
         ItemStack original = stack.copy();
         int storageSlots = rows * 9;
-        if (index < storageSlots) {
-            if (!moveItemStackTo(stack, storageSlots, slots.size(), true)) {
+        int playerEnd = storageSlots + 36;
+        if (index < storageSlots || index >= playerEnd) {
+            // Do armazenamento (ou da sela) para o inventário do jogador.
+            if (!moveItemStackTo(stack, storageSlots, playerEnd, true)) {
+                return ItemStack.EMPTY;
+            }
+        } else if (saddleSlot && stack.is(PrehistoricCreature.SADDLE_ITEM) && !slots.get(playerEnd).hasItem()) {
+            // A sela vai primeiro para o slot de sela.
+            if (!moveItemStackTo(stack, playerEnd, playerEnd + 1, false)) {
                 return ItemStack.EMPTY;
             }
         } else if (!moveItemStackTo(stack, 0, storageSlots, false)) {
@@ -141,6 +183,71 @@ public class CreatureStorageMenu extends AbstractContainerMenu {
             slot.setChanged();
         }
         return original;
+    }
+
+    /**
+     * O slot de sela não guarda item: mostra e muda se a criatura está selada. Pôr a sela sela, tirar desela —
+     * o mesmo estado do clique com a sela na mão.
+     */
+    private static final class SaddleContainer implements Container {
+        private final PrehistoricCreature creature;
+
+        private SaddleContainer(PrehistoricCreature creature) {
+            this.creature = creature;
+        }
+
+        @Override
+        public int getContainerSize() {
+            return 1;
+        }
+
+        @Override
+        public boolean isEmpty() {
+            return !creature.isSaddled();
+        }
+
+        @Override
+        public ItemStack getItem(int slot) {
+            return creature.isSaddled() ? new ItemStack(PrehistoricCreature.SADDLE_ITEM) : ItemStack.EMPTY;
+        }
+
+        @Override
+        public ItemStack removeItem(int slot, int amount) {
+            return removeItemNoUpdate(slot);
+        }
+
+        @Override
+        public ItemStack removeItemNoUpdate(int slot) {
+            if (!creature.isSaddled()) {
+                return ItemStack.EMPTY;
+            }
+            creature.setSaddled(false);
+            return new ItemStack(PrehistoricCreature.SADDLE_ITEM);
+        }
+
+        @Override
+        public void setItem(int slot, ItemStack stack) {
+            creature.setSaddled(!stack.isEmpty() && stack.is(PrehistoricCreature.SADDLE_ITEM));
+        }
+
+        @Override
+        public int getMaxStackSize() {
+            return 1;
+        }
+
+        @Override
+        public void setChanged() {
+        }
+
+        @Override
+        public boolean stillValid(Player player) {
+            return creature.canAccessInventory(player) && player.distanceToSqr(creature) <= 64.0;
+        }
+
+        @Override
+        public void clearContent() {
+            creature.setSaddled(false);
+        }
     }
 
     private static final class PagedContainer implements Container {

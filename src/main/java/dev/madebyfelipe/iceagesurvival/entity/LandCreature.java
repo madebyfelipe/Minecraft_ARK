@@ -216,7 +216,7 @@ public class LandCreature extends PrehistoricCreature implements GeoEntity, Geck
         } else {
             instance.removeModifier(id);
             instance.addTransientModifier(new AttributeModifier(
-                    id, "allosaurus_pack_bonus", amount, AttributeModifier.Operation.MULTIPLY_TOTAL));
+                    id, "pack_bonus", amount, AttributeModifier.Operation.MULTIPLY_TOTAL));
         }
     }
 

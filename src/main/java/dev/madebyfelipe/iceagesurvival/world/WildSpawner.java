@@ -87,8 +87,8 @@ public final class WildSpawner {
     /** Grupos por tentativa com a região esparsa (um mundo recém-criado, uma área recém-explorada). */
     private static final int SPARSE_GROUPS = 2;
 
-    /** Fração do teto da config que vale de fato: espaço para os territórios dos bandos (era 0,7). */
-    public static final double POPULATION_FRACTION = 0.4;
+    /** Fração do teto da config que vale de fato: 36 de 72, com espaço para os territórios (era 0,7; depois 0,4). */
+    public static final double POPULATION_FRACTION = 0.5;
 
     /** População-alvo reduzida para deixar espaço para os territórios da fauna. */
     public static int effectiveMaximumPopulation() {

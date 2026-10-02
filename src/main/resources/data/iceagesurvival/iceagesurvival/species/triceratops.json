@@ -1,11 +1,11 @@
 {
   "stats": {
     "health": {
-      "base": 260,
+      "base": 420,
       "per_point": 0.08
     },
     "attack": {
-      "base": 22,
+      "base": 26,
       "per_point": 0.04
     },
     "speed": {
@@ -79,7 +79,7 @@
     }
   },
   "mount": {
-    "seat_height": 2.4,
+    "seat_height": 3.24,
     "min_affinity": 25,
     "speed_multiplier": 0.75,
     "break_hardness": 1.0,

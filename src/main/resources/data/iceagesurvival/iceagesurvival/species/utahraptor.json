@@ -159,5 +159,11 @@
     "incubation_seconds": 480,
     "maturation_seconds": 1500,
     "cooldown_seconds": 900
+  },
+  "pack_bonus": {
+    "radius": 16,
+    "minimum_allies": 1,
+    "speed_multiplier": 0.4,
+    "attack_multiplier": 0.4
   }
 }

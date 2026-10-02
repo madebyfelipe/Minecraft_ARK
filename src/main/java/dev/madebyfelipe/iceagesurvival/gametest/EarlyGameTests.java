@@ -47,8 +47,8 @@ public class EarlyGameTests {
         helper.assertTrue(dodo.maxNearby() >= 8, "dodôs deveriam ser abundantes: " + dodo.maxNearby());
         helper.assertTrue(WildSpawner.effectiveMaximumPopulation()
                         == (int) (ServerConfig.WILD_SPAWN_MAX_TOTAL.get() * WildSpawner.POPULATION_FRACTION)
-                        && WildSpawner.effectiveMaximumPopulation() <= 30,
-                "o teto total deve ficar em ~28 criaturas por jogador");
+                        && WildSpawner.effectiveMaximumPopulation() == 36,
+                "o teto total deve ficar em 36 criaturas por jogador");
         helper.succeed();
     }
 

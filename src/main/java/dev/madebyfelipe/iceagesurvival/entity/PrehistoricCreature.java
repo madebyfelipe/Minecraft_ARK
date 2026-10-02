@@ -1534,6 +1534,22 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         entityData.set(DATA_FEMALE, female);
     }
 
+    /** ♀ ou ♂. */
+    public static String sexSymbol(boolean female) {
+        return female ? "♀" : "♂";
+    }
+
+    /** Com nome dado pelo jogador, o sexo aparece ao lado dele (na plaquinha e nas mensagens). */
+    @Override
+    public Component getDisplayName() {
+        Component name = super.getDisplayName();
+        if (!hasCustomName()) {
+            return name;
+        }
+        return name.copy().append(Component.literal(" " + sexSymbol(isFemale()))
+                .withStyle(style -> style.withColor(isFemale() ? 0xFF7BC4 : 0x5BA8FF)));
+    }
+
     /** Se o dono ligou o acasalamento; disponível também no cliente. */
     public boolean isMatingEnabled() {
         return entityData.get(DATA_MATING);
@@ -1929,6 +1945,7 @@ public abstract class PrehistoricCreature extends TamableAnimal {
                     buffer.writeVarInt(inventory.getContainerSize());
                     buffer.writeVarInt(rows);
                     buffer.writeVarInt(pages);
+                    buffer.writeBoolean(canBeSaddled());
                 });
     }
 

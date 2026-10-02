@@ -43,6 +43,13 @@ public class CreatureStorageScreen extends AbstractContainerScreen<CreatureStora
     protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
         graphics.fill(leftPos - 1, topPos - 1, leftPos + imageWidth + 1, topPos + imageHeight + 1, BORDER);
         graphics.fill(leftPos, topPos, leftPos + imageWidth, topPos + imageHeight, PANEL);
+        if (menu.hasSaddleSlot()) {
+            // Abinha da sela, à esquerda do painel.
+            int x = leftPos + CreatureStorageMenu.SADDLE_X;
+            int y = topPos + CreatureStorageMenu.SADDLE_Y;
+            graphics.fill(x - 5, y - 5, x + 21, y + 21, BORDER);
+            graphics.fill(x - 4, y - 4, x + 20, y + 20, PANEL);
+        }
         for (var slot : menu.slots) {
             int x = leftPos + slot.x;
             int y = topPos + slot.y;

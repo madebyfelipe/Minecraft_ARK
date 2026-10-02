@@ -35,6 +35,8 @@ public final class CreatureHud {
     private static final int TAMING = 0xFF5FB36B;
     private static final int WARNING = 0xFFFFB347;
     private static final int WARNING_DIM = 0xFFC9822E;
+    private static final int MALE = 0xFF5BA8FF;
+    private static final int FEMALE = 0xFFFF7BC4;
 
     private CreatureHud() {
     }
@@ -78,10 +80,13 @@ public final class CreatureHud {
         int right = left + WIDTH - PADDING;
         int y = top + PADDING;
 
-        // Nome à esquerda, nível à direita.
+        // Nome e sexo à esquerda, nível à direita.
         Component level = Component.translatable("iceagesurvival.hud.level", creature.creatureLevel());
-        graphics.drawString(font, font.plainSubstrByWidth(creature.getName().getString(), right - x - font.width(level) - 4),
-                x, y, TEXT);
+        String sex = PrehistoricCreature.sexSymbol(creature.isFemale());
+        String name = font.plainSubstrByWidth(creature.getName().getString(),
+                right - x - font.width(level) - font.width(" " + sex) - 4);
+        graphics.drawString(font, name, x, y, TEXT);
+        graphics.drawString(font, sex, x + font.width(name + " "), y, creature.isFemale() ? FEMALE : MALE);
         graphics.drawString(font, level, right - font.width(level), y, LEVEL);
         y += font.lineHeight + GAP;
 
