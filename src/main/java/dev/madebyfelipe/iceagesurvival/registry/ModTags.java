@@ -38,6 +38,10 @@ public final class ModTags {
     public static final TagKey<net.minecraft.world.entity.EntityType<?>> PREDATORS =
             TagKey.create(Registries.ENTITY_TYPE, IceAgeSurvival.id("predators"));
 
+    /** Peixes vivos: o pescador os pega no bote ({@code behavior.habits.fishing}) e os caça na água. */
+    public static final TagKey<net.minecraft.world.entity.EntityType<?>> FISH =
+            TagKey.create(Registries.ENTITY_TYPE, IceAgeSurvival.id("fish"));
+
     private ModTags() {
     }
 }

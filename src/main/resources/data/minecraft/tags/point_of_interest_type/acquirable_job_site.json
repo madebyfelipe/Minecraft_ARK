@@ -1,0 +1,18 @@
+{
+  "replace": false,
+  "values": [],
+  "remove": [
+    {
+      "id": "jurassicreborn:cleaning_station_poi",
+      "required": false
+    },
+    {
+      "id": "jurassicreborn:dna_sequencer_poi",
+      "required": false
+    },
+    {
+      "id": "prehistoricfauna:geologist_poi",
+      "required": false
+    }
+  ]
+}

@@ -25,12 +25,22 @@ import net.minecraft.world.level.block.Block;
  * @param flightSpeed      velocidade máxima de cruzeiro no voo, em blocos/tick (o impulso multiplica)
  * @param requiresSaddle   falso = monta sem sela, como uma montaria de início de jogo
  * @param flightTurnRate   curva máxima no voo, em graus por segundo, na velocidade de cruzeiro
+ * @param swims            montada, nada: na água fica na superfície com quem monta fora d'água, anda na velocidade
+ *                         de nado da espécie e o Espaço sobe e pula para a margem
+ *                         ({@link dev.madebyfelipe.iceagesurvival.core.mount.SwimModel})
  */
 public record MountProfile(double seatHeight, double seatForward, float minAffinity, double speedMultiplier, double jumpStrength,
                            double jumpForward, float breakHardness, Optional<TagKey<Block>> breakBlocks, boolean flying,
-                           double flightSpeed, boolean requiresSaddle, double flightTurnRate) {
+                           double flightSpeed, boolean requiresSaddle, double flightTurnRate, boolean swims) {
     public static final MountProfile DEFAULT =
-            new MountProfile(0.0, 0.0, 25.0F, 1.0, 0.0, 0.0, 0.0F, Optional.empty(), false, 0.8, true, 120.0);
+            new MountProfile(0.0, 0.0, 25.0F, 1.0, 0.0, 0.0, 0.0F, Optional.empty(), false, 0.8, true, 120.0, false);
+
+    public MountProfile(double seatHeight, double seatForward, float minAffinity, double speedMultiplier,
+                        double jumpStrength, double jumpForward, float breakHardness, Optional<TagKey<Block>> breakBlocks,
+                        boolean flying, double flightSpeed, boolean requiresSaddle, double flightTurnRate) {
+        this(seatHeight, seatForward, minAffinity, speedMultiplier, jumpStrength, jumpForward, breakHardness,
+                breakBlocks, flying, flightSpeed, requiresSaddle, flightTurnRate, false);
+    }
 
     public static final Codec<MountProfile> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.doubleRange(0, 16).optionalFieldOf("seat_height", DEFAULT.seatHeight())
@@ -55,7 +65,8 @@ public record MountProfile(double seatHeight, double seatForward, float minAffin
             Codec.BOOL.optionalFieldOf("requires_saddle", DEFAULT.requiresSaddle())
                     .forGetter(MountProfile::requiresSaddle),
             Codec.doubleRange(10, 720).optionalFieldOf("flight_turn_rate", DEFAULT.flightTurnRate())
-                    .forGetter(MountProfile::flightTurnRate)
+                    .forGetter(MountProfile::flightTurnRate),
+            Codec.BOOL.optionalFieldOf("swims", DEFAULT.swims()).forGetter(MountProfile::swims)
     ).apply(instance, MountProfile::new));
 
     /** Altura do assento para uma criatura com esta caixa de colisão. */

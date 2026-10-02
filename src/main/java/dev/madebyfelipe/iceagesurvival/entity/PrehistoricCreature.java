@@ -27,6 +27,9 @@ import dev.madebyfelipe.iceagesurvival.registry.ModItems;
 import dev.madebyfelipe.iceagesurvival.registry.ModTags;
 import dev.madebyfelipe.iceagesurvival.species.BehaviorProfile;
 import dev.madebyfelipe.iceagesurvival.species.BodyProfile;
+import dev.madebyfelipe.iceagesurvival.species.FishingProfile;
+import dev.madebyfelipe.iceagesurvival.core.ecology.Fishing;
+import dev.madebyfelipe.iceagesurvival.core.mount.SwimModel;
 import dev.madebyfelipe.iceagesurvival.species.MountProfile;
 import dev.madebyfelipe.iceagesurvival.species.SoundProfile;
 import dev.madebyfelipe.iceagesurvival.species.SpawnProfile;
@@ -368,6 +371,11 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     private boolean grabReady;
     /** Agarrão: o bote deixa o golpe pronto por este tempo. */
     private int grabTicks;
+    @Nullable
+    private LivingEntity lastGaffed;
+    private long lastGaffedTime = Long.MIN_VALUE;
+    /** Peixes apanhados desde que entrou no mundo (não salvo): para os testes e a depuração. */
+    private int fishCaught;
     /** Camuflagem: se está escondido, conferido a cada segundo. */
     private boolean concealed;
     /** Tick da última conferência; negativo o bastante para a primeira chamada conferir. */
@@ -937,6 +945,7 @@ public abstract class PrehistoricCreature extends TamableAnimal {
                 grabReady = true;
                 grabTicks = HuntSpecials.GRAB_WINDOW_TICKS;
             }
+            case GAFF -> armGaff();
             case PACK_LEAP -> {
                 if (onGround() && HuntSpecials.inLeapRange(distanceTo(target))) {
                     double[] leap = HuntSpecials.leapVelocity(target.getX() - getX(), target.getZ() - getZ());
@@ -968,6 +977,13 @@ public abstract class PrehistoricCreature extends TamableAnimal {
                             HuntSpecials.GRAB_AMPLIFIER), this);
                 }
             }
+            case GAFF -> {
+                if (grabReady && HuntSpecials.gaffs(target.isInWater(), sizeRatioOf(target))) {
+                    grabReady = false;
+                    grabTicks = 0;
+                    gaff(target);
+                }
+            }
             case BEAK_STRIKE -> {
                 double pierce = HuntSpecials.beakPierce(getAttributeValue(Attributes.ATTACK_DAMAGE));
                 if (pierce > 0.0 && target.isAlive()) {
@@ -981,6 +997,49 @@ public abstract class PrehistoricCreature extends TamableAnimal {
             default -> {
             }
         }
+    }
+
+    /**
+     * Garra-gancho ({@code hunt_special: gaff}): o bote — da caçada ou da pesca — deixa o próximo golpe pronto para
+     * fisgar por {@link HuntSpecials#GAFF_WINDOW_TICKS}.
+     */
+    public void armGaff() {
+        if (level().isClientSide || huntSpecial() != BehaviorProfile.HuntSpecial.GAFF) {
+            return;
+        }
+        grabReady = true;
+        grabTicks = HuntSpecials.GAFF_WINDOW_TICKS;
+    }
+
+    /** O golpe da garra-gancho está pronto (até 4 s depois do bote). */
+    public boolean isGaffReady() {
+        return huntSpecial() == BehaviorProfile.HuntSpecial.GAFF && grabReady;
+    }
+
+    /**
+     * Fisgou: puxa a presa para perto ({@link HuntSpecials#gaffPull}, menos a que é maior que o caçador) e a prende
+     * com lentidão forte por {@link HuntSpecials#GRAB_TICKS}, como o agarrão.
+     */
+    private void gaff(LivingEntity target) {
+        double[] pull = HuntSpecials.gaffPull(getX() - target.getX(), getZ() - target.getZ(), sizeRatioOf(target));
+        target.setDeltaMovement(pull[0], Math.max(target.getDeltaMovement().y, pull[1]), pull[2]);
+        target.hasImpulse = true;
+        target.hurtMarked = true; // o jogador fisgado recebe o puxão no cliente
+        target.addEffect(new net.minecraft.world.effect.MobEffectInstance(
+                net.minecraft.world.effect.MobEffects.MOVEMENT_SLOWDOWN, HuntSpecials.GRAB_TICKS,
+                HuntSpecials.GRAB_AMPLIFIER), this);
+        lastGaffedTime = level().getGameTime();
+        lastGaffed = target;
+    }
+
+    /** A última presa fisgada e quando (para os testes e o renderer); nula se nunca fisgou. */
+    @Nullable
+    public LivingEntity lastGaffed() {
+        return lastGaffed;
+    }
+
+    public long lastGaffedTime() {
+        return lastGaffedTime;
     }
 
     /** Bicada: depois de acertar, recua de {@link #retreatTarget()} por um instante. */
@@ -1005,7 +1064,8 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         if (retreatTicks > 0 && --retreatTicks == 0) {
             retreatFrom = null;
         }
-        if (grabTicks > 0 && --grabTicks == 0 && huntSpecial() == BehaviorProfile.HuntSpecial.GRAB) {
+        if (grabTicks > 0 && --grabTicks == 0 && (huntSpecial() == BehaviorProfile.HuntSpecial.GRAB
+                || huntSpecial() == BehaviorProfile.HuntSpecial.GAFF)) {
             grabReady = false;
         }
         if (ambushTicks > 0 && --ambushTicks == 0) {
@@ -1544,6 +1604,184 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         startAction(CreatureAction.EAT, 60);
     }
 
+    // ---- Pesca ({@code behavior.habits.fishing}) ----
+
+    /** O pescador da espécie; vazio se ela não pesca. */
+    public Optional<FishingProfile> fishing() {
+        return habits().fishing();
+    }
+
+    /** Parado olhando a água ou dando o bote da pesca. Vale no cliente e no servidor. */
+    public boolean isFishing() {
+        CreatureAction action = currentAction();
+        return action == CreatureAction.FISH || action == CreatureAction.FISH_STRIKE;
+    }
+
+    /** Peixes apanhados desde que a criatura entrou no mundo (não é salvo). */
+    public int fishCaught() {
+        return fishCaught;
+    }
+
+    /** O bote da pesca: o gesto, e a garra-gancho fica pronta ({@link #armGaff()}). O resultado sai em seguida. */
+    public void beginFishingStrike() {
+        startAction(CreatureAction.FISH_STRIKE, Fishing.STRIKE_TICKS);
+        armGaff();
+        playSound(SoundEvents.PLAYER_SPLASH, 0.6F, 0.9F + getRandom().nextFloat() * 0.3F);
+    }
+
+    /**
+     * O fim do bote na água {@code water}: peixe vivo (tag {@code iceagesurvival:fish}) a até
+     * {@link Fishing#LIVE_FISH_REACH} blocos é captura certa (o peixe some, engolido ou guardado); sem ele, a chance
+     * da espécie. Selvagem, come ({@link #eatFish()}); domesticada, guarda um peixe cru no inventário
+     * ({@link #fishFor(LivingEntity, BlockPos)}).
+     *
+     * @return se apanhou um peixe
+     */
+    public boolean resolveFishingStrike(BlockPos water) {
+        FishingProfile profile = fishing().orElse(null);
+        if (level().isClientSide || profile == null) {
+            return false;
+        }
+        LivingEntity fish = nearestLiveFish();
+        if (!Fishing.strikeCatches(fish != null, profile.chance(), getRandom().nextDouble())) {
+            if (level() instanceof ServerLevel serverLevel) {
+                serverLevel.sendParticles(net.minecraft.core.particles.ParticleTypes.SPLASH, water.getX() + 0.5,
+                        water.getY() + 1.0, water.getZ() + 0.5, 12, 0.4, 0.1, 0.4, 0.1);
+            }
+            return false;
+        }
+        ItemStack caught = fishFor(fish, water);
+        if (fish != null) {
+            if (level() instanceof ServerLevel serverLevel) {
+                serverLevel.sendParticles(net.minecraft.core.particles.ParticleTypes.SPLASH, fish.getX(), fish.getY(),
+                        fish.getZ(), 16, 0.3, 0.2, 0.3, 0.1);
+            }
+            fish.discard();
+        }
+        fishCaught++;
+        if (isTame()) {
+            inventory.addItem(caught);
+            playSound(SoundEvents.ITEM_PICKUP, 0.6F, 0.8F);
+        } else {
+            eatFish();
+        }
+        return true;
+    }
+
+    /** O peixe vivo mais perto, ao alcance do bote; nulo se não há. Peixe com nome (o aquário de alguém) fica. */
+    @Nullable
+    public LivingEntity nearestLiveFish() {
+        LivingEntity best = null;
+        double bestDistance = Fishing.LIVE_FISH_REACH;
+        for (LivingEntity fish : level().getEntitiesOfClass(LivingEntity.class,
+                getBoundingBox().inflate(Fishing.LIVE_FISH_REACH),
+                other -> other.isAlive() && other.getType().is(ModTags.FISH) && !other.hasCustomName())) {
+            double distance = distanceTo(fish);
+            if (distance <= bestDistance) {
+                bestDistance = distance;
+                best = fish;
+            }
+        }
+        return best;
+    }
+
+    /**
+     * O peixe cru que o domesticado guarda: o do próprio peixe vivo apanhado (bacalhau, salmão, peixe-tropical,
+     * baiacu); senão o da água ({@link Fishing#catchFor}): salmão em rio ou água fria, bacalhau no resto.
+     */
+    public ItemStack fishFor(@Nullable LivingEntity fish, BlockPos water) {
+        if (fish != null) {
+            EntityType<?> type = fish.getType();
+            if (type == EntityType.SALMON) {
+                return new ItemStack(Items.SALMON);
+            }
+            if (type == EntityType.COD) {
+                return new ItemStack(Items.COD);
+            }
+            if (type == EntityType.TROPICAL_FISH) {
+                return new ItemStack(Items.TROPICAL_FISH);
+            }
+            if (type == EntityType.PUFFERFISH) {
+                return new ItemStack(Items.PUFFERFISH);
+            }
+        }
+        var biome = level().getBiome(water);
+        boolean river = biome.is(net.minecraft.tags.BiomeTags.IS_RIVER);
+        boolean cold = biome.value().coldEnoughToSnow(water);
+        return new ItemStack(Fishing.catchFor(river, cold) == Fishing.Catch.SALMON ? Items.SALMON : Items.COD);
+    }
+
+    /** Domesticada: ainda cabe mais um peixe no inventário. */
+    public boolean hasRoomForFish() {
+        return inventory.canAddItem(new ItemStack(Items.SALMON)) || inventory.canAddItem(new ItemStack(Items.COD));
+    }
+
+    /** Comeu o peixe apanhado: vale {@link Fishing#MEAL_FRACTION} da fome (a do bando junto, D26), como a carniça. */
+    public void eatFish() {
+        eat(Fishing.MEAL_FRACTION, null);
+        playSound(SoundEvents.GENERIC_EAT, 0.8F, 0.9F + getRandom().nextFloat() * 0.2F);
+        startAction(CreatureAction.EAT, Fishing.EAT_TICKS);
+    }
+
+    // ---- Anfíbio ({@code body.amphibious}) e montaria que nada ({@code mount.swims}) ----
+
+    private BodyProfile bodyProfile() {
+        return species().flatMap(Species::body).orElse(BodyProfile.DEFAULT);
+    }
+
+    /** Vive na beira d'água: não se afoga, entra na água, nada baixo e rápido e, ferido, foge para ela. */
+    public boolean isAmphibious() {
+        return bodyProfile().amphibious();
+    }
+
+    /** Montada, nada na superfície ({@link SwimModel}). */
+    public boolean swimsAsMount() {
+        return mountProfile().map(MountProfile::swims).orElse(false);
+    }
+
+    @Override
+    public boolean canBreatheUnderwater() {
+        return isAmphibious() || super.canBreatheUnderwater();
+    }
+
+    /** O anfíbio nada baixo, com o corpo meio submerso ({@link SwimModel#FLOAT_FRACTION}), não boiando no alto. */
+    @Override
+    public double getFluidJumpThreshold() {
+        return isAmphibious() ? getBbHeight() * SwimModel.FLOAT_FRACTION : super.getFluidJumpThreshold();
+    }
+
+    /** Quem monta a montaria que nada não é derrubado por um mergulho da cabeça. */
+    @Override
+    public boolean canBeRiddenUnderFluidType(net.minecraftforge.fluids.FluidType type, Entity rider) {
+        return swimsAsMount() || super.canBeRiddenUnderFluidType(type, rider);
+    }
+
+    /**
+     * Nado montado, no cliente de quem monta (D18): a montaria sobe até a linha d'água ({@link SwimModel#floatDepth})
+     * e o Espaço a faz subir e pular para a margem. A velocidade horizontal é a de nado da espécie, que o
+     * {@code travel} do vanilla aplica na água pelo atributo {@code SWIM_SPEED}.
+     */
+    private void swimRidden() {
+        double seat = mountProfile().map(mount -> mount.seatHeight(getBbHeight())).orElse((double) getBbHeight());
+        double floatDepth = SwimModel.floatDepth(getBbHeight(), seat);
+        double submerged = getFluidHeight(net.minecraft.tags.FluidTags.WATER);
+        Vec3 movement = getDeltaMovement();
+        double vy = SwimModel.verticalSpeed(submerged, floatDepth, riderJumpHeld, horizontalCollision, movement.y);
+        setDeltaMovement(movement.x, vy, movement.z);
+        resetFallDistance();
+    }
+
+    /**
+     * No cliente, o degrau e a velocidade de nado da espécie: o movimento montado é simulado no cliente de quem monta,
+     * e sem isto a montaria subia só 0,6 bloco e nadava como bicho de terra.
+     */
+    private void applyBodyOnClient() {
+        species().flatMap(Species::body).ifPresent(body -> {
+            setMaxUpStep((float) body.stepHeight());
+            setBase(net.minecraftforge.common.ForgeMod.SWIM_SPEED.get(), body.swimSpeed());
+        });
+    }
+
     /**
      * Sentinela domesticado: o predador selvagem mais perto que ainda não foi avisado faz a criatura chamar o dono,
      * com o rumo e a distância a partir dele ({@link Sentinel}).
@@ -1613,6 +1851,12 @@ public abstract class PrehistoricCreature extends TamableAnimal {
             List<PrehistoricCreature> eaters = groupMembers(MEAL_SHARE_RADIUS);
             double fraction = victim instanceof Player ? 1.0
                     : Mth.clamp(sizeRatioOf(victim) / (1 + eaters.size()), MIN_MEAL_FRACTION, 1.0);
+            if (victim.getType().is(ModTags.FISH)) {
+                // Peixe caçado vale o mesmo que o apanhado na pesca: pela área da colisão, quase nada.
+                fraction = Math.max(fraction, Fishing.MEAL_FRACTION);
+                fishCaught++;
+                startAction(CreatureAction.EAT, Fishing.EAT_TICKS);
+            }
             eat(fraction, victim);
         }
         return result;
@@ -1703,9 +1947,12 @@ public abstract class PrehistoricCreature extends TamableAnimal {
             clearRestriction();
         }
         // Pavor de água (Smilodon selvagem): o caminho nunca passa pela água e foge da beira.
+        // Anfíbio (Baryonyx): a água e a beira são caminho como a terra.
         boolean dread = fearsWater();
-        setPathfindingMalus(BlockPathTypes.WATER, dread ? -1.0F : BlockPathTypes.WATER.getMalus());
-        setPathfindingMalus(BlockPathTypes.WATER_BORDER, dread ? WATER_BORDER_DREAD : BlockPathTypes.WATER_BORDER.getMalus());
+        boolean amphibious = !dread && isAmphibious();
+        setPathfindingMalus(BlockPathTypes.WATER, dread ? -1.0F : amphibious ? 0.0F : BlockPathTypes.WATER.getMalus());
+        setPathfindingMalus(BlockPathTypes.WATER_BORDER, dread ? WATER_BORDER_DREAD
+                : amphibious ? 0.0F : BlockPathTypes.WATER_BORDER.getMalus());
     }
 
     /** Penalidade da beira d'água para quem tem pavor dela: contorna lagos de longe. */
@@ -1763,6 +2010,7 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         BodyProfile body = species.body().orElse(BodyProfile.DEFAULT);
         setBase(Attributes.KNOCKBACK_RESISTANCE, body.knockbackResistance());
         setMaxUpStep((float) body.stepHeight());
+        setBase(net.minecraftforge.common.ForgeMod.SWIM_SPEED.get(), body.swimSpeed());
         breaksLeaves = body.breaksLeaves();
         plowHardness = body.plowHardness();
         if (breaksLeaves || plowHardness > 0.0F) {
@@ -1865,6 +2113,8 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     public void tick() {
         if (!level().isClientSide) {
             tickAction();
+        } else if (tickCount % 20 == 1) {
+            applyBodyOnClient();
         }
         if (isFlightMount()) {
             // Só o servidor decide o fim do voo: no cliente o voo selvagem não é conhecido ({@code wildFlight}
@@ -3009,6 +3259,8 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         riderJumpWasHeld = riderJumpHeld;
         if (isFlightMount()) {
             tickFlight(player, jumpPressed);
+        } else if (swimsAsMount() && isInWater()) {
+            swimRidden();
         } else if (jumpPressed && onGround()) {
             riderJump();
         }

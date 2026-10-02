@@ -9,7 +9,7 @@ import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.simple.SimpleChannel;
 
 public final class ModPayloads {
-    private static final String PROTOCOL_VERSION = "6";
+    private static final String PROTOCOL_VERSION = "7";
     private static int nextMessageId;
 
     public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(
@@ -39,6 +39,8 @@ public final class ModPayloads {
                 ColdStatusPayload::handle);
         registerClientbound(CreatureStatusPayload.class, CreatureStatusPayload::encode, CreatureStatusPayload::decode,
                 CreatureStatusPayload::handle);
+        registerClientbound(RifleTracerPayload.class, RifleTracerPayload::encode, RifleTracerPayload::decode,
+                RifleTracerPayload::handle);
     }
 
     private ModPayloads() {
@@ -62,6 +64,11 @@ public final class ModPayloads {
 
     public static void sendToServer(Object message) {
         CHANNEL.sendToServer(message);
+    }
+
+    /** Para quem rastreia a entidade e, se for um jogador, para ela mesma. */
+    public static void sendToTrackingAndSelf(net.minecraft.world.entity.Entity entity, Object message) {
+        CHANNEL.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> entity), message);
     }
 
     public static void sendToPlayer(ServerPlayer player, Object message) {

@@ -10,6 +10,8 @@ package dev.madebyfelipe.iceagesurvival.core.ecology;
  *   dano ignora armadura) e a ave recua em seguida — golpe e recua. Num escudo erguido, o bico trava: a fraqueza.</li>
  *   <li><b>Agarrão</b> (Ornitholestes, 15 kg, mãos longas de garras afiadas): sem arrancada; o primeiro golpe do bote
  *   prende a presa pequena, que não escapa correndo.</li>
+ *   <li><b>Garra-gancho</b> (Baryonyx, garra do polegar de ~31 cm, provável gancho de peixe): o primeiro golpe depois
+ *   do bote fisga a presa na água, ou a do porte dele para baixo em terra, puxa-a para perto e a prende.</li>
  * </ul>
  * Sem classes do Minecraft (D10).
  */
@@ -37,7 +39,52 @@ public final class HuntSpecials {
     /** Agarrão: só prende presa até este porte relativo (área de colisão da presa ÷ a do caçador). */
     public static final double GRAB_MAX_SIZE_RATIO = 1.0;
 
+    /** Garra-gancho: o bote (da caçada ou da pesca) deixa o golpe pronto por este tempo (4 s). */
+    public static final int GAFF_WINDOW_TICKS = 80;
+    /** Garra-gancho: fisga presa na água de qualquer porte, e em terra até este porte relativo. */
+    public static final double GAFF_MAX_SIZE_RATIO = 1.0;
+    /** Garra-gancho: velocidade máxima do puxão (blocos/tick) numa presa do porte do caçador ou menor. */
+    public static final double GAFF_PULL_MAX = 0.9;
+    /** Garra-gancho: quanto o puxão cresce por bloco de distância. */
+    public static final double GAFF_PULL_PER_BLOCK = 0.25;
+    /** Garra-gancho: o puxão para a esta distância (blocos) do caçador — a presa fica ao alcance da boca. */
+    public static final double GAFF_HOLD_DISTANCE = 1.5;
+    /** Garra-gancho: o tranco para cima que tira a presa da água. */
+    public static final double GAFF_LIFT = 0.25;
+
     private HuntSpecials() {
+    }
+
+    /**
+     * A garra-gancho fisga a presa na água (o peixe, o que nada) de qualquer porte; em terra, só a do porte do caçador
+     * para baixo.
+     *
+     * @param inWater   a presa está na água
+     * @param sizeRatio área de colisão da presa ÷ a do caçador
+     */
+    public static boolean gaffs(boolean inWater, double sizeRatio) {
+        return inWater || sizeRatio <= GAFF_MAX_SIZE_RATIO;
+    }
+
+    /**
+     * O puxão da garra-gancho: na direção do caçador, mais forte quanto mais longe (até {@link #GAFF_PULL_MAX}) e
+     * dividido pelo porte da presa maior que ele — a presa grande na água vem menos. Para a
+     * {@link #GAFF_HOLD_DISTANCE} do caçador.
+     *
+     * @param dx        caçador menos presa, em x
+     * @param dz        caçador menos presa, em z
+     * @param sizeRatio área de colisão da presa ÷ a do caçador
+     * @return velocidade {x, y, z} da presa
+     */
+    public static double[] gaffPull(double dx, double dz, double sizeRatio) {
+        double length = Math.sqrt(dx * dx + dz * dz);
+        double reach = Math.max(0.0, length - GAFF_HOLD_DISTANCE);
+        if (length < 1.0E-6 || reach <= 0.0) {
+            return new double[] {0.0, GAFF_LIFT / Math.max(1.0, sizeRatio), 0.0};
+        }
+        double weight = Math.max(1.0, sizeRatio);
+        double strength = Math.min(GAFF_PULL_MAX, reach * GAFF_PULL_PER_BLOCK) / weight;
+        return new double[] {dx / length * strength, GAFF_LIFT / weight, dz / length * strength};
     }
 
     public static boolean inLeapRange(double distance) {

@@ -52,3 +52,19 @@ Sobrevivência e domesticação de criaturas pré-históricas em uma Era do Gelo
     versionRange="[3.2,)"
     ordering="AFTER"
     side="BOTH"
+
+# Jurassic Reborn e Prehistoric Fauna: opcionais, só fornecedores de assets (D21). O AFTER faz o nosso
+# pacote de dados carregar depois dos deles, para os arquivos que desligam o conteúdo deles vencerem (D22).
+[[dependencies.${mod_id}]]
+    modId="jurassicreborn"
+    mandatory=false
+    versionRange="[1.4.2,)"
+    ordering="AFTER"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="prehistoricfauna"
+    mandatory=false
+    versionRange="[2.3.3,)"
+    ordering="AFTER"
+    side="BOTH"

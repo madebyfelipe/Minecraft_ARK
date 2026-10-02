@@ -29,8 +29,8 @@ import net.minecraft.world.entity.EntityType;
  * @param wariness           reação a ameaças (lutar ou fugir); ausente = ignora quem chega perto
  * @param ecology            fome, raio de caça, rivais e temperamento
  * @param huntSpecial        o golpe próprio do caçador: {@code ambush} (Smilodon), {@code pack_leap} (Utahraptor),
- *                           {@code beak_strike} (ave-terrível), {@code grab} (Ornitholestes); {@code none} por padrão
- * @param habits             horário, camuflagem, carniça e sentinela ({@link HabitsProfile})
+ *                           {@code beak_strike} (ave-terrível), {@code grab} (Ornitholestes), {@code gaff} (Baryonyx); {@code none} por padrão
+ * @param habits             horário, camuflagem, carniça, sentinela e pesca ({@link HabitsProfile})
  * @param fearsWater         selvagem, tem pavor de água: não entra nem segue presa para dentro dela e, se cair, nada
  *                           direto para a margem (Smilodon)
  */
@@ -63,7 +63,12 @@ public record BehaviorProfile(
         /** Bicada: parte do dano ignora armadura, e depois de acertar recua um instante (golpe e recua). */
         BEAK_STRIKE("beak_strike"),
         /** Agarrão: sem arrancada; o primeiro golpe do bote prende a presa pequena (a presa fica lenta). */
-        GRAB("grab");
+        GRAB("grab"),
+        /**
+         * Garra-gancho: o primeiro golpe depois do bote (da caçada ou da pesca) fisga a presa na água, ou a do porte do
+         * caçador para baixo, puxa-a para perto e a prende (a presa fica lenta).
+         */
+        GAFF("gaff");
 
         public static final Codec<HuntSpecial> CODEC = StringRepresentable.fromEnum(HuntSpecial::values);
         private final String id;

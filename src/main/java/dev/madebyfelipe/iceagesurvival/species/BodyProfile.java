@@ -16,10 +16,20 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
  *                            (§15 do CLOUD.md): inteira para quem monta, caindo até 0 na borda de
  *                            {@code bodyHeatRadius} para quem está perto. 0 = não aquece
  * @param bodyHeatRadius      alcance do calor do corpo, em blocos a partir da colisão
+ * @param amphibious          vive na beira d'água (Baryonyx): não se afoga, não evita a água no caminho nem no
+ *                            passeio (prefere a beira e o raso), persegue presa dentro dela, nada baixo e, ferido,
+ *                            foge para a água. O oposto do {@code behavior.fears_water}
+ * @param swimSpeed           multiplicador da velocidade na água (o atributo {@code forge:swim_speed}); 1 = a de
+ *                            qualquer bicho de terra
  */
 public record BodyProfile(double knockbackResistance, double stepHeight, boolean breaksLeaves, float plowHardness,
-                          double bodyHeat, double bodyHeatRadius) {
-    public static final BodyProfile DEFAULT = new BodyProfile(0.0, 0.6, false, 0.0F, 0.0, 4.0);
+                          double bodyHeat, double bodyHeatRadius, boolean amphibious, double swimSpeed) {
+    public static final BodyProfile DEFAULT = new BodyProfile(0.0, 0.6, false, 0.0F, 0.0, 4.0, false, 1.0);
+
+    public BodyProfile(double knockbackResistance, double stepHeight, boolean breaksLeaves, float plowHardness,
+                       double bodyHeat, double bodyHeatRadius) {
+        this(knockbackResistance, stepHeight, breaksLeaves, plowHardness, bodyHeat, bodyHeatRadius, false, 1.0);
+    }
 
     public static final Codec<BodyProfile> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.doubleRange(0, 1).optionalFieldOf("knockback_resistance", DEFAULT.knockbackResistance())
@@ -31,6 +41,9 @@ public record BodyProfile(double knockbackResistance, double stepHeight, boolean
                     .forGetter(BodyProfile::plowHardness),
             Codec.doubleRange(0, 2).optionalFieldOf("body_heat", DEFAULT.bodyHeat()).forGetter(BodyProfile::bodyHeat),
             Codec.doubleRange(0, 16).optionalFieldOf("body_heat_radius", DEFAULT.bodyHeatRadius())
-                    .forGetter(BodyProfile::bodyHeatRadius)
+                    .forGetter(BodyProfile::bodyHeatRadius),
+            Codec.BOOL.optionalFieldOf("amphibious", DEFAULT.amphibious()).forGetter(BodyProfile::amphibious),
+            Codec.doubleRange(0.1, 20).optionalFieldOf("swim_speed", DEFAULT.swimSpeed())
+                    .forGetter(BodyProfile::swimSpeed)
     ).apply(instance, BodyProfile::new));
 }

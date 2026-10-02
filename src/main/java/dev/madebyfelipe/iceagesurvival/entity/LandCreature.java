@@ -4,7 +4,9 @@ import dev.madebyfelipe.iceagesurvival.core.mount.FlightModel;
 import dev.madebyfelipe.iceagesurvival.core.stats.Stat;
 import dev.madebyfelipe.iceagesurvival.core.ecology.Hunger;
 import dev.madebyfelipe.iceagesurvival.entity.ai.ChaseGoal;
+import dev.madebyfelipe.iceagesurvival.entity.ai.FishingGoal;
 import dev.madebyfelipe.iceagesurvival.entity.ai.FleeWhenWeakGoal;
+import dev.madebyfelipe.iceagesurvival.entity.ai.WaterEdgeStrollGoal;
 import dev.madebyfelipe.iceagesurvival.entity.ai.FollowHerdGoal;
 import dev.madebyfelipe.iceagesurvival.entity.ai.HerdTravelGoal;
 import dev.madebyfelipe.iceagesurvival.entity.ai.HuntGoal;
@@ -132,16 +134,22 @@ public class LandCreature extends PrehistoricCreature implements GeoEntity, Geck
         if (behavior.habits().scavenges()) {
             goalSelector.addGoal(4, new dev.madebyfelipe.iceagesurvival.entity.ai.ScavengeGoal(this, calm * 1.5));
         }
+        if (behavior.habits().fishing().isPresent()) {
+            // Selvagem com fome: abaixo da cautela, da fuga e da caçada, como a carniça.
+            goalSelector.addGoal(4, new FishingGoal(this, calm * 1.5, false));
+            // Domesticada com a ordem "Parar": acima do Stay (2), que a seguraria parada.
+            goalSelector.addGoal(1, new FishingGoal(this, calm * 1.5, true));
+        }
         addOrderGoals(2, 4, FOLLOW_SPEED);
         if (behavior.herdRadius() > 0) {
             goalSelector.addGoal(5, new FollowHerdGoal(this, calm * 1.5, behavior.herdRadius()));
             if (behavior.migrates()) {
                 goalSelector.addGoal(6, new HerdTravelGoal(this, calm, behavior.herdRadius()));
             } else {
-                goalSelector.addGoal(8, new WaterAvoidingRandomStrollGoal(this, calm));
+                goalSelector.addGoal(8, stroll(calm));
             }
         } else {
-            goalSelector.addGoal(8, new WaterAvoidingRandomStrollGoal(this, calm));
+            goalSelector.addGoal(8, stroll(calm));
         }
         goalSelector.addGoal(7, new MoveTowardsRestrictionGoal(this, calm * 1.2));
         if (behavior.prey().isPresent()) {
@@ -158,6 +166,12 @@ public class LandCreature extends PrehistoricCreature implements GeoEntity, Geck
         behavior.prey().ifPresent(prey -> targetSelector.addGoal(5, new HuntGoal(this, prey)));
         targetSelector.addGoal(6, new RivalryGoal(this));
         targetSelector.addGoal(3, new TerritoryGoal(this));
+    }
+
+    /** O passeio: o anfíbio prefere a beira e o raso; os outros evitam a água. */
+    private net.minecraft.world.entity.ai.goal.Goal stroll(double calm) {
+        boolean amphibious = species().flatMap(species -> species.body()).map(body -> body.amphibious()).orElse(false);
+        return amphibious ? new WaterEdgeStrollGoal(this, calm) : new WaterAvoidingRandomStrollGoal(this, calm);
     }
 
     /**
