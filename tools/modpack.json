@@ -1,0 +1,22 @@
+{
+  "name": "Ice Age Survival",
+  "summary": "Criaturas pré-históricas com domesticação, torpor, frio e montaria — Forge 1.20.1.",
+  "minecraft": "1.20.1",
+  "forge": "47.4.3",
+  "mods": [
+    {"name": "Fossils and Archeology: Revival", "project": "IJY7IqPP", "version": "9.3.4.0", "side": "both", "why": "modelos, texturas, animações e sons das criaturas"},
+    {"name": "GeckoLib", "project": "8BmcQJ2H", "version": "4.7.2", "side": "both", "why": "animações"},
+    {"name": "MoreHitboxes", "project": "BOVAW87Z", "version": "1.9.2", "side": "both", "why": "dependência do Revival"},
+    {"name": "Architectury API", "project": "lhGA9TYQ", "version": "9.2.14", "side": "both", "why": "dependência do Revival"},
+    {"name": "TerraBlender", "project": "kkmrDlKT", "version": "3.0.1.10", "side": "both", "why": "biomas do Revival"},
+    {"name": "JEI", "project": "u6dRKJwZ", "version": "15.62.0.217", "side": "client", "why": "receitas"},
+    {"name": "Jade", "project": "nvQzSEkH", "version": "11.13.3", "side": "client", "why": "informação do que se olha"},
+    {"name": "AppleSkin", "project": "EsAfCjCV", "version": "2.5.1", "side": "client", "why": "fome e saturação"},
+    {"name": "mezz_config", "project": "7tEfOcA7", "version": "0.6.6", "side": "client", "why": "dependência do JEI"},
+    {"name": "Xaero's Minimap", "project": "1bokaNcj", "version": "26.5.0", "side": "client", "why": "minimapa"},
+    {"name": "Xaero's World Map", "project": "NcUtCpym", "version": "1.46.0", "side": "client", "why": "mapa-múndi"},
+    {"name": "Embeddium", "project": "sk9rgfiA", "version": "0.3.31", "side": "client", "why": "desempenho"},
+    {"name": "ModernFix", "project": "nmDcB62a", "version": "5.27.83", "side": "both", "why": "desempenho"},
+    {"name": "FerriteCore", "project": "uXXizFIs", "version": "6.0.1", "side": "both", "why": "memória"}
+  ]
+}
