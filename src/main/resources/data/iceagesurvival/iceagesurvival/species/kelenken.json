@@ -1,18 +1,18 @@
 {
   "stats": {
     "health": {
-      "base": 95,
+      "base": 100,
       "per_point": 0.08
     },
     "attack": {
-      "base": 14,
+      "base": 20,
       "per_point": 0.04
     },
     "speed": {
-      "base": 0.4
+      "base": 0.42
     },
     "torpor": {
-      "base": 80,
+      "base": 180,
       "per_point": 0.06
     },
     "armor": {
@@ -21,7 +21,7 @@
     }
   },
   "body": {
-    "knockback_resistance": 1.0,
+    "knockback_resistance": 0.4,
     "step_height": 1.1,
     "breaks_leaves": true
   },
@@ -76,51 +76,51 @@
   },
   "behavior": {
     "aggressive": true,
-    "aggro_radius": 14,
-    "territory_radius": 32,
-    "flee_health_fraction": 0.25,
-    "prey": "#iceagesurvival:large_prey",
-    "hunt_style": "stalk",
+    "aggro_radius": 16,
+    "territory_radius": 48,
+    "flee_health_fraction": 0.2,
+    "herd_radius": 0,
+    "prey": "#iceagesurvival:kelenken_prey",
+    "hunt_special": "beak_strike",
     "wariness": {
       "threats": "#iceagesurvival:predators",
       "players": false,
-      "alert_radius": 24,
+      "alert_radius": 26,
       "charge_radius": 4,
       "retreat_chance": 0.15,
-      "charge_chance": 0.08,
-      "charge_speed": 1.6,
-      "flee_speed": 1.5
+      "charge_chance": 0.1,
+      "charge_speed": 1.7,
+      "flee_speed": 1.7
     },
     "ecology": {
       "hunt_radius": 48,
       "hunger_seconds": 360,
-      "chase_seconds": 12,
-      "rival_radius": 36,
-      "nervousness": 0.8
+      "chase_seconds": 40,
+      "rival_radius": 40,
+      "nervousness": 0.9
     },
     "diet": [
       {
         "prey": [
-          "minecraft:horse",
-          "minecraft:donkey",
-          "minecraft:llama",
-          "minecraft:cow",
+          "minecraft:sheep",
+          "minecraft:pig",
           "minecraft:goat",
-          "iceagesurvival:elasmotherium"
+          "minecraft:rabbit",
+          "iceagesurvival:dodo"
         ],
         "preference": 3
       },
       {
         "prey": [
           "iceagesurvival:gallimimus",
-          "minecraft:sheep",
-          "minecraft:pig"
+          "minecraft:fox",
+          "minecraft:chicken",
+          "iceagesurvival:velociraptor"
         ],
         "preference": 2
       },
       {
         "prey": [
-          "iceagesurvival:mammoth",
           "minecraft:villager",
           "minecraft:wandering_trader",
           "minecraft:player"
@@ -129,45 +129,38 @@
       },
       {
         "prey": [
-          "iceagesurvival:dodo",
-          "iceagesurvival:stegosaurus",
-          "iceagesurvival:triceratops",
-          "iceagesurvival:brontosaurus"
+          "iceagesurvival:elasmotherium"
         ],
         "preference": 0
       }
-    ],
-    "hunt_special": "ambush"
+    ]
   },
   "mount": {
-    "seat_height": 2.3,
+    "seat_height": 2.0,
     "min_affinity": 25,
-    "speed_multiplier": 0.6,
-    "jump_strength": 0.42,
-    "jump_forward": 0.95
+    "speed_multiplier": 0.9,
+    "jump_strength": 0.55,
+    "jump_forward": 0.5
   },
   "spawn": {
-    "biomes": "#iceagesurvival:spawns_smilodon",
-    "weight": 4,
+    "biomes": "#iceagesurvival:spawns_kelenken",
+    "weight": 2,
     "group_min": 1,
-    "group_max": 1,
-    "max_nearby": 1,
-    "min_distance": 0,
-    "family": {
-      "pair_chance": 0.35
-    }
+    "group_max": 2,
+    "max_nearby": 2,
+    "min_distance": 300
   },
   "sounds": {
-    "ambient": "fossil:smilodon_ambient",
-    "hurt": "fossil:smilodon_hurt",
-    "death": "fossil:smilodon_death",
-    "attack": "minecraft:entity.fox.bite",
-    "volume": 1.0
+    "ambient": "fossil:terror_bird_ambient",
+    "hurt": "fossil:terror_bird_hurt",
+    "death": "fossil:terror_bird_death",
+    "attack": "minecraft:entity.ravager.attack",
+    "volume": 1.1
   },
   "breeding": {
-    "offspring": "live",
-    "incubation_seconds": 480,
-    "maturation_seconds": 1800,
+    "offspring": "egg",
+    "incubation_seconds": 420,
+    "maturation_seconds": 1500,
     "cooldown_seconds": 900
   }
 }

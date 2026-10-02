@@ -38,6 +38,7 @@ import dev.madebyfelipe.iceagesurvival.core.mount.FlightModel;
 import dev.madebyfelipe.iceagesurvival.core.mount.FlightStamina;
 import dev.madebyfelipe.iceagesurvival.core.ecology.Hunger;
 import dev.madebyfelipe.iceagesurvival.core.ecology.Perception;
+import dev.madebyfelipe.iceagesurvival.core.ecology.HuntSpecials;
 import dev.madebyfelipe.iceagesurvival.core.ecology.Stress;
 import dev.madebyfelipe.iceagesurvival.core.ecology.ThreatResponse;
 import dev.madebyfelipe.iceagesurvival.species.EcologyProfile;
@@ -349,6 +350,15 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     /** Só no cliente: a inclinação do corpo em voo (graus, + sobe o bico), seguindo a trajetória. */
     private float bodyFlightPitch;
     private float prevBodyFlightPitch;
+    /** Emboscada (Smilodon): ticks de arrancada que restam, e se o próximo golpe agarra. */
+    private int ambushTicks;
+    private boolean grabReady;
+    /** Bicada (ave-terrível): ticks de recuo depois de acertar, e de quem se afasta. */
+    private int retreatTicks;
+    @Nullable
+    private LivingEntity retreatFrom;
+    private static final java.util.UUID AMBUSH_SPEED_MODIFIER =
+            java.util.UUID.fromString("6d2b7c1a-3a8e-4c55-9b77-2a7d3e9c1f10");
     /** Há quanto tempo é corpo, em ticks. */
     private int corpseTicks;
     /** Vinte minutos: depois disso o corpo some e o que sobrou cai no chão. */
@@ -720,8 +730,98 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         boolean hit = super.doHurtTarget(target);
         if (hit && target instanceof LivingEntity living) {
             hornToss(living);
+            applyHuntSpecial(living);
         }
         return hit;
+    }
+
+    private BehaviorProfile.HuntSpecial huntSpecial() {
+        return behavior().map(BehaviorProfile::huntSpecial).orElse(BehaviorProfile.HuntSpecial.NONE);
+    }
+
+    /**
+     * O bote: a emboscada arranca (+50% de velocidade por 4 s) e deixa o próximo golpe agarrar; o salto pula
+     * sobre a presa a média distância ({@link HuntSpecials}).
+     */
+    public void onPounce(LivingEntity target) {
+        if (level().isClientSide || isTame()) {
+            return;
+        }
+        switch (huntSpecial()) {
+            case AMBUSH -> {
+                ambushTicks = HuntSpecials.AMBUSH_TICKS;
+                grabReady = true;
+                AttributeInstance speed = getAttribute(Attributes.MOVEMENT_SPEED);
+                if (speed != null) {
+                    speed.removeModifier(AMBUSH_SPEED_MODIFIER);
+                    speed.addTransientModifier(new net.minecraft.world.entity.ai.attributes.AttributeModifier(
+                            AMBUSH_SPEED_MODIFIER, "ambush", HuntSpecials.AMBUSH_SPEED_BONUS,
+                            net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.MULTIPLY_TOTAL));
+                }
+            }
+            case PACK_LEAP -> {
+                if (onGround() && HuntSpecials.inLeapRange(distanceTo(target))) {
+                    double[] leap = HuntSpecials.leapVelocity(target.getX() - getX(), target.getZ() - getZ());
+                    setDeltaMovement(leap[0], leap[1], leap[2]);
+                    hasImpulse = true;
+                }
+            }
+            default -> {
+            }
+        }
+    }
+
+    /** O que o golpe faz a mais: a emboscada agarra; a bicada fura a armadura e manda recuar. */
+    private void applyHuntSpecial(LivingEntity target) {
+        switch (huntSpecial()) {
+            case AMBUSH -> {
+                if (grabReady) {
+                    grabReady = false;
+                    target.addEffect(new net.minecraft.world.effect.MobEffectInstance(
+                            net.minecraft.world.effect.MobEffects.MOVEMENT_SLOWDOWN, HuntSpecials.GRAB_TICKS,
+                            HuntSpecials.GRAB_AMPLIFIER), this);
+                }
+            }
+            case BEAK_STRIKE -> {
+                double pierce = HuntSpecials.beakPierce(getAttributeValue(Attributes.ATTACK_DAMAGE));
+                if (pierce > 0.0 && target.isAlive()) {
+                    // O mesmo golpe: sem a janela de invulnerabilidade, a parte que atravessa a armadura.
+                    target.invulnerableTime = 0;
+                    target.hurt(damageSources().magic(), (float) pierce);
+                }
+                retreatTicks = HuntSpecials.RETREAT_TICKS;
+                retreatFrom = target;
+            }
+            default -> {
+            }
+        }
+    }
+
+    /** Bicada: depois de acertar, recua de {@link #retreatTarget()} por um instante. */
+    public boolean isRetreatingAfterStrike() {
+        return retreatTicks > 0 && retreatFrom != null && retreatFrom.isAlive();
+    }
+
+    @Nullable
+    public LivingEntity retreatTarget() {
+        return retreatFrom;
+    }
+
+    public boolean isAmbushing() {
+        return ambushTicks > 0;
+    }
+
+    private void tickHuntSpecials() {
+        if (retreatTicks > 0 && --retreatTicks == 0) {
+            retreatFrom = null;
+        }
+        if (ambushTicks > 0 && --ambushTicks == 0) {
+            grabReady = false;
+            AttributeInstance speed = getAttribute(Attributes.MOVEMENT_SPEED);
+            if (speed != null) {
+                speed.removeModifier(AMBUSH_SPEED_MODIFIER);
+            }
+        }
     }
 
     /** Golpe de chifre/cabeça das espécies cautelosas: empurra e joga para o alto ({@code wariness.knockback/lift}). */
@@ -1512,6 +1612,9 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         if (!level().isClientSide && isCorpse()) {
             tickCorpse();
             return;
+        }
+        if (!level().isClientSide) {
+            tickHuntSpecials();
         }
         if (!level().isClientSide && !zoneChecked) {
             zoneChecked = true;

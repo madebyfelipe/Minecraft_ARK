@@ -137,7 +137,8 @@
         ],
         "preference": 0
       }
-    ]
+    ],
+    "hunt_special": "pack_leap"
   },
   "mount": {
     "seat_height": 2.6,

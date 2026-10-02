@@ -204,5 +204,7 @@
   "item.iceagesurvival.jerky": "Jerky",
   "iceagesurvival.prep_station.hint": "Meat → rotten · meat + sugar → jerky",
   "iceagesurvival.revive_table.hint": "Implant + diamond → revive",
-  "iceagesurvival.corpse.fallen": "%s has fallen (%s). The body stays for 20 min with its inventory and implant."
+  "iceagesurvival.corpse.fallen": "%s has fallen (%s). The body stays for 20 min with its inventory and implant.",
+  "entity.iceagesurvival.kelenken": "Kelenken",
+  "item.iceagesurvival.kelenken_spawn_egg": "Kelenken Spawn Egg"
 }

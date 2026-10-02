@@ -1,0 +1,17 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:sheep",
+    "minecraft:pig",
+    "minecraft:goat",
+    "minecraft:rabbit",
+    "iceagesurvival:dodo",
+    "iceagesurvival:gallimimus",
+    "minecraft:fox",
+    "minecraft:chicken",
+    "minecraft:villager",
+    "minecraft:wandering_trader",
+    "iceagesurvival:elasmotherium",
+    "iceagesurvival:velociraptor"
+  ]
+}

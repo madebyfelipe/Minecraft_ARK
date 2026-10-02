@@ -204,5 +204,7 @@
   "item.iceagesurvival.jerky": "Charque",
   "iceagesurvival.prep_station.hint": "Carne → podre · carne + açúcar → charque",
   "iceagesurvival.revive_table.hint": "Implante + diamante → revive",
-  "iceagesurvival.corpse.fallen": "%s caiu (%s). O corpo fica 20 min com o inventário e o implante."
+  "iceagesurvival.corpse.fallen": "%s caiu (%s). O corpo fica 20 min com o inventário e o implante.",
+  "entity.iceagesurvival.kelenken": "Kelenken",
+  "item.iceagesurvival.kelenken_spawn_egg": "Ovo Gerador de Kelenken"
 }

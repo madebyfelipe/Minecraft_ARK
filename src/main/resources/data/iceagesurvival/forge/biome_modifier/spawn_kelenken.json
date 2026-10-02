@@ -1,0 +1,12 @@
+{
+  "type": "forge:add_spawns",
+  "biomes": "#iceagesurvival:spawns_kelenken",
+  "spawners": [
+    {
+      "type": "iceagesurvival:kelenken",
+      "weight": 2,
+      "minCount": 1,
+      "maxCount": 2
+    }
+  ]
+}

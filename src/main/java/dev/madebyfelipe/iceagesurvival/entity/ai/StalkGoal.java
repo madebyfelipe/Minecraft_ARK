@@ -154,6 +154,7 @@ public class StalkGoal extends Goal {
         // O fôlego da perseguição conta daqui.
         creature.beginHunt();
         creature.signalPounce(target);
+        creature.onPounce(target);
         if (target instanceof PrehistoricCreature hunted && !hunted.isHunted()) {
             hunted.onHunted(creature, creature.fightingGroup());
         }
