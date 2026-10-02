@@ -38,6 +38,9 @@ public class IceAgeSurvivalClient {
         MinecraftForge.EVENT_BUS.addListener(CreatureTracker::onClientTick);
         MinecraftForge.EVENT_BUS.addListener(Thermometer::onLoggingOut);
         ColdStatusPayload.setClientHandler(Thermometer::receive);
+        PrimalStationsClient.init(modEventBus);
+        DefensesClient.init(modEventBus);
+        WeaponsClient.init(modEventBus);
     }
 
     private static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {

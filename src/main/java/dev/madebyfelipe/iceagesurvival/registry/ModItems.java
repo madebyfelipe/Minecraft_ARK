@@ -90,6 +90,10 @@ public final class ModItems {
             "ornitholestes_spawn_egg",
             () -> new ForgeSpawnEggItem(ModEntities.ORNITHOLESTES, 0x5B6B3A, 0xC9B98A, new Item.Properties()));
 
+    public static final RegistryObject<ForgeSpawnEggItem> BARYONYX_SPAWN_EGG = ITEMS.register(
+            "baryonyx_spawn_egg",
+            () -> new ForgeSpawnEggItem(ModEntities.BARYONYX, 0x55663F, 0xD8C9A0, new Item.Properties()));
+
     /** Pele grossa dos animais da era do gelo: vira a roupa que segura o frio. */
     public static final RegistryObject<Item> PELT = simpleItem("pelt");
 
@@ -212,6 +216,7 @@ public final class ModItems {
             event.accept(ELASMOTHERIUM_SPAWN_EGG);
             event.accept(KELENKEN_SPAWN_EGG);
             event.accept(ORNITHOLESTES_SPAWN_EGG);
+            event.accept(BARYONYX_SPAWN_EGG);
         } else if (event.getTabKey() == CreativeModeTabs.COMBAT) {
             event.accept(TRANQ_ARROW);
             event.accept(TRANQ_DART);

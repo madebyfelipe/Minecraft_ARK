@@ -154,6 +154,12 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     /** Dormindo fora do seu horário de atividade ({@code behavior.habits.activity}): o cliente toca o sono. */
     private static final EntityDataAccessor<Boolean> DATA_RESTING =
             SynchedEntityData.defineId(PrehistoricCreature.class, EntityDataSerializers.BOOLEAN);
+    /**
+     * Gesto em curso ({@link CreatureAction}), para os modelos que não são GeckoLib (as poses do Jurassic Reborn):
+     * o GeckoLib recebe os gestos pelo {@code triggerAnim}, os outros renderers leem este valor.
+     */
+    private static final EntityDataAccessor<Byte> DATA_ACTION =
+            SynchedEntityData.defineId(PrehistoricCreature.class, EntityDataSerializers.BYTE);
     private static final String TAG_STRESS = "Stress";
     private static final String TAG_TICKS_SINCE_MEAL = "TicksSinceMeal";
     /** Intervalo da atualização do estresse (volta ao repouso). */
@@ -370,6 +376,8 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     private static final int CONCEALED_CHECK_TICKS = 20;
     private final java.util.Map<UUID, Long> sentinelWarnings = new java.util.HashMap<>();
     private long lastSentinelWarning = Long.MIN_VALUE;
+    /** Fim do gesto em curso ({@link #startAction}), em game time; 0 = nenhum. Só no servidor. */
+    private long actionUntil;
     /** Bicada (ave-terrível): ticks de recuo depois de acertar, e de quem se afasta. */
     private int retreatTicks;
     @Nullable
@@ -645,6 +653,39 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         entityData.define(DATA_CORPSE, false);
         entityData.define(DATA_STRESS, 0.0F);
         entityData.define(DATA_RESTING, false);
+        entityData.define(DATA_ACTION, (byte) CreatureAction.NONE.ordinal());
+    }
+
+    /** Gesto em curso; {@link CreatureAction#NONE} quando nenhum. Vale no cliente e no servidor. */
+    public CreatureAction currentAction() {
+        return CreatureAction.byId(entityData.get(DATA_ACTION));
+    }
+
+    /** Começa um gesto que dura {@code ticks}; o servidor o desliga sozinho ao fim (ver {@link #tickAction()}). */
+    public void startAction(CreatureAction action, int ticks) {
+        if (level().isClientSide) {
+            return;
+        }
+        entityData.set(DATA_ACTION, (byte) action.ordinal());
+        actionUntil = action == CreatureAction.NONE ? 0L : level().getGameTime() + Math.max(1, ticks);
+    }
+
+    /** Gesto contínuo (pescando, por exemplo): fica até {@link #stopAction(CreatureAction)}. */
+    public void holdAction(CreatureAction action) {
+        startAction(action, Integer.MAX_VALUE / 2);
+    }
+
+    /** Encerra o gesto se ainda for este. */
+    public void stopAction(CreatureAction action) {
+        if (currentAction() == action) {
+            startAction(CreatureAction.NONE, 0);
+        }
+    }
+
+    private void tickAction() {
+        if (actionUntil != 0L && level().getGameTime() >= actionUntil) {
+            startAction(CreatureAction.NONE, 0);
+        }
     }
 
     public Optional<Species> species() {
@@ -818,6 +859,7 @@ public abstract class PrehistoricCreature extends TamableAnimal {
 
     /** O golpe em si, acerte ou não: toca o som de ataque. As subclasses somam a animação. */
     protected void swingAttack() {
+        startAction(CreatureAction.ATTACK, 20);
         SoundEvent attack = speciesSound(SoundProfile::attack);
         if (attack != null) {
             playSound(attack, getSoundVolume(), getVoicePitch());
@@ -1194,6 +1236,7 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     /** Gesto de ameaça: o som de alerta. As subclasses com animação somam o gesto. */
     public void threatDisplay() {
         playAlert();
+        startAction(CreatureAction.ROAR, 40);
     }
 
     /** Outro da manada viu uma ameaça: esta também passa a encará-la. */
@@ -1498,6 +1541,7 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     public void eatCarrion() {
         eat(Carrion.MEAL_FRACTION, null);
         playSound(SoundEvents.GENERIC_EAT, 0.8F, 0.9F + getRandom().nextFloat() * 0.2F);
+        startAction(CreatureAction.EAT, 60);
     }
 
     /**
@@ -1533,6 +1577,7 @@ public abstract class PrehistoricCreature extends TamableAnimal {
                 nearest.getName(), Math.round(owner.distanceTo(nearest)),
                 Component.translatable("iceagesurvival.direction." + direction.key())), true);
         playAmbientSound();
+        startAction(CreatureAction.CALL, 50);
         sentinelCall();
     }
 
@@ -1818,6 +1863,9 @@ public abstract class PrehistoricCreature extends TamableAnimal {
 
     @Override
     public void tick() {
+        if (!level().isClientSide) {
+            tickAction();
+        }
         if (isFlightMount()) {
             // Só o servidor decide o fim do voo: no cliente o voo selvagem não é conhecido ({@code wildFlight}
             // é do servidor), e desligar ali o voo de um Pteranodonte sem ninguém em cima o fazia "andar no ar".

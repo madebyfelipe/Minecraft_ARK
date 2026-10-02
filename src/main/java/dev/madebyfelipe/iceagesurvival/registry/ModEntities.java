@@ -49,6 +49,11 @@ public final class ModEntities {
     public static final RegistryObject<EntityType<LandCreature>> KELENKEN = landCreature("kelenken", 1.8F, 4.0F);
     /** Ornitholestes, pequeno terópode do sub-bosque: ~2 m de comprimento e 15 kg, do porte do Velociraptor. */
     public static final RegistryObject<EntityType<LandCreature>> ORNITHOLESTES = landCreature("ornitholestes", 0.7F, 1.1F);
+    /**
+     * Baryonyx, espinossaurídeo pescador do Cretáceo Inferior: 7,5–10 m, 1,2–2 t, quadril a 2,5 m. Modelo, poses e sons
+     * do Jurassic Reborn em runtime.
+     */
+    public static final RegistryObject<EntityType<LandCreature>> BARYONYX = landCreature("baryonyx", 1.8F, 2.7F);
 
     public static final RegistryObject<EntityType<TestCreature>> TEST_CREATURE =
             ENTITY_TYPES.register("test_creature", () -> EntityType.Builder.of(TestCreature::new, MobCategory.CREATURE)

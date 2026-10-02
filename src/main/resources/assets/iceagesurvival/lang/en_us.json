@@ -209,6 +209,8 @@
   "item.iceagesurvival.kelenken_spawn_egg": "Kelenken Spawn Egg",
   "entity.iceagesurvival.ornitholestes": "Ornitholestes",
   "item.iceagesurvival.ornitholestes_spawn_egg": "Ornitholestes Spawn Egg",
+  "entity.iceagesurvival.baryonyx": "Baryonyx",
+  "item.iceagesurvival.baryonyx_spawn_egg": "Baryonyx Spawn Egg",
   "block.iceagesurvival.tyrannosaurus_head": "Tyrannosaurus Head",
   "block.iceagesurvival.spinosaurus_head": "Spinosaurus Head",
   "iceagesurvival.apex.challenge": "%s accepts the challenge and roars: you have 5 s to step back and let your creatures fight. Fight with up to %s of them; one more, or another player, cancels the ritual.",
