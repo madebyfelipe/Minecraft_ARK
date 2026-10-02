@@ -102,6 +102,10 @@ public class LandCreature extends PrehistoricCreature implements GeoEntity, Geck
             // Acima de tudo que anda: ferida, decola em vez de fugir a pé.
             goalSelector.addGoal(0, new WildFlightGoal(this));
         }
+        if (behavior.fearsWater()) {
+            // Pavor de água: caiu, larga tudo e sai.
+            goalSelector.addGoal(0, new dev.madebyfelipe.iceagesurvival.entity.ai.EscapeWaterGoal(this, FLEE_SPEED));
+        }
         goalSelector.addGoal(1, new FleeWhenWeakGoal(this, FLEE_SPEED));
         goalSelector.addGoal(1, new YieldGoal(this, FLEE_SPEED));
         if (behavior.prey().isPresent() && behavior.huntStyle() == BehaviorProfile.HuntStyle.STALK) {

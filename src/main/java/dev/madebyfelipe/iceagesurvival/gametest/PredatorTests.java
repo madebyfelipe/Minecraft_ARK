@@ -101,7 +101,7 @@ public class PredatorTests {
     private static final net.minecraft.tags.TagKey<EntityType<?>> WOLF_PREY = net.minecraft.tags.TagKey.create(
             net.minecraft.core.registries.Registries.ENTITY_TYPE, IceAgeSurvival.id("dire_wolf_prey"));
 
-    @GameTest(template = ARENA, batch = "rex_prey")
+    @GameTest(template = ARENA, batch = "rex_prey", setupTicks = HuntTests.CHUNK_SETUP_TICKS)
     public static void rexOnlyHuntsABrontosaurusOutOfItsHerd(GameTestHelper helper) {
         HuntTests.clearStrays(helper);
         LandCreature rex = helper.spawnWithNoFreeWill(ModEntities.TYRANNOSAURUS.get(), 2, 0, 2);

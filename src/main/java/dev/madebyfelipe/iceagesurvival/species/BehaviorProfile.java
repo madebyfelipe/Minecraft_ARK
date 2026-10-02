@@ -30,6 +30,8 @@ import net.minecraft.world.entity.EntityType;
  * @param ecology            fome, raio de caça, rivais e temperamento
  * @param huntSpecial        o golpe próprio do caçador: {@code ambush} (Smilodon), {@code pack_leap} (Utahraptor),
  *                           {@code beak_strike} (ave-terrível); {@code none} por padrão
+ * @param fearsWater         selvagem, tem pavor de água: não entra nem segue presa para dentro dela e, se cair, nada
+ *                           direto para a margem (Smilodon)
  */
 public record BehaviorProfile(
         boolean aggressive,
@@ -45,7 +47,8 @@ public record BehaviorProfile(
         java.util.List<DietEntry> diet,
         Optional<WarinessProfile> wariness,
         EcologyProfile ecology,
-        HuntSpecial huntSpecial) {
+        HuntSpecial huntSpecial,
+        boolean fearsWater) {
 
     /** O golpe próprio de cada caçador (ver {@code core/ecology/HuntSpecials}). */
     public enum HuntSpecial implements StringRepresentable {
@@ -109,7 +112,7 @@ public record BehaviorProfile(
     /** Espécie sem bloco de comportamento: passiva, solitária, sem território. */
     public static final BehaviorProfile PASSIVE =
             new BehaviorProfile(false, 16.0, 0, 0.0, 0, false, false, Optional.empty(), HuntStyle.STALK, 180,
-                    java.util.List.of(), Optional.empty(), EcologyProfile.DEFAULT, HuntSpecial.NONE);
+                    java.util.List.of(), Optional.empty(), EcologyProfile.DEFAULT, HuntSpecial.NONE, false);
 
     public static final Codec<BehaviorProfile> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.BOOL.optionalFieldOf("aggressive", PASSIVE.aggressive()).forGetter(BehaviorProfile::aggressive),
@@ -126,6 +129,7 @@ public record BehaviorProfile(
             DietEntry.CODEC.listOf().optionalFieldOf("diet", java.util.List.of()).forGetter(BehaviorProfile::diet),
             WarinessProfile.CODEC.optionalFieldOf("wariness").forGetter(BehaviorProfile::wariness),
             EcologyProfile.CODEC.optionalFieldOf("ecology", EcologyProfile.DEFAULT).forGetter(BehaviorProfile::ecology),
-            HuntSpecial.CODEC.optionalFieldOf("hunt_special", HuntSpecial.NONE).forGetter(BehaviorProfile::huntSpecial)
+            HuntSpecial.CODEC.optionalFieldOf("hunt_special", HuntSpecial.NONE).forGetter(BehaviorProfile::huntSpecial),
+            Codec.BOOL.optionalFieldOf("fears_water", false).forGetter(BehaviorProfile::fearsWater)
     ).apply(instance, BehaviorProfile::new));
 }

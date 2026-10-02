@@ -7,7 +7,7 @@ package dev.madebyfelipe.iceagesurvival.core.ecology;
  *   arrancada mais rápida dos três, curta; o primeiro golpe agarra e prende a presa.</li>
  *   <li><b>Salto</b> (Utahraptor, caçador de bando): pula sobre a presa a média distância.</li>
  *   <li><b>Bicada</b> (Kelenken, a maior ave-terrível): o bico fundido ao crânio golpeia como uma marreta (parte do
- *   dano ignora armadura) e a ave recua em seguida — golpe e recua.</li>
+ *   dano ignora armadura) e a ave recua em seguida — golpe e recua. Num escudo erguido, o bico trava: a fraqueza.</li>
  * </ul>
  * Sem classes do Minecraft (D10).
  */
@@ -20,6 +20,8 @@ public final class HuntSpecials {
     public static final int GRAB_AMPLIFIER = 4;
     /** Bicada: fração do dano que ignora armadura, somada ao golpe. */
     public static final double BEAK_PIERCE = 0.3;
+    /** A bicada que bate num escudo trava o bico: a ave fica parada e sem atacar por 2 s. */
+    public static final int BEAK_STUCK_TICKS = 40;
     /** Recuo depois da bicada, em ticks. */
     public static final int RETREAT_TICKS = 30;
     /** Salto: só a esta distância da presa (perto demais, morde; longe demais, corre). */

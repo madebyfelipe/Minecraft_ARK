@@ -22,7 +22,7 @@
   },
   "body": {
     "knockback_resistance": 1.0,
-    "step_height": 1.2,
+    "step_height": 1.6,
     "breaks_leaves": true
   },
   "taming": {

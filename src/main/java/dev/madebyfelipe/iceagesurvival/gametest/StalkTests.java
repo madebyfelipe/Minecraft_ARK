@@ -144,7 +144,7 @@ public class StalkTests {
      * Notado pela manada, o bando que espreitava perde a surpresa e dispara junto; a manada se sabe caçada.
      * (Em bando, os Alossauros encaram a manada de Galimimos.)
      */
-    @GameTest(template = ARENA, batch = "stalk_spotted", timeoutTicks = 260)
+    @GameTest(template = ARENA, batch = "stalk_spotted", timeoutTicks = 260, setupTicks = HuntTests.CHUNK_SETUP_TICKS)
     public static void aSpottedPackPounces(GameTestHelper helper) {
         HuntTests.clearStrays(helper);
         List<LandCreature> herd = herd(helper, ModEntities.GALLIMIMUS.get(), 2, 4, 6);

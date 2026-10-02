@@ -209,7 +209,7 @@
   "item.iceagesurvival.kelenken_spawn_egg": "Kelenken Spawn Egg",
   "block.iceagesurvival.tyrannosaurus_head": "Tyrannosaurus Head",
   "block.iceagesurvival.spinosaurus_head": "Spinosaurus Head",
-  "iceagesurvival.apex.challenge": "%s accepts the challenge. Fight with up to %s of your creatures; one more, or another player, cancels the ritual.",
+  "iceagesurvival.apex.challenge": "%s accepts the challenge and roars: you have 5 s to step back and let your creatures fight. Fight with up to %s of them; one more, or another player, cancels the ritual.",
   "iceagesurvival.apex.interfered": "Someone interfered: %s ends the challenge.",
   "iceagesurvival.apex.abandoned": "You walked away: %s ends the challenge.",
   "iceagesurvival.apex.won": "%s has fallen, defeated. Feed it meat to tame it."

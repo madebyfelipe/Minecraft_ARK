@@ -22,7 +22,7 @@
   },
   "body": {
     "knockback_resistance": 0.4,
-    "step_height": 1.1,
+    "step_height": 1.5,
     "breaks_leaves": true
   },
   "taming": {
@@ -136,7 +136,7 @@
     ]
   },
   "mount": {
-    "seat_height": 2.0,
+    "seat_height": 2.6,
     "min_affinity": 25,
     "speed_multiplier": 0.9,
     "jump_strength": 0.55,

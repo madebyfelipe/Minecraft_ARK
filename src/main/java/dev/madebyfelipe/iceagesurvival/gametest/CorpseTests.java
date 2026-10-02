@@ -60,6 +60,21 @@ public class CorpseTests {
         helper.succeed();
     }
 
+    /** A domesticada caída não é mais alvo: o selvagem que a atacava larga o corpo. */
+    @GameTest(template = EMPTY, batch = "corpse_target")
+    public static void wildCreaturesLeaveTheCorpseAlone(GameTestHelper helper) {
+        Player owner = helper.makeMockSurvivalPlayer();
+        LandCreature smilodon = tamed(helper, owner);
+        LandCreature wild = helper.spawnWithNoFreeWill(ModEntities.UTAHRAPTOR.get(), 0, 2, 0);
+        wild.setTarget(smilodon);
+        smilodon.hurt(helper.getLevel().damageSources().mobAttack(wild), 10_000.0F);
+        helper.assertTrue(smilodon.isCorpse(), "deveria ter virado corpo");
+        helper.assertTrue(wild.getTarget() == null, "o selvagem continua atacando o corpo");
+        helper.assertFalse(smilodon.canBeSeenAsEnemy(), "o corpo não deveria ser alvo");
+        helper.assertFalse(wild.canAttack(smilodon), "o selvagem não deveria poder atacar o corpo");
+        helper.succeed();
+    }
+
     /** Tirado tudo (o implante inclusive), o corpo some. */
     @GameTest(template = EMPTY, batch = "corpse_empty", timeoutTicks = 120)
     public static void anEmptiedCorpseDisappears(GameTestHelper helper) {

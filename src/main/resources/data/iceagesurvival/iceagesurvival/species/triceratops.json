@@ -22,7 +22,7 @@
   },
   "body": {
     "knockback_resistance": 1.0,
-    "step_height": 1.6,
+    "step_height": 2.4,
     "breaks_leaves": true,
     "plow_hardness": 2.0
   },
@@ -79,7 +79,7 @@
     }
   },
   "mount": {
-    "seat_height": 3.24,
+    "seat_height": 4.8,
     "min_affinity": 25,
     "speed_multiplier": 0.75,
     "break_hardness": 1.0,

@@ -38,6 +38,13 @@ public class HuntTests {
      * (o gametest só limpa a própria estrutura). Sem isto, a caçada de uma cena pode escolher um
      * alvo de outra. Só para cenas com lote próprio: num lote compartilhado apagaria a cena vizinha.
      */
+    /**
+     * Espera de montagem das cenas de arena que dependem de entidades vivas desde o tick 0. Os testes ficam em fila
+     * no eixo X e a arena pode cruzar a borda de um chunk recém-forçado, que demora alguns ticks para aceitar
+     * entidades: sem a espera, a busca por vizinhos não acha quem nasceu do outro lado (o bronto "sem manada").
+     */
+    static final int CHUNK_SETUP_TICKS = 20;
+
     static void clearStrays(GameTestHelper helper) {
         var center = helper.absoluteVec(new Vec3(12, 0, 12));
         List.copyOf(helper.getLevel().players()).forEach(player -> player.discard());

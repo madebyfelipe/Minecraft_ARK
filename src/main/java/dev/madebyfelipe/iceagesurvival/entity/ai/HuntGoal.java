@@ -69,6 +69,9 @@ public class HuntGoal extends Goal {
         if (candidate instanceof Player player && hunter.respectsTribute(player)) {
             return false; // traz a cabeça de outro da espécie: um caçador hábil, não comida
         }
+        if (hunter.fearsWater() && candidate.isInWater()) {
+            return false; // pavor de água: quem está nela fica para depois
+        }
         if (candidate instanceof OwnableEntity ownable && ownable.getOwnerUUID() != null) {
             return false;
         }

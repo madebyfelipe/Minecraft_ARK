@@ -1,7 +1,10 @@
 package dev.madebyfelipe.iceagesurvival.core.ecology;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import dev.madebyfelipe.iceagesurvival.core.ecology.ApexDuel.Foe;
 import dev.madebyfelipe.iceagesurvival.core.ecology.ApexDuel.Verdict;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
@@ -41,5 +44,22 @@ class ApexDuelTest {
     @Test
     void theEnvironmentDoesNotCount() {
         assertEquals(Verdict.OK, duel.hitBy(null, null, null));
+    }
+
+    @Test
+    void theApexRoarsForFiveSecondsBeforeFighting() {
+        for (int tick = 1; tick < ApexDuel.ROAR_TICKS; tick++) {
+            assertTrue(duel.tickRoar(), "parou de rugir no tick " + tick);
+        }
+        assertFalse(duel.tickRoar());
+        assertFalse(duel.roaring());
+        assertEquals(100, ApexDuel.ROAR_TICKS, "a janela pedida é de 5 s");
+    }
+
+    @Test
+    void itGoesForTheCreaturesUnlessTheChallengerIsAloneOrStrikes() {
+        assertEquals(Foe.CREATURES, ApexDuel.foe(true, false));
+        assertEquals(Foe.CHALLENGER, ApexDuel.foe(false, false));
+        assertEquals(Foe.CHALLENGER, ApexDuel.foe(true, true));
     }
 }

@@ -137,7 +137,8 @@
         "preference": 0
       }
     ],
-    "hunt_special": "ambush"
+    "hunt_special": "ambush",
+    "fears_water": true
   },
   "mount": {
     "seat_height": 2.3,

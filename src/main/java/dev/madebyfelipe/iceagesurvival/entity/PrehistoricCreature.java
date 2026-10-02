@@ -362,6 +362,8 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     /** O desafio em curso, se um caçador trouxe a cabeça de outro da espécie (só apex). */
     @Nullable
     private dev.madebyfelipe.iceagesurvival.core.ecology.ApexDuel duel;
+    /** Ticks que o bico ainda fica travado depois de bater num escudo (Kelenken). */
+    private int beakStuckTicks;
     /** Há quanto tempo é corpo, em ticks. */
     private int corpseTicks;
     /** Vinte minutos: depois disso o corpo some e o que sobrou cai no chão. */
@@ -726,16 +728,45 @@ public abstract class PrehistoricCreature extends TamableAnimal {
 
     @Override
     public boolean doHurtTarget(Entity target) {
+        if (isBeakStuck() || duel != null && duel.roaring()) {
+            return false;
+        }
         setStalking(false);
         if (!attackSwung) {
             swingAttack();
         }
+        boolean shielded = huntSpecial() == BehaviorProfile.HuntSpecial.BEAK_STRIKE && target instanceof Player player
+                && player.isBlocking() && player.isDamageSourceBlocked(damageSources().mobAttack(this));
         boolean hit = super.doHurtTarget(target);
         if (hit && target instanceof LivingEntity living) {
             hornToss(living);
             applyHuntSpecial(living);
+        } else if (shielded) {
+            beakStuck();
         }
         return hit;
+    }
+
+    /**
+     * A bicada que bate num escudo erguido: o bico, fundido ao crânio, trava — a ave fica parada e sem atacar por
+     * {@link HuntSpecials#BEAK_STUCK_TICKS}. A fraqueza da Kelenken: quem defende no tempo certo ganha a janela.
+     */
+    private void beakStuck() {
+        beakStuckTicks = HuntSpecials.BEAK_STUCK_TICKS;
+        retreatTicks = 0;
+        retreatFrom = null;
+        getNavigation().stop();
+        setDeltaMovement(0.0, getDeltaMovement().y, 0.0);
+        playSound(SoundEvents.ANVIL_LAND, 0.6F, 1.6F);
+        if (level() instanceof ServerLevel serverLevel) {
+            serverLevel.sendParticles(net.minecraft.core.particles.ParticleTypes.CRIT, getX(), getEyeY(), getZ(), 12,
+                    0.4, 0.3, 0.4, 0.1);
+        }
+    }
+
+    /** Bico travado depois de bater num escudo: parada, sem atacar. */
+    public boolean isBeakStuck() {
+        return beakStuckTicks > 0;
     }
 
     private BehaviorProfile.HuntSpecial huntSpecial() {
@@ -815,6 +846,10 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     }
 
     private void tickHuntSpecials() {
+        if (beakStuckTicks > 0) {
+            beakStuckTicks--;
+            getNavigation().stop();
+        }
         if (retreatTicks > 0 && --retreatTicks == 0) {
             retreatFrom = null;
         }
@@ -1439,6 +1474,18 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         } else {
             clearRestriction();
         }
+        // Pavor de água (Smilodon selvagem): o caminho nunca passa pela água e foge da beira.
+        boolean dread = fearsWater();
+        setPathfindingMalus(BlockPathTypes.WATER, dread ? -1.0F : BlockPathTypes.WATER.getMalus());
+        setPathfindingMalus(BlockPathTypes.WATER_BORDER, dread ? WATER_BORDER_DREAD : BlockPathTypes.WATER_BORDER.getMalus());
+    }
+
+    /** Penalidade da beira d'água para quem tem pavor dela: contorna lagos de longe. */
+    private static final float WATER_BORDER_DREAD = 16.0F;
+
+    /** Selvagem com pavor de água ({@code behavior.fears_water}): não entra, não segue presa nela e, se cair, sai. */
+    public boolean fearsWater() {
+        return !isTame() && behavior().map(BehaviorProfile::fearsWater).orElse(false);
     }
 
     @Override
@@ -1570,7 +1617,7 @@ public abstract class PrehistoricCreature extends TamableAnimal {
 
     @Override
     protected boolean isImmobile() {
-        return super.isImmobile() || isUnconscious();
+        return super.isImmobile() || isUnconscious() || isBeakStuck();
     }
 
     // Inconsciente, a criatura não sai do lugar: nem empurrada, nem por recuo de golpe.
@@ -1682,6 +1729,8 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         if (isTame() && target != null
                 && (!target.isAlive() || distanceToSqr(target) > TAMED_TARGET_LEASH * TAMED_TARGET_LEASH)) {
             setTarget(null);
+        } else if (target != null && !canAttack(target)) {
+            setTarget(null);
         }
         tickBreeding();
     }
@@ -1756,8 +1805,10 @@ public abstract class PrehistoricCreature extends TamableAnimal {
             trophy.shrink(1);
         }
         duel = new dev.madebyfelipe.iceagesurvival.core.ecology.ApexDuel(player.getUUID());
-        setTarget(player);
+        setTarget(null);
+        getNavigation().stop();
         playAlert();
+        threatDisplay();
         player.sendSystemMessage(Component.translatable("iceagesurvival.apex.challenge", getDisplayName(),
                 dev.madebyfelipe.iceagesurvival.core.ecology.ApexDuel.MAX_CREATURES));
     }
@@ -1792,6 +1843,7 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         setTarget(null);
         setTorpor(maxTorpor());
         tamerUUID = challenger;
+        calmAttackers();
         Player player = level().getPlayerByUUID(challenger);
         if (player != null) {
             player.sendSystemMessage(Component.translatable("iceagesurvival.apex.won", getDisplayName()));
@@ -1800,15 +1852,29 @@ public abstract class PrehistoricCreature extends TamableAnimal {
 
     private void tickApex() {
         if (duel != null) {
-            if (tickCount % 20 != 0) {
+            Player challenger = level().getPlayerByUUID(duel.challenger());
+            boolean wasRoaring = duel.roaring();
+            if (duel.tickRoar()) {
+                // Aceito o tributo: ruge para o desafiante se afastar e deixar as criaturas dele lutarem.
+                setTarget(null);
+                getNavigation().stop();
+                if (challenger != null) {
+                    getLookControl().setLookAt(challenger, 30.0F, 30.0F);
+                }
+                if (tickCount % ROAR_INTERVAL == 0) {
+                    playAlert();
+                    threatDisplay();
+                }
+            }
+            boolean roarEnded = wasRoaring && !duel.roaring();
+            if (!roarEnded && tickCount % 20 != 0) {
                 return;
             }
-            Player challenger = level().getPlayerByUUID(duel.challenger());
             if (challenger == null || !challenger.isAlive()
                     || challenger.distanceTo(this) > dev.madebyfelipe.iceagesurvival.core.ecology.ApexDuel.MAX_DISTANCE) {
                 cancelDuel("iceagesurvival.apex.abandoned");
-            } else if (getTarget() == null) {
-                setTarget(challenger);
+            } else if (!duel.roaring()) {
+                chooseDuelFoe(challenger);
             }
             return;
         }
@@ -1826,6 +1892,33 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         }
     }
 
+    /** De quanto em quanto tempo o apex ruge durante a janela do tributo. */
+    private static final int ROAR_INTERVAL = 30;
+    /** Até onde o apex procura as criaturas do desafiante. */
+    private static final double DUEL_FOE_RADIUS = 24.0;
+
+    /**
+     * Depois do rugido: as criaturas do desafiante primeiro (fica na que já está brigando); o desafiante só se não
+     * tiver nenhuma por perto ou se acabou de bater no apex.
+     */
+    private void chooseDuelFoe(Player challenger) {
+        java.util.UUID owner = duel.challenger();
+        java.util.function.Predicate<LivingEntity> ally = other -> other.isAlive()
+                && other instanceof net.minecraft.world.entity.OwnableEntity pet && owner.equals(pet.getOwnerUUID())
+                && !(other instanceof PrehistoricCreature creature && creature.isUnconscious());
+        boolean provoked = getLastHurtByMob() == challenger
+                && tickCount - getLastHurtByMobTimestamp() < dev.madebyfelipe.iceagesurvival.core.ecology.ApexDuel.PROVOKED_TICKS;
+        LivingEntity current = getTarget();
+        LivingEntity creature = current != null && ally.test(current) ? current
+                : level().getEntitiesOfClass(LivingEntity.class, getBoundingBox().inflate(DUEL_FOE_RADIUS), ally).stream()
+                        .min(java.util.Comparator.comparingDouble(this::distanceToSqr)).orElse(null);
+        LivingEntity foe = dev.madebyfelipe.iceagesurvival.core.ecology.ApexDuel.foe(creature != null, provoked)
+                == dev.madebyfelipe.iceagesurvival.core.ecology.ApexDuel.Foe.CREATURES ? creature : challenger;
+        if (current != foe) {
+            setTarget(foe);
+        }
+    }
+
     /** De quão longe o apex nota a cabeça na mão do jogador. */
     private static final double TRIBUTE_SIGHT = 24.0;
 
@@ -1834,6 +1927,42 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     public boolean isCorpse() {
         return entityData.get(DATA_CORPSE);
     }
+
+    /** O corpo não é inimigo de ninguém: os selvagens largam a domesticada caída. */
+    @Override
+    public boolean canBeSeenAsEnemy() {
+        return !isCorpse() && super.canBeSeenAsEnemy();
+    }
+
+    /**
+     * Quem não se ataca: durante o rugido do apex, ninguém; a domesticada não bate na criatura desmaiada que o dono
+     * está domando (o apex vencido no desafio, ou a derrubada a dardo).
+     */
+    @Override
+    public boolean canAttack(LivingEntity target) {
+        if (duel != null && duel.roaring()) {
+            return false;
+        }
+        if (isTame() && target instanceof PrehistoricCreature downed && downed.isUnconscious()
+                && downed.tamerUUID != null && downed.tamerUUID.equals(getOwnerUUID())) {
+            return false;
+        }
+        if (fearsWater() && target.isInWater()) {
+            return false;
+        }
+        return super.canAttack(target);
+    }
+
+    /** Quem está atacando esta criatura larga o alvo (o apex vencido, a domesticada que virou corpo). */
+    private void calmAttackers() {
+        for (net.minecraft.world.entity.Mob mob : level().getEntitiesOfClass(net.minecraft.world.entity.Mob.class,
+                getBoundingBox().inflate(CALM_RADIUS), mob -> mob.getTarget() == this)) {
+            mob.setTarget(null);
+            mob.getNavigation().stop();
+        }
+    }
+
+    private static final double CALM_RADIUS = 48.0;
 
     /**
      * A domesticada não some ao morrer: fica caída por {@link #CORPSE_TICKS} com o inventário e o implante (a
@@ -1845,6 +1974,7 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         getNavigation().stop();
         setDeltaMovement(0.0, getDeltaMovement().y, 0.0);
         setHealth(1.0F);
+        calmAttackers();
         ItemStack implant = dev.madebyfelipe.iceagesurvival.item.ImplantItem.of(this, ModItems.IMPLANT.get());
         entityData.set(DATA_CORPSE, true);
         corpseTicks = 0;

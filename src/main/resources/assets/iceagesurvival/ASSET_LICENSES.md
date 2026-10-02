@@ -9,3 +9,8 @@ instalado separadamente, a partir de um canal oficial, em uma versão compatíve
 Os demais assets deste diretório são do projeto. `textures/item/fur_*.png`, `textures/item/pelt.png`
 e `textures/models/armor/fur_layer_*.png` (`tools/gen_fur_armor.py`) usam das texturas de couro do
 Minecraft apenas o canal alfa; toda a cor é gerada pelo script.
+
+Os modelos 3D e as texturas das armas tranquilizantes (`models/item/tranq_rifle.json`,
+`models/item/tranq_crossbow.json`, `textures/item/tranq_rifle.png`, `textures/item/tranq_crossbow.png`
+e `textures/item/tranq_dart.png`) são autorais, gerados por `tools/gen_weapons.py`; nenhum asset de
+terceiros foi usado.

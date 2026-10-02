@@ -38,15 +38,15 @@ public final class ModEntities {
     public static final RegistryObject<EntityType<LandCreature>> SPINOSAURUS = landCreature("spinosaurus", 2.7F, 5.6F);
     public static final RegistryObject<EntityType<LandCreature>> ALLOSAURUS = landCreature("allosaurus", 1.8F, 3.4F);
     public static final RegistryObject<EntityType<LandCreature>> BRONTOSAURUS = landCreature("brontosaurus", 4.0F, 8.0F);
-    public static final RegistryObject<EntityType<LandCreature>> STEGOSAURUS = landCreature("stegosaurus", 3.2F, 4.0F);
+    public static final RegistryObject<EntityType<LandCreature>> STEGOSAURUS = landCreature("stegosaurus", 4.35F, 5.45F);
     public static final RegistryObject<EntityType<LandCreature>> PTERANODON = landCreature("pteranodon", 1.6F, 2.0F);
     public static final RegistryObject<EntityType<LandCreature>> DIREBEAR = landCreature("direbear", 2.0F, 3.0F);
     public static final RegistryObject<EntityType<LandCreature>> DODO = landCreature("dodo", 0.7F, 0.9F);
     public static final RegistryObject<EntityType<LandCreature>> GALLIMIMUS = landCreature("gallimimus", 1.2F, 2.3F);
-    public static final RegistryObject<EntityType<LandCreature>> TRICERATOPS = landCreature("triceratops", 3.4F, 3.6F);
+    public static final RegistryObject<EntityType<LandCreature>> TRICERATOPS = landCreature("triceratops", 5.2F, 5.5F);
     public static final RegistryObject<EntityType<LandCreature>> ELASMOTHERIUM = landCreature("elasmotherium", 1.8F, 2.4F);
     /** Kelenken, a maior ave-terrível: 2,5–3 m de altura. */
-    public static final RegistryObject<EntityType<LandCreature>> KELENKEN = landCreature("kelenken", 1.1F, 2.6F);
+    public static final RegistryObject<EntityType<LandCreature>> KELENKEN = landCreature("kelenken", 1.8F, 4.0F);
 
     public static final RegistryObject<EntityType<TestCreature>> TEST_CREATURE =
             ENTITY_TYPES.register("test_creature", () -> EntityType.Builder.of(TestCreature::new, MobCategory.CREATURE)

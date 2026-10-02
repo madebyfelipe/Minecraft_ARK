@@ -111,4 +111,49 @@ public class ApexTests {
         helper.assertFalse(rex.isDueling(), "a quarta criatura deveria cancelar o ritual");
         helper.succeed();
     }
+
+    /**
+     * Aceito o tributo, o T-Rex ruge 5 s sem atacar ninguém; depois vai na criatura do desafiante, não nele.
+     * O desafiante tem de estar no mundo (o duelo acaba se ele some).
+     */
+    @GameTest(template = ARENA, batch = "apex_roar", timeoutTicks = ApexDuel.ROAR_TICKS + 80, setupTicks = HuntTests.CHUNK_SETUP_TICKS)
+    public static void theRexRoarsThenGoesForTheChallengersCreatures(GameTestHelper helper) {
+        HuntTests.clearStrays(helper);
+        LandCreature rex = rex(helper);
+        ServerPlayer player = PredatorTests.survivalPlayer(helper);
+        var spot = rex.position().add(6, 0, 0);
+        player.moveTo(spot.x, spot.y, spot.z);
+        LandCreature ally = helper.spawnWithNoFreeWill(ModEntities.SMILODON.get(), 4, 0, 12);
+        ally.tame(player);
+        player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(ModItems.TYRANNOSAURUS_HEAD.get()));
+        rex.mobInteract(player, InteractionHand.MAIN_HAND);
+        helper.assertTrue(rex.isDueling(), "o desafio não começou");
+        helper.runAtTickTime(ApexDuel.ROAR_TICKS / 2, () -> {
+            helper.assertTrue(rex.getTarget() == null, "atacou durante o rugido: " + rex.getTarget());
+            helper.assertFalse(rex.canAttack(player), "durante o rugido não ataca o desafiante");
+        });
+        helper.runAtTickTime(ApexDuel.ROAR_TICKS + 30, () -> {
+            helper.assertTrue(rex.isDueling(), "o duelo acabou antes da hora");
+            helper.assertTrue(rex.getTarget() == ally, "depois do rugido deveria ir na criatura: " + rex.getTarget());
+            helper.succeed();
+        });
+    }
+
+    /** Vencido o T-Rex, as criaturas do desafiante param de atacá-lo (estavam o matando). */
+    @GameTest(template = EMPTY, batch = "apex_duel_calm")
+    public static void theChallengersCreaturesStopAttackingTheDefeatedRex(GameTestHelper helper) {
+        LandCreature rex = helper.spawnWithNoFreeWill(ModEntities.TYRANNOSAURUS.get(), 2, 2, 2);
+        Player player = helper.makeMockSurvivalPlayer();
+        player.moveTo(rex.position().add(3, 0, 0));
+        player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(ModItems.TYRANNOSAURUS_HEAD.get()));
+        rex.mobInteract(player, InteractionHand.MAIN_HAND);
+        LandCreature ally = helper.spawnWithNoFreeWill(ModEntities.SMILODON.get(), 1, 2, 1);
+        ally.tame(player);
+        ally.setTarget(rex);
+        rex.hurt(helper.getLevel().damageSources().mobAttack(ally), 100_000.0F);
+        helper.assertTrue(rex.isUnconscious() && rex.isAlive(), "o T-Rex deveria cair vencido");
+        helper.assertTrue(ally.getTarget() == null, "a criatura continua atacando o T-Rex vencido");
+        helper.assertFalse(ally.canAttack(rex), "a criatura do desafiante não deveria poder atacar o T-Rex caído");
+        helper.succeed();
+    }
 }

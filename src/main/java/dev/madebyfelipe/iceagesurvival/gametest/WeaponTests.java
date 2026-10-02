@@ -35,12 +35,12 @@ public class WeaponTests {
         return darts.get(0);
     }
 
-    /** O rifle dispara o dardo com 3× o torpor da flecha, gasta um dardo e entra em recarga. */
+    /** O rifle dispara o dardo com 8× o torpor da flecha, gasta um dardo e entra em recarga. */
     @GameTest(template = EMPTY, batch = "weapons")
     public static void theRifleFiresASedativeDart(GameTestHelper helper) {
         Player[] shooter = new Player[1];
         TranqArrow dart = fire(helper, ModItems.TRANQ_RIFLE.get(), new ItemStack(ModItems.TRANQ_DART.get(), 4), shooter);
-        double expected = ServerConfig.TRANQ_ARROW_TORPOR.get() * 3.0;
+        double expected = ServerConfig.TRANQ_ARROW_TORPOR.get() * 8.0;
         helper.assertTrue(Math.abs(dart.fixedTorpor() - expected) < 1e-6, "torpor do rifle " + dart.fixedTorpor());
         helper.assertTrue(shooter[0].getInventory().countItem(ModItems.TRANQ_DART.get()) == 3, "o dardo não foi gasto");
         helper.assertTrue(shooter[0].getCooldowns().isOnCooldown(ModItems.TRANQ_RIFLE.get()), "o rifle não entrou em recarga");
@@ -57,6 +57,27 @@ public class WeaponTests {
         helper.assertTrue(Math.abs(dart.fixedTorpor() - expected) < 1e-6, "torpor da besta " + dart.fixedTorpor());
         helper.assertTrue(ModItems.TRANQ_CROSSBOW.get().reloadTicks() < ModItems.TRANQ_RIFLE.get().reloadTicks(),
                 "a besta deveria recarregar mais rápido que o rifle");
+        helper.succeed();
+    }
+
+    /**
+     * A escala por torpor/s: o arco puxado (1 tiro/s) e a besta empatam, o arco Força V vem depois e o rifle é o
+     * maior de todos. A besta nunca passa do arco Força V, nem por tiro.
+     */
+    @GameTest(template = EMPTY, batch = "weapons")
+    public static void theRifleSedatesFastestAndTheCrossbowStaysUnderAPowerFiveBow(GameTestHelper helper) {
+        double arrow = ServerConfig.TRANQ_ARROW_TORPOR.get();
+        double bowDrawSeconds = 1.0;
+        double powerFive = arrow * (1.0 + 0.25 * (5 + 1));
+        TranqGunItem crossbow = ModItems.TRANQ_CROSSBOW.get();
+        TranqGunItem rifle = ModItems.TRANQ_RIFLE.get();
+        double crossbowRate = crossbow.torpor() / (crossbow.reloadTicks() / 20.0);
+        double rifleRate = rifle.torpor() / (rifle.reloadTicks() / 20.0);
+        helper.assertTrue(crossbow.torpor() <= powerFive, "besta por tiro " + crossbow.torpor() + " > Força V " + powerFive);
+        helper.assertTrue(crossbowRate <= powerFive / bowDrawSeconds, "besta por segundo " + crossbowRate);
+        helper.assertTrue(crossbowRate <= arrow / bowDrawSeconds, "a besta não deveria passar do arco comum: " + crossbowRate);
+        helper.assertTrue(rifleRate > powerFive / bowDrawSeconds, "rifle por segundo " + rifleRate + " ≤ Força V");
+        helper.assertTrue(rifleRate > crossbowRate, "rifle " + rifleRate + " ≤ besta " + crossbowRate);
         helper.succeed();
     }
 
