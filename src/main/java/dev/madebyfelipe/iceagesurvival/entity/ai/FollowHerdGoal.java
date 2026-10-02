@@ -8,17 +8,20 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ai.goal.Goal;
 
 /**
- * Mantém uma criatura selvagem perto da manada. O líder é o indivíduo da mesma espécie com
- * o menor id por perto; os demais voltam para junto dele quando se afastam demais. Não há
- * estado compartilhado: cada membro resolve sozinho quem é o líder.
+ * Mantém o bando junto: o líder é o membro do bando com o menor id, e os demais gravitam para perto
+ * dele — voltam quando passam de pouco mais da metade do raio da manada e só param bem perto. O
+ * líder é procurado até {@link PrehistoricCreature#GROUP_RANGE}, então quem se desgarrou numa fuga
+ * ou numa briga volta para o próprio bando, não para o grupo da espécie que estiver mais perto.
  */
 public class FollowHerdGoal extends Goal {
     /** A busca pelo líder varre entidades, então é feita só de vez em quando. */
-    private static final int SEARCH_INTERVAL_TICKS = 100;
-    private static final int SEARCH_JITTER_TICKS = 40;
+    private static final int SEARCH_INTERVAL_TICKS = 40;
+    private static final int SEARCH_JITTER_TICKS = 20;
+    /** Fração do raio da manada a partir da qual volta para junto do líder. */
+    private static final double RETURN_FRACTION = 0.6;
+    /** Fração do raio em que para de seguir: bem perto do líder. */
+    private static final double SETTLE_FRACTION = 0.3;
     private static final int REPATH_INTERVAL_TICKS = 20;
-    /** O líder é procurado neste múltiplo do raio da manada. */
-    private static final double SEARCH_RANGE_FACTOR = 3.0;
 
     private final PrehistoricCreature creature;
     private final double speedModifier;
@@ -42,25 +45,21 @@ public class FollowHerdGoal extends Goal {
         }
         nextSearchTick = creature.tickCount + SEARCH_INTERVAL_TICKS + creature.getRandom().nextInt(SEARCH_JITTER_TICKS);
         leader = findLeader();
-        return leader != null && creature.distanceToSqr(leader) > herdRadius * herdRadius;
+        double leave = herdRadius * RETURN_FRACTION;
+        return leader != null && creature.distanceToSqr(leader) > leave * leave;
     }
 
     @Nullable
     private PrehistoricCreature findLeader() {
-        double range = herdRadius * SEARCH_RANGE_FACTOR;
-        return creature.level().getEntitiesOfClass(
-                        PrehistoricCreature.class,
-                        creature.getBoundingBox().inflate(range),
-                        other -> other.getType() == creature.getType() && other.isAlive() && !other.isTame())
-                .stream()
+        return creature.groupMembers(PrehistoricCreature.GROUP_RANGE).stream()
                 .min(Comparator.comparingInt(Entity::getId))
-                .filter(found -> found != creature)
+                .filter(found -> found.getId() < creature.getId())
                 .orElse(null);
     }
 
     @Override
     public boolean canContinueToUse() {
-        double close = herdRadius / 2;
+        double close = herdRadius * SETTLE_FRACTION;
         return leader != null && leader.isAlive() && !creature.isTame()
                 && creature.distanceToSqr(leader) > close * close;
     }

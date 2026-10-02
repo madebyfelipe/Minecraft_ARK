@@ -4,7 +4,7 @@
   "spawners": [
     {
       "type": "iceagesurvival:dodo",
-      "weight": 14,
+      "weight": 7,
       "minCount": 4,
       "maxCount": 7
     }

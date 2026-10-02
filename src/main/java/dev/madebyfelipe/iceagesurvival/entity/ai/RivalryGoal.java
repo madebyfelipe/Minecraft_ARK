@@ -68,8 +68,7 @@ public class RivalryGoal extends Goal {
     }
 
     private boolean sameHerd(PrehistoricCreature other) {
-        int herdRadius = creature.behavior().map(profile -> profile.herdRadius()).orElse(0);
-        return herdRadius > 0 && creature.distanceTo(other) <= herdRadius;
+        return creature.sameGroup(other);
     }
 
     @Override

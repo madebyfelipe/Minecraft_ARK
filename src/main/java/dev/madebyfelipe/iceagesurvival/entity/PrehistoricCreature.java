@@ -10,6 +10,8 @@ import dev.madebyfelipe.iceagesurvival.core.genetics.Genome;
 import dev.madebyfelipe.iceagesurvival.genetics.GenomeNbt;
 import dev.madebyfelipe.iceagesurvival.item.CreatureEggItem;
 import dev.madebyfelipe.iceagesurvival.species.BreedingProfile;
+import dev.madebyfelipe.iceagesurvival.core.ecology.TargetPriority;
+import dev.madebyfelipe.iceagesurvival.entity.ai.HuntGoal;
 import dev.madebyfelipe.iceagesurvival.core.spawn.DangerZones;
 import dev.madebyfelipe.iceagesurvival.core.spawn.SpeciesSpacing;
 import dev.madebyfelipe.iceagesurvival.world.CreatureLocator;
@@ -40,6 +42,7 @@ import dev.madebyfelipe.iceagesurvival.species.EcologyProfile;
 import dev.madebyfelipe.iceagesurvival.core.mount.MountedReach;
 import dev.madebyfelipe.iceagesurvival.species.TamingProfile;
 import dev.madebyfelipe.iceagesurvival.menu.CreatureStorageMenu;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
@@ -155,6 +158,11 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     private static final String TAG_NEXT_FEED_TIME = "NextFeedTime";
     private static final String TAG_AFFINITY = "Affinity";
     private static final String TAG_HOME = "Home";
+    private static final String TAG_GROUP = "Group";
+    /** Raio em que se procura o bando: longe assim, o membro ainda volta para junto dos outros. */
+    public static final double GROUP_RANGE = 64.0;
+    /** Bando sem {@code group_max} na espécie (lobo desligado, criatura de teste). */
+    private static final int DEFAULT_GROUP_MAX = 6;
     /** Ordem única de antes dos assobios; só lida, para converter mundos antigos. */
     private static final String TAG_LEGACY_ORDER = "Order";
     private static final String TAG_MOVEMENT = "Movement";
@@ -171,6 +179,10 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     private static final String TAG_GESTATION_CHILD = "GestationChild";
     private static final String TAG_ZONE_CHECKED = "ZoneChecked";
     private static final String TAG_SPACING_CHECKED = "SpacingChecked";
+    /** Quem do bando está a até este raio come junto e reparte a presa. */
+    private static final double MEAL_SHARE_RADIUS = 16.0;
+    /** Mesmo a menor presa mata um pouco da fome. */
+    private static final double MIN_MEAL_FRACTION = 0.1;
     /** A cada quanto a domesticada grava onde está, para o menu "localizar criatura", em ticks. */
     private static final int LOCATOR_UPDATE_INTERVAL = 100;
     /** A cada quanto um indivíduo selvagem renova a marca do grupo dele, em ticks. */
@@ -254,6 +266,18 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     /** Centro do território: onde a criatura entrou no mundo pela primeira vez. */
     @Nullable
     private BlockPos homePos;
+    /**
+     * Bando desta criatura selvagem. Quem nasce junto (geração do terreno, reposição, família) sai no
+     * mesmo bando; a sem bando (mundo antigo, ovo, comando) é adotada pelo bando da espécie mais perto
+     * que tenha vaga. Domesticada, sai do bando. Dois bandos não se fundem.
+     */
+    @Nullable
+    private UUID groupId;
+    /** Adotando um bando agora: trava contra reentrada (a adoção conta membros de outros bandos). */
+    private boolean adopting;
+    /** Intruso que esta criatura está expulsando do território ({@code TerritoryGoal}). */
+    @Nullable
+    private LivingEntity territorialFoe;
     /** Quem derrubou a criatura: só essa pessoa mexe no inventário e é ela quem fica com a criatura. */
     @Nullable
     private UUID tamerUUID;
@@ -402,6 +426,30 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         return DangerZones.horizontalDistance(pos.getX(), pos.getZ(), spawn.getX(), spawn.getZ());
     }
 
+    /**
+     * O bando de quem nasce junto, repassado pelo vanilla de um membro ao seguinte. Herda o dado do
+     * {@code AgeableMob} porque o vanilla converte para ele; sem filhote sorteado (os filhotes do mod
+     * vêm da família).
+     */
+    public static final class Pack extends AgeableMob.AgeableMobGroupData {
+        private final EntityType<?> type;
+        private final UUID id;
+
+        public Pack(EntityType<?> type, UUID id) {
+            super(false);
+            this.type = type;
+            this.id = id;
+        }
+
+        public EntityType<?> type() {
+            return type;
+        }
+
+        public UUID id() {
+            return id;
+        }
+    }
+
     /** Marca os parentes criados por {@link #spawnFamily}, para eles não criarem família também. */
     private static final class FamilyMember implements SpawnGroupData {
         private static final FamilyMember INSTANCE = new FamilyMember();
@@ -417,12 +465,21 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         if (spawnData == FamilyMember.INSTANCE) {
             return spawnData;
         }
-        SpawnGroupData result = super.finalizeSpawn(level, difficulty, reason, spawnData, dataTag);
-        if ((reason == MobSpawnType.NATURAL || reason == MobSpawnType.CHUNK_GENERATION) && !isBaby()) {
+        // O vanilla repassa o mesmo dado a todo o grupo que nasce junto: é o que faz deles um bando.
+        boolean natural = reason == MobSpawnType.NATURAL || reason == MobSpawnType.CHUNK_GENERATION;
+        Pack pack = natural && spawnData instanceof Pack existing && existing.type() == getType() ? existing : null;
+        if (natural) {
+            if (pack == null) {
+                pack = new Pack(getType(), UUID.randomUUID());
+            }
+            groupId = pack.id();
+        }
+        super.finalizeSpawn(level, difficulty, reason, pack, dataTag);
+        if (natural && !isBaby()) {
             species().flatMap(Species::spawn).flatMap(SpawnProfile::family)
                     .ifPresent(family -> spawnFamily(level, difficulty, family));
         }
-        return result;
+        return pack != null ? pack : spawnData;
     }
 
     /**
@@ -465,6 +522,7 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         mate.moveTo(getX() + Math.cos(angle) * offset, getY(), getZ() + Math.sin(angle) * offset,
                 level.getRandom().nextFloat() * 360.0F, 0.0F);
         mate.finalizeSpawn(level, difficulty, MobSpawnType.NATURAL, FamilyMember.INSTANCE, null);
+        mate.groupId = groupId;
         mate.rollWildStats();
         mate.setFemale(!isFemale());
         level.addFreshEntity(mate);
@@ -480,6 +538,7 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         relative.moveTo(getX() + Math.cos(angle) * offset, getY(), getZ() + Math.sin(angle) * offset,
                 level.getRandom().nextFloat() * 360.0F, 0.0F);
         relative.finalizeSpawn(level, difficulty, MobSpawnType.NATURAL, FamilyMember.INSTANCE, null);
+        relative.groupId = groupId;
         level.addFreshEntity(relative);
         return relative;
     }
@@ -645,6 +704,202 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         target.hurtMarked = true;
     }
 
+    // ---- Bando ----
+
+    @Nullable
+    public UUID groupId() {
+        ensureGroup();
+        return groupId;
+    }
+
+    /** Selvagem sem bando no servidor: é adotada já, na primeira vez que alguém pergunta pelo bando dela. */
+    private void ensureGroup() {
+        if (groupId == null && !adopting && !isTame() && !level().isClientSide && isAlive()) {
+            adopting = true;
+            try {
+                adoptGroup();
+            } finally {
+                adopting = false;
+            }
+        }
+    }
+
+    /** Mesmo bando pelo id já gravado, sem disparar adoção: é o que a contagem de membros usa. */
+    private boolean sameGroupId(PrehistoricCreature other) {
+        return other != this && other.getType() == getType() && groupId != null && groupId.equals(other.groupId)
+                && !isTame() && !other.isTame();
+    }
+
+    /** Para testes e comandos: põe a criatura num bando. */
+    public void setGroupId(@Nullable UUID id) {
+        groupId = id;
+    }
+
+    /** Do mesmo bando: mesma espécie, selvagens os dois, mesmo id de bando. */
+    public boolean sameGroup(LivingEntity other) {
+        if (other == this || !(other instanceof PrehistoricCreature creature) || creature.getType() != getType()
+                || isTame() || creature.isTame()) {
+            return false;
+        }
+        ensureGroup();
+        creature.ensureGroup();
+        return groupId != null && groupId.equals(creature.groupId);
+    }
+
+    /** Tamanho máximo do bando: o {@code group_max} da espécie. */
+    public int groupMax() {
+        return species().flatMap(Species::spawn).map(SpawnProfile::groupMax).orElse(DEFAULT_GROUP_MAX);
+    }
+
+    /** Membros do bando carregados no raio, sem contar esta. */
+    public List<PrehistoricCreature> groupMembers(double radius) {
+        ensureGroup();
+        if (groupId == null || isTame()) {
+            return List.of();
+        }
+        return level().getEntitiesOfClass(PrehistoricCreature.class, getBoundingBox().inflate(radius),
+                other -> sameGroupId(other) && other.isAlive());
+    }
+
+    /**
+     * Selvagem sem bando: entra no bando da espécie mais perto que ainda tenha vaga, ou funda um. Roda
+     * no primeiro tick e de tempos em tempos, para o que veio de mundo antigo, de ovo ou de comando.
+     */
+    private void adoptGroup() {
+        if (groupId != null || isTame() || !(level() instanceof ServerLevel)) {
+            return;
+        }
+        int herdRadius = behavior().map(BehaviorProfile::herdRadius).orElse(0);
+        if (isBaby()) {
+            // Filhote é da família: entra no bando do adulto da espécie mais perto, mesmo acima do limite.
+            PrehistoricCreature parent = level().getEntitiesOfClass(PrehistoricCreature.class,
+                            getBoundingBox().inflate(16.0), other -> other != this && other.getType() == getType()
+                                    && !other.isTame() && !other.isBaby() && other.isAlive())
+                    .stream().min(java.util.Comparator.comparingDouble(this::distanceToSqr)).orElse(null);
+            if (parent != null && parent.groupId() != null) {
+                groupId = parent.groupId;
+                return;
+            }
+        }
+        if (herdRadius > 0) {
+            double reach = Math.max(herdRadius * 2.0, 16.0);
+            PrehistoricCreature best = null;
+            double bestDistance = Double.MAX_VALUE;
+            for (PrehistoricCreature other : level().getEntitiesOfClass(PrehistoricCreature.class,
+                    getBoundingBox().inflate(reach), other -> other != this && other.getType() == getType()
+                            && !other.isTame() && other.groupId != null && other.isAlive())) {
+                double distance = distanceToSqr(other);
+                if (distance < bestDistance && other.groupMembers(GROUP_RANGE).size() + 1 < other.groupMax()) {
+                    best = other;
+                    bestDistance = distance;
+                }
+            }
+            if (best != null) {
+                groupId = best.groupId;
+                if (best.lastMealTime != Long.MIN_VALUE) {
+                    lastMealTime = best.lastMealTime;
+                }
+                return;
+            }
+        }
+        groupId = UUID.randomUUID();
+    }
+
+    // ---- Território ----
+
+    /**
+     * Raio de defesa em volta desta criatura: quem entra é intruso. Manada: o raio dela mais 6; solitária:
+     * quatro vezes a largura do corpo mais 4. Sempre entre 8 e 24 blocos.
+     */
+    public double defendRadius() {
+        int herdRadius = behavior().map(BehaviorProfile::herdRadius).orElse(0);
+        double radius = herdRadius > 0 ? herdRadius + 6.0 : getBbWidth() * 4.0 + 4.0;
+        return Mth.clamp(radius, 8.0, 24.0);
+    }
+
+    /** Começa a expulsar o intruso. */
+    public void defendTerritoryAgainst(LivingEntity intruder) {
+        territorialFoe = intruder;
+        setTarget(intruder);
+    }
+
+    /** O intruso que está expulsando, se ainda for o alvo. */
+    @Nullable
+    public LivingEntity territorialFoe() {
+        if (territorialFoe != null && (getTarget() != territorialFoe || !territorialFoe.isAlive())) {
+            territorialFoe = null;
+        }
+        return territorialFoe;
+    }
+
+    /** Guerra entre bandos: os membros sem alvo entram na briga contra o inimigo. */
+    public void rallyGroupAgainst(LivingEntity enemy) {
+        for (PrehistoricCreature member : groupMembers(GROUP_RANGE)) {
+            if (member.getTarget() == null && !member.isBaby() && !member.isUnconscious()
+                    && member.yieldingFrom() == null) {
+                member.defendTerritoryAgainst(enemy);
+            }
+        }
+    }
+
+    // ---- Prioridade de alvo ----
+
+    /** Por quanto tempo depois de ser ferida pelo jogador conta como provocada, em ticks. */
+    private static final int PROVOKED_TICKS = 100;
+
+    /**
+     * Mira primeiro a ameaça maior ou mais imediata ({@link TargetPriority}): com o jogador como alvo e
+     * uma criatura (ou golem) mais perigosa atacando esta ou o bando, ou um rival de território, troca
+     * para ela. Caçando o jogador sem ter sido provocada, troca por uma presa melhor para o bando, se
+     * houver ({@link HuntGoal#bestNonPlayerPrey}).
+     */
+    private void reprioritizeTarget() {
+        if (!(getTarget() instanceof Player player) || isTame() || isUnconscious()) {
+            return;
+        }
+        boolean provoked = getLastHurtByMob() == player && tickCount - getLastHurtByMobTimestamp() < PROVOKED_TICKS;
+        double playerDanger = TargetPriority.danger(sizeRatioOf(player), 1, provoked, distanceTo(player));
+        LivingEntity threat = null;
+        double threatDanger = playerDanger;
+        double range = Math.max(behavior().map(BehaviorProfile::aggroRadius).orElse(16.0), 16.0);
+        for (Mob other : level().getEntitiesOfClass(Mob.class, getBoundingBox().inflate(range),
+                other -> other != this && other.isAlive() && !sameGroup(other) && threatensUs(other))) {
+            int group = other instanceof PrehistoricCreature creature ? creature.fightingGroup() : 1;
+            double danger = TargetPriority.danger(sizeRatioOf(other), group, true, distanceTo(other));
+            if (TargetPriority.outranks(danger, threatDanger)) {
+                threat = other;
+                threatDanger = danger;
+            }
+        }
+        if (threat != null) {
+            if (isHunting()) {
+                endHunt();
+            }
+            setTarget(threat);
+            return;
+        }
+        if (!provoked && isHunting()) {
+            LivingEntity prey = HuntGoal.bestPrey(this);
+            if (prey != null && !(prey instanceof Player)) {
+                setTarget(prey);
+                rallyPack(prey);
+                if (prey instanceof PrehistoricCreature hunted) {
+                    hunted.onHunted(this, fightingGroup());
+                }
+            }
+        }
+    }
+
+    /** Está atacando esta criatura ou alguém do bando, ou é rival de território dela. */
+    private boolean threatensUs(Mob other) {
+        LivingEntity target = other.getTarget();
+        if (target == this || target != null && sameGroup(target)) {
+            return true;
+        }
+        return other instanceof PrehistoricCreature creature
+                && (creature.territorialFoe() == this || territorialFoe() == creature);
+    }
+
     // ---- Ecologia ----
 
     public Optional<WarinessProfile> wariness() {
@@ -691,8 +946,8 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         int herdRadius = behavior().map(BehaviorProfile::herdRadius).orElse(0);
         double radius = Math.max(herdRadius, 8);
         for (PrehistoricCreature other : level().getEntitiesOfClass(PrehistoricCreature.class,
-                getBoundingBox().inflate(radius), candidate -> candidate != this && candidate.getType() == getType()
-                        && !candidate.isTame() && candidate.getTarget() == null && !candidate.isUnconscious())) {
+                getBoundingBox().inflate(radius), candidate -> sameGroup(candidate)
+                        && candidate.getTarget() == null && !candidate.isUnconscious())) {
             other.noticeThreat(threat);
         }
     }
@@ -703,16 +958,15 @@ public abstract class PrehistoricCreature extends TamableAnimal {
             return false;
         }
         return !level().getEntitiesOfClass(PrehistoricCreature.class, getBoundingBox().inflate(radius),
-                other -> other != this && other.getType() == getType() && other.isBaby() && !other.isTame()
-                        && other.isAlive()).isEmpty();
+                other -> sameGroup(other) && other.isBaby() && other.isAlive()).isEmpty();
     }
 
     /** Filhote ferido: os adultos selvagens da espécie por perto vão para cima de quem o feriu. */
     private void callParents(LivingEntity attacker) {
         double radius = wariness().map(WarinessProfile::calfRadius).orElse(16.0);
         for (PrehistoricCreature adult : level().getEntitiesOfClass(PrehistoricCreature.class,
-                getBoundingBox().inflate(Math.max(radius, 8.0)), other -> other.getType() == getType()
-                        && !other.isBaby() && !other.isTame() && !other.isUnconscious())) {
+                getBoundingBox().inflate(Math.max(radius, 8.0)), other -> sameGroup(other)
+                        && !other.isBaby() && !other.isUnconscious())) {
             adult.setTarget(attacker);
         }
     }
@@ -729,8 +983,10 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     /** Ticks desde a última refeição; o primeiro valor é sorteado, para as caçadas não sincronizarem. */
     public long ticksSinceMeal() {
         if (lastMealTime == Long.MIN_VALUE) {
-            lastMealTime = level().getGameTime()
-                    - Hunger.spawnTicksSinceMeal(ecology().hungerSeconds(), getRandom().nextDouble());
+            // O sorteio sai do id do bando: quem nasce junto tem a mesma fome e caça junto.
+            double roll = groupId != null ? new java.util.Random(groupId.getLeastSignificantBits()).nextDouble()
+                    : getRandom().nextDouble();
+            lastMealTime = level().getGameTime() - Hunger.spawnTicksSinceMeal(ecology().hungerSeconds(), roll);
         }
         return level().getGameTime() - lastMealTime;
     }
@@ -739,6 +995,12 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     public Hunger.Drive hungerDrive() {
         int sated = behavior().map(BehaviorProfile::satedSeconds).orElse(BehaviorProfile.PASSIVE.satedSeconds());
         return Hunger.drive(ticksSinceMeal(), sated, ecology().hungerSeconds());
+    }
+
+    /** Fome máxima ({@code /ias hunger}): caça agora, sem a espera de uma caçada que falhou. */
+    public void starve() {
+        setTicksSinceMeal(ecology().hungerSeconds() * 40L);
+        huntFailedUntil = 0;
     }
 
     /** Para testes e comandos: fome como se a última refeição tivesse sido há tanto tempo. */
@@ -783,7 +1045,7 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     private void stressHerd(Stress.Event event) {
         double radius = Math.max(behavior().map(BehaviorProfile::herdRadius).orElse(0), 12);
         for (PrehistoricCreature other : level().getEntitiesOfClass(PrehistoricCreature.class,
-                getBoundingBox().inflate(radius), o -> o != this && o.getType() == getType() && !o.isTame())) {
+                getBoundingBox().inflate(radius), this::sameGroup)) {
             other.addStress(event);
         }
     }
@@ -802,8 +1064,7 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         noticeThreat(predator);
         double radius = Math.max(behavior().map(BehaviorProfile::herdRadius).orElse(0), 12);
         for (PrehistoricCreature other : level().getEntitiesOfClass(PrehistoricCreature.class,
-                getBoundingBox().inflate(radius), o -> o != this && o.getType() == getType() && !o.isTame()
-                        && !o.isUnconscious())) {
+                getBoundingBox().inflate(radius), o -> sameGroup(o) && !o.isUnconscious())) {
             other.markHunted(pack);
             other.addStress(Stress.Event.HUNTED, 0.6);
             other.noticeThreat(predator);
@@ -816,8 +1077,7 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         noticeThreat(predator);
         double radius = Math.max(behavior().map(BehaviorProfile::herdRadius).orElse(0), 12);
         for (PrehistoricCreature other : level().getEntitiesOfClass(PrehistoricCreature.class,
-                getBoundingBox().inflate(radius), o -> o != this && o.getType() == getType() && !o.isTame()
-                        && !o.isUnconscious())) {
+                getBoundingBox().inflate(radius), o -> sameGroup(o) && !o.isUnconscious())) {
             other.markHunted(pack);
             other.noticeThreat(predator);
         }
@@ -923,10 +1183,24 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         boolean playerMeal = victim instanceof Player && behavior.map(profile -> profile.prey().isPresent()).orElse(false);
         boolean speciesPrey = behavior.flatMap(BehaviorProfile::prey).map(victim.getType()::is).orElse(false);
         if (!isTame() && behavior.isPresent() && (speciesPrey || playerMeal)) {
-            // Comeu: recupera vida e passa um tempo sem caçar, perto de onde abateu.
-            lastMealTime = level.getGameTime();
+            // Comeu: recupera vida e passa um tempo sem caçar, perto de onde abateu. A saciedade é do bando e
+            // vem do tamanho da presa dividido por quem come: um dodô repartido por três Alossauros quase não
+            // mata a fome. O jogador conta como refeição inteira: quem o matou não ataca de novo sem ser provocado.
+            List<PrehistoricCreature> eaters = groupMembers(MEAL_SHARE_RADIUS);
+            double fraction = victim instanceof Player ? 1.0
+                    : Mth.clamp(sizeRatioOf(victim) / (1 + eaters.size()), MIN_MEAL_FRACTION, 1.0);
+            long hungerTicks = ecology().hungerSeconds() * 20L;
+            ticksSinceMeal();
+            lastMealTime = Math.max(lastMealTime, level.getGameTime() - Math.round((1.0 - fraction) * hungerTicks));
+            for (PrehistoricCreature member : groupMembers(GROUP_RANGE)) {
+                member.lastMealTime = Math.max(member.lastMealTime, lastMealTime);
+                if (member.getTarget() == victim || member.isHunting()) {
+                    member.setTarget(null);
+                    member.endHunt();
+                }
+            }
             huntStartTime = -1;
-            heal(getMaxHealth() * 0.25F);
+            heal((float) (getMaxHealth() * 0.25 * fraction));
             setTarget(null);
             addStress(Stress.Event.FED);
         }
@@ -995,6 +1269,11 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         if (homePos == null) {
             homePos = blockPosition();
         }
+        applyBehavior();
+    }
+
+    /** Volta a valer o território da espécie (depois de rondar com fome). */
+    public void restoreTerritory() {
         applyBehavior();
     }
 
@@ -1193,6 +1472,9 @@ public abstract class PrehistoricCreature extends TamableAnimal {
                 return;
             }
         }
+        if (!level().isClientSide && groupId == null && !isTame() && (tickCount == 1 || tickCount % 100 == 0)) {
+            adoptGroup();
+        }
         if (!level().isClientSide && tickCount % 20 == 0 && getType().is(ModTags.DISABLED)
                 && !isTame() && tamerUUID == null && !isPersistenceRequired() && !isVehicle()) {
             // Espécie desligada (o lobo-terrível): a selvagem que sobrou de antes some.
@@ -1224,6 +1506,7 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         if (isUnconscious() && !isTame()) {
             eatFromInventory();
         }
+        reprioritizeTarget();
         if (isTame() && !isUnconscious() && tickCount % SELF_HEAL_INTERVAL_TICKS == 0) {
             eatToHeal();
         }
@@ -1474,7 +1757,7 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         }
         for (PrehistoricCreature other : level().getEntitiesOfClass(
                 PrehistoricCreature.class, getBoundingBox().inflate(herdRadius),
-                candidate -> candidate != this && candidate.getType() == getType() && !candidate.isTame()
+                candidate -> sameGroup(candidate)
                         && !candidate.isBaby() && !candidate.isUnconscious() && candidate.getTarget() == null)) {
             other.setTarget(prey);
             other.beginHunt();
@@ -1498,8 +1781,7 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         }
         double radius = Math.max(behavior.herdRadius(), ThreatResponse.ALLY_RADIUS);
         return 1 + level().getEntitiesOfClass(PrehistoricCreature.class, getBoundingBox().inflate(radius),
-                other -> other != this && other.getType() == getType() && !other.isTame() && !other.isBaby()
-                        && !other.isUnconscious()).size();
+                other -> sameGroup(other) && !other.isBaby() && !other.isUnconscious()).size();
     }
 
     /** Porte de {@code other} em relação a esta criatura ({@link ThreatResponse#sizeRatio}). */
@@ -1513,7 +1795,7 @@ public abstract class PrehistoricCreature extends TamableAnimal {
             return true;
         }
         return level().getEntitiesOfClass(PrehistoricCreature.class, getBoundingBox().inflate(herdRadius),
-                other -> other != this && other.getType() == getType() && other.isAlive() && !other.isUnconscious())
+                other -> sameGroup(other) && other.isAlive() && !other.isUnconscious())
                 .isEmpty();
     }
 
@@ -1525,7 +1807,7 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         double range = Math.max(behavior.get().herdRadius(), behavior.get().aggroRadius());
         for (PrehistoricCreature other : level().getEntitiesOfClass(
                 PrehistoricCreature.class, getBoundingBox().inflate(range),
-                candidate -> candidate != this && candidate.getType() == getType() && !candidate.isTame()
+                candidate -> sameGroup(candidate)
                         && !candidate.isUnconscious() && candidate.getTarget() == null)) {
             other.setTarget(attacker);
         }
@@ -2245,6 +2527,7 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     }
 
     private void completeTaming(UUID owner) {
+        groupId = null;
         double effectiveness = tamingSession.effectiveness();
         int bonus = TamingRules.bonusPoints(
                 statPoints.level(), ServerConfig.TAMING_BONUS_LEVEL_FRACTION.get(), effectiveness);
@@ -2295,6 +2578,9 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         compound.putString(TAG_STANCE, stance().id());
         if (homePos != null) {
             compound.put(TAG_HOME, NbtUtils.writeBlockPos(homePos));
+        }
+        if (groupId != null) {
+            compound.putUUID(TAG_GROUP, groupId);
         }
         compound.put(TAG_INVENTORY, inventory.createTag());
         if (tamerUUID != null) {
@@ -2370,6 +2656,7 @@ public abstract class PrehistoricCreature extends TamableAnimal {
                 taming.getDouble(TAG_TAMING_FOOD), taming.getDouble(TAG_TAMING_QUALITY), taming.getDouble(TAG_TAMING_DAMAGE));
         nextFeedTime = compound.getLong(TAG_NEXT_FEED_TIME);
         affinity = Mth.clamp(compound.getFloat(TAG_AFFINITY), 0.0F, MAX_AFFINITY);
+        groupId = compound.hasUUID(TAG_GROUP) ? compound.getUUID(TAG_GROUP) : null;
         homePos = compound.contains(TAG_HOME, Tag.TAG_COMPOUND)
                 ? NbtUtils.readBlockPos(compound.getCompound(TAG_HOME))
                 : null;

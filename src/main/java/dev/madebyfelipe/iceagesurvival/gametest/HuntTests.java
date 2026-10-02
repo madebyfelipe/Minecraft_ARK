@@ -54,26 +54,42 @@ public class HuntTests {
         return hunter;
     }
 
-    /** O bando de alossauros parte para a manada de mamutes, e a manada dispara. */
-    @GameTest(template = ARENA, batch = "hunt_allosaurus", timeoutTicks = 300)
-    public static void allosaurusPackChasesAMammothHerdThatRuns(GameTestHelper helper) {
+    /**
+     * Manada que se defende conta inteira: o bando de Alossauros com fome não vai atrás de dois mamutes
+     * juntos (a manada de brontos, mamutes, é grande demais para ele).
+     */
+    @GameTest(template = ARENA, batch = "hunt_allosaurus_herd", timeoutTicks = 60)
+    public static void allosaurusPackLeavesADefendedHerdAlone(GameTestHelper helper) {
         clearStrays(helper);
         List<LandCreature> pack = List.of(hungry(helper, ModEntities.ALLOSAURUS.get(), 4, 3),
                 hungry(helper, ModEntities.ALLOSAURUS.get(), 7, 3), hungry(helper, ModEntities.ALLOSAURUS.get(), 10, 3));
-        LandCreature first = helper.spawn(ModEntities.MAMMOTH.get(), 9, 0, 17);
-        LandCreature second = helper.spawn(ModEntities.MAMMOTH.get(), 13, 0, 17);
-        Vec3 start = first.position();
+        LandCreature first = helper.spawnWithNoFreeWill(ModEntities.MAMMOTH.get(), 9, 0, 17);
+        helper.spawnWithNoFreeWill(ModEntities.MAMMOTH.get(), 12, 0, 17);
+        helper.runAfterDelay(2, () -> {
+            helper.assertTrue(!first.isIsolated() && first.fightingGroup() >= 2, "a manada deveria estar junta");
+            helper.assertTrue(!HuntGoal.wouldHunt(pack.get(0), first, pack.get(0).behavior().orElseThrow().prey().orElseThrow()),
+                    "o bando de Alossauros não deveria encarar a manada de mamutes");
+            helper.succeed();
+        });
+    }
+
+    /** A perseguição que deve acontecer: o bando de Alossauros com fome vai atrás do Galimimo, que dispara. */
+    @GameTest(template = ARENA, batch = "hunt_allosaurus_galli", timeoutTicks = 300)
+    public static void allosaurusPackChasesAGallimimus(GameTestHelper helper) {
+        clearStrays(helper);
+        List<LandCreature> pack = List.of(hungry(helper, ModEntities.ALLOSAURUS.get(), 4, 3),
+                hungry(helper, ModEntities.ALLOSAURUS.get(), 7, 3));
+        LandCreature galli = helper.spawn(ModEntities.GALLIMIMUS.get(), 12, 0, 18);
+        Vec3 start = galli.position();
         helper.onEachTick(() -> {
-            boolean chasing = pack.stream().anyMatch(allo -> allo.getTarget() == first || allo.getTarget() == second);
-            if (chasing && first.isHunted() && second.isHunted() && first.huntingPack() >= 2
-                    && first.position().distanceTo(start) > 3.0) {
+            boolean chasing = pack.stream().anyMatch(allo -> allo.getTarget() == galli);
+            if (chasing && galli.isHunted() && galli.position().distanceTo(start) > 3.0) {
                 helper.succeed();
             }
         });
-        helper.runAtTickTime(290, () -> helper.fail("alvos " + pack.stream().map(a -> String.valueOf(a.getTarget())).toList()
-                + " fome " + pack.get(0).hungerDrive() + " caçado " + first.isHunted() + "/" + second.isHunted()
-                + " bando " + first.huntingPack() + " andou " + first.position().distanceTo(start)
-                + " estresse " + first.stress()));
+        helper.runAtTickTime(290, () -> helper.fail("sem perseguição: alvos "
+                + pack.stream().map(a -> String.valueOf(a.getTarget())).toList() + " fome " + pack.get(0).hungerDrive()
+                + " caçado " + galli.isHunted() + " andou " + galli.position().distanceTo(start)));
     }
 
     /** O T-Rex faminto vai atrás do Elasmotério, que foge. */

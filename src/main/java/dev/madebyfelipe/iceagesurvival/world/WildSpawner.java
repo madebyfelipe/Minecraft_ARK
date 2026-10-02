@@ -84,11 +84,14 @@ public final class WildSpawner {
     /** Com a região abaixo desta fração do teto, a reposição faz nascer vários grupos de uma vez. */
     private static final double SPARSE_FRACTION = 0.5;
     /** Grupos por tentativa com a região esparsa (um mundo recém-criado, uma área recém-explorada). */
-    private static final int SPARSE_GROUPS = 5;
+    private static final int SPARSE_GROUPS = 2;
+
+    /** Fração do teto da config que vale de fato: espaço para os territórios dos bandos (era 0,7). */
+    public static final double POPULATION_FRACTION = 0.4;
 
     /** População-alvo reduzida para deixar espaço para os territórios da fauna. */
     public static int effectiveMaximumPopulation() {
-        return (int) (ServerConfig.WILD_SPAWN_MAX_TOTAL.get() * 0.7);
+        return (int) (ServerConfig.WILD_SPAWN_MAX_TOTAL.get() * POPULATION_FRACTION);
     }
 
     /** Como {@link #trySpawnAround(ServerLevel, ServerPlayer)}, com as distâncias dadas. */
@@ -145,9 +148,11 @@ public final class WildSpawner {
                 continue;
             }
             int spawned = 0;
+            // Quem nasce junto é um bando, já com os membros definidos.
+            PrehistoricCreature.Pack pack = new PrehistoricCreature.Pack(report.type(), java.util.UUID.randomUUID());
             for (int index = 0; index < group; index++) {
                 BlockPos pos = index == 0 ? origin : nearbySurfacePos(level, origin, report.type(), report.profile(), random);
-                if (pos != null && spawnAt(level, report.type(), pos)) {
+                if (pos != null && spawnAt(level, report.type(), pos, pack)) {
                     spawned++;
                 }
             }
@@ -249,6 +254,12 @@ public final class WildSpawner {
      * @return se nasceu
      */
     public static boolean spawnAt(ServerLevel level, EntityType<?> type, BlockPos pos) {
+        return spawnAt(level, type, pos, null);
+    }
+
+    /** Como {@link #spawnAt(ServerLevel, EntityType, BlockPos)}, no bando dado. */
+    public static boolean spawnAt(ServerLevel level, EntityType<?> type, BlockPos pos,
+                                  @Nullable PrehistoricCreature.Pack pack) {
         if (!(type.create(level) instanceof Mob mob)) {
             return false;
         }
@@ -258,7 +269,7 @@ public final class WildSpawner {
             return false;
         }
         ForgeEventFactory.onFinalizeSpawn(
-                mob, level, level.getCurrentDifficultyAt(pos), MobSpawnType.NATURAL, null, null);
+                mob, level, level.getCurrentDifficultyAt(pos), MobSpawnType.NATURAL, pack, null);
         return level.addFreshEntity(mob);
     }
 }

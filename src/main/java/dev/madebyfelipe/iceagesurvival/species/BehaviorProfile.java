@@ -24,8 +24,8 @@ import net.minecraft.world.entity.EntityType;
  * @param huntStyle          {@code chase}: vai direto no alvo; {@code stalk}: espreita e só dá o bote
  *                           quando chega perto ou quando o alvo a vê
  * @param satedSeconds       depois de abater uma presa, o predador passa este tempo sem caçar
- * @param huntsPlayers       se, faminto, o predador também vê o jogador como presa; falso no
- *                           Velociraptor, pequeno demais para caçar gente
+ * @param diet               tabela de preferência de presas ({@link DietEntry}); a primeira linha que
+ *                           casa vale, e presa da tag fora da tabela tem preferência 1
  * @param wariness           reação a ameaças (lutar ou fugir); ausente = ignora quem chega perto
  * @param ecology            fome, raio de caça, rivais e temperamento
  */
@@ -40,9 +40,27 @@ public record BehaviorProfile(
         Optional<TagKey<EntityType<?>>> prey,
         HuntStyle huntStyle,
         int satedSeconds,
-        boolean huntsPlayers,
+        java.util.List<DietEntry> diet,
         Optional<WarinessProfile> wariness,
         EcologyProfile ecology) {
+
+    /**
+     * Se o jogador é presa: só quando está na tabela de dieta ({@code minecraft:player}). O jogador é um
+     * animal como os outros — o Velociraptor, pequeno demais, não o tem na tabela.
+     */
+    public boolean huntsPlayers() {
+        return diet.stream().anyMatch(entry -> entry.prey().contains(EntityType.PLAYER.builtInRegistryHolder()));
+    }
+
+    /** Preferência pela presa deste tipo, pela tabela de dieta. */
+    public int preference(EntityType<?> type) {
+        for (DietEntry entry : diet) {
+            if (entry.prey().contains(type.builtInRegistryHolder())) {
+                return entry.preference();
+            }
+        }
+        return DietEntry.DEFAULT_PREFERENCE;
+    }
 
     public enum HuntStyle implements StringRepresentable {
         CHASE("chase"),
@@ -64,7 +82,7 @@ public record BehaviorProfile(
     /** Espécie sem bloco de comportamento: passiva, solitária, sem território. */
     public static final BehaviorProfile PASSIVE =
             new BehaviorProfile(false, 16.0, 0, 0.0, 0, false, false, Optional.empty(), HuntStyle.CHASE, 180,
-                    true, Optional.empty(), EcologyProfile.DEFAULT);
+                    java.util.List.of(), Optional.empty(), EcologyProfile.DEFAULT);
 
     public static final Codec<BehaviorProfile> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.BOOL.optionalFieldOf("aggressive", PASSIVE.aggressive()).forGetter(BehaviorProfile::aggressive),
@@ -78,7 +96,7 @@ public record BehaviorProfile(
             HuntStyle.CODEC.optionalFieldOf("hunt_style", HuntStyle.CHASE).forGetter(BehaviorProfile::huntStyle),
             Codec.intRange(0, 3600).optionalFieldOf("sated_seconds", PASSIVE.satedSeconds())
                     .forGetter(BehaviorProfile::satedSeconds),
-            Codec.BOOL.optionalFieldOf("hunts_players", true).forGetter(BehaviorProfile::huntsPlayers),
+            DietEntry.CODEC.listOf().optionalFieldOf("diet", java.util.List.of()).forGetter(BehaviorProfile::diet),
             WarinessProfile.CODEC.optionalFieldOf("wariness").forGetter(BehaviorProfile::wariness),
             EcologyProfile.CODEC.optionalFieldOf("ecology", EcologyProfile.DEFAULT).forGetter(BehaviorProfile::ecology)
     ).apply(instance, BehaviorProfile::new));

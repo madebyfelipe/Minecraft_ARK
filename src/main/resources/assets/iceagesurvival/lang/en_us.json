@@ -186,5 +186,6 @@
   "entity.iceagesurvival.gallimimus": "Gallimimus",
   "item.iceagesurvival.gallimimus_spawn_egg": "Gallimimus Spawn Egg",
   "entity.iceagesurvival.triceratops": "Triceratops",
-  "item.iceagesurvival.triceratops_spawn_egg": "Triceratops Spawn Egg"
+  "item.iceagesurvival.triceratops_spawn_egg": "Triceratops Spawn Egg",
+  "iceagesurvival.debug.hunger": "%s predators starved within %s blocks"
 }

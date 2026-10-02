@@ -162,22 +162,23 @@ public class TemperatureTests {
     @GameTest(template = EMPTY)
     public static void noColdOutsideTheIceAgeMode(GameTestHelper helper) {
         var server = helper.getLevel().getServer();
-        helper.assertTrue(!dev.madebyfelipe.iceagesurvival.world.IceAgeMode.isIceAgePreset(server),
-                "o mundo do GameTest não é Era do Gelo");
-        helper.assertTrue(!dev.madebyfelipe.iceagesurvival.world.IceAgeMode.isActive(server), "frio ligado em mundo normal");
-        ServerPlayer player = PredatorTests.survivalPlayer(helper);
-        ModAttachments.coldState(player).setExposure(0.8);
-        ColdExposure.onPlayerTick(new TickEvent.PlayerTickEvent(TickEvent.Phase.END, player));
-        helper.assertTrue(ModAttachments.coldState(player).exposure() == 0.0, "frio acumulado em mundo normal");
-
-        // Forçado na config, vale em qualquer mundo.
+        // O valor fica gravado no arquivo do mundo: um teste interrompido no meio deixava ON para o próximo.
         var config = dev.madebyfelipe.iceagesurvival.config.ServerConfig.ICE_AGE_MODE;
-        var previous = config.get();
-        config.set(dev.madebyfelipe.iceagesurvival.world.IceAgeMode.Setting.ON);
+        config.set(dev.madebyfelipe.iceagesurvival.world.IceAgeMode.Setting.AUTO);
         try {
+            helper.assertTrue(!dev.madebyfelipe.iceagesurvival.world.IceAgeMode.isIceAgePreset(server),
+                    "o mundo do GameTest não é Era do Gelo");
+            helper.assertTrue(!dev.madebyfelipe.iceagesurvival.world.IceAgeMode.isActive(server), "frio ligado em mundo normal");
+            ServerPlayer player = PredatorTests.survivalPlayer(helper);
+            ModAttachments.coldState(player).setExposure(0.8);
+            ColdExposure.onPlayerTick(new TickEvent.PlayerTickEvent(TickEvent.Phase.END, player));
+            helper.assertTrue(ModAttachments.coldState(player).exposure() == 0.0, "frio acumulado em mundo normal");
+
+            // Forçado na config, vale em qualquer mundo.
+            config.set(dev.madebyfelipe.iceagesurvival.world.IceAgeMode.Setting.ON);
             helper.assertTrue(dev.madebyfelipe.iceagesurvival.world.IceAgeMode.isActive(server), "iceAgeMode=ON não ligou o frio");
         } finally {
-            config.set(previous);
+            config.set(dev.madebyfelipe.iceagesurvival.world.IceAgeMode.Setting.AUTO);
         }
         helper.succeed();
     }

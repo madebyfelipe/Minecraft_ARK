@@ -54,6 +54,7 @@ public class PredatorTests {
 
     /** @param alreadyHunting o predador já tem o jogador como alvo (a mata tapa a visão para escolhê-lo) */
     private static void huntsThePlayer(GameTestHelper helper, EntityType<LandCreature> type, boolean alreadyHunting) {
+        HuntTests.clearStrays(helper);
         LandCreature predator = helper.spawn(type, 6, 0, 4);
         predator.setTicksSinceMeal(STARVING);
         Player player = survivalPlayer(helper);
@@ -78,7 +79,7 @@ public class PredatorTests {
                 + ", visto " + predator.getSensing().hasLineOfSight(player)));
     }
 
-    @GameTest(template = ARENA, timeoutTicks = 400)
+    @GameTest(template = ARENA, batch = "predator_1", timeoutTicks = 400)
     public static void tyrannosaurusHuntsThePlayer(GameTestHelper helper) {
         huntsThePlayer(helper, ModEntities.TYRANNOSAURUS.get());
     }
@@ -142,6 +143,7 @@ public class PredatorTests {
     /** Um carnívoro saciado não caça o jogador, mas um faminto o considera presa como qualquer animal. */
     @GameTest(template = ARENA, batch = "predator_hunt_hungry", timeoutTicks = 120)
     public static void carnivoreOnlyHuntsPlayerWhenHungry(GameTestHelper helper) {
+        HuntTests.clearStrays(helper);
         LandCreature predator = helper.spawn(ModEntities.UTAHRAPTOR.get(), 6, 0, 4);
         var prey = predator.behavior().orElseThrow().prey().orElseThrow();
         Player player = survivalPlayer(helper);
@@ -165,7 +167,7 @@ public class PredatorTests {
     }
 
     /** Sem fome não começa a caçada, mas continua se defendendo quando o jogador o fere. */
-    @GameTest(template = ARENA, timeoutTicks = 80)
+    @GameTest(template = ARENA, batch = "predator_2", timeoutTicks = 80)
     public static void carnivoreRetaliatesAgainstPlayerWithoutHuntingThem(GameTestHelper helper) {
         LandCreature predator = helper.spawn(ModEntities.UTAHRAPTOR.get(), 6, 0, 4);
         predator.setTicksSinceMeal(0);
@@ -179,17 +181,17 @@ public class PredatorTests {
         });
     }
 
-    @GameTest(template = ARENA, timeoutTicks = 400)
+    @GameTest(template = ARENA, batch = "predator_3", timeoutTicks = 400)
     public static void allosaurusHuntsThePlayer(GameTestHelper helper) {
         huntsThePlayer(helper, ModEntities.ALLOSAURUS.get());
     }
 
-    @GameTest(template = ARENA, timeoutTicks = 400)
+    @GameTest(template = ARENA, batch = "predator_4", timeoutTicks = 400)
     public static void direbearHuntsThePlayer(GameTestHelper helper) {
         huntsThePlayer(helper, ModEntities.DIREBEAR.get());
     }
 
-    @GameTest(template = ARENA, timeoutTicks = 400)
+    @GameTest(template = ARENA, batch = "predator_5", timeoutTicks = 400)
     public static void spinosaurusHuntsThePlayer(GameTestHelper helper) {
         huntsThePlayer(helper, ModEntities.SPINOSAURUS.get());
     }
@@ -214,7 +216,7 @@ public class PredatorTests {
 
     // Batch próprio: na arena compartilhada, bichos e jogadores dos testes vizinhos viravam alvo
     // do T-Rex no meio da medida.
-    @GameTest(template = ARENA, timeoutTicks = 100, batch = "rex_speed")
+    @GameTest(template = ARENA, batch = "rex_speed", timeoutTicks = 100)
     public static void tyrannosaurusOutrunsASprintingPlayer(GameTestHelper helper) {
         HuntTests.clearStrays(helper);
         LandCreature rex = helper.spawn(ModEntities.TYRANNOSAURUS.get(), 6, 0, 2);
@@ -232,7 +234,7 @@ public class PredatorTests {
     }
 
     /** Jogador de costas: o Smilodon espreita, devagar, e só dá o bote quando chega perto. */
-    @GameTest(template = ARENA, timeoutTicks = 400, batch = "smilodon_stalk")
+    @GameTest(template = ARENA, batch = "smilodon_stalk", timeoutTicks = 400)
     public static void smilodonStalksAPlayerWhoIsNotLooking(GameTestHelper helper) {
         HuntTests.clearStrays(helper);
         LandCreature smilodon = helper.spawn(ModEntities.SMILODON.get(), 6, 0, 2);
@@ -252,7 +254,7 @@ public class PredatorTests {
     }
 
     /** Jogador olhando para ele: acaba a espreita e vem o bote. */
-    @GameTest(template = ARENA, timeoutTicks = 100)
+    @GameTest(template = ARENA, batch = "predator_8", timeoutTicks = 100)
     public static void smilodonPouncesWhenSeen(GameTestHelper helper) {
         LandCreature smilodon = helper.spawn(ModEntities.SMILODON.get(), 6, 0, 2);
         Player player = survivalPlayer(helper);
@@ -266,7 +268,7 @@ public class PredatorTests {
         });
     }
 
-    @GameTest(template = ARENA, timeoutTicks = 400)
+    @GameTest(template = ARENA, batch = "predator_9", timeoutTicks = 400)
     public static void smilodonHuntsThePlayer(GameTestHelper helper) {
         huntsThePlayer(helper, ModEntities.SMILODON.get());
     }

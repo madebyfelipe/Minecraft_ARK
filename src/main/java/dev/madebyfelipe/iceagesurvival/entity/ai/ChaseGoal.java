@@ -53,6 +53,10 @@ public class ChaseGoal extends Goal {
             // O macho da mesma espécie desistiu e foi embora: a disputa acabou.
             return false;
         }
+        if (target == creature.territorialFoe()) {
+            // Intruso expulso: saiu do território (duas vezes o raio de defesa), a briga acabou.
+            return creature.distanceTo(target) < creature.defendRadius() * 2.0;
+        }
         return creature.isTame() || creature.isWithinRestriction(target.blockPosition())
                 || creature.isRival(target) && creature.distanceTo(target) < creature.ecology().rivalRadius()
                 || creature.distanceToSqr(target) < 16 * 16;

@@ -46,8 +46,9 @@ public class EarlyGameTests {
                 "deveriam ser mais comuns que um predador do meio");
         helper.assertTrue(dodo.maxNearby() >= 8, "dodôs deveriam ser abundantes: " + dodo.maxNearby());
         helper.assertTrue(WildSpawner.effectiveMaximumPopulation()
-                        == (int) (ServerConfig.WILD_SPAWN_MAX_TOTAL.get() * 0.7),
-                "o teto total deve refletir a redução de aproximadamente 30%");
+                        == (int) (ServerConfig.WILD_SPAWN_MAX_TOTAL.get() * WildSpawner.POPULATION_FRACTION)
+                        && WildSpawner.effectiveMaximumPopulation() <= 30,
+                "o teto total deve ficar em ~28 criaturas por jogador");
         helper.succeed();
     }
 
@@ -90,7 +91,7 @@ public class EarlyGameTests {
         helper.succeed();
     }
 
-    @GameTest(template = EMPTY)
+    @GameTest(template = EMPTY, batch = "early_clear_1")
     public static void elasmotheriumWarmsRiderAndNeighbours(GameTestHelper helper) {
         Player owner = PredatorTests.survivalPlayer(helper);
         LandCreature elasmo = helper.spawnWithNoFreeWill(ModEntities.ELASMOTHERIUM.get(), 2, 2, 2);

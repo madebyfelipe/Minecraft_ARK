@@ -73,7 +73,7 @@
     "weight": 14,
     "group_min": 2,
     "group_max": 5,
-    "max_nearby": 12,
+    "max_nearby": 10,
     "min_distance": 0
   },
   "sounds": {

@@ -201,7 +201,10 @@ public class TamingTests {
         creature.inventory().addItem(new ItemStack(Items.BEETROOT, 8));
         creature.inventory().addItem(new ItemStack(Items.CARROT, 8));
         helper.runAfterDelay(45, () -> {
-            helper.assertTrue(creature.inventory().countItem(Items.CARROT) == 7, "não comeu o alimento preferido");
+            helper.assertTrue(creature.inventory().countItem(Items.CARROT) == 7, "não comeu o alimento preferido; "
+                    + "desmaiada=" + creature.isUnconscious() + " torpor=" + creature.torpor() + " removida=" + creature.isRemoved()
+                    + " vida=" + creature.getHealth() + " domesticada=" + creature.isTame() + " cenouras="
+                    + creature.inventory().countItem(Items.CARROT) + " ticks=" + creature.tickCount);
             helper.assertTrue(creature.inventory().countItem(Items.BEETROOT) == 8, "comeu o alimento pior primeiro");
             helper.succeed();
         });

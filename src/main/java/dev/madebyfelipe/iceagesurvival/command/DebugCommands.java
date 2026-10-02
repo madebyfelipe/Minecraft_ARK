@@ -92,6 +92,10 @@ public final class DebugCommands {
                 .then(Commands.literal("kit").executes(DebugCommands::kit))
                 .then(Commands.literal("spawns").executes(DebugCommands::spawns))
                 .then(Commands.literal("repopulate").executes(DebugCommands::repopulate))
+                .then(Commands.literal("hunger")
+                        .executes(context -> starve(context, STARVE_DEFAULT_RADIUS))
+                        .then(Commands.argument("raio", IntegerArgumentType.integer(1, 1024))
+                                .executes(context -> starve(context, IntegerArgumentType.getInteger(context, "raio")))))
                 .then(spawnCommand()));
     }
 
@@ -217,6 +221,29 @@ public final class DebugCommands {
         context.getSource().sendSuccess(
                 () -> Component.translatable("iceagesurvival.debug.repopulate", spawned), true);
         return spawned;
+    }
+
+    // ---- /ias hunger [raio] ----
+
+    private static final int STARVE_DEFAULT_RADIUS = 128;
+
+    /**
+     * Fome máxima: todo predador selvagem no raio passa a caçar agora (como se a última refeição fosse
+     * há o dobro do tempo até a fome). Para ver caçadas e perseguições sem esperar.
+     */
+    private static int starve(CommandContext<CommandSourceStack> context, int radius) {
+        CommandSourceStack source = context.getSource();
+        var box = new net.minecraft.world.phys.AABB(source.getPosition(), source.getPosition()).inflate(radius);
+        int count = 0;
+        for (PrehistoricCreature creature : source.getLevel().getEntitiesOfClass(PrehistoricCreature.class, box,
+                creature -> !creature.isTame() && creature.behavior()
+                        .flatMap(dev.madebyfelipe.iceagesurvival.species.BehaviorProfile::prey).isPresent())) {
+            creature.starve();
+            count++;
+        }
+        int starved = count;
+        source.sendSuccess(() -> Component.translatable("iceagesurvival.debug.hunger", starved, radius), true);
+        return starved;
     }
 
     // ---- /ias spawn <especie> [nivel] [quantidade] [estado] ----

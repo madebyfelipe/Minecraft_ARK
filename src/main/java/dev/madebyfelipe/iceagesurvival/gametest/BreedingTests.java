@@ -45,7 +45,7 @@ public class BreedingTests {
         return creature;
     }
 
-    @GameTest(template = ARENA, timeoutTicks = MATING_TICKS + 40)
+    @GameTest(template = ARENA, batch = "breeding_1", timeoutTicks = MATING_TICKS + 40)
     public static void mammalPairConceivesALiveBirth(GameTestHelper helper) {
         Player owner = helper.makeMockSurvivalPlayer();
         LandCreature mother = parent(helper, ModEntities.SMILODON.get(), owner, true, 4);
@@ -57,7 +57,7 @@ public class BreedingTests {
         });
     }
 
-    @GameTest(template = ARENA, timeoutTicks = MATING_TICKS + 40)
+    @GameTest(template = ARENA, batch = "breeding_2", timeoutTicks = MATING_TICKS + 40)
     public static void dinosaurPairLaysAnEgg(GameTestHelper helper) {
         Player owner = helper.makeMockSurvivalPlayer();
         LandCreature mother = parent(helper, ModEntities.VELOCIRAPTOR.get(), owner, true, 4);
@@ -74,7 +74,7 @@ public class BreedingTests {
         });
     }
 
-    @GameTest(template = ARENA, timeoutTicks = MATING_TICKS + 40)
+    @GameTest(template = ARENA, batch = "breeding_3", timeoutTicks = MATING_TICKS + 40)
     public static void sameSexOrStrangersDoNotMate(GameTestHelper helper) {
         Player owner = helper.makeMockSurvivalPlayer();
         Player stranger = helper.makeMockSurvivalPlayer();
@@ -87,7 +87,7 @@ public class BreedingTests {
         });
     }
 
-    @GameTest(template = ARENA)
+    @GameTest(template = ARENA, batch = "breeding_4")
     public static void offspringIsATamedBabyWithTheGivenGenome(GameTestHelper helper) {
         Player owner = helper.makeMockSurvivalPlayer();
         Genome genome = new Genome(StatPoints.NONE.with(Stat.ATTACK, 6), new int[]{0, 3, 2, 0, 0}, true);
@@ -102,7 +102,7 @@ public class BreedingTests {
         helper.succeed();
     }
 
-    @GameTest(template = ARENA)
+    @GameTest(template = ARENA, batch = "breeding_5")
     public static void speedMutationsSpeedTheCreatureUp(GameTestHelper helper) {
         LandCreature plain = helper.spawnWithNoFreeWill(ModEntities.SMILODON.get(), 2, 1, 2);
         LandCreature mutant = helper.spawnWithNoFreeWill(ModEntities.SMILODON.get(), 6, 1, 2);
@@ -114,7 +114,7 @@ public class BreedingTests {
         helper.succeed();
     }
 
-    @GameTest(template = ARENA)
+    @GameTest(template = ARENA, batch = "breeding_6")
     public static void genomeSexAndGestationSurviveSaveAndLoad(GameTestHelper helper) {
         LandCreature original = helper.spawnWithNoFreeWill(ModEntities.MAMMOTH.get(), 4, 1, 4);
         Genome genome = new Genome(StatPoints.NONE.with(Stat.HEALTH, 4), new int[]{2, 1, 0, 0, 0}, true);
@@ -130,7 +130,7 @@ public class BreedingTests {
         helper.succeed();
     }
 
-    @GameTest(template = ARENA)
+    @GameTest(template = ARENA, batch = "breeding_7")
     public static void incubatorHatchesAnEggWithFuel(GameTestHelper helper) {
         BlockPos pos = new BlockPos(4, 1, 4);
         helper.setBlock(pos, ModBlocks.INCUBATOR.get());
@@ -158,7 +158,7 @@ public class BreedingTests {
         helper.succeed();
     }
 
-    @GameTest(template = ARENA)
+    @GameTest(template = ARENA, batch = "breeding_8")
     public static void coldIncubatorDoesNotHatch(GameTestHelper helper) {
         BlockPos pos = new BlockPos(4, 1, 4);
         helper.setBlock(pos, ModBlocks.INCUBATOR.get());
@@ -172,7 +172,7 @@ public class BreedingTests {
         helper.succeed();
     }
 
-    @GameTest(template = ARENA)
+    @GameTest(template = ARENA, batch = "breeding_9")
     public static void chemistryBenchDoublesTheNarcotic(GameTestHelper helper) {
         BlockPos pos = new BlockPos(4, 1, 4);
         helper.setBlock(pos, ModBlocks.CHEMISTRY_BENCH.get());
@@ -189,7 +189,7 @@ public class BreedingTests {
         helper.succeed();
     }
 
-    @GameTest(template = ARENA)
+    @GameTest(template = ARENA, batch = "breeding_10")
     public static void stimulantLowersTorpor(GameTestHelper helper) {
         LandCreature smilodon = helper.spawnWithNoFreeWill(ModEntities.SMILODON.get(), 4, 1, 4);
         smilodon.setTorpor(smilodon.maxTorpor() * 0.5);

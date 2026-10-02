@@ -128,7 +128,7 @@ public class MountTests {
         return rex;
     }
 
-    @GameTest(template = EMPTY)
+    @GameTest(template = EMPTY, batch = "mount_clear_2")
     public static void riderCommandsTheMountToBite(GameTestHelper helper) {
         Player owner = PredatorTests.survivalPlayer(helper);
         LandCreature rex = mountedRex(helper, owner);
@@ -148,7 +148,7 @@ public class MountTests {
         });
     }
 
-    @GameTest(template = EMPTY)
+    @GameTest(template = EMPTY, batch = "mount_clear_3")
     public static void bigMountBiteBreaksTheTerrainInFront(GameTestHelper helper) {
         Player owner = PredatorTests.survivalPlayer(helper);
         LandCreature rex = mountedRex(helper, owner);
@@ -170,7 +170,7 @@ public class MountTests {
         helper.succeed();
     }
 
-    @GameTest(template = EMPTY)
+    @GameTest(template = EMPTY, batch = "mount_clear_1")
     public static void mammothBiteHarvestsWoodButNotStone(GameTestHelper helper) {
         Player owner = PredatorTests.survivalPlayer(helper);
         LandCreature mammoth = mounted(helper, owner, ModEntities.MAMMOTH.get());
@@ -203,7 +203,7 @@ public class MountTests {
     }
 
     /** O Smilodon montado acerta, sem mira, o dodô baixo à frente e na diagonal; o de trás, não. */
-    @GameTest(template = EMPTY)
+    @GameTest(template = EMPTY, batch = "mount_bite")
     public static void smilodonBiteReachesADodoInFront(GameTestHelper helper) {
         Player owner = PredatorTests.survivalPlayer(helper);
         LandCreature smilodon = mounted(helper, owner, ModEntities.SMILODON.get());

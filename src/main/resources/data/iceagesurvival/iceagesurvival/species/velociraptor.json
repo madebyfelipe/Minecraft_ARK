@@ -73,7 +73,6 @@
     "group_defense": true,
     "prey": "#iceagesurvival:velociraptor_prey",
     "hunt_style": "stalk",
-    "hunts_players": false,
     "wariness": {
       "threats": "#iceagesurvival:predators",
       "players": true,
@@ -92,14 +91,36 @@
       "chase_seconds": 15,
       "rival_radius": 24,
       "nervousness": 1.4
-    }
+    },
+    "diet": [
+      {
+        "prey": [
+          "minecraft:rabbit"
+        ],
+        "preference": 3
+      },
+      {
+        "prey": [
+          "iceagesurvival:dodo",
+          "minecraft:chicken"
+        ],
+        "preference": 2
+      },
+      {
+        "prey": [
+          "minecraft:frog",
+          "minecraft:fox"
+        ],
+        "preference": 1
+      }
+    ]
   },
   "spawn": {
     "biomes": "#iceagesurvival:spawns_velociraptor",
     "weight": 5,
     "group_min": 1,
     "group_max": 2,
-    "max_nearby": 4,
+    "max_nearby": 2,
     "min_distance": 300
   },
   "sounds": {

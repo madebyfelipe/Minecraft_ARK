@@ -44,13 +44,7 @@ public class HerdTravelGoal extends Goal {
     }
 
     private boolean isLeader() {
-        double searchRange = herdRadius * 3.0;
-        return creature.level().getEntitiesOfClass(
-                        PrehistoricCreature.class,
-                        creature.getBoundingBox().inflate(searchRange),
-                        other -> other != creature && other.getType() == creature.getType()
-                                && other.isAlive() && !other.isTame())
-                .stream()
+        return creature.groupMembers(PrehistoricCreature.GROUP_RANGE).stream()
                 .min(Comparator.comparingInt(Entity::getId))
                 .map(other -> creature.getId() < other.getId())
                 .orElse(true);

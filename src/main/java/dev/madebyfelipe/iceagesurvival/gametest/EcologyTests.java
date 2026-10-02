@@ -153,12 +153,12 @@ public class EcologyTests {
 
     @GameTest(template = EMPTY)
     public static void naturalSpawnWeightsAreReducedAndRareSpeciesRemain(GameTestHelper helper) {
-        assertSpawnWeight(helper, Biomes.SNOWY_PLAINS, ModEntities.DODO.get(), 14);
-        assertSpawnWeight(helper, Biomes.SNOWY_PLAINS, ModEntities.VELOCIRAPTOR.get(), 4);
-        assertSpawnWeight(helper, Biomes.SNOWY_PLAINS, ModEntities.PTERANODON.get(), 8);
-        assertSpawnWeight(helper, Biomes.TAIGA, ModEntities.SMILODON.get(), 3);
+        assertSpawnWeight(helper, Biomes.SNOWY_PLAINS, ModEntities.DODO.get(), 7);
+        assertSpawnWeight(helper, Biomes.SNOWY_PLAINS, ModEntities.VELOCIRAPTOR.get(), 2);
+        assertSpawnWeight(helper, Biomes.SNOWY_PLAINS, ModEntities.PTERANODON.get(), 4);
+        assertSpawnWeight(helper, Biomes.TAIGA, ModEntities.SMILODON.get(), 2);
         // O Smilodon substitui o bando de Velociraptores na planície nevada do spawn.
-        assertSpawnWeight(helper, Biomes.SNOWY_PLAINS, ModEntities.SMILODON.get(), 3);
+        assertSpawnWeight(helper, Biomes.SNOWY_PLAINS, ModEntities.SMILODON.get(), 2);
         helper.succeed();
     }
 
@@ -378,7 +378,7 @@ public class EcologyTests {
         SpawnProfile mammoth = Species.of(registries, ModEntities.MAMMOTH.get()).orElseThrow().spawn().orElseThrow();
         helper.assertTrue(stego.minDistance() == 0, "o Estegossauro deveria nascer já no spawn");
         helper.assertTrue(stego.weight() >= mammoth.weight(), "peso " + stego.weight() + " abaixo do mamute");
-        assertSpawnWeight(helper, Biomes.SNOWY_PLAINS, ModEntities.STEGOSAURUS.get(), 9);
+        assertSpawnWeight(helper, Biomes.SNOWY_PLAINS, ModEntities.STEGOSAURUS.get(), 4);
         helper.succeed();
     }
 

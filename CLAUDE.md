@@ -12,17 +12,11 @@ Mod Forge 1.20.1 de criaturas pré-históricas (domesticação, torpor, frio, mo
 projeto e a documentação são em **português**; o roadmap e as decisões técnicas ficam em
 [CLOUD.md](CLOUD.md). Leia o CLOUD.md antes de qualquer etapa.
 
-## Decisão: qual modelo usar (2026-09-30)
+## Decisão: qual modelo usar (2026-10-01)
 
-| Tipo de trabalho | Modelo |
-|---|---|
-| Espécie nova pela receita do CLOUD.md §"Adicionar uma espécie terrestre", ajustes de dados/config, testes, documentação, assets por script | **Sonnet 5.5** |
-| Sistemas novos ou decisões que atravessam várias camadas: Etapa 7 (montaria, autoridade de movimento em multiplayer), Etapa 8 (reprodução e genética), Etapa 9 (worldgen, D6), Etapa 10 (boss e teto de 1024 de vida) | **Opus 5.5** |
-
-**Por quê:** o trabalho de receita é delimitado e os testes automáticos pegam erro; o custo de
-errar o desenho de um sistema novo (sobretudo o que só aparece com dois clientes) é maior que
-o custo do modelo. A recomendação vem do formato das tarefas, não de benchmark neste
-repositório — reavaliar comparando o diff de uma espécie feita por cada modelo.
+Todo o trabalho — sessão principal e subagentes — usa **Opus 5.5**. Sem divisão por tipo de
+tarefa: a tabela que mandava receita de espécie, dados e testes para o Sonnet 5.5 saiu por
+decisão do Felipe.
 
 ## Trabalhar com subagentes, cada um com uma função
 

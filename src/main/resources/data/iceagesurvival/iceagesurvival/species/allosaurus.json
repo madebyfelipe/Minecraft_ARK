@@ -92,7 +92,46 @@
       "chase_seconds": 30,
       "rival_radius": 40,
       "nervousness": 0.7
-    }
+    },
+    "diet": [
+      {
+        "prey": [
+          "iceagesurvival:stegosaurus",
+          "iceagesurvival:gallimimus"
+        ],
+        "preference": 3
+      },
+      {
+        "prey": [
+          "iceagesurvival:brontosaurus",
+          "iceagesurvival:elasmotherium"
+        ],
+        "preference": 2
+      },
+      {
+        "prey": [
+          "iceagesurvival:triceratops",
+          "iceagesurvival:mammoth",
+          "minecraft:cow",
+          "minecraft:horse",
+          "minecraft:donkey",
+          "minecraft:llama",
+          "minecraft:villager",
+          "minecraft:wandering_trader",
+          "minecraft:player"
+        ],
+        "preference": 1
+      },
+      {
+        "prey": [
+          "iceagesurvival:dodo",
+          "minecraft:sheep",
+          "minecraft:pig",
+          "minecraft:goat"
+        ],
+        "preference": 0
+      }
+    ]
   },
   "pack_bonus": {
     "radius": 16,

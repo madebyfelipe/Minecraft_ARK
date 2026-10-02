@@ -8,7 +8,9 @@ import dev.madebyfelipe.iceagesurvival.entity.ai.FleeWhenWeakGoal;
 import dev.madebyfelipe.iceagesurvival.entity.ai.FollowHerdGoal;
 import dev.madebyfelipe.iceagesurvival.entity.ai.HerdTravelGoal;
 import dev.madebyfelipe.iceagesurvival.entity.ai.HuntGoal;
+import dev.madebyfelipe.iceagesurvival.entity.ai.ProwlGoal;
 import dev.madebyfelipe.iceagesurvival.entity.ai.RivalryGoal;
+import dev.madebyfelipe.iceagesurvival.entity.ai.TerritoryGoal;
 import dev.madebyfelipe.iceagesurvival.entity.ai.YieldGoal;
 import dev.madebyfelipe.iceagesurvival.core.ecology.Stress;
 import dev.madebyfelipe.iceagesurvival.entity.ai.StalkGoal;
@@ -125,6 +127,10 @@ public class LandCreature extends PrehistoricCreature implements GeoEntity, Geck
             goalSelector.addGoal(8, new WaterAvoidingRandomStrollGoal(this, calm));
         }
         goalSelector.addGoal(7, new MoveTowardsRestrictionGoal(this, calm * 1.2));
+        if (behavior.prey().isPresent()) {
+            // Com fome e sem presa por perto, ronda o mapa até achar uma.
+            goalSelector.addGoal(6, new ProwlGoal(this, calm * 1.3));
+        }
         goalSelector.addGoal(8, new LookAtPlayerGoal(this, Player.class, 8.0F));
         goalSelector.addGoal(9, new RandomLookAroundGoal(this));
 
@@ -134,6 +140,7 @@ public class LandCreature extends PrehistoricCreature implements GeoEntity, Geck
         }
         behavior.prey().ifPresent(prey -> targetSelector.addGoal(5, new HuntGoal(this, prey)));
         targetSelector.addGoal(6, new RivalryGoal(this));
+        targetSelector.addGoal(3, new TerritoryGoal(this));
     }
 
     /**
@@ -151,6 +158,12 @@ public class LandCreature extends PrehistoricCreature implements GeoEntity, Geck
             return (LandCreature) mob;
         }
 
+        /** A conta da caça escolheria outra presa que não o jogador. */
+        private boolean betterPreyThanPlayer() {
+            var best = HuntGoal.bestPrey(creature());
+            return best != null && !(best instanceof Player);
+        }
+
         @Override
         protected double getFollowDistance() {
             LandCreature creature = creature();
@@ -162,7 +175,9 @@ public class LandCreature extends PrehistoricCreature implements GeoEntity, Geck
         public boolean canUse() {
             if (creature().behavior().flatMap(BehaviorProfile::prey).isPresent()
                     && (creature().hungerDrive() != Hunger.Drive.HUNTING
-                    || !creature().behavior().map(BehaviorProfile::huntsPlayers).orElse(true))) {
+                    || !creature().behavior().map(BehaviorProfile::huntsPlayers).orElse(false)
+                    || betterPreyThanPlayer())) {
+                // Saciado, sem o jogador na dieta, ou há presa melhor para o bando por perto: o jogador fica para depois.
                 return false;
             }
             targetConditions.range(getFollowDistance());
@@ -182,7 +197,7 @@ public class LandCreature extends PrehistoricCreature implements GeoEntity, Geck
         PackBonusProfile bonus = species().flatMap(species -> species.packBonus()).orElse(null);
         boolean inPack = bonus != null && level().getEntitiesOfClass(
                         LandCreature.class, getBoundingBox().inflate(bonus.radius()),
-                        other -> other.getType() == getType() && other.isAlive())
+                        other -> (other == this || sameGroup(other)) && other.isAlive())
                 .size() >= bonus.minimumAllies() + 1;
         updateModifier(Attributes.MOVEMENT_SPEED, PACK_SPEED_MODIFIER,
                 inPack ? bonus.speedMultiplier() : 0.0);

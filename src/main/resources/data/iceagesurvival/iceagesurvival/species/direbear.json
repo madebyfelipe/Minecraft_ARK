@@ -89,7 +89,38 @@
       "chase_seconds": 15,
       "rival_radius": 40,
       "nervousness": 0.6
-    }
+    },
+    "diet": [
+      {
+        "prey": [
+          "minecraft:sheep",
+          "minecraft:pig",
+          "minecraft:goat",
+          "minecraft:cow"
+        ],
+        "preference": 2
+      },
+      {
+        "prey": [
+          "iceagesurvival:dodo",
+          "iceagesurvival:gallimimus",
+          "minecraft:villager",
+          "minecraft:wandering_trader",
+          "minecraft:player"
+        ],
+        "preference": 1
+      },
+      {
+        "prey": [
+          "iceagesurvival:elasmotherium",
+          "iceagesurvival:mammoth",
+          "iceagesurvival:stegosaurus",
+          "iceagesurvival:triceratops",
+          "iceagesurvival:brontosaurus"
+        ],
+        "preference": 0
+      }
+    ]
   },
   "mount": {
     "seat_height": 3.1,

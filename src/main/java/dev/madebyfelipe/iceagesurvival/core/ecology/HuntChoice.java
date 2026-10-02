@@ -18,6 +18,8 @@ public final class HuntChoice {
     public static final double ISOLATED_SIZE_BONUS = 1.0;
     /** Oportunista só ataca presa fácil e a até esta fração do raio de caça. */
     public static final double OPPORTUNISTIC_RANGE_FRACTION = 0.35;
+    /** Quanto cada unidade de porte da presa soma à nota: mais carne para o bando. */
+    public static final double SIZE_VALUE = 0.3;
     /** Oportunista só ataca presa com pelo menos esta nota. */
     public static final double OPPORTUNISTIC_MIN_SCORE = 1.5;
 
@@ -32,9 +34,19 @@ public final class HuntChoice {
      * @param baby           filhote
      * @param healthFraction vida atual ÷ máxima
      * @param isolated       sem outro da manada por perto (espécie solitária conta como isolada)
+     * @param preference     da tabela de dieta do predador: 3 favorita … 0 último recurso
+     * @param defenders      quantos da manada a defendem junto (1 = ninguém além dela)
      */
-    public record Prey(double distance, double sizeRatio, boolean baby, double healthFraction, boolean isolated) {
+    public record Prey(double distance, double sizeRatio, boolean baby, double healthFraction, boolean isolated,
+                       int preference, int defenders) {
+        /** Sem tabela de dieta nem manada que defenda: preferência 1, um defensor. */
+        public Prey(double distance, double sizeRatio, boolean baby, double healthFraction, boolean isolated) {
+            this(distance, sizeRatio, baby, healthFraction, isolated, 1, 1);
+        }
     }
+
+    /** Quanto cada ponto de preferência da dieta soma à nota: pesa mais que a facilidade. */
+    public static final double PREFERENCE_VALUE = 1.0;
 
     /**
      * Nota da presa: maior é melhor; negativa = não ataca.
@@ -47,7 +59,9 @@ public final class HuntChoice {
         }
         double capacity = SOLO_MAX_SIZE_RATIO + PACK_SIZE_PER_HUNTER * Math.max(0, pack - 1)
                 + (prey.isolated() ? ISOLATED_SIZE_BONUS : 0.0);
-        if (!prey.baby() && prey.sizeRatio() > capacity) {
+        // A manada que defende junto conta inteira: um bando de Alossauros não encara a manada de brontos.
+        double defended = prey.isolated() ? prey.sizeRatio() : prey.sizeRatio() * Math.max(1, prey.defenders());
+        if (!prey.baby() && defended > capacity) {
             return -1.0;
         }
         // Presa de manada no meio do grupo: o caçador solitário não arrisca; o bando, sim.
@@ -62,6 +76,10 @@ public final class HuntChoice {
             score += 1.0;
         }
         score += (1.0 - Math.max(0.0, Math.min(1.0, prey.healthFraction()))) * 2.0;
+        // Presa maior alimenta mais o bando: vale mais, dentro do que o bando dá conta.
+        score += Math.min(prey.sizeRatio(), capacity) * SIZE_VALUE;
+        // A tabela de dieta: a presa mais fácil nem sempre é a mais vantajosa.
+        score += (prey.preference() - 1) * PREFERENCE_VALUE;
         // Mais perto, melhor: perde até 1 ponto na borda do raio.
         score -= prey.distance() / Math.max(1.0, huntRadius);
         return score;

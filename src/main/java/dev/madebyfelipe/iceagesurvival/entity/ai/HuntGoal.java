@@ -1,5 +1,6 @@
 package dev.madebyfelipe.iceagesurvival.entity.ai;
 
+import dev.madebyfelipe.iceagesurvival.species.BehaviorProfile;
 import dev.madebyfelipe.iceagesurvival.core.ecology.HuntChoice;
 import dev.madebyfelipe.iceagesurvival.core.ecology.Hunger;
 import dev.madebyfelipe.iceagesurvival.entity.PrehistoricCreature;
@@ -30,6 +31,8 @@ import net.minecraft.world.entity.player.Player;
  * </ul>
  */
 public class HuntGoal extends Goal {
+    /** Raio em que jogadores e criaturas domesticadas contam como o bando de um jogador. */
+    private static final double PLAYER_ALLY_RADIUS = 16.0;
     /** Intervalo da procura com fome; oportunista procura com metade da frequência. */
     private static final int SCAN_INTERVAL = 40;
     /** Além deste múltiplo do raio de caça, a presa escapou. */
@@ -52,6 +55,7 @@ public class HuntGoal extends Goal {
     public static boolean isPrey(PrehistoricCreature hunter, LivingEntity candidate, TagKey<EntityType<?>> prey) {
         boolean playerPrey = candidate instanceof Player
                 && hunter.behavior().map(behavior -> behavior.prey().isPresent() && behavior.huntsPlayers()).orElse(false);
+        // O jogador é presa da tabela de dieta; não precisa estar na tag de presas.
         if (!candidate.isAlive() || (!playerPrey && !candidate.getType().is(prey))
                 || candidate.getType() == hunter.getType()) {
             return false;
@@ -80,9 +84,30 @@ public class HuntGoal extends Goal {
     }
 
     private HuntChoice.Prey prospect(LivingEntity candidate) {
+        int defenders = defenders(candidate);
+        boolean isolated = candidate instanceof PrehistoricCreature herdAnimal ? herdAnimal.isIsolated() : defenders <= 1;
+        int preference = creature.behavior().map(behavior -> behavior.preference(candidate.getType()))
+                .orElse(dev.madebyfelipe.iceagesurvival.species.DietEntry.DEFAULT_PREFERENCE);
         return new HuntChoice.Prey(creature.distanceTo(candidate), creature.sizeRatioOf(candidate), candidate.isBaby(),
-                candidate.getHealth() / candidate.getMaxHealth(),
-                !(candidate instanceof PrehistoricCreature herdAnimal) || herdAnimal.isIsolated());
+                candidate.getHealth() / candidate.getMaxHealth(), isolated, preference, defenders);
+    }
+
+    /**
+     * Quantos defendem a presa junto. Criatura do mod: o bando dela. Jogador: ele, os outros jogadores e as
+     * criaturas domesticadas deles por perto — o bando do jogador.
+     */
+    private static int defenders(LivingEntity candidate) {
+        if (candidate instanceof PrehistoricCreature herdAnimal) {
+            return herdAnimal.fightingGroup();
+        }
+        if (candidate instanceof Player player) {
+            return 1 + player.level().getEntitiesOfClass(LivingEntity.class,
+                    player.getBoundingBox().inflate(PLAYER_ALLY_RADIUS),
+                    other -> other != player && other.isAlive()
+                            && (other instanceof Player ally && !ally.isSpectator()
+                            || other instanceof OwnableEntity pet && pet.getOwnerUUID() != null)).size();
+        }
+        return 1;
     }
 
     private boolean able() {
@@ -111,10 +136,19 @@ public class HuntGoal extends Goal {
     private LivingEntity choose(Hunger.Drive drive) {
         EcologyProfile ecology = creature.ecology();
         double radius = ecology.huntRadius();
+        return pick(drive);
+    }
+
+    /**
+     * Uma conta só para todas as presas, jogador incluído: preferência da dieta, porte, facilidade e quem
+     * a defende. O jogador só entra com fome de verdade, como as presas grandes.
+     */
+    @Nullable
+    private LivingEntity pick(Hunger.Drive drive) {
+        double radius = creature.ecology().huntRadius();
         List<LivingEntity> found = creature.level().getEntitiesOfClass(LivingEntity.class,
                 creature.getBoundingBox().inflate(radius, 12.0, radius),
-                other -> isPrey(creature, other, prey)
-                        && (!(other instanceof Player) || drive == Hunger.Drive.HUNTING));
+                other -> isPrey(creature, other, prey) && (!(other instanceof Player) || drive == Hunger.Drive.HUNTING));
         if (found.isEmpty()) {
             return null;
         }
@@ -124,6 +158,19 @@ public class HuntGoal extends Goal {
         }
         int chosen = HuntChoice.choose(options, radius, packSize(), drive);
         return chosen < 0 ? null : found.get(chosen);
+    }
+
+    /**
+     * A presa que o predador com fome escolheria agora, jogador incluído (pela mesma conta). Nula se
+     * nenhuma vale a caçada.
+     */
+    @Nullable
+    public static LivingEntity bestPrey(PrehistoricCreature hunter) {
+        var preyTag = hunter.behavior().flatMap(BehaviorProfile::prey).orElse(null);
+        if (preyTag == null || hunter.isSated()) {
+            return null;
+        }
+        return new HuntGoal(hunter, preyTag).pick(hunter.hungerDrive());
     }
 
     /** Quantos da espécie caçam juntos aqui (1 = sozinho). */
