@@ -1,5 +1,6 @@
 package dev.madebyfelipe.iceagesurvival.defense;
 
+import dev.madebyfelipe.iceagesurvival.entity.BlockBreaking;
 import java.util.Locale;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
@@ -29,7 +30,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 /**
  * Armadilha de urso: armada, morde o primeiro estranho que pisar (6 de dano) e o prende sem andar por 5 s — 2 s
- * se for um gigante ({@link DefenseBlocks#WALL_BREAKERS}). Depois solta e fica desarmada até o dono (ou um aliado)
+ * se for um gigante ({@code body.giant}). Depois solta e fica desarmada até o dono (ou um aliado)
  * rearmar com clique direito.
  */
 public class BearTrapBlock extends OwnedDefenseBlock {
@@ -81,7 +82,7 @@ public class BearTrapBlock extends OwnedDefenseBlock {
 
     /** Quanto tempo a armadilha segura esta vítima. */
     public static int holdTicks(Entity victim) {
-        return victim instanceof Mob mob && DefenseDamage.isBreaker(mob) ? GIANT_HOLD_TICKS : HOLD_TICKS;
+        return victim instanceof Mob mob && BlockBreaking.isGiant(mob) ? GIANT_HOLD_TICKS : HOLD_TICKS;
     }
 
     @Override

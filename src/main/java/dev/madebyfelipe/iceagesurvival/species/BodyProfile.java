@@ -2,6 +2,8 @@ package dev.madebyfelipe.iceagesurvival.species;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import java.util.Optional;
+import net.minecraft.util.StringRepresentable;
 
 /**
  * Características físicas de uma espécie.
@@ -21,10 +23,52 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
  *                            foge para a água. O oposto do {@code behavior.fears_water}
  * @param swimSpeed           multiplicador da velocidade na água (o atributo {@code forge:swim_speed}); 1 = a de
  *                            qualquer bicho de terra
+ * @param breaks              o que a criatura selvagem adulta quebra ({@code body.breaks}, D44): {@code none},
+ *                            {@code plants} (folhas e plantas, ao esbarrar) ou {@code wood} (também madeira, a golpes,
+ *                            para alcançar o alvo). Sem o campo vale o legado {@code breaks_leaves}
+ *                            ({@code plants} ou {@code none}). Pedra, nenhuma
+ * @param giant               gigante na quebra ({@code body.giant}): derruba madeira com menos golpes e o tronco de
+ *                            árvore cai ao esbarrar
  */
 public record BodyProfile(double knockbackResistance, double stepHeight, boolean breaksLeaves, float plowHardness,
-                          double bodyHeat, double bodyHeatRadius, boolean amphibious, double swimSpeed) {
+                          double bodyHeat, double bodyHeatRadius, boolean amphibious, double swimSpeed,
+                          Optional<Breaks> breaks, boolean giant) {
     public static final BodyProfile DEFAULT = new BodyProfile(0.0, 0.6, false, 0.0F, 0.0, 4.0, false, 1.0);
+
+    /** O que a criatura quebra: nada, só folhas e plantas, ou também madeira. */
+    public enum Breaks implements StringRepresentable {
+        NONE("none"),
+        PLANTS("plants"),
+        WOOD("wood");
+
+        public static final Codec<Breaks> CODEC = StringRepresentable.fromEnum(Breaks::values);
+        private final String id;
+
+        Breaks(String id) {
+            this.id = id;
+        }
+
+        @Override
+        public String getSerializedName() {
+            return id;
+        }
+    }
+
+    public BodyProfile(double knockbackResistance, double stepHeight, boolean breaksLeaves, float plowHardness,
+                       double bodyHeat, double bodyHeatRadius, boolean amphibious, double swimSpeed) {
+        this(knockbackResistance, stepHeight, breaksLeaves, plowHardness, bodyHeat, bodyHeatRadius, amphibious,
+                swimSpeed, Optional.empty(), false);
+    }
+
+    /** O que quebra, valendo o {@code breaks_leaves} legado quando {@code breaks} falta. */
+    public Breaks breakLevel() {
+        return breaks.orElse(breaksLeaves ? Breaks.PLANTS : Breaks.NONE);
+    }
+
+    /** Atravessa folhas e plantas quebrando ({@code plants} ou {@code wood}). */
+    public boolean breaksPlants() {
+        return breakLevel() != Breaks.NONE;
+    }
 
     public BodyProfile(double knockbackResistance, double stepHeight, boolean breaksLeaves, float plowHardness,
                        double bodyHeat, double bodyHeatRadius) {
@@ -44,6 +88,8 @@ public record BodyProfile(double knockbackResistance, double stepHeight, boolean
                     .forGetter(BodyProfile::bodyHeatRadius),
             Codec.BOOL.optionalFieldOf("amphibious", DEFAULT.amphibious()).forGetter(BodyProfile::amphibious),
             Codec.doubleRange(0.1, 20).optionalFieldOf("swim_speed", DEFAULT.swimSpeed())
-                    .forGetter(BodyProfile::swimSpeed)
+                    .forGetter(BodyProfile::swimSpeed),
+            Breaks.CODEC.optionalFieldOf("breaks").forGetter(BodyProfile::breaks),
+            Codec.BOOL.optionalFieldOf("giant", false).forGetter(BodyProfile::giant)
     ).apply(instance, BodyProfile::new));
 }

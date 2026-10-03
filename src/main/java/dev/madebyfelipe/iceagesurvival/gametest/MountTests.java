@@ -163,7 +163,10 @@ public class MountTests {
 
         helper.assertBlockNotPresent(Blocks.DIRT, 4, 2, 6);
         helper.assertBlockNotPresent(Blocks.STONE, 4, 3, 7);
-        helper.assertBlockNotPresent(Blocks.OAK_LOG, 3, 4, 6);
+        // Madeira é a golpes (D44): o tronco leva o primeiro dos dois golpes de gigante.
+        helper.assertBlockPresent(Blocks.OAK_LOG, 3, 4, 6);
+        helper.assertTrue(dev.madebyfelipe.iceagesurvival.defense.DefenseDamage.hits(helper.getLevel(),
+                helper.absolutePos(new BlockPos(3, 4, 6))) == 1, "o tronco deveria levar um golpe");
         helper.assertBlockPresent(Blocks.OBSIDIAN, 5, 2, 7);
         helper.assertBlockPresent(Blocks.CHEST, 5, 3, 6);
         helper.assertBlockPresent(Blocks.DIRT, 4, 2, 11);
@@ -181,12 +184,17 @@ public class MountTests {
 
         helper.assertTrue(mammoth.attackAsMount(owner, null), "a mordida deveria sair sem alvo");
 
-        helper.assertBlockNotPresent(Blocks.OAK_LOG, 4, 1, 6);
+        // Folha cai na hora; o tronco é madeira, a golpes (D44): dois de gigante.
+        helper.assertBlockPresent(Blocks.OAK_LOG, 4, 1, 6);
         helper.assertBlockNotPresent(Blocks.OAK_LEAVES, 3, 2, 7);
-        helper.assertBlockPresent(Blocks.STONE, 5, 0, 6);
-        helper.assertBlockPresent(Blocks.DIRT, 4, 0, 7);
-        helper.assertItemEntityPresent(Items.OAK_LOG, new BlockPos(4, 1, 6), 2.0);
-        helper.succeed();
+        helper.runAfterDelay(21, () -> {
+            helper.assertTrue(mammoth.attackAsMount(owner, null), "a recarga deveria ter passado");
+            helper.assertBlockNotPresent(Blocks.OAK_LOG, 4, 1, 6);
+            helper.assertBlockPresent(Blocks.STONE, 5, 0, 6);
+            helper.assertBlockPresent(Blocks.DIRT, 4, 0, 7);
+            helper.assertItemEntityPresent(Items.OAK_LOG, new BlockPos(4, 1, 6), 2.0);
+            helper.succeed();
+        });
     }
 
     @GameTest(template = EMPTY)

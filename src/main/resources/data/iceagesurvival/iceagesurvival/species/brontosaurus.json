@@ -23,8 +23,9 @@
   "body": {
     "knockback_resistance": 1.0,
     "step_height": 2.6,
-    "breaks_leaves": true,
-    "plow_hardness": 2.5
+    "plow_hardness": 2.5,
+    "breaks": "wood",
+    "giant": true
   },
   "taming": {
     "torpor_decay_per_second": 4.0,

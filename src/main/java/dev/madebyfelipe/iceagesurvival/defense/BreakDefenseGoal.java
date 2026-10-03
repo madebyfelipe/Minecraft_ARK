@@ -2,13 +2,16 @@ package dev.madebyfelipe.iceagesurvival.defense;
 
 import dev.madebyfelipe.iceagesurvival.entity.CreatureAction;
 import dev.madebyfelipe.iceagesurvival.entity.PrehistoricCreature;
+import dev.madebyfelipe.iceagesurvival.entity.BlockBreaking;
 import java.util.EnumSet;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.Goal;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.pathfinder.Node;
 import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.AABB;
@@ -17,9 +20,10 @@ import net.minecraftforge.event.ForgeEventFactory;
 import software.bernie.geckolib.animatable.GeoEntity;
 
 /**
- * O gigante selvagem ({@link DefenseBlocks#WALL_BREAKERS}) com o caminho até o alvo fechado por muro ou portão de
- * madeira golpeia o bloco que está entre ele e o alvo, um golpe por segundo, até abrir passagem
- * ({@link DefenseDamage#HITS_TO_BREAK} golpes por bloco). Pedra não cede: diante dela o golpe não sai.
+ * A selvagem adulta que derruba madeira ({@code body.breaks: wood}, D44) com o caminho até o alvo fechado por madeira
+ * — muro ou portão nosso, tábua, cerca, porta, tronco — golpeia o bloco que está entre ela e o alvo, um golpe por
+ * segundo, até abrir passagem ({@link dev.madebyfelipe.iceagesurvival.entity.BlockBreaking#hitsToBreak}). Só para
+ * alcançar o alvo: sem alvo, ou com caminho livre, não golpeia nada. Pedra não cede: diante dela o golpe não sai.
  */
 public class BreakDefenseGoal extends Goal {
     /** Um golpe por segundo, como a mordida. */
@@ -133,8 +137,8 @@ public class BreakDefenseGoal extends Goal {
     }
 
     /**
-     * O muro ou portão de madeira mais perto à frente do corpo, na direção do alvo, da altura dos pés até a da cabeça.
-     * Pedra na frente: nada (não cede, e o gigante não golpeia à toa).
+     * O bloco de madeira mais perto à frente do corpo, na direção do alvo, da altura dos pés até a da cabeça.
+     * Pedra na frente: nada (não cede, e a criatura não golpeia à toa).
      */
     @Nullable
     private BlockPos blockingDefense(LivingEntity target) {
@@ -145,6 +149,8 @@ public class BreakDefenseGoal extends Goal {
         Vec3 forward = toTarget.normalize();
         Vec3 side = new Vec3(-forward.z, 0.0, forward.x);
         double halfWidth = creature.getBbWidth() / 2.0;
+        // O gigante derruba o tronco esbarrando: não para para golpeá-lo.
+        boolean plowsLogs = BlockBreaking.isGiant(creature) && creature.plows();
         int minY = Mth.floor(creature.getY() + 0.01);
         int maxY = Mth.floor(creature.getY() + Math.min(creature.getBbHeight(), 3.0));
         for (double depth = halfWidth + 0.5; depth <= halfWidth + SCAN_DEPTH; depth += 0.5) {
@@ -152,7 +158,8 @@ public class BreakDefenseGoal extends Goal {
                 Vec3 column = creature.position().add(forward.scale(depth)).add(side.scale(lateral));
                 for (int y = minY; y <= maxY; y++) {
                     BlockPos pos = BlockPos.containing(column.x, y, column.z);
-                    if (DefenseDamage.yields(creature.level().getBlockState(pos))) {
+                    BlockState state = creature.level().getBlockState(pos);
+                    if (DefenseDamage.yields(state) && !(plowsLogs && state.is(BlockTags.LOGS))) {
                         return pos;
                     }
                 }

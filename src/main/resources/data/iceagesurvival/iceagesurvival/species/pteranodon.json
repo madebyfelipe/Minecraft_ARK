@@ -26,7 +26,8 @@
   },
   "body": {
     "knockback_resistance": 0.7,
-    "step_height": 0.8
+    "step_height": 0.8,
+    "breaks": "none"
   },
   "taming": {
     "torpor_decay_per_second": 1.5,

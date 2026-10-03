@@ -23,7 +23,7 @@
   "body": {
     "knockback_resistance": 0.5,
     "step_height": 1.1,
-    "breaks_leaves": true
+    "breaks": "plants"
   },
   "taming": {
     "torpor_decay_per_second": 1.2,
