@@ -51,7 +51,6 @@ import dev.madebyfelipe.iceagesurvival.core.ecology.ThreatResponse;
 import dev.madebyfelipe.iceagesurvival.species.EcologyProfile;
 import dev.madebyfelipe.iceagesurvival.core.mount.MountedReach;
 import dev.madebyfelipe.iceagesurvival.defense.DefenseBlock;
-import dev.madebyfelipe.iceagesurvival.defense.DefenseBlocks;
 import dev.madebyfelipe.iceagesurvival.species.TamingProfile;
 import dev.madebyfelipe.iceagesurvival.menu.CreatureStorageMenu;
 import java.util.List;
@@ -104,7 +103,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
-import net.minecraft.world.level.block.LeavesBlock;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.phys.AABB;
@@ -2862,11 +2860,7 @@ public abstract class PrehistoricCreature extends TamableAnimal {
                 || !ForgeEventFactory.getMobGriefingEvent(level(), this)) {
             return;
         }
-        if (plowHardness > 0.0F) {
-            plowThroughTheWay();
-        } else if (breaksLeaves) {
-            breakLeavesInTheWay();
-        }
+        BlockBreaking.bumpThrough(this, plowHardness, breaksLeaves);
     }
 
     public boolean isStalking() {
@@ -2950,39 +2944,6 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     /** Se atravessa a vegetação da superfície quebrando. */
     public boolean plows() {
         return plowHardness > 0.0F;
-    }
-
-    /**
-     * Quebra, à frente do corpo, os blocos da tag {@code plowable} com dureza até o limite da
-     * espécie. Só vegetação e neve: o chão e as encostas ficam, e a criatura sobe por eles.
-     */
-    private void plowThroughTheWay() {
-        Vec3 motion = getDeltaMovement().multiply(1.0, 0.0, 1.0);
-        Vec3 forward = motion.lengthSqr() > 1.0E-4 ? motion.normalize() : Vec3.directionFromRotation(0.0F, getYRot());
-        AABB box = getBoundingBox().expandTowards(forward.scale(0.8)).inflate(0.1, 0.0, 0.1);
-        for (BlockPos pos : BlockPos.betweenClosed(
-                BlockPos.containing(box.minX, box.minY + 0.01, box.minZ),
-                BlockPos.containing(box.maxX, box.maxY, box.maxZ))) {
-            var state = level().getBlockState(pos);
-            if (!state.is(ModTags.PLOWABLE) || state.hasBlockEntity()) {
-                continue;
-            }
-            float hardness = state.getDestroySpeed(level(), pos);
-            if (hardness >= 0.0F && hardness <= plowHardness
-                    && ForgeEventFactory.onEntityDestroyBlock(this, pos, state)) {
-                level().destroyBlock(pos, true, this);
-            }
-        }
-    }
-
-    private void breakLeavesInTheWay() {
-        AABB box = getBoundingBox().inflate(0.2);
-        for (BlockPos pos : BlockPos.betweenClosed(
-                BlockPos.containing(box.minX, box.minY, box.minZ), BlockPos.containing(box.maxX, box.maxY, box.maxZ))) {
-            if (level().getBlockState(pos).getBlock() instanceof LeavesBlock) {
-                level().destroyBlock(pos, true, this);
-            }
-        }
     }
 
     // ---- Manada ----
@@ -3258,7 +3219,7 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         nextRiderAttackTime = level().getGameTime() + RIDDEN_ATTACK_COOLDOWN;
         swingAttack();
         if (rider instanceof ServerPlayer serverRider) {
-            breakBlocksInBite(serverRider);
+            BlockBreaking.bite(this, serverRider);
         }
         LivingEntity victim = canBiteAsMount(rider, target, true) ? target : level()
                 .getEntitiesOfClass(LivingEntity.class, biteArea(), candidate -> canBiteAsMount(rider, candidate, false))
@@ -3305,53 +3266,6 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     private AABB biteArea() {
         double reach = riddenReach();
         return getBoundingBox().inflate(reach, 0.0, reach).expandTowards(0.0, -1.5, 0.0);
-    }
-
-    /**
-     * Quebra os blocos na frente do corpo, do chão em que pisa até o topo da cabeça, com
-     * dureza até o limite da espécie e, se ela tiver {@code break_blocks}, só os daquela tag.
-     * Os blocos dropam como se quebrados à mão. Respeita {@code mobGriefing}, a proteção do spawn e
-     * os eventos de quebra de bloco (mods de proteção de terreno), como se fosse quem monta
-     * quebrando, e nunca quebra bloco com inventário.
-     */
-    private void breakBlocksInBite(ServerPlayer rider) {
-        MountProfile mount = mountProfile().orElse(null);
-        if (mount == null || mount.breakHardness() <= 0.0F || !ForgeEventFactory.getMobGriefingEvent(level(), this)) {
-            return;
-        }
-        float maxHardness = mount.breakHardness();
-        Vec3 forward = Vec3.directionFromRotation(0.0F, getYRot());
-        Vec3 side = new Vec3(-forward.z, 0.0, forward.x);
-        double halfWidth = getBbWidth() / 2.0;
-        double sideReach = halfWidth + MountedReach.BREAK_SIDE_MARGIN;
-        int minY = Mth.floor(getY() + 0.01);
-        int maxY = Mth.floor(getY() + getBbHeight() - 0.01);
-        java.util.Set<BlockPos> bitten = new java.util.LinkedHashSet<>();
-        for (double depth = halfWidth + 0.5; depth <= halfWidth + MountedReach.breakDepth(getBbWidth()); depth += 0.5) {
-            for (double lateral = -sideReach; lateral <= sideReach + 1.0E-3; lateral += 0.5) {
-                Vec3 column = position().add(forward.scale(depth)).add(side.scale(lateral));
-                for (int y = minY; y <= maxY; y++) {
-                    bitten.add(BlockPos.containing(column.x, y, column.z));
-                }
-            }
-        }
-        for (BlockPos pos : bitten) {
-            var state = level().getBlockState(pos);
-            if (DefenseBlocks.isDefense(state)) {
-                // Defesa nunca quebra direto: o gigante conta um golpe na madeira; qualquer outra, nada.
-                DefenseBlocks.biteHit(this, rider, pos, state);
-                continue;
-            }
-            float hardness = state.getDestroySpeed(level(), pos);
-            if (state.isAir() || hardness < 0.0F || hardness > maxHardness || state.hasBlockEntity()
-                    || mount.breakBlocks().isPresent() && !state.is(mount.breakBlocks().get())
-                    || !level().mayInteract(rider, pos)
-                    || rider.connection.connection.channel() != null
-                            && ForgeHooks.onBlockBreakEvent(level(), rider.gameMode.getGameModeForPlayer(), rider, pos) < 0) {
-                continue;
-            }
-            level().destroyBlock(pos, true, this);
-        }
     }
 
     @Nullable
