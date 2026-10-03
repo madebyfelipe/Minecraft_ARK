@@ -1,0 +1,81 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:sheep",
+    "minecraft:pig",
+    "minecraft:goat",
+    "minecraft:cow",
+    "minecraft:horse",
+    "minecraft:donkey",
+    "minecraft:llama",
+    "minecraft:rabbit",
+    "minecraft:chicken",
+    "minecraft:villager",
+    "minecraft:wandering_trader",
+    "iceagesurvival:dodo",
+    "iceagesurvival:gallimimus",
+    "iceagesurvival:elasmotherium",
+    "iceagesurvival:velociraptor",
+    "iceagesurvival:ornitholestes",
+    {
+      "id": "tfc:sheep",
+      "required": false
+    },
+    {
+      "id": "tfc:pig",
+      "required": false
+    },
+    {
+      "id": "tfc:goat",
+      "required": false
+    },
+    {
+      "id": "tfc:cow",
+      "required": false
+    },
+    {
+      "id": "tfc:horse",
+      "required": false
+    },
+    {
+      "id": "tfc:donkey",
+      "required": false
+    },
+    {
+      "id": "tfc:mule",
+      "required": false
+    },
+    {
+      "id": "tfc:deer",
+      "required": false
+    },
+    {
+      "id": "tfc:gazelle",
+      "required": false
+    },
+    {
+      "id": "tfc:boar",
+      "required": false
+    },
+    {
+      "id": "tfc:alpaca",
+      "required": false
+    },
+    {
+      "id": "tfc:wildebeest",
+      "required": false
+    },
+    {
+      "id": "tfc:rabbit",
+      "required": false
+    },
+    {
+      "id": "tfc:chicken",
+      "required": false
+    },
+    {
+      "id": "tfc:turkey",
+      "required": false
+    }
+  ]
+}

@@ -267,5 +267,8 @@
   "item.iceagesurvival.megalania_spawn_egg": "Megalania Spawn Egg",
   "effect.iceagesurvival.venom": "Venom",
   "item.iceagesurvival.antidote": "Antidote",
+  "item.iceagesurvival.antidote.tooltip": "Cures Megalania venom. Drink it, or use it on a creature.",
+  "death.attack.iceagesurvival.venom": "%1$s bled out from venom",
+  "death.attack.iceagesurvival.venom.player": "%1$s bled out from the venom of %2$s",
   "iceagesurvival.mount.no_open_sky": "%s needs open sky to take off"
 }

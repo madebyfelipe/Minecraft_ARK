@@ -1,0 +1,28 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:savanna",
+    "minecraft:savanna_plateau",
+    "minecraft:windswept_savanna",
+    "minecraft:badlands",
+    "minecraft:eroded_badlands",
+    "minecraft:wooded_badlands",
+    "minecraft:snowy_plains",
+    {
+      "id": "tfc:badlands",
+      "required": false
+    },
+    {
+      "id": "tfc:inverted_badlands",
+      "required": false
+    },
+    {
+      "id": "tfc:canyons",
+      "required": false
+    },
+    {
+      "id": "tfc:low_canyons",
+      "required": false
+    }
+  ]
+}
