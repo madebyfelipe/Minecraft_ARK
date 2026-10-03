@@ -1,11 +1,13 @@
 name: Release
 
-# Uma tag v* publica o release: compila, monta o .mrpack (tools/build_mrpack.py) e anexa o .mrpack e o jar.
-# As notas vêm de docs/releases/<tag>.md; a versão do gradle.properties precisa bater com a tag.
+# Publica o release da versão do gradle.properties: compila, monta o .mrpack (tools/build_mrpack.py) e anexa o
+# .mrpack e o jar, com as notas de docs/releases/v<versão>.md. Dispara com uma tag v* ou à mão (workflow_dispatch);
+# à mão, a tag v<versão> é criada no commit escolhido.
 
 on:
   push:
     tags: ['v*']
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -29,11 +31,12 @@ jobs:
       - name: Check version
         run: |
           version="$(sed -n 's/^mod_version=//p' gradle.properties)"
-          if [ "v$version" != "$GITHUB_REF_NAME" ]; then
+          if [ "$GITHUB_REF_TYPE" = tag ] && [ "v$version" != "$GITHUB_REF_NAME" ]; then
             echo "A tag $GITHUB_REF_NAME não bate com mod_version=$version" >&2
             exit 1
           fi
-          test -f "docs/releases/$GITHUB_REF_NAME.md"
+          test -f "docs/releases/v$version.md"
+          echo "VERSION=$version" >> "$GITHUB_ENV"
 
       - name: Build with Gradle
         run: ./gradlew build
@@ -45,10 +48,10 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          version="${GITHUB_REF_NAME#v}"
-          gh release create "$GITHUB_REF_NAME" \
-            "build/modpack/IceAgeSurvival-$version.mrpack" \
-            "build/libs/iceagesurvival-$version.jar" \
-            --title "Ice Age Survival $version (alfa)" \
-            --notes-file "docs/releases/$GITHUB_REF_NAME.md" \
+          gh release create "v$VERSION" \
+            "build/modpack/IceAgeSurvival-$VERSION.mrpack" \
+            "build/libs/iceagesurvival-$VERSION.jar" \
+            --target "$GITHUB_SHA" \
+            --title "Ice Age Survival $VERSION (alfa)" \
+            --notes-file "docs/releases/v$VERSION.md" \
             --prerelease
