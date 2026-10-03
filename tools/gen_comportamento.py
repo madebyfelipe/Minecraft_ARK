@@ -81,6 +81,8 @@ SPECIAL = {
             'porte dele para baixo), puxa-a para perto e a prende',
     'swallow': 'engole inteira: a presa da dieta que cabe no bico (porte até 0,1 do dele, nunca filhote) some de uma '
                'vez e vale meia refeição; a maior leva só a bicada',
+    'venom': 'mordida que solta: morde, recua e segue o rastro provando o ar com a língua; a peçonha (30 s) é choque '
+             '(torpor) nas criaturas do mod e sangramento sem regeneração no jogador e nos vanilla; cura com o antídoto',
 }
 ACTIVITY = {'nocturnal': 'noturno: de dia dorme escondido e não caça; só acorda se atacado',
             'diurnal': 'diurno: à noite dorme escondido e não caça; só acorda se atacado'}
@@ -279,6 +281,10 @@ def card(key):
     social.append(row('Nervosismo', num(eco['nervousness'])))
     if entity in apex:
         social.append(row('Apex', 'não cai com tranquilizante; só se doma vencendo o desafio com a cabeça de outro da espécie'))
+    carcass = b.get('ecology', {}).get('carcass_portions', 0)
+    if carcass:
+        social.append(row('Carcaça', f'morto selvagem sem jogador, fica caído com {carcass} porções de carne por até '
+                           f'10 min: o predador mais forte come primeiro; o jogador carneia a sobra com machado ou espada'))
     habits = b.get('habits', {})
     if habits.get('activity') in ACTIVITY:
         social.append(row('Horário', ACTIVITY[habits['activity']]))
