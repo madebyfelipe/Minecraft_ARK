@@ -1,0 +1,16 @@
+{
+  "structures": [
+    {
+      "structure": "iceagesurvival:arena_cave",
+      "weight": 1
+    }
+  ],
+  "placement": {
+    "type": "minecraft:concentric_rings",
+    "salt": 0,
+    "distance": 40,
+    "spread": 4,
+    "count": 4,
+    "preferred_biomes": "#minecraft:stronghold_biased_to"
+  }
+}

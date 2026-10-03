@@ -1,0 +1,7 @@
+{
+  "type": "iceagesurvival:arena_cave",
+  "biomes": "#iceagesurvival:has_arena_cave",
+  "spawn_overrides": {},
+  "step": "strongholds",
+  "terrain_adaptation": "none"
+}
