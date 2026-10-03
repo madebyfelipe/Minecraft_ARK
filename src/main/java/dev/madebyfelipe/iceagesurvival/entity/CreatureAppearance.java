@@ -68,7 +68,10 @@ public record CreatureAppearance(
             Map.entry("quetzalcoatlus", new CreatureAppearance("quetzalcoatlus",
                     "quetzalcoatlus/quetzalcoatlus_male.png", "idle", "walk", "attack", "sleep", "fly", "run", "dive")),
             Map.entry("megalania", new CreatureAppearance("megalania", "megalania/megalania_male.png",
-                    "idle", "walk", "attack_1", "sleep", "walk", "run"))
+                    "idle", "walk", "attack_1", "sleep", "walk", "run")),
+            // O golpe é a cauda: a clavada para trás (TailClubStrike).
+            Map.entry("ankylosaurus", new CreatureAppearance("ankylosaurus", "ankylosaurus/ankylosaurus_male.png",
+                    "idle", "walk", "attack_back_right", "sleep", "walk", "run"))
     );
 
     public static Optional<CreatureAppearance> forEntity(ResourceLocation entityId) {

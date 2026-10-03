@@ -1,6 +1,8 @@
 package dev.madebyfelipe.iceagesurvival.entity.ai;
 
+import dev.madebyfelipe.iceagesurvival.core.ecology.TailClub;
 import dev.madebyfelipe.iceagesurvival.entity.PrehistoricCreature;
+import dev.madebyfelipe.iceagesurvival.entity.TailClubStrike;
 import java.util.EnumSet;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EntitySelector;
@@ -20,6 +22,8 @@ public class ChaseGoal extends Goal {
     private static final int ATTACK_INTERVAL = 20;
     /** Fim do caminho mais longe que isto do alvo = caminho incompleto. */
     private static final double PATH_END_TOLERANCE_SQR = 4.0;
+    /** A clava: para de chegar perto a esta folga dentro do alcance da cauda, e gira. */
+    private static final double TAIL_MARGIN = 0.75;
 
     private final PrehistoricCreature creature;
     private final double speedModifier;
@@ -105,6 +109,13 @@ public class ChaseGoal extends Goal {
         if (target == null) {
             return;
         }
+        boolean tailClub = TailClubStrike.has(creature);
+        if (tailClub && TailClubStrike.edgeDistance(creature, target) <= TailClub.REACH - TAIL_MARGIN) {
+            // A clava: perto, não morde de frente — vira a cauda, e o reflexo golpeia (TailClubStrike).
+            TailClubStrike.turnTail(creature, target);
+            ticksUntilRepath = 0;
+            return;
+        }
         creature.getLookControl().setLookAt(target, 30.0F, 30.0F);
         if (--ticksUntilRepath <= 0) {
             ticksUntilRepath = REPATH_TICKS + creature.getRandom().nextInt(5);
@@ -121,7 +132,7 @@ public class ChaseGoal extends Goal {
         }
 
         ticksUntilAttack = Math.max(ticksUntilAttack - 1, 0);
-        if (ticksUntilAttack <= 0 && creature.isWithinMeleeAttackRange(target)) {
+        if (!tailClub && ticksUntilAttack <= 0 && creature.isWithinMeleeAttackRange(target)) {
             ticksUntilAttack = adjustedTickDelay(ATTACK_INTERVAL);
             creature.swing(InteractionHand.MAIN_HAND);
             creature.doHurtTarget(target);

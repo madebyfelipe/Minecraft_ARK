@@ -16,6 +16,7 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.LeavesBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -154,7 +155,7 @@ public final class BlockBreaking {
      * tronco…) leva um golpe, se a montaria derruba madeira ({@code body.breaks: wood}), e cai no último golpe como
      * a da selvagem. O resto quebra direto se a espécie tem {@code mount.break_hardness}, com dureza até esse limite
      * e, se ela tiver {@code break_blocks}, só os daquela tag. As outras defesas (pedra, armadilhas), nunca. Os blocos dropam
-     * como se quebrados à mão. Respeita {@code mobGriefing}, a proteção do spawn e o evento de quebra de bloco
+     * como se quebrados à mão, ou minerados com o {@code mount.break_tool} (o Anquilossauro). Respeita {@code mobGriefing}, a proteção do spawn e o evento de quebra de bloco
      * (mods de proteção de terreno) como se fosse quem monta quebrando, e nunca quebra bloco com inventário.
      */
     public static void bite(PrehistoricCreature creature, ServerPlayer rider) {
@@ -204,7 +205,13 @@ public final class BlockBreaking {
                     || !riderMayBreak(creature, rider, pos)) {
                 continue;
             }
-            creature.level().destroyBlock(pos, true, creature);
+            if (mount.breakTool().isPresent()) {
+                // Dropa como se minerado com a ferramenta: a pedra do Anquilossauro dá pedregulho, o minério dá o minério.
+                Block.dropResources(state, creature.level(), pos, null, rider, new ItemStack(mount.breakTool().get()));
+                creature.level().destroyBlock(pos, false, creature);
+            } else {
+                creature.level().destroyBlock(pos, true, creature);
+            }
         }
     }
 

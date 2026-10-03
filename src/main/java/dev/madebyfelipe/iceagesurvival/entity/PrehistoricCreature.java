@@ -27,6 +27,7 @@ import dev.madebyfelipe.iceagesurvival.registry.ModItems;
 import dev.madebyfelipe.iceagesurvival.registry.ModTags;
 import dev.madebyfelipe.iceagesurvival.species.BehaviorProfile;
 import dev.madebyfelipe.iceagesurvival.species.BodyProfile;
+import dev.madebyfelipe.iceagesurvival.species.DungProfile;
 import dev.madebyfelipe.iceagesurvival.species.FishingProfile;
 import dev.madebyfelipe.iceagesurvival.core.ecology.Fishing;
 import dev.madebyfelipe.iceagesurvival.core.mount.SwimModel;
@@ -409,6 +410,12 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     private dev.madebyfelipe.iceagesurvival.core.ecology.ApexDuel duel;
     /** Ticks que o bico ainda fica travado depois de bater num escudo (Kelenken). */
     private int beakStuckTicks;
+    /** Recarga da clava da cauda, em ticks ({@link TailClubStrike}). */
+    int tailCooldown;
+    /** Alimento comido que ainda não virou esterco ({@code species.dung}). */
+    private double digestedFood;
+    /** Ticks até o próximo esterco sozinho ({@code dung.interval_seconds}); 0 = ainda não sorteado. */
+    private int dungTicks;
     /** Há quanto tempo é corpo, em ticks. */
     private int corpseTicks;
     /** Carcaça ({@link Carcass}): porções de carne que restam e as que havia; 0 = não é carcaça. */
@@ -909,6 +916,9 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         if (hit && target instanceof LivingEntity living) {
             hornToss(living);
             applyHuntSpecial(living);
+            if (TailClubStrike.has(this)) {
+                TailClubStrike.afterHit(this, living);
+            }
         } else if (shielded) {
             beakStuck();
         }
@@ -3004,6 +3014,10 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         if (!level().isClientSide && tickCount % STRESS_INTERVAL == 0) {
             tickStress();
         }
+        if (!level().isClientSide && isAlive() && !isCorpse()) {
+            TailClubStrike.tick(this);
+            tickDung();
+        }
         if (level().isClientSide || !horizontalCollision || isUnconscious()
                 || !ForgeEventFactory.getMobGriefingEvent(level(), this)) {
             return;
@@ -3836,6 +3850,7 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         }
         usePlayerItem(player, hand, stack);
         heal(healAmount(food));
+        digest(food.value());
         nextHealTime = now + HEAL_FEED_COOLDOWN_TICKS;
         // A afinidade sobe só no ritmo normal das refeições: curar não vira atalho para ela.
         if (now >= nextFeedTime) {
@@ -3875,6 +3890,7 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         }
         inventory.removeItem(bestSlot, 1);
         heal(healAmount(best));
+        digest(best.value());
         playSound(SoundEvents.GENERIC_EAT, 0.6F, 0.8F + getRandom().nextFloat() * 0.4F);
     }
 
@@ -3900,6 +3916,7 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         }
         inventory.removeItem(bestSlot, 1);
         tamingSession.feed(best.value(), best.quality());
+        digest(best.value());
         nextFeedTime = now + profile.get().feedIntervalSeconds() * 20L;
 
         double required = requiredFood(profile.get());
@@ -3963,11 +3980,58 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         CreatureLocator.update(this);
     }
 
+    // ---- Esterco ----
+
+    private static final String TAG_DIGESTED_FOOD = "DigestedFood";
+
+    /** O que comeu fermenta: a cada {@code dung.food_per_dung} de alimento, um esterco. */
+    public void digest(double foodValue) {
+        Optional<DungProfile> dung = species().flatMap(Species::dung);
+        if (level().isClientSide || dung.isEmpty() || isBaby()) {
+            return;
+        }
+        digestedFood += foodValue;
+        while (digestedFood >= dung.get().foodPerDung()) {
+            digestedFood -= dung.get().foodPerDung();
+            dropDung();
+        }
+    }
+
+    /** O adulto acordado deixa um esterco de tempos em tempos, selvagem ou domesticado ({@code dung.interval_seconds}). */
+    private void tickDung() {
+        Optional<DungProfile> dung = species().flatMap(Species::dung);
+        if (dung.isEmpty() || dung.get().intervalSeconds() <= 0 || isBaby() || isUnconscious() || isResting()) {
+            return;
+        }
+        int interval = dung.get().intervalSeconds() * 20;
+        if (dungTicks <= 0) {
+            // O primeiro sai em qualquer ponto do intervalo: os animais não estercam todos juntos.
+            dungTicks = 1 + getRandom().nextInt(interval);
+        }
+        if (--dungTicks <= 0) {
+            dropDung();
+            dungTicks = interval / 2 + getRandom().nextInt(interval);
+        }
+    }
+
+    /** Um esterco no chão, atrás do animal. */
+    public void dropDung() {
+        Vec3 behind = position().subtract(Vec3.directionFromRotation(0.0F, getYRot()).scale(getBbWidth() / 2.0 + 0.4));
+        net.minecraft.world.entity.item.ItemEntity item = new net.minecraft.world.entity.item.ItemEntity(level(),
+                behind.x, getY() + 0.3, behind.z, new ItemStack(dev.madebyfelipe.iceagesurvival.registry.ModItems.DUNG.get()));
+        item.setDefaultPickUpDelay();
+        level().addFreshEntity(item);
+        playSound(SoundEvents.SLIME_SQUISH_SMALL, 0.6F, 0.7F + getRandom().nextFloat() * 0.2F);
+    }
+
     // ---- Persistência ----
 
     @Override
     public void addAdditionalSaveData(CompoundTag compound) {
         super.addAdditionalSaveData(compound);
+        if (digestedFood > 0.0) {
+            compound.putDouble(TAG_DIGESTED_FOOD, digestedFood);
+        }
         if (statsRolled) {
             CompoundTag points = new CompoundTag();
             for (Stat stat : Stat.values()) {
@@ -4033,6 +4097,7 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     @Override
     public void readAdditionalSaveData(CompoundTag compound) {
         super.readAdditionalSaveData(compound);
+        digestedFood = compound.getDouble(TAG_DIGESTED_FOOD);
         Optional<Species> species = species();
         // Antes dos pontos: a velocidade depende das mutações.
         CompoundTag mutationTag = compound.getCompound(TAG_MUTATIONS);

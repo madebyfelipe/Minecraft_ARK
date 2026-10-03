@@ -67,6 +67,12 @@ public final class ModEntities {
      */
     public static final RegistryObject<EntityType<LandCreature>> MEGALANIA = landCreature("megalania", 1.5F, 1.1F);
     /**
+     * Ankylosaurus magniventris, o maior anquilossaurídeo: 6–8 m, ~5–8 t (Arbour &amp; Mallon 2017), baixo e largo, com a
+     * clava na cauda. Modelo, animações e sons do Revival em runtime (escala 1,7: ~7,6 blocos de comprimento).
+     */
+    public static final RegistryObject<EntityType<LandCreature>> ANKYLOSAURUS =
+            landCreature("ankylosaurus", 2.6F, 2.2F);
+    /**
      * Giganotosaurus, o boss da arena da caverna (D47): 12–13 m, ~8 t, um pouco mais comprido e mais leve que o T-Rex.
      * Modelo, poses e sons do Jurassic Reborn em runtime (na escala 1, ~14 blocos de comprimento e 4,5 de altura). Não
      * nasce sozinho: só o altar da arena o chama. Com 4,5 de altura não passa pela porta de 4 da arena.

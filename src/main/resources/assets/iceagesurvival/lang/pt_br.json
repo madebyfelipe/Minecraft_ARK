@@ -284,5 +284,9 @@
   "iceagesurvival.altar.busy": "O Giganotossauro deste altar ainda vive.",
   "iceagesurvival.altar.tribute": "O tributo foi aceito. Algo enorme ruge nas profundezas...",
   "death.attack.iceagesurvival.bleeding": "%1$s sangrou até a morte",
-  "death.attack.iceagesurvival.bleeding.player": "%1$s sangrou até a morte por causa de %2$s"
+  "death.attack.iceagesurvival.bleeding.player": "%1$s sangrou até a morte por causa de %2$s",
+  "entity.iceagesurvival.ankylosaurus": "Anquilossauro",
+  "item.iceagesurvival.ankylosaurus_spawn_egg": "Ovo Gerador de Anquilossauro",
+  "item.iceagesurvival.dung": "Esterco",
+  "effect.iceagesurvival.broken_leg": "Perna quebrada"
 }

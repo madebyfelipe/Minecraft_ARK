@@ -17,6 +17,10 @@ public final class ModEffects {
     public static final RegistryObject<MobEffect> BLEEDING = EFFECTS.register("bleeding",
             dev.madebyfelipe.iceagesurvival.effect.BleedingEffect::new);
 
+    /** Perna quebrada pela clava do Anquilossauro: lenta e sem pular ({@code core/ecology/TailClub}). */
+    public static final RegistryObject<MobEffect> BROKEN_LEG = EFFECTS.register("broken_leg",
+            dev.madebyfelipe.iceagesurvival.effect.BrokenLegEffect::new);
+
     private ModEffects() {
     }
 }

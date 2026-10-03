@@ -6,6 +6,7 @@ import dev.madebyfelipe.iceagesurvival.core.ecology.Perception;
 import dev.madebyfelipe.iceagesurvival.core.ecology.ThreatResponse;
 import dev.madebyfelipe.iceagesurvival.core.ecology.ThreatResponse.Reaction;
 import dev.madebyfelipe.iceagesurvival.entity.PrehistoricCreature;
+import dev.madebyfelipe.iceagesurvival.entity.TailClubStrike;
 import dev.madebyfelipe.iceagesurvival.species.BehaviorProfile;
 import dev.madebyfelipe.iceagesurvival.species.WarinessProfile;
 import java.util.ArrayList;
@@ -30,6 +31,8 @@ import net.minecraft.world.phys.Vec3;
  *   <li><b>Investida:</b> corre em linha quase reta (mira de novo a cada {@value #CHARGE_REAIM_TICKS}
  *       ticks, então dá para desviar), acerta com o golpe da espécie e volta a encarar. Às vezes
  *       segue brigando — o imprevisível. Espécies de manada com defesa em grupo chamam a manada.</li>
+ *   <li><b>Clava</b> ({@code defense: tail_club}, o Anquilossauro): não blefa, não foge e não investe — no lugar
+ *       disso gira de costas para a ameaça, e a cauda golpeia quem entra no arco de trás ({@link TailClubStrike}).</li>
  * </ul>
  *
  * Filhote sempre foge. Domesticada, inconsciente ou montada, não roda. Com alvo, só reage a uma
@@ -54,6 +57,8 @@ public class WaryGoal extends Goal {
     private static final int CHARGE_TICKS = 60;
     static final int CHARGE_REAIM_TICKS = 8;
     private static final int AFTER_CHARGE_COOLDOWN = 60;
+    /** De costas para a ameaça, quanto tempo antes de decidir de novo (a clava). */
+    private static final int BRACE_TICKS = 60;
     /** Depois de acertar a investida, chance de seguir brigando em vez de voltar a encarar. */
     private static final double KEEP_FIGHTING_CHANCE = 0.35;
     private static final double RETREAT_SPEED = 1.0;
@@ -222,6 +227,9 @@ public class WaryGoal extends Goal {
         // Filhote não enfrenta ninguém: corre (e a mãe, por perto, é quem investe).
         if (creature.isBaby()) {
             reaction = Reaction.FLEE;
+        } else if (tailClub() && (reaction == Reaction.BLUFF || reaction == Reaction.FLEE)) {
+            // A clava não blefa nem foge: lento e blindado, o Anquilossauro vira a cauda e fica (TailClubStrike).
+            reaction = Reaction.CHARGE;
         }
         enter(reaction);
     }
@@ -236,7 +244,11 @@ public class WaryGoal extends Goal {
             case CHARGE, BLUFF -> {
                 creature.setAggressive(true);
                 creature.playAlert();
-                aimCharge();
+                if (tailClub()) {
+                    creature.getNavigation().stop();
+                } else {
+                    aimCharge();
+                }
             }
             case RETREAT, FLEE -> {
                 if (creature.isHunting()) {
@@ -318,6 +330,10 @@ public class WaryGoal extends Goal {
     }
 
     private void tickCharge(WarinessProfile profile, double distance) {
+        if (tailClub()) {
+            tickBrace();
+            return;
+        }
         creature.getLookControl().setLookAt(threat, 30.0F, 30.0F);
         if (stateTicks % CHARGE_REAIM_TICKS == 0) {
             aimCharge();
@@ -334,6 +350,24 @@ public class WaryGoal extends Goal {
         } else if (stateTicks >= CHARGE_TICKS || creature.position().distanceToSqr(chargeTarget) < 1.0) {
             endCharge();
         }
+    }
+
+    /**
+     * A defesa da clava ({@code defense: tail_club}): em vez de investir, gira de costas para a ameaça; quem entra no
+     * arco de trás leva a clavada ({@link TailClubStrike}, no reflexo). Fica assim até {@value #BRACE_TICKS} ticks e
+     * volta a decidir.
+     */
+    private void tickBrace() {
+        TailClubStrike.turnTail(creature, threat);
+        if (stateTicks >= BRACE_TICKS) {
+            enter(Reaction.ALERT);
+            decisionCooldown = DECISION_INTERVAL;
+        }
+    }
+
+    private boolean tailClub() {
+        WarinessProfile profile = profile();
+        return profile != null && profile.tailClub();
     }
 
     private void endCharge() {

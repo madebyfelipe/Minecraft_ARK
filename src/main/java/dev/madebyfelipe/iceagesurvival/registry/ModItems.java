@@ -102,6 +102,9 @@ public final class ModItems {
     public static final RegistryObject<ForgeSpawnEggItem> MEGALANIA_SPAWN_EGG = ITEMS.register(
             "megalania_spawn_egg",
             () -> new ForgeSpawnEggItem(ModEntities.MEGALANIA, 0x5A4A32, 0xB59A5E, new Item.Properties()));
+    public static final RegistryObject<ForgeSpawnEggItem> ANKYLOSAURUS_SPAWN_EGG = ITEMS.register(
+            "ankylosaurus_spawn_egg",
+            () -> new ForgeSpawnEggItem(ModEntities.ANKYLOSAURUS, 0x6B5B45, 0x3E3226, new Item.Properties()));
     public static final RegistryObject<ForgeSpawnEggItem> GIGANOTOSAURUS_SPAWN_EGG = ITEMS.register(
             "giganotosaurus_spawn_egg",
             () -> new ForgeSpawnEggItem(ModEntities.GIGANOTOSAURUS, 0x6B5A48, 0x9E3B2C, new Item.Properties()));
@@ -124,6 +127,9 @@ public final class ModItems {
 
     /** Pele grossa dos animais da era do gelo: vira a roupa que segura o frio. */
     public static final RegistryObject<Item> PELT = simpleItem("pelt");
+    /** Esterco do Anquilossauro ({@code species.dung}): aduba como farinha de osso. */
+    public static final RegistryObject<Item> DUNG = ITEMS.register("dung",
+            () -> new net.minecraft.world.item.BoneMealItem(new Item.Properties()));
 
     public static final RegistryObject<ArmorItem> FUR_HELMET = furArmor("fur_helmet", ArmorItem.Type.HELMET);
     public static final RegistryObject<ArmorItem> FUR_CHESTPLATE = furArmor("fur_chestplate", ArmorItem.Type.CHESTPLATE);
@@ -251,6 +257,7 @@ public final class ModItems {
             event.accept(BARYONYX_SPAWN_EGG);
             event.accept(QUETZALCOATLUS_SPAWN_EGG);
             event.accept(MEGALANIA_SPAWN_EGG);
+            event.accept(ANKYLOSAURUS_SPAWN_EGG);
             event.accept(GIGANOTOSAURUS_SPAWN_EGG);
         } else if (event.getTabKey() == CreativeModeTabs.COMBAT) {
             event.accept(TRANQ_ARROW);
@@ -268,6 +275,7 @@ public final class ModItems {
         } else if (event.getTabKey() == CreativeModeTabs.INGREDIENTS) {
             event.accept(BLACK_FRUIT);
             event.accept(PELT);
+            event.accept(DUNG);
             event.accept(DODO_FEATHER);
             event.accept(STIMULANT);
             event.accept(NARCOTIC);

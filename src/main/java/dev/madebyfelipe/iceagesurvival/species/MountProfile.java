@@ -5,7 +5,9 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.Optional;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
+import net.minecraftforge.registries.ForgeRegistries;
 
 /**
  * Montaria de uma espécie. A ausência do bloco {@code mount} no JSON significa que a
@@ -30,14 +32,25 @@ import net.minecraft.world.level.block.Block;
  *                         ({@link dev.madebyfelipe.iceagesurvival.core.mount.SwimModel})
  * @param flight           como a espécie voa, além da velocidade e da curva ({@link FlightStyle}, bloco
  *                         {@code flight}); vale para o voo montado e para o selvagem
+ * @param breakTool       se presente, o que a mordida quebra fora da madeira dropa como se minerado com esta
+ *                         ferramenta (o Anquilossauro, {@code minecraft:stone_pickaxe}: pedra dá pedregulho, minério dá
+ *                         o minério); sem ela, como se quebrado à mão
  */
 public record MountProfile(double seatHeight, double seatForward, float minAffinity, double speedMultiplier, double jumpStrength,
                            double jumpForward, float breakHardness, Optional<TagKey<Block>> breakBlocks, boolean flying,
                            double flightSpeed, boolean requiresSaddle, double flightTurnRate, boolean swims,
-                           FlightStyle flight) {
+                           FlightStyle flight, Optional<Item> breakTool) {
     public static final MountProfile DEFAULT =
             new MountProfile(0.0, 0.0, 25.0F, 1.0, 0.0, 0.0, 0.0F, Optional.empty(), false, 0.8, true, 120.0, false,
-                    FlightStyle.DEFAULT);
+                    FlightStyle.DEFAULT, Optional.empty());
+
+    public MountProfile(double seatHeight, double seatForward, float minAffinity, double speedMultiplier,
+                        double jumpStrength, double jumpForward, float breakHardness, Optional<TagKey<Block>> breakBlocks,
+                        boolean flying, double flightSpeed, boolean requiresSaddle, double flightTurnRate, boolean swims,
+                        FlightStyle flight) {
+        this(seatHeight, seatForward, minAffinity, speedMultiplier, jumpStrength, jumpForward, breakHardness,
+                breakBlocks, flying, flightSpeed, requiresSaddle, flightTurnRate, swims, flight, Optional.empty());
+    }
 
     public MountProfile(double seatHeight, double seatForward, float minAffinity, double speedMultiplier,
                         double jumpStrength, double jumpForward, float breakHardness, Optional<TagKey<Block>> breakBlocks,
@@ -138,7 +151,8 @@ public record MountProfile(double seatHeight, double seatForward, float minAffin
             Codec.doubleRange(10, 720).optionalFieldOf("flight_turn_rate", DEFAULT.flightTurnRate())
                     .forGetter(MountProfile::flightTurnRate),
             Codec.BOOL.optionalFieldOf("swims", DEFAULT.swims()).forGetter(MountProfile::swims),
-            FlightStyle.CODEC.optionalFieldOf("flight", FlightStyle.DEFAULT).forGetter(MountProfile::flight)
+            FlightStyle.CODEC.optionalFieldOf("flight", FlightStyle.DEFAULT).forGetter(MountProfile::flight),
+            ForgeRegistries.ITEMS.getCodec().optionalFieldOf("break_tool").forGetter(MountProfile::breakTool)
     ).apply(instance, MountProfile::new));
 
     /** Altura do assento para uma criatura com esta caixa de colisão. */

@@ -106,7 +106,8 @@
           "iceagesurvival:stegosaurus",
           "iceagesurvival:triceratops",
           "iceagesurvival:brontosaurus",
-          "minecraft:player"
+          "minecraft:player",
+          "iceagesurvival:ankylosaurus"
         ],
         "preference": 0
       }

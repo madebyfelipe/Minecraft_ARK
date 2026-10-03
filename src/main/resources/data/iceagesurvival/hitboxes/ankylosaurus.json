@@ -1,0 +1,7 @@
+{
+  "elements": [
+    { "name": "body", "pos": [0, 0, -1.5], "width": 22, "height": 21 },
+    { "name": "head", "pos": [0, 8.6, 18.75], "width": 10, "height": 8, "ref": "head_hitbox" },
+    { "name": "tail", "pos": [0, 7.6, -22.25], "width": 10, "height": 10, "ref": "tail_hitbox" }
+  ]
+}

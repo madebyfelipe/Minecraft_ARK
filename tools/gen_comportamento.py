@@ -309,6 +309,14 @@ def card(key):
                            f'pesca a {num(fishing["tame_radius"])} blocos e guarda o peixe'))
     if habits.get('sentinel_radius'):
         social.append(row('Sentinela', f'domesticado, avisa o dono de predador selvagem a {num(habits["sentinel_radius"])} blocos'))
+    dung = data.get('dung')
+    if dung:
+        social.append(row('Esterco', f'adulto acordado deixa um a cada ~{num(dung.get("interval_seconds", 600) / 60)} min, '
+                           f'e mais um a cada {num(dung.get("food_per_dung", 60))} de alimento que come; aduba como farinha de osso'))
+    mount = data.get('mount', {})
+    if mount.get('break_tool'):
+        social.append(row('Montado', f'a mordida minera a tag {esc(mount.get("break_blocks", "?"))} até dureza '
+                           f'{num(mount.get("break_hardness", 0))}, com os drops de {esc(mount["break_tool"])}'))
     flight = data.get('stats', {}).get('flight_stamina')
     if flight:
         social.append(row('Fôlego de voo', f'{num(flight["base"])} s no nível 1 (+{num(flight.get("per_point", 0) * 100)}% por ponto)'))
@@ -319,7 +327,12 @@ def card(key):
                          + (f' ({num(w["calf_radius"])} com filhote)' if w['calf_radius'] > w['alert_radius'] else '')))
         sense.append(row('Nota quem espreita a', f'{num(max(w["alert_radius"], 0) * STALKER_FACTOR)} blocos'))
         reaction = []
-        if w['charge_radius'] > 0:
+        if w.get('defense') == 'tail_club':
+            reaction.append(f'não foge nem investe: a {num(w["charge_radius"])} blocos vira a cauda e golpeia quem entra '
+                            'no arco de trás (100°, 4,5 blocos do centro), mesmo sem tê-lo notado; o golpe quebra a perna '
+                            '(−60% de velocidade, sem pulo, 5 s); pela frente não tem golpe; entre dois da espécie, duelo '
+                            'no flanco que não passa de 40% da vida')
+        elif w['charge_radius'] > 0:
             reaction.append(f'investe a {num(w["charge_radius"])} blocos')
             if w['bluff_chance']:
                 reaction.append(f'{num(w["bluff_chance"] * 100)}% blefe')

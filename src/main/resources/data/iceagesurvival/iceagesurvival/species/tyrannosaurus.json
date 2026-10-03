@@ -110,7 +110,8 @@
           "minecraft:llama",
           "minecraft:villager",
           "minecraft:wandering_trader",
-          "minecraft:player"
+          "minecraft:player",
+          "iceagesurvival:ankylosaurus"
         ],
         "preference": 1
       },

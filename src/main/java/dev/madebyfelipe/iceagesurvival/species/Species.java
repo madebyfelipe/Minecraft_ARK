@@ -30,7 +30,8 @@ public record Species(
         Optional<SoundProfile> sounds,
         Optional<BreedingProfile> breeding,
         Optional<StorageProfile> storage,
-        Optional<PackBonusProfile> packBonus) {
+        Optional<PackBonusProfile> packBonus,
+        Optional<DungProfile> dung) {
     public static final ResourceKey<Registry<Species>> REGISTRY_KEY =
             ResourceKey.createRegistryKey(IceAgeSurvival.id("species"));
 
@@ -60,7 +61,8 @@ public record Species(
             SoundProfile.CODEC.optionalFieldOf("sounds").forGetter(Species::sounds),
             BreedingProfile.CODEC.optionalFieldOf("breeding").forGetter(Species::breeding),
             StorageProfile.CODEC.optionalFieldOf("storage").forGetter(Species::storage),
-            PackBonusProfile.CODEC.optionalFieldOf("pack_bonus").forGetter(Species::packBonus)
+            PackBonusProfile.CODEC.optionalFieldOf("pack_bonus").forGetter(Species::packBonus),
+            DungProfile.CODEC.optionalFieldOf("dung").forGetter(Species::dung)
     ).apply(instance, Species::new));
 
     public static void registerRegistry(DataPackRegistryEvent.NewRegistry event) {

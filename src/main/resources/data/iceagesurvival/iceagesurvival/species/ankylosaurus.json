@@ -1,0 +1,130 @@
+{
+  "stats": {
+    "health": {
+      "base": 380,
+      "per_point": 0.08
+    },
+    "attack": {
+      "base": 24,
+      "per_point": 0.04
+    },
+    "speed": {
+      "base": 0.18
+    },
+    "torpor": {
+      "base": 400,
+      "per_point": 0.06
+    },
+    "armor": {
+      "base": 18,
+      "per_point": 0.03
+    }
+  },
+  "body": {
+    "knockback_resistance": 1.0,
+    "step_height": 1.1,
+    "breaks": "plants"
+  },
+  "taming": {
+    "torpor_decay_per_second": 2.2,
+    "required_food": 300,
+    "required_food_per_level": 0.015,
+    "feed_interval_seconds": 9,
+    "foods": [
+      {
+        "items": "minecraft:hay_block",
+        "value": 40
+      },
+      {
+        "items": "#iceagesurvival:taming/berries",
+        "value": 18,
+        "quality": 0.9
+      },
+      {
+        "items": "#iceagesurvival:taming/grain",
+        "value": 15,
+        "quality": 0.8
+      },
+      {
+        "items": [
+          "minecraft:fern",
+          "minecraft:large_fern"
+        ],
+        "value": 8,
+        "quality": 0.6
+      }
+    ]
+  },
+  "behavior": {
+    "aggressive": false,
+    "aggro_radius": 16,
+    "flee_health_fraction": 0.15,
+    "herd_radius": 0,
+    "migrates": false,
+    "group_defense": false,
+    "wariness": {
+      "threats": "#iceagesurvival:predators",
+      "alert_radius": 20,
+      "charge_radius": 6,
+      "bluff_chance": 0,
+      "retreat_chance": 0.15,
+      "charge_chance": 0.2,
+      "sneak_factor": 0.5,
+      "calf_radius": 24,
+      "charge_speed": 1.0,
+      "flee_speed": 1.2,
+      "knockback": 1.2,
+      "lift": 0.3,
+      "defense": "tail_club"
+    },
+    "ecology": {
+      "rival_radius": 24,
+      "nervousness": 0.5,
+      "carcass_portions": 24
+    }
+  },
+  "mount": {
+    "seat_height": 2.24,
+    "min_affinity": 25,
+    "speed_multiplier": 0.75,
+    "break_hardness": 4.5,
+    "break_blocks": "#iceagesurvival:ankylosaurus_harvestable",
+    "break_tool": "minecraft:stone_pickaxe",
+    "requires_saddle": true
+  },
+  "storage": {
+    "slots": 18
+  },
+  "spawn": {
+    "biomes": "#iceagesurvival:spawns_ankylosaurus",
+    "weight": 3,
+    "favored": {
+      "biomes": "#iceagesurvival:ideal_ankylosaurus",
+      "weight": 9
+    },
+    "group_min": 1,
+    "group_max": 1,
+    "max_nearby": 2,
+    "min_distance": 300,
+    "family": {
+      "pair_chance": 0.15
+    }
+  },
+  "sounds": {
+    "ambient": "fossil:ankylosaurus_ambient",
+    "hurt": "fossil:ankylosaurus_hurt",
+    "death": "fossil:ankylosaurus_death",
+    "attack": "minecraft:entity.iron_golem.attack",
+    "volume": 1.6
+  },
+  "breeding": {
+    "offspring": "egg",
+    "incubation_seconds": 900,
+    "maturation_seconds": 3600,
+    "cooldown_seconds": 1800
+  },
+  "dung": {
+    "interval_seconds": 600,
+    "food_per_dung": 60
+  }
+}

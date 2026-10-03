@@ -61,3 +61,10 @@ SOFTWARE.
 ```
 
 `textures/item/cave_tracker.png` (Rastreador da Caverna, D47) é autoral, desenhada pixel a pixel por `tools/gen_cave_tracker.py`.
+
+O **Anquilossauro** usa o modelo, a textura, as animações e os sons do Revival (`fossil:ankylosaurus`),
+carregados em runtime; nenhum desses arquivos é copiado para este repositório ou para o jar. As
+caixas de acerto em `data/iceagesurvival/hitboxes/ankylosaurus.json` são do projeto, medidas a
+partir das posições dos ossos do modelo. `textures/item/dung.png` (Esterco) e
+`textures/mob_effect/broken_leg.png` (Perna quebrada) são autorais, desenhadas pixel a pixel por
+`tools/gen_dung.py`.

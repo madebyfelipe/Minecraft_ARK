@@ -42,6 +42,10 @@ public final class ModTags {
     public static final TagKey<net.minecraft.world.entity.EntityType<?>> FISH =
             TagKey.create(Registries.ENTITY_TYPE, IceAgeSurvival.id("fish"));
 
+    /** Quem a clava do Anquilossauro não deixa de perna quebrada (o boss da arena). */
+    public static final TagKey<net.minecraft.world.entity.EntityType<?>> LEG_BREAK_IMMUNE =
+            TagKey.create(Registries.ENTITY_TYPE, IceAgeSurvival.id("leg_break_immune"));
+
     private ModTags() {
     }
 }

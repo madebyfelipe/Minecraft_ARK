@@ -120,7 +120,8 @@
           "iceagesurvival:dodo",
           "minecraft:sheep",
           "minecraft:pig",
-          "minecraft:goat"
+          "minecraft:goat",
+          "iceagesurvival:ankylosaurus"
         ],
         "preference": 0
       }

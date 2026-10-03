@@ -119,7 +119,8 @@
           "iceagesurvival:stegosaurus",
           "iceagesurvival:triceratops",
           "iceagesurvival:brontosaurus",
-          "iceagesurvival:mammoth"
+          "iceagesurvival:mammoth",
+          "iceagesurvival:ankylosaurus"
         ],
         "preference": 0
       }

@@ -1,0 +1,12 @@
+{
+  "type": "forge:add_spawns",
+  "biomes": "#iceagesurvival:ideal_ankylosaurus",
+  "spawners": [
+    {
+      "type": "iceagesurvival:ankylosaurus",
+      "weight": 6,
+      "minCount": 1,
+      "maxCount": 1
+    }
+  ]
+}
