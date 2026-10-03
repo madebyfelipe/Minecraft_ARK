@@ -8,16 +8,12 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 
 /**
- * Tela de estação desenhada em código, no mesmo visual do painel das criaturas: fundo escuro,
- * borda verde e uma moldura para cada espaço. Dispensa textura de GUI.
+ * Tela de estação desenhada em código, no visual de aparelho do {@link TechStyle}: painel com cantoneiras, título
+ * com a linha animada, espaços escuros de borda verde e barras segmentadas. Dispensa textura de GUI.
  */
 public abstract class StationScreen<M extends StationMenu> extends AbstractContainerScreen<M> {
-    protected static final int PANEL = 0xF0101418;
-    protected static final int BORDER = 0xFF5FB36B;
-    protected static final int SLOT = 0xFF26292E;
-    protected static final int SLOT_EDGE = 0xFF454B52;
-    protected static final int TEXT = 0xFFE8EAEC;
-    protected static final int SUBTLE = 0xFFA0A8B0;
+    protected static final int TEXT = TechStyle.TEXT;
+    protected static final int SUBTLE = TechStyle.SUBTLE;
     protected static final int WARM = 0xFFE8743B;
     protected static final int COLD = 0xFF4FA8E8;
     protected static final int GREEN = 0xFF5FB36B;
@@ -31,13 +27,9 @@ public abstract class StationScreen<M extends StationMenu> extends AbstractConta
 
     @Override
     protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
-        graphics.fill(leftPos - 1, topPos - 1, leftPos + imageWidth + 1, topPos + imageHeight + 1, BORDER);
-        graphics.fill(leftPos, topPos, leftPos + imageWidth, topPos + imageHeight, PANEL);
+        TechStyle.frame(graphics, leftPos, topPos, leftPos + imageWidth, topPos + imageHeight);
         for (Slot slot : menu.slots) {
-            int x = leftPos + slot.x;
-            int y = topPos + slot.y;
-            graphics.fill(x - 1, y - 1, x + 17, y + 17, SLOT_EDGE);
-            graphics.fill(x, y, x + 16, y + 16, SLOT);
+            TechStyle.slot(graphics, leftPos + slot.x, topPos + slot.y);
         }
         renderStation(graphics);
     }
@@ -47,7 +39,7 @@ public abstract class StationScreen<M extends StationMenu> extends AbstractConta
 
     @Override
     protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
-        graphics.drawString(font, title, titleLabelX, titleLabelY, TEXT, false);
+        TechStyle.titleLine(graphics, font, title, titleLabelX, titleLabelY, imageWidth - 8);
         graphics.drawString(font, playerInventoryTitle, inventoryLabelX, inventoryLabelY, SUBTLE, false);
     }
 
@@ -60,6 +52,6 @@ public abstract class StationScreen<M extends StationMenu> extends AbstractConta
     }
 
     protected void bar(GuiGraphics graphics, int x, int y, int width, int height, float fraction, int color) {
-        CreatureHud.drawBar(graphics, leftPos + x, topPos + y, width, height, fraction, color);
+        TechStyle.bar(graphics, leftPos + x, topPos + y, width, height, fraction, color);
     }
 }

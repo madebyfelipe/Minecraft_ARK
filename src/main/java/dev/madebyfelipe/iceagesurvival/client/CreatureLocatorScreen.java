@@ -5,11 +5,8 @@ import dev.madebyfelipe.iceagesurvival.world.CreatureLocator;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
@@ -30,13 +27,9 @@ public class CreatureLocatorScreen extends Screen {
     private static final float DIAL = 9.0F;
     private static final int TEXT_LEFT = 10 + 2 * 9 + 8;
     private static final int SCROLLBAR = 4;
-    private static final int CORNER = 8;
 
-    private static final int PANEL = 0xEA060C0A;
     private static final int DIAL_FACE = 0xFF0A1410;
     private static final int ROW_TRACKED = 0x285FB36B;
-    private static final int ROW_HOVER = 0x10FFFFFF;
-    private static final int SCANLINE = 0x068CF0A8;
     private static final int NORTH = 0xFFFF6B5B;
 
     private List<CreatureLocator.Entry> rows = List.of();
@@ -124,7 +117,7 @@ public class CreatureLocatorScreen extends Screen {
                 graphics.fill(left + 1, y, right - 1, y + ROW_HEIGHT, ROW_TRACKED);
                 graphics.fill(left + 1, y, left + 3, y + ROW_HEIGHT, RadarHud.ACCENT);
             } else if (mouseX >= left && mouseX < right && mouseY >= y && mouseY < y + ROW_HEIGHT) {
-                graphics.fill(left + 1, y, right - 1, y + ROW_HEIGHT, ROW_HOVER);
+                graphics.fill(left + 1, y, right - 1, y + ROW_HEIGHT, TechStyle.HOVER);
             }
             drawRow(graphics, entry, y, textRight);
             if (index > 0) {
@@ -135,46 +128,18 @@ public class CreatureLocatorScreen extends Screen {
         super.render(graphics, mouseX, mouseY, partialTick);
     }
 
-    /** Fundo, borda fina, cantoneiras e linhas de varredura. */
     private void drawFrame(GuiGraphics graphics, int right, int bottom) {
-        graphics.fill(left, top, right, bottom, PANEL);
-        for (int y = top + 2; y < bottom - 1; y += 3) {
-            graphics.fill(left + 1, y, right - 1, y + 1, SCANLINE);
-        }
-        int edge = HudShapes.fade(RadarHud.ACCENT, 0.45F);
-        graphics.fill(left, top, right, top + 1, edge);
-        graphics.fill(left, bottom - 1, right, bottom, edge);
-        graphics.fill(left, top, left + 1, bottom, edge);
-        graphics.fill(right - 1, top, right, bottom, edge);
-        int corner = RadarHud.BRIGHT;
-        graphics.fill(left - 1, top - 1, left + CORNER, top + 1, corner);
-        graphics.fill(left - 1, top - 1, left + 1, top + CORNER, corner);
-        graphics.fill(right - CORNER, top - 1, right + 1, top + 1, corner);
-        graphics.fill(right - 1, top - 1, right + 1, top + CORNER, corner);
-        graphics.fill(left - 1, bottom - 1, left + CORNER, bottom + 1, corner);
-        graphics.fill(left - 1, bottom - CORNER, left + 1, bottom + 1, corner);
-        graphics.fill(right - CORNER, bottom - 1, right + 1, bottom + 1, corner);
-        graphics.fill(right - 1, bottom - CORNER, right + 1, bottom + 1, corner);
+        TechStyle.frame(graphics, left, top, right, bottom);
     }
 
     /** Ponto piscando, título, a página e a linha com um brilho correndo por ela. */
     private void drawHeader(GuiGraphics graphics, int right) {
-        graphics.drawString(font, RadarHud.blink() ? "●" : "○", left + 8, top + 8, RadarHud.BRIGHT);
-        graphics.drawString(font, title, left + 18, top + 8, RadarHud.TEXT);
+        TechStyle.header(graphics, font, title, left + 8, top + 8, right - 8, 12);
         if (rows.size() > visibleRows) {
             Component page = Component.literal((scroll + 1) + "–" + Math.min(rows.size(), scroll + visibleRows)
                     + " / " + rows.size());
             graphics.drawString(font, page, right - 8 - font.width(page), top + 8, RadarHud.SUBTLE);
         }
-        int lineLeft = left + 8;
-        int lineRight = right - 8;
-        int lineY = top + 20;
-        graphics.fill(lineLeft, lineY, lineRight, lineY + 1, HudShapes.fade(RadarHud.ACCENT, 0.5F));
-        int span = lineRight - lineLeft;
-        int glowWidth = 28;
-        int glowX = lineLeft + (int) (Util.getMillis() / 6 % (span + glowWidth)) - glowWidth;
-        graphics.fill(Math.max(lineLeft, glowX), lineY, Math.min(lineRight, glowX + glowWidth), lineY + 1,
-                RadarHud.BRIGHT);
     }
 
     private void drawRow(GuiGraphics graphics, CreatureLocator.Entry entry, int y, int textRight) {
@@ -246,33 +211,5 @@ public class CreatureLocatorScreen extends Screen {
     @Override
     public boolean isPauseScreen() {
         return false;
-    }
-
-    /** Botão chapado com borda, no estilo do painel, em vez da textura de pedra do vanilla. */
-    private static final class TechButton extends Button {
-        private final int color;
-
-        TechButton(int x, int y, int width, int height, Component message, int color, OnPress onPress) {
-            super(x, y, width, height, message, onPress, DEFAULT_NARRATION);
-            this.color = color;
-        }
-
-        @Override
-        protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-            boolean hot = isHoveredOrFocused();
-            int x = getX();
-            int y = getY();
-            int right = x + width;
-            int bottom = y + height;
-            graphics.fill(x, y, right, bottom, HudShapes.fade(color, hot ? 0.35F : 0.12F));
-            int edge = HudShapes.fade(color, hot ? 1.0F : 0.6F);
-            graphics.fill(x, y, right, y + 1, edge);
-            graphics.fill(x, bottom - 1, right, bottom, edge);
-            graphics.fill(x, y, x + 1, bottom, edge);
-            graphics.fill(right - 1, y, right, bottom, edge);
-            Font font = Minecraft.getInstance().font;
-            graphics.drawCenteredString(font, getMessage(), x + width / 2, y + (height - 8) / 2,
-                    hot ? RadarHud.TEXT : color);
-        }
     }
 }

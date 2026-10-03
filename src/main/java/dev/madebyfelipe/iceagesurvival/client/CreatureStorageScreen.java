@@ -2,17 +2,11 @@ package dev.madebyfelipe.iceagesurvival.client;
 
 import dev.madebyfelipe.iceagesurvival.menu.CreatureStorageMenu;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 
 public class CreatureStorageScreen extends AbstractContainerScreen<CreatureStorageMenu> {
-    private static final int PANEL = 0xF0101418;
-    private static final int BORDER = 0xFF5FB36B;
-    private static final int SLOT = 0xFF26292E;
-    private static final int SLOT_EDGE = 0xFF454B52;
-
     public CreatureStorageScreen(CreatureStorageMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
         imageWidth = 176;
@@ -24,12 +18,10 @@ public class CreatureStorageScreen extends AbstractContainerScreen<CreatureStora
     protected void init() {
         super.init();
         if (menu.pages() > 1) {
-            addRenderableWidget(Button.builder(Component.literal("<"),
-                            button -> changePage(0))
-                    .bounds(leftPos + imageWidth - 40, topPos + 5, 16, 16).build());
-            addRenderableWidget(Button.builder(Component.literal(">"),
-                            button -> changePage(1))
-                    .bounds(leftPos + imageWidth - 21, topPos + 5, 16, 16).build());
+            addRenderableWidget(new TechButton(leftPos + imageWidth - 40, topPos + 4, 16, 14, Component.literal("<"),
+                    TechStyle.BRIGHT, button -> changePage(0)));
+            addRenderableWidget(new TechButton(leftPos + imageWidth - 21, topPos + 4, 16, 14, Component.literal(">"),
+                    TechStyle.BRIGHT, button -> changePage(1)));
         }
     }
 
@@ -41,31 +33,29 @@ public class CreatureStorageScreen extends AbstractContainerScreen<CreatureStora
 
     @Override
     protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
-        graphics.fill(leftPos - 1, topPos - 1, leftPos + imageWidth + 1, topPos + imageHeight + 1, BORDER);
-        graphics.fill(leftPos, topPos, leftPos + imageWidth, topPos + imageHeight, PANEL);
+        TechStyle.frame(graphics, leftPos, topPos, leftPos + imageWidth, topPos + imageHeight);
         if (menu.hasSaddleSlot()) {
             // Abinha da sela, à esquerda do painel.
             int x = leftPos + CreatureStorageMenu.SADDLE_X;
             int y = topPos + CreatureStorageMenu.SADDLE_Y;
-            graphics.fill(x - 5, y - 5, x + 21, y + 21, BORDER);
-            graphics.fill(x - 4, y - 4, x + 20, y + 20, PANEL);
+            TechStyle.frame(graphics, x - 5, y - 5, x + 21, y + 21);
         }
         for (var slot : menu.slots) {
-            int x = leftPos + slot.x;
-            int y = topPos + slot.y;
-            graphics.fill(x - 1, y - 1, x + 17, y + 17, SLOT_EDGE);
-            graphics.fill(x, y, x + 16, y + 16, SLOT);
+            TechStyle.slot(graphics, leftPos + slot.x, topPos + slot.y);
         }
     }
 
     @Override
     protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
-        graphics.drawString(font, title, 8, 6, 0xFFE8EAEC, false);
-        graphics.drawString(font, playerInventoryTitle, 8, inventoryLabelY, 0xFFA0A8B0, false);
+        int titleRight = imageWidth - 8;
         if (menu.pages() > 1) {
             Component pageLabel = Component.translatable("iceagesurvival.storage.page", menu.page() + 1, menu.pages());
-            graphics.drawString(font, pageLabel, imageWidth - 78, 8, 0xFFE8EAEC, false);
+            int pageX = imageWidth - 44 - font.width(pageLabel);
+            graphics.drawString(font, pageLabel, pageX, 7, TechStyle.SUBTLE, false);
+            titleRight = pageX - 4;
         }
+        TechStyle.titleLine(graphics, font, title, 8, 6, titleRight);
+        graphics.drawString(font, playerInventoryTitle, 8, inventoryLabelY, TechStyle.SUBTLE, false);
     }
 
     @Override

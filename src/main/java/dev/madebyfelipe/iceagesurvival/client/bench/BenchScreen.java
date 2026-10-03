@@ -1,6 +1,7 @@
 package dev.madebyfelipe.iceagesurvival.client.bench;
 
 import dev.madebyfelipe.iceagesurvival.defense.bench.BenchMenu;
+import dev.madebyfelipe.iceagesurvival.client.TechStyle;
 import dev.madebyfelipe.iceagesurvival.defense.bench.BenchRecipe;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,18 +19,13 @@ import net.minecraft.world.item.ItemStack;
 /**
  * Tela de bancada: grade com as receitas da bancada (como o cortador de pedra) sobre o inventário. O que dá para
  * fazer com o inventário fica com borda verde; o resto, apagado. Clique fabrica uma vez, Shift + clique até encher
- * uma pilha; o servidor confere e paga. Desenhada em código, no visual das outras estações (sem textura de GUI).
+ * uma pilha; o servidor confere e paga. Desenhada em código, no visual de aparelho das outras telas
+ * ({@link TechStyle}, sem textura de GUI).
  */
 public class BenchScreen extends AbstractContainerScreen<BenchMenu> {
-    private static final int PANEL = 0xF0101418;
-    private static final int BORDER = 0xFF5FB36B;
-    private static final int SLOT = 0xFF26292E;
-    private static final int SLOT_EDGE = 0xFF454B52;
-    private static final int TEXT = 0xFFE8EAEC;
-    private static final int SUBTLE = 0xFFA0A8B0;
-    private static final int CRAFTABLE = 0xFF2E4A33;
-    private static final int HOVER = 0xFF8FD89B;
-    private static final int DIM = 0xA0101418;
+    private static final int SUBTLE = TechStyle.SUBTLE;
+    private static final int CRAFTABLE = 0xFF143020;
+    private static final int DIM = 0xA0060C0A;
 
     private static final int GRID_X = 8;
     private static final int GRID_Y = 17;
@@ -65,13 +61,9 @@ public class BenchScreen extends AbstractContainerScreen<BenchMenu> {
 
     @Override
     protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
-        graphics.fill(leftPos - 1, topPos - 1, leftPos + imageWidth + 1, topPos + imageHeight + 1, BORDER);
-        graphics.fill(leftPos, topPos, leftPos + imageWidth, topPos + imageHeight, PANEL);
+        TechStyle.frame(graphics, leftPos, topPos, leftPos + imageWidth, topPos + imageHeight);
         for (Slot slot : menu.slots) {
-            int x = leftPos + slot.x;
-            int y = topPos + slot.y;
-            graphics.fill(x - 1, y - 1, x + 17, y + 17, SLOT_EDGE);
-            graphics.fill(x, y, x + 16, y + 16, SLOT);
+            TechStyle.slot(graphics, leftPos + slot.x, topPos + slot.y);
         }
         List<BenchRecipe> recipes = menu.recipes();
         if (recipes.isEmpty()) {
@@ -90,8 +82,9 @@ public class BenchScreen extends AbstractContainerScreen<BenchMenu> {
                 boolean craftable = menu.canCraft(recipe);
                 int x = leftPos + GRID_X + column * CELL;
                 int y = topPos + GRID_Y + row * CELL;
-                graphics.fill(x, y, x + CELL, y + CELL, index == hovered ? HOVER : craftable ? BORDER : SLOT_EDGE);
-                graphics.fill(x + 1, y + 1, x + CELL - 1, y + CELL - 1, craftable ? CRAFTABLE : SLOT);
+                graphics.fill(x, y, x + CELL, y + CELL, index == hovered ? TechStyle.BRIGHT
+                        : craftable ? TechStyle.ACCENT : TechStyle.SLOT_EDGE);
+                graphics.fill(x + 1, y + 1, x + CELL - 1, y + CELL - 1, craftable ? CRAFTABLE : TechStyle.SLOT);
                 graphics.renderItem(recipe.result(), x + 1, y + 1);
                 graphics.renderItemDecorations(font, recipe.result(), x + 1, y + 1);
                 if (!craftable) {
@@ -108,15 +101,16 @@ public class BenchScreen extends AbstractContainerScreen<BenchMenu> {
             int height = ROWS * CELL;
             int thumb = Math.max(6, height * ROWS / rows);
             int offset = (height - thumb) * firstRow / (rows - ROWS);
-            graphics.fill(leftPos + SCROLL_X, topPos + GRID_Y, leftPos + SCROLL_X + 6, topPos + GRID_Y + height, SLOT);
-            graphics.fill(leftPos + SCROLL_X, topPos + GRID_Y + offset, leftPos + SCROLL_X + 6,
-                    topPos + GRID_Y + offset + thumb, BORDER);
+            graphics.fill(leftPos + SCROLL_X + 2, topPos + GRID_Y, leftPos + SCROLL_X + 4, topPos + GRID_Y + height,
+                    TechStyle.SLOT_EDGE);
+            graphics.fill(leftPos + SCROLL_X + 1, topPos + GRID_Y + offset, leftPos + SCROLL_X + 5,
+                    topPos + GRID_Y + offset + thumb, TechStyle.BRIGHT);
         }
     }
 
     @Override
     protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
-        graphics.drawString(font, title, titleLabelX, titleLabelY, TEXT, false);
+        TechStyle.titleLine(graphics, font, title, titleLabelX, titleLabelY, imageWidth - 8);
         graphics.drawString(font, playerInventoryTitle, inventoryLabelX, inventoryLabelY, SUBTLE, false);
     }
 

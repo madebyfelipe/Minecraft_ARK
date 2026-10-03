@@ -13,7 +13,7 @@ import net.minecraftforge.client.gui.overlay.ForgeGui;
 
 /**
  * Painel no topo central da tela sobre a criatura sob a mira: nome, nível, vida, torpor e andamento da domesticação da criatura
- * mirada; nas do jogador, também as ordens. A borda diz de quem ela é.
+ * mirada; nas do jogador, também as ordens. No visual do {@link TechStyle}; a barra de cor à esquerda diz de quem ela é.
  */
 public final class CreatureHud {
     /** Distância do topo da tela; abaixo da barra de vida de chefes do vanilla. */
@@ -23,7 +23,6 @@ public final class CreatureHud {
     private static final int BAR_HEIGHT = 9;
     private static final int GAP = 3;
 
-    private static final int PANEL = 0xB0101418;
     private static final int BORDER_OWN = 0xFF5FB36B;
     private static final int BORDER_OTHER = 0xFFD08A3C;
     private static final int BORDER_WILD = 0xFF8A9199;
@@ -62,7 +61,7 @@ public final class CreatureHud {
         }
         // Sem comida, a domesticação para e o torpor continua caindo: o aviso fica logo abaixo da barra.
         List<FormattedCharSequence> foodWarning = showTaming && creature.needsTamingFood()
-                ? font.split(Component.translatable("iceagesurvival.hud.taming_needs_food"), WIDTH - PADDING * 2)
+                ? font.split(Component.translatable("iceagesurvival.hud.taming_needs_food"), WIDTH - PADDING * 2 - 2)
                 : List.of();
         if (!foodWarning.isEmpty()) {
             height += GAP + foodWarning.size() * font.lineHeight;
@@ -74,10 +73,9 @@ public final class CreatureHud {
         int left = (screenWidth - WIDTH) / 2;
         int top = TOP_MARGIN;
         int border = own ? BORDER_OWN : creature.isTame() ? BORDER_OTHER : BORDER_WILD;
-        graphics.fill(left - 1, top - 1, left + WIDTH + 1, top + height + 1, border);
-        graphics.fill(left, top, left + WIDTH, top + height, PANEL);
+        TechStyle.hudFrame(graphics, left, top, left + WIDTH, top + height, border);
 
-        int x = left + PADDING;
+        int x = left + 2 + PADDING;
         int right = left + WIDTH - PADDING;
         int y = top + PADDING;
 
@@ -149,7 +147,7 @@ public final class CreatureHud {
         int y = screenHeight - 32 - 3 - 8;
         float fraction = mount.flightStaminaFraction();
         boolean blink = mount.isFlightExhausted() && (minecraft.level.getGameTime() / 6) % 2 == 0;
-        drawBar(graphics, x, y, width, 4, fraction, blink ? WARNING_DIM : FLIGHT);
+        TechStyle.bar(graphics, x, y, width, 4, fraction, blink ? WARNING_DIM : FLIGHT);
         Component label = Component.translatable("iceagesurvival.hud.flight_stamina", percent(fraction));
         graphics.drawString(minecraft.font, label, (screenWidth - minecraft.font.width(label)) / 2, y - 10,
                 mount.isFlightExhausted() ? WARNING : TEXT);
@@ -175,17 +173,8 @@ public final class CreatureHud {
 
     private static void labeledBar(GuiGraphics graphics, Font font, int x, int y, int width, float fraction, int color,
                                    String label) {
-        drawBar(graphics, x, y, width, BAR_HEIGHT, fraction, color);
+        TechStyle.bar(graphics, x, y, width, BAR_HEIGHT, fraction, color);
         graphics.drawCenteredString(font, label, x + width / 2, y + (BAR_HEIGHT - font.lineHeight) / 2 + 1, TEXT);
-    }
-
-    /** Barra com fundo escuro; {@code fraction} entre 0 e 1. */
-    static void drawBar(GuiGraphics graphics, int x, int y, int width, int height, float fraction, int color) {
-        graphics.fill(x, y, x + width, y + height, 0xFF26292E);
-        int filled = Math.round(width * Math.max(0.0F, Math.min(1.0F, fraction)));
-        if (filled > 0) {
-            graphics.fill(x, y, x + filled, y + height, color);
-        }
     }
 
     private static int percent(float fraction) {

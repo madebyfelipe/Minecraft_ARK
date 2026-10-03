@@ -20,12 +20,12 @@ import net.minecraft.world.phys.Vec3;
  * nome, a distância e a diferença de altura. Sem sinal (outra dimensão, nada para achar), chuvisco no disco.
  */
 final class RadarHud {
-    static final int ACCENT = 0xFF5FB36B;
-    static final int BRIGHT = 0xFF8CF0A8;
-    static final int TARGET = 0xFFFFC857;
-    static final int TEXT = 0xFFFFFFFF;
-    static final int SUBTLE = 0xFFA0A8B0;
-    static final int PANEL = 0xD0071510;
+    static final int ACCENT = TechStyle.ACCENT;
+    static final int BRIGHT = TechStyle.BRIGHT;
+    static final int TARGET = TechStyle.AMBER;
+    static final int TEXT = TechStyle.TEXT;
+    static final int SUBTLE = TechStyle.SUBTLE;
+    static final int PANEL = TechStyle.HUD_PANEL;
     static final int GRID = 0x355FB36B;
 
     private static final int BEZEL = 0xE00C1A14;
@@ -99,7 +99,7 @@ final class RadarHud {
 
     /** Liga e desliga duas vezes por segundo, para o ponto de "rastreando" e o "sem sinal". */
     static boolean blink() {
-        return Util.getMillis() / 500 % 2 == 0;
+        return TechStyle.blink();
     }
 
     /** Se o radar pode aparecer agora: some com a interface escondida e com o F3, que ocupa o mesmo canto. */
@@ -240,9 +240,7 @@ final class RadarHud {
         int width = Math.min(PANEL_MAX_WIDTH, Math.max(REACH * 2, lineWidth + PANEL_PADDING * 2 + 2));
         int left = right - width;
         int bottom = top + PANEL_PADDING + 7 + 2 + font.lineHeight * 2 + 1 + PANEL_PADDING;
-        graphics.fill(left, top, right, bottom, PANEL);
-        graphics.fill(left, top, right, top + 1, HudShapes.fade(ACCENT, 0.6F));
-        graphics.fill(left, top, left + 2, bottom, ACCENT);
+        TechStyle.hudFrame(graphics, left, top, right, bottom, ACCENT);
 
         int x = left + 2 + PANEL_PADDING;
         int textRight = right - PANEL_PADDING;

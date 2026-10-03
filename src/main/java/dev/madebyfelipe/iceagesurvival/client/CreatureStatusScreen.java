@@ -32,12 +32,12 @@ public class CreatureStatusScreen extends Screen {
     private static final int REFRESH_TICKS = 20;
     private static final int ROW_HEIGHT = 12;
 
-    private static final int PANEL = 0xE0101418;
-    private static final int BORDER = 0xFF5FB36B;
-    private static final int LABEL = 0xFFA0A8B0;
-    private static final int VALUE = 0xFFFFFFFF;
-    private static final int POINTS = 0xFF7FD17F;
-    private static final int LEVEL = 0xFFFFC857;
+    private static final int LABEL = TechStyle.SUBTLE;
+    private static final int VALUE = TechStyle.TEXT;
+    private static final int POINTS = TechStyle.BRIGHT;
+    private static final int LEVEL = TechStyle.AMBER;
+    private static final int PREVIEW_BACK = 0xFF050A08;
+    private static final int PREVIEW_GRID = 0x0E8CF0A8;
 
     /** Criatura cujo status foi pedido e ainda não chegou; -1 se nenhuma. */
     private static int pendingId = -1;
@@ -79,10 +79,8 @@ public class CreatureStatusScreen extends Screen {
         left = (width - WIDTH) / 2;
         top = (height - HEIGHT) / 2;
         buttons.clear();
-        mating = addRenderableWidget(Button.builder(matingLabel(),
-                        b -> ModPayloads.sendToServer(new ToggleMatingPayload(creature.getId())))
-                .bounds(left + 8, top + HEIGHT - 70, WIDTH - 16, 18)
-                .build());
+        mating = addRenderableWidget(new TechButton(left + 8, top + HEIGHT - 70, WIDTH - 16, 18, matingLabel(),
+                TechStyle.BRIGHT, b -> ModPayloads.sendToServer(new ToggleMatingPayload(creature.getId()))));
         int y = top + HEIGHT - 48;
         addWhistleRow(y, Whistle.FOLLOW, Whistle.STAY);
         addWhistleRow(y + 22, Whistle.PASSIVE, Whistle.NEUTRAL, Whistle.DEFEND, Whistle.FLEE);
@@ -94,10 +92,10 @@ public class CreatureStatusScreen extends Screen {
         int buttonWidth = (WIDTH - 16 - gap * (whistles.length - 1)) / whistles.length;
         int x = left + 8;
         for (Whistle whistle : whistles) {
-            Button button = Button.builder(Component.translatable("iceagesurvival.whistle." + whistle.id()),
-                            b -> ModPayloads.sendToServer(new WhistlePayload(whistle, creature.getId())))
-                    .bounds(x, y, buttonWidth, 18)
-                    .build();
+            // Desligado é a ordem em vigor: fica aceso, como uma aba escolhida.
+            Button button = new TechButton(x, y, buttonWidth, 18,
+                    Component.translatable("iceagesurvival.whistle." + whistle.id()), TechStyle.BRIGHT, true,
+                    b -> ModPayloads.sendToServer(new WhistlePayload(whistle, creature.getId())));
             buttons.put(whistle, addRenderableWidget(button));
             x += buttonWidth + gap;
         }
@@ -108,7 +106,7 @@ public class CreatureStatusScreen extends Screen {
                 : "iceagesurvival.status.mating_off");
     }
 
-    /** O botão da ordem em vigor fica apagado, como uma aba selecionada. */
+    /** O botão da ordem em vigor fica desligado e aceso, como uma aba selecionada. */
     private void updateButtons() {
         if (mating != null) {
             mating.setMessage(matingLabel());
@@ -149,8 +147,7 @@ public class CreatureStatusScreen extends Screen {
     @Override
     public void renderBackground(GuiGraphics graphics) {
         super.renderBackground(graphics);
-        graphics.fill(left - 1, top - 1, left + WIDTH + 1, top + HEIGHT + 1, BORDER);
-        graphics.fill(left, top, left + WIDTH, top + HEIGHT, PANEL);
+        TechStyle.frame(graphics, left, top, left + WIDTH, top + HEIGHT);
     }
 
     @Override
@@ -162,9 +159,8 @@ public class CreatureStatusScreen extends Screen {
 
         // Título: nome e nível.
         Component level = Component.translatable("iceagesurvival.hud.level", creature.creatureLevel());
-        graphics.drawString(font, title, left + 8, top + 8, VALUE);
+        TechStyle.header(graphics, font, title, left + 8, top + 8, left + WIDTH - 8, 12);
         graphics.drawString(font, level, left + WIDTH - 8 - font.width(level), top + 8, LEVEL);
-        graphics.fill(left + 8, top + 20, left + WIDTH - 8, top + 21, 0x40FFFFFF);
 
         renderPreview(graphics, mouseX, mouseY);
         renderStats(graphics, left + PREVIEW_WIDTH + 8, top + 28);
@@ -179,7 +175,17 @@ public class CreatureStatusScreen extends Screen {
         int y1 = top + 26;
         int x2 = left + PREVIEW_WIDTH;
         int y2 = top + HEIGHT - 78;
-        graphics.fill(x1, y1, x2, y2, 0x30FFFFFF);
+        // Quadro de holograma: fundo escuro, grade fina e o chão onde ficam os pés.
+        graphics.fill(x1, y1, x2, y2, PREVIEW_BACK);
+        for (int gx = x1 + 8; gx < x2; gx += 8) {
+            graphics.fill(gx, y1 + 1, gx + 1, y2 - 1, PREVIEW_GRID);
+        }
+        for (int gy = y2 - 6; gy > y1; gy -= 8) {
+            graphics.fill(x1 + 1, gy, x2 - 1, gy + 1, PREVIEW_GRID);
+        }
+        graphics.fill(x1 + 1, y2 - 6, x2 - 1, y2 - 5, HudShapes.fade(TechStyle.ACCENT, 0.5F));
+        TechStyle.border(graphics, x1, y1, x2, y2, TechStyle.SLOT_EDGE);
+        TechStyle.corners(graphics, x1 + 1, y1 + 1, x2 - 1, y2 - 1, 5);
         // O modelo vai de pé no fundo da caixa (o y do vanilla é onde ficam os pés, não o centro) e cabe
         // nela pela altura e pelo comprimento: os modelos passam da caixa de colisão — o corpo é mais
         // comprido que a largura dela e a cabeça sobe acima —, daí as margens. O recorte segura o resto.
@@ -200,7 +206,7 @@ public class CreatureStatusScreen extends Screen {
         float maxHealth = (float) status.value(Stat.HEALTH);
         statRow(graphics, x, right, y, Stat.HEALTH,
                 String.format(Locale.ROOT, "%.0f / %.0f", status.health(), maxHealth));
-        CreatureHud.drawBar(graphics, x, y + 9, right - x, 2, status.health() / Math.max(maxHealth, 1.0F), 0xFFD04848);
+        TechStyle.bar(graphics, x, y + 9, right - x, 2, status.health() / Math.max(maxHealth, 1.0F), 0xFFD04848);
         y += ROW_HEIGHT + 2;
         statRow(graphics, x, right, y, Stat.ATTACK, String.format(Locale.ROOT, "%.1f", status.value(Stat.ATTACK)));
         y += ROW_HEIGHT;
@@ -210,7 +216,7 @@ public class CreatureStatusScreen extends Screen {
         y += ROW_HEIGHT;
         statRow(graphics, x, right, y, Stat.TORPOR,
                 String.format(Locale.ROOT, "%.0f / %.0f", status.torpor(), status.value(Stat.TORPOR)));
-        CreatureHud.drawBar(graphics, x, y + 9, right - x, 2,
+        TechStyle.bar(graphics, x, y + 9, right - x, 2,
                 (float) (status.torpor() / Math.max(status.value(Stat.TORPOR), 1.0)), 0xFF9B59D0);
         y += ROW_HEIGHT + 2;
         statRow(graphics, x, right, y, Stat.ARMOR, String.format(Locale.ROOT, "%.1f", status.value(Stat.ARMOR)));
@@ -219,7 +225,7 @@ public class CreatureStatusScreen extends Screen {
             // Só de quem voa: segundos de voo com o fôlego cheio.
             statRow(graphics, x, right, y, Stat.FLIGHT_STAMINA,
                     String.format(Locale.ROOT, "%.0f s", status.value(Stat.FLIGHT_STAMINA)));
-            CreatureHud.drawBar(graphics, x, y + 9, right - x, 2, creature.flightStaminaFraction(), 0xFF6FC3E8);
+            TechStyle.bar(graphics, x, y + 9, right - x, 2, creature.flightStaminaFraction(), 0xFF6FC3E8);
             y += ROW_HEIGHT + 2;
         }
         y += 4;
@@ -227,7 +233,7 @@ public class CreatureStatusScreen extends Screen {
         graphics.drawString(font, Component.translatable("iceagesurvival.status.affinity"), x, y, LABEL);
         String affinity = String.format(Locale.ROOT, "%.0f / %.0f", status.affinity(), PrehistoricCreature.MAX_AFFINITY);
         graphics.drawString(font, affinity, right - font.width(affinity), y, VALUE);
-        CreatureHud.drawBar(graphics, x, y + 9, right - x, 2, status.affinity() / PrehistoricCreature.MAX_AFFINITY, 0xFF5FB36B);
+        TechStyle.bar(graphics, x, y + 9, right - x, 2, status.affinity() / PrehistoricCreature.MAX_AFFINITY, 0xFF5FB36B);
         y += ROW_HEIGHT + 4;
 
         infoRow(graphics, x, right, y, "iceagesurvival.status.orders", Component.translatable(
@@ -251,11 +257,11 @@ public class CreatureStatusScreen extends Screen {
         if (status.gestation() >= 0) {
             infoRow(graphics, x, right, y, "iceagesurvival.status.gestation",
                     Component.literal(Math.round(status.gestation() * 100) + "%"));
-            CreatureHud.drawBar(graphics, x, y + 9, right - x, 2, status.gestation(), 0xFFE07BB5);
+            TechStyle.bar(graphics, x, y + 9, right - x, 2, status.gestation(), 0xFFE07BB5);
         } else if (status.maturation() < 1.0F) {
             infoRow(graphics, x, right, y, "iceagesurvival.status.maturation",
                     Component.literal(Math.round(status.maturation() * 100) + "%"));
-            CreatureHud.drawBar(graphics, x, y + 9, right - x, 2, status.maturation(), 0xFF5FB36B);
+            TechStyle.bar(graphics, x, y + 9, right - x, 2, status.maturation(), 0xFF5FB36B);
         }
     }
 

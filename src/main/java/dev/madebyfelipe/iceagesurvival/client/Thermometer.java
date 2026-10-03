@@ -23,8 +23,8 @@ public final class Thermometer {
     /** Distância da borda esquerda da hotbar, depois do slot da mão secundária. */
     private static final int LEFT_OF_HOTBAR = 91 + 29 + 12;
 
-    private static final int GLASS = 0xFF26292E;
-    private static final int GLASS_EDGE = 0xFFB8C4CC;
+    /** Uma marca de escala a cada tantos pixels do tubo. */
+    private static final int SCALE_STEP = 4;
     private static final int COLD = 0xFF4FA8E8;
     private static final int WARM = 0xFFE8743B;
     private static final int TEXT = 0xFFFFFFFF;
@@ -66,13 +66,21 @@ public final class Thermometer {
         int tubeTop = bulbTop - TUBE_HEIGHT;
         int color = lerpColor(fraction, COLD, WARM);
 
-        // Vidro, com borda clara, e a coluna de mercúrio.
-        graphics.fill(x - 1, tubeTop - 1, x + TUBE_WIDTH + 1, bulbTop, GLASS_EDGE);
-        graphics.fill(x - 2, bulbTop - 1, x + TUBE_WIDTH + 2, bottom + 1, GLASS_EDGE);
-        graphics.fill(x, tubeTop, x + TUBE_WIDTH, bulbTop, GLASS);
-        graphics.fill(x - 1, bulbTop, x + TUBE_WIDTH + 1, bottom, color);
+        // No visual do TechStyle: tubo escuro com borda na cor da temperatura, coluna segmentada, marcas de escala
+        // à direita e o bulbo redondo embaixo.
+        int edge = HudShapes.fade(color, 0.7F);
+        graphics.fill(x - 1, tubeTop - 1, x + TUBE_WIDTH + 1, bulbTop + 1, edge);
+        graphics.fill(x, tubeTop, x + TUBE_WIDTH, bulbTop, TechStyle.TRACK);
         int filled = Math.round(TUBE_HEIGHT * Mth.clamp(fraction, 0.0F, 1.0F));
-        graphics.fill(x + 1, bulbTop - filled, x + TUBE_WIDTH - 1, bulbTop, color);
+        graphics.fill(x, bulbTop - filled, x + TUBE_WIDTH, bulbTop, color);
+        for (int tick = bulbTop - SCALE_STEP; tick > tubeTop; tick -= SCALE_STEP) {
+            graphics.fill(x, tick, x + TUBE_WIDTH, tick + 1, 0x80000000);
+            graphics.fill(x + TUBE_WIDTH + 1, tick, x + TUBE_WIDTH + 3, tick + 1, HudShapes.fade(TechStyle.ACCENT, 0.6F));
+        }
+        float bulbX = x + TUBE_WIDTH / 2.0F;
+        float bulbY = bulbTop + BULB / 2.0F;
+        HudShapes.disc(graphics, bulbX, bulbY, BULB / 2.0F + 1.5F, edge);
+        HudShapes.disc(graphics, bulbX, bulbY, BULB / 2.0F + 0.5F, color);
 
         Font font = minecraft.font;
         String degrees = String.format(Locale.ROOT, "%.1f°", shown);
