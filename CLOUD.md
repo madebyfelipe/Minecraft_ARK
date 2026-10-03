@@ -662,11 +662,11 @@ Nether e End são os do vanilla. Mundos já criados não mudam: o preset vale na
 
 ## 19. Caverna
 
-Estrutura subterrânea procedural (jigsaw) com entradas, túneis, salas, áreas profundas e caminho até a arena. Localizada por um rastreador temático próprio, usado repetidamente para triangular a direção. Etapa 10.
+Estrutura subterrânea procedural com entrada na superfície, túneis, salas, áreas profundas e caminho até a arena. Localizada pelo **rastreador da caverna**, feito com os troféus de apex (cabeça de T-Rex + cabeça de Espinossauro + bússola → 4) e jogado como o Olho do Ender para triangular a direção. Rara, em anéis concêntricos a 1500+ blocos do spawn. Decidido pelo Felipe em 2026-10-03 (D47). Etapa 10.
 
 ## 20. Boss
 
-Giganotosaurus (ou superpredador equivalente): físico, biologicamente plausível, sem magia. Arena fechada, HP e dano altos, fases por mudança de comportamento. Deve exigir equipe de criaturas preparada. Etapa 10.
+Giganotosaurus, pelo animal real (dentes serrilhados de faca: mata cortando e deixando a presa sangrar; mordida ≈ 1/3 da do T-Rex; caçava titanossauros), com modelo, poses e sons do Jurassic Reborn em runtime. Arena fechada no fundo da caverna, **três fases**: caça e corta (sangramento); abaixo de 50%, ruge e investe derrubando; abaixo de 25%, ferido e frenético. **Vida 1024** (teto vanilla) com **resistência por fase** de 0/30/50%. **Volta com tributo:** uma cabeça-troféu de apex no altar da arena chama o boss de novo; vencido, dá a cabeça do Giganotosaurus e dentes serrilhados (espada serrilhada, que faz sangrar). Decidido pelo Felipe em 2026-10-03 (D47). Etapa 10.
 
 ## 21. Multiplayer
 
@@ -898,7 +898,7 @@ Ver a tabela em [4](#4-decisões). Registro de mudanças estruturais:
 | Montaria em multiplayer (latência, dessincronização). | Baixo — resolvido reaproveitando o `travelRidden` do vanilla ([D18](#4-decisões)); a autoridade de movimento é a mesma do cavalo. | Conferir com dois clientes de verdade, que é o que ainda não foi feito. |
 | Muitas entidades com IA em servidor. | Médio | Ver [22](#22-performance). Varreduras de entidade são espaçadas (manada ~5 s, caça ~30 s, reposição ~45 s, defesa só ao ser ferida). Ainda não medido com fauna densa. |
 | Fauna finita: criaturas `CREATURE` só nascem com a geração do terreno. | Resolvido na Etapa 7 pela reposição própria ([D20](#4-decisões)). | Novo risco em troca: a reposição encher o mundo. Contido pelo `max_nearby` por espécie; medir a densidade em jogo ao longo de uma sessão longa. |
-| Teto de 1024 de vida do vanilla limita criaturas gigantes e o boss. | Médio | Decidir na Etapa 10: redução de dano por fase, ou atributo de vida próprio. |
+| Teto de 1024 de vida do vanilla limita criaturas gigantes e o boss. | Médio | Decidido na Etapa 10 (D47): o boss fica em 1024 com resistência por fase (0/30/50%). |
 | 1.21.1 envelhecer. | Baixo | `core/` independente do Minecraft facilita port. |
 
 ## 26. Ainda não decidido
