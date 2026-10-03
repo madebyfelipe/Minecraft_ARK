@@ -1,6 +1,7 @@
 {
   "replace": false,
   "values": [
-    "iceagesurvival:venom"
+    "iceagesurvival:venom",
+    "iceagesurvival:bleeding"
   ]
 }
