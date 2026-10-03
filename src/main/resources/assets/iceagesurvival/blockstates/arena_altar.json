@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "summoning=false": {
+      "model": "iceagesurvival:block/arena_altar"
+    },
+    "summoning=true": {
+      "model": "iceagesurvival:block/arena_altar_summoning"
+    }
+  }
+}

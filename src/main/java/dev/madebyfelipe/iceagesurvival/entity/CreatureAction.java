@@ -18,7 +18,9 @@ public enum CreatureAction {
     /** Parado na água rasa, à espreita de peixe. */
     FISH,
     /** O bote da pesca. */
-    FISH_STRIKE;
+    FISH_STRIKE,
+    /** Ferido e frenético: a fase 3 do Giganotosaurus da arena (D47). */
+    INJURED;
 
     private static final CreatureAction[] VALUES = values();
 

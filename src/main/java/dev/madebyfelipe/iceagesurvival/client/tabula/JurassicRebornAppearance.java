@@ -39,7 +39,13 @@ public record JurassicRebornAppearance(
             "baryonyx", new JurassicRebornAppearance("baryonyx", "adult", "green",
                     List.of("Neck1", "Neck2", "Neck3", "Neck4", "Neck5", "Neck6", "Head"),
                     List.of("Body 2", "Body 3"),
-                    3.75F));
+                    3.75F),
+            // O Giganotosaurus, boss da arena (D47): a pele "sand" (areia), a natural das três do Jurassic Reborn. A
+            // perna é ~2× a do Baryonyx (85 px contra 40), então a passada é ~2× maior.
+            "giganotosaurus", new JurassicRebornAppearance("giganotosaurus", "adult", "sand",
+                    List.of("Neck", "Neck2", "bone", "Head"),
+                    List.of("Chest1_r1", "Shoulders_r1"),
+                    7.5F));
 
     /** Aparência do Jurassic Reborn da nossa entidade, se ela usar um modelo de lá. */
     public static Optional<JurassicRebornAppearance> forEntity(ResourceLocation entityId) {

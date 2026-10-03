@@ -19,6 +19,7 @@ final class CreaturePoses {
     static final String ATTACKING = "ATTACKING";
     static final String ROARING = "ROARING";
     static final String CALLING = "CALLING";
+    static final String INJURED = "INJURED";
     static final String EATING = "EATING";
     static final String FISH_LOOKING = "FISH_LOOKING";
     static final String LOOKING_LEFT = "LOOKING_LEFT";
@@ -146,6 +147,7 @@ final class CreaturePoses {
             case ATTACK, FISH_STRIKE -> ATTACKING;
             case ROAR -> ROARING;
             case CALL -> CALLING;
+            case INJURED -> INJURED;
             default -> null;
         };
     }
