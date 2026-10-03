@@ -1,0 +1,11 @@
+id: brontosaurus
+nome: Brontossauro
+selos: Herbívoro, Montável
+
+Um dos maiores animais que já andaram sobre a terra: mais de vinte metros de pescoço e cauda, do Jurássico Superior da América do Norte. O chão treme quando a manada passa.
+
+Anda em manadas de dois a quatro que migram e se defendem juntas. É pacífico, mas desconfia de nós, e as investidas dele são quase sempre blefe. Quase sempre. Alossauros e tiranossauros o caçam, sempre o que se afasta do grupo.
+
+Derruba paredes de madeira e troncos de árvore sem perceber. Vive em planícies, savanas e prados. Quando morre na natureza, a carcaça alimenta predadores por muito tempo.
+
+> Amansá-lo exige muita comida: fardo de feno de preferência, trigo ou folhas. Montado, é lento, mas carrega uma quantidade absurda de carga, e a mordida dele colhe troncos e folhagem.

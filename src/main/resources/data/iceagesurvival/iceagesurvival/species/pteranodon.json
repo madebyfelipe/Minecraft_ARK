@@ -85,7 +85,7 @@
     "min_affinity": 25,
     "speed_multiplier": 0.9,
     "flying": true,
-    "flight_speed": 0.85
+    "flight_speed": 0.51
   },
   "spawn": {
     "biomes": "#iceagesurvival:spawns_pteranodon",

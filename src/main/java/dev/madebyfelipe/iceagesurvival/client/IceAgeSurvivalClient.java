@@ -47,6 +47,8 @@ public class IceAgeSurvivalClient {
         MinecraftForge.EVENT_BUS.addListener(dev.madebyfelipe.iceagesurvival.client.dex.DinoFileClient::onLoggingOut);
         dev.madebyfelipe.iceagesurvival.item.AnalyzerItem.setTerminalOpener(
                 dev.madebyfelipe.iceagesurvival.client.dex.AnalyzerScreen::open);
+        dev.madebyfelipe.iceagesurvival.item.AnalyzerItem.setScanningCheck(
+                dev.madebyfelipe.iceagesurvival.client.item.AnalyzerRenderer::isScanning);
         PrimalStationsClient.init(modEventBus);
         DefensesClient.init(modEventBus);
         WeaponsClient.init(modEventBus);

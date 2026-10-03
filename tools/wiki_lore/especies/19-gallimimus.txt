@@ -1,0 +1,11 @@
+id: gallimimus
+nome: Galimimo
+selos: Herbívoro, Montável
+
+Parece um avestruz com cauda, e corre como um. Viveu no fim do Cretáceo, na Mongólia. Come de tudo um pouco: plantas, sementes e pequenos animais.
+
+Anda em manadas de três a cinco, sempre nervosa. Nunca investe; ao menor sinal de perigo, ou ao primeiro arranhão, dispara. Desconfia de nós. É a presa preferida do alossauro e do utahraptor, e quase todo caçador a persegue.
+
+Vive em planícies, savanas e até em desertos.
+
+> Amansei um com frutas silvestres; trigo, raízes, sementes e até carne pequena também servem. Montado, é das montarias mais rápidas que encontrei, e salta bem.

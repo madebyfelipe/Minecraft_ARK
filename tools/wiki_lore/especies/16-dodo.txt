@@ -1,0 +1,11 @@
+id: dodo
+nome: Dodô
+selos: Herbívoro
+
+De todos, o mais recente: o dodô viveu na ilha Maurício e foi extinto por gente como nós há poucos séculos. Ver um bando dele correndo na neve, ao lado de dinossauros, me fez rir pela primeira vez desde o incidente.
+
+Anda em bandos de dois a cinco, é lento e não nos teme. Diante de qualquer ameaça, foge. Praticamente todo caçador daqui come dodô, e por isso eles continuam aparecendo por toda parte.
+
+A carne é boa e as penas fazem a primeira roupa contra o frio.
+
+> É o animal mais fácil de amansar: um pouco de sono e algumas frutas silvestres, sementes ou trigo bastam. Pequeno demais para montar.

@@ -3590,6 +3590,23 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         }
     }
 
+    /**
+     * Montaria voadora plana até o chão em vez de despencar: não leva dano de queda, nem o passa a quem monta (o
+     * {@code causeFallDamage} do vanilla repete o dano em cada passageiro).
+     *
+     * <p>Sem isto, o Felipe se feria com o Quetzalcoatlus ao bater nas árvores: a montaria pousava na copa ou saía do
+     * voo no alto e descia planando, mas montada quem a move é o cliente de quem monta (D18). O servidor só aplica o
+     * movimento recebido, com a velocidade zerada ({@code travelRidden}), então o planeio do {@link #tick} nunca zerava
+     * a queda lá, a distância somava a descida inteira e, no chão, os dois levavam o dano.
+     */
+    @Override
+    public boolean causeFallDamage(float distance, float multiplier, DamageSource source) {
+        if (isFlightMount()) {
+            return false;
+        }
+        return super.causeFallDamage(distance, multiplier, source);
+    }
+
     /** Sem ninguém no controle, a montaria aérea não fica parada no ar. */
     @Override
     protected void removePassenger(net.minecraft.world.entity.Entity passenger) {

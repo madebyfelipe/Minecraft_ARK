@@ -1,0 +1,11 @@
+id: velociraptor
+nome: Velociraptor
+selos: Carnívoro
+
+Muito menor do que os filmes fizeram crer: do tamanho de um peru, coberto de penas. Viveu no fim do Cretáceo, no deserto de Gobi. Um dos fósseis mais famosos do mundo mostra um velociraptor morto agarrado a um protocerátopo.
+
+Anda sozinho ou em par, e com o parceiro fica mais ousado. Caça coelhos, dodôs, galinhas, sapos e raposas. Não nos considera comida.
+
+Tem medo de nós: blefa, recua e foge se nos aproximamos. Vive em desertos, terras áridas e savanas, e é presa de muitos caçadores maiores.
+
+> Amansei um com carne pequena crua, de galinha, coelho ou dodô; charque e carne vermelha também servem. É pequeno demais para montar.

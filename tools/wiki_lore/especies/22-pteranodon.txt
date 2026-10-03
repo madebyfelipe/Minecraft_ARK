@@ -1,0 +1,9 @@
+id: pteranodon
+nome: Pteranodonte
+selos: Piscívoro, Montável
+
+Um pterossauro de crista longa e bico sem dentes, do Cretáceo Superior, que sobrevoava um mar raso que cortava a América do Norte ao meio. Comia peixes, e continua comendo.
+
+Voa em bandos de dois a quatro, por toda parte. Com fome, pesca em águas sem gelo. Não caça outros animais, e nenhuma manada se preocupa com ele.
+
+> Amansei um com peixe cru; charque, carne pequena e peixe cozido também servem. É uma montaria voadora ágil, mas cansa depressa: bom para saltos curtos, não para viagens longas. Parado perto da água, pesca sozinho e guarda o peixe.

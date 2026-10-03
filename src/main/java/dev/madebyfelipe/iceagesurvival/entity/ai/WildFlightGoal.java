@@ -51,9 +51,12 @@ public class WildFlightGoal extends Goal {
     /** Altura mínima acima do chão em cruzeiro; abaixo dela o ponto de destino sobe. */
     private static final int FLOOR_CLEARANCE = 5;
     private static final int WANDER_RANGE = 48;
-    /** Velocidade desejada em blocos/tick; o arrasto do ar deixa o cruzeiro em ~2/3 disso. */
-    private static final double CRUISE_SPEED = 0.6;
-    private static final double LANDING_SPEED = 0.3;
+    /**
+     * Velocidade desejada em blocos/tick; o arrasto do ar deixa o cruzeiro em ~2/3 disso. Era 0,6 (pouso 0,3, térmica
+     * 0,4); o Felipe achou os voadores rápidos demais e as três caíram 40%, como o {@code flight_speed} montado.
+     */
+    private static final double CRUISE_SPEED = 0.36;
+    private static final double LANDING_SPEED = 0.18;
     /** Pousando, a esta altura do chão já recolhe as asas. */
     private static final double LANDING_DROP = 0.5;
     /** Quanto da diferença para a velocidade desejada é corrigida por tick: curvas suaves. */
@@ -65,7 +68,7 @@ public class WildFlightGoal extends Goal {
     private static final int SKY_RECHECK_TICKS = 20;
     /** Térmica: raio do círculo em que sobe e a velocidade em volta dele. */
     private static final double CIRCLE_RADIUS = 10.0;
-    private static final double CIRCLE_SPEED = 0.4;
+    private static final double CIRCLE_SPEED = 0.24;
     /** Quanto tempo sobe em cada térmica: 10 a 20 s. */
     private static final int MIN_CIRCLE_TICKS = 200;
     private static final int EXTRA_CIRCLE_TICKS = 200;

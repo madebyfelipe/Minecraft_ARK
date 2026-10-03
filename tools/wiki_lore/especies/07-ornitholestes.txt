@@ -1,0 +1,11 @@
+id: ornitholestes
+nome: Ornitholestes
+selos: Carnívoro
+
+Pequeno, do tamanho de um cachorro, de mãos longas com garras. Viveu no Jurássico Superior, na América do Norte, no meio do mato rasteiro, enquanto os gigantes passavam por cima. Os olhos enormes sugeriam um caçador noturno, e é o que ele é aqui.
+
+De dia dorme escondido; à noite caça coelhos, sapos, galinhas e dodôs. Também come restos de carne pelo chão, sempre longe de predadores maiores. Entre folhas, mato ou neve funda, é quase invisível.
+
+Tem medo de nós: blefa, recua e foge. Muita coisa o caça, então ele vive alerta.
+
+> Amansei um com carne pequena crua, de galinha, coelho ou dodô; charque e carne vermelha também servem. É pequeno demais para montar, mas é a melhor sentinela que tenho: avisa quando um predador selvagem se aproxima, e de que lado.

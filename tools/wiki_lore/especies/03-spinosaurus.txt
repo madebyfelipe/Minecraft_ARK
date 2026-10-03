@@ -1,0 +1,13 @@
+id: spinosaurus
+nome: Espinossauro
+selos: Carnívoro, Montável, Agressivo, Apex
+
+O maior carnívoro terrestre que já se encontrou: mais comprido que o tiranossauro, com uma vela enorme nas costas. Viveu no meio do Cretáceo, nos rios do norte da África. Vê-lo andando por um pântano congelado é a coisa mais absurda que o portal me mostrou.
+
+Vive sozinho na beira dos rios, pântanos e mangues. Curiosamente, prefere presas pequenas, como dodôs e galimimos, e gado. Os grandes herbívoros e as pessoas, ele só ataca quando não tem alternativa. Ainda assim, não teme ninguém.
+
+Abre caminho por paredes de madeira com facilidade e derruba troncos só de passar. Ferido, quase nunca foge.
+
+Nenhum sedativo o derruba. Mas ele respeita quem carrega a cabeça de outro espinossauro: não ataca, só encara e ruge. Entregar essa cabeça é desafiá-lo para um duelo.
+
+> Vencido o duelo, ele desaba e aceita ser amansado com peixe cru, charque ou carne vermelha. A cabeça dele, junto com a de um tiranossauro, aponta o caminho para as cavernas profundas.

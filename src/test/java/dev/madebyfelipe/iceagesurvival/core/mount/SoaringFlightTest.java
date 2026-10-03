@@ -28,26 +28,26 @@ class SoaringFlightTest {
 
     @Test
     void theDefaultTuningKeepsThePteranodonAcceleration() {
-        FlightModel.Tuning before = FlightModel.Tuning.forMaxSpeed(0.85, 120.0);
-        FlightModel.Tuning explicit = FlightModel.Tuning.forMaxSpeed(0.85, 120.0, FlightModel.DEFAULT_ACCELERATION_TICKS);
+        FlightModel.Tuning before = FlightModel.Tuning.forMaxSpeed(0.51, 120.0);
+        FlightModel.Tuning explicit = FlightModel.Tuning.forMaxSpeed(0.51, 120.0, FlightModel.DEFAULT_ACCELERATION_TICKS);
         assertEquals(before, explicit);
-        assertEquals(0.85 / 25.0, before.acceleration(), 1e-12);
+        assertEquals(0.51 / 25.0, before.acceleration(), 1e-12);
         assertEquals(25, ticksToCruise(before));
     }
 
     @Test
     void aSlowAcceleratorTakesItsSecondsToReachCruise() {
-        FlightModel.Tuning quetzal = FlightModel.Tuning.forMaxSpeed(1.1, 50.0, 80.0);
+        FlightModel.Tuning quetzal = FlightModel.Tuning.forMaxSpeed(0.66, 50.0, 80.0);
         assertEquals(80, ticksToCruise(quetzal));
-        assertTrue(ticksToCruise(quetzal) > ticksToCruise(FlightModel.Tuning.forMaxSpeed(0.85, 120.0)),
+        assertTrue(ticksToCruise(quetzal) > ticksToCruise(FlightModel.Tuning.forMaxSpeed(0.51, 120.0)),
                 "o Quetzalcoatlus deveria embalar mais devagar que o Pteranodonte");
     }
 
     @Test
     void aThermalLiftsTheGliderWithoutFlapping() {
-        FlightModel.Tuning tuning = FlightModel.Tuning.forMaxSpeed(1.1, 50.0, 80.0);
-        FlightModel.Velocity still = FlightModel.velocity(1.1, 0, 0, NOTHING, tuning);
-        FlightModel.Velocity soaring = FlightModel.velocity(1.1, 0, 0, NOTHING, tuning, 0.06);
+        FlightModel.Tuning tuning = FlightModel.Tuning.forMaxSpeed(0.66, 50.0, 80.0);
+        FlightModel.Velocity still = FlightModel.velocity(0.66, 0, 0, NOTHING, tuning);
+        FlightModel.Velocity soaring = FlightModel.velocity(0.66, 0, 0, NOTHING, tuning, 0.06);
         assertEquals(0.0, still.y(), 1e-9);
         assertEquals(0.06, soaring.y(), 1e-9);
         assertEquals(still.x(), soaring.x(), 1e-12);

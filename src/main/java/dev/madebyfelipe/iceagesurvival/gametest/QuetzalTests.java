@@ -188,7 +188,7 @@ public class QuetzalTests {
     // ---- Espécie e dados ----
 
     /**
-     * Montaria de viagem longa: vida 110, ataque 12, 90 s de fôlego (o triplo do Pteranodonte), cruzeiro 1,1 com curva
+     * Montaria de viagem longa: vida 110, ataque 12, 90 s de fôlego (o triplo do Pteranodonte), cruzeiro 0,66 com curva
      * de 50°/s e aceleração lenta, decolagem por salto, térmicas, 27 espaços de carga e ovo.
      */
     @GameTest(template = EMPTY, batch = SPECIES)
@@ -206,7 +206,7 @@ public class QuetzalTests {
         MountProfile mount = species.mount().orElseThrow();
         MountProfile pteroMount = ptero.mount().orElseThrow();
         helper.assertTrue(mount.flying(), "deveria voar montado");
-        helper.assertTrue(mount.flightSpeed() == 1.1 && mount.flightSpeed() > pteroMount.flightSpeed(),
+        helper.assertTrue(mount.flightSpeed() == 0.66 && mount.flightSpeed() > pteroMount.flightSpeed(),
                 "cruzeiro: " + mount.flightSpeed());
         helper.assertTrue(mount.flightTurnRate() == 50.0 && mount.flightTurnRate() < pteroMount.flightTurnRate(),
                 "curva: " + mount.flightTurnRate());

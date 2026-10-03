@@ -1,0 +1,11 @@
+id: stegosaurus
+nome: Estegossauro
+selos: Herbívoro
+
+Placas nas costas e quatro espinhos na cauda, do Jurássico Superior da América do Norte. Um alossauro fóssil tem uma vértebra perfurada por um desses espinhos; aqui os dois continuam se enfrentando, e o estegossauro continua sendo o prato favorito do alossauro.
+
+Vive em manadas de dois a quatro, que migram e se defendem juntas. Desconfia de nós e investe quando nos aproximamos demais. Derruba paredes de madeira e troncos de árvore só de passar.
+
+Vive em savanas, planícies e florestas.
+
+> Amansei um com fardo de feno; trigo e folhas também servem. As costas cheias de placas não deixam montar, mas ele carrega uma bolsa grande e me segue como animal de carga.

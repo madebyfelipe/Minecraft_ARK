@@ -101,6 +101,44 @@ class FlightModelTest {
     }
 
     @Test
+    void aGentleDescentIsAGlideAndGainsNoSpeed() {
+        // Até 15° para baixo é planeio: o mesmo que voar nivelado, com o arrasto de sempre.
+        for (float pitch : new float[] {1.0F, 8.0F, FlightModel.GLIDE_PITCH}) {
+            assertEquals(0.0, FlightModel.diveGain(pitch, TUNING), 1e-12, "ganhou embalo a " + pitch + "°");
+            assertEquals(FlightModel.nextSpeed(0.6, 0.0F, NOTHING, TUNING),
+                    FlightModel.nextSpeed(0.6, pitch, NOTHING, TUNING), 1e-12);
+        }
+        double speed = 0.8;
+        for (int i = 0; i < 100; i++) {
+            speed = FlightModel.nextSpeed(speed, 12.0F, NOTHING, TUNING);
+        }
+        assertTrue(speed < 0.8, "planando a 12° não deveria embalar: " + speed);
+    }
+
+    @Test
+    void theDiveGainGrowsSmoothlyBeyondTheGlide() {
+        // Contínuo em 15°: logo acima dele, quase nada.
+        assertTrue(FlightModel.diveGain(15.5F, TUNING) < TUNING.gravity() * 0.02);
+        double previous = 0.0;
+        for (float pitch = 16.0F; pitch <= 90.0F; pitch += 1.0F) {
+            double gain = FlightModel.diveGain(pitch, TUNING);
+            assertTrue(gain > previous, "o ganho deveria crescer com o ângulo: " + pitch + "°");
+            previous = gain;
+        }
+        // Na pose de mergulho (40°), metade do mergulho vertical; na vertical, o ganho inteiro.
+        assertEquals(TUNING.gravity() * 0.5, FlightModel.diveGain(FlightModel.DIVE_PITCH, TUNING), 1e-9);
+        assertEquals(TUNING.gravity(), FlightModel.diveGain(90.0F, TUNING), 1e-12);
+        assertTrue(FlightModel.DIVE_PITCH > FlightModel.GLIDE_PITCH, "a pose de mergulho vem depois do planeio");
+    }
+
+    @Test
+    void climbingStillCostsAsMuchAsBefore() {
+        // Subir não tem zona morta: perde pelo seno da inclinação.
+        assertEquals(TUNING.gravity() * Math.sin(Math.toRadians(-10.0)), FlightModel.diveGain(-10.0F, TUNING), 1e-12);
+        assertEquals(-TUNING.gravity(), FlightModel.diveGain(-90.0F, TUNING), 1e-12);
+    }
+
+    @Test
     void climbingCostsSpeed() {
         double speed = FlightModel.nextSpeed(0.8, -60.0F, NOTHING, TUNING);
         assertTrue(speed < 0.78, "subir íngreme deveria custar velocidade: " + speed);

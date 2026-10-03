@@ -1,5 +1,6 @@
 package dev.madebyfelipe.iceagesurvival.item;
 
+import dev.madebyfelipe.iceagesurvival.client.item.AnalyzerRenderer;
 import dev.madebyfelipe.iceagesurvival.entity.PrehistoricCreature;
 import dev.madebyfelipe.iceagesurvival.network.ModPayloads;
 import dev.madebyfelipe.iceagesurvival.network.ScanResultPayload;
@@ -9,16 +10,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
@@ -32,15 +37,27 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.client.extensions.common.IClientItemExtensions;
 import net.minecraftforge.event.entity.player.PlayerEvent;
+import software.bernie.geckolib.animatable.GeoItem;
+import software.bernie.geckolib.constant.DataTickets;
+import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.core.animation.AnimatableManager;
+import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.animation.RawAnimation;
+import software.bernie.geckolib.util.GeckoLibUtil;
 
 /**
  * Analisador: o aparelho de campo que todo jogador recebe ao entrar no mundo pela primeira vez. Mirando numa criatura
  * do mod a até {@link #RANGE} blocos e segurando o clique por {@link #SCAN_TICKS} ticks, escaneia: registra a
  * espécie na DINO FILE do jogador ({@link DinoFileData}) e manda a leitura do indivíduo ao cliente
  * ({@link ScanResultPayload}). Perder a mira no meio cancela. Clicando no ar, abre o terminal (DINO FILE e MANUAL).
+ *
+ * <p>Na mão, no chão e na moldura é um modelo 3D do GeckoLib ({@link AnalyzerRenderer}); na GUI, o ícone plano. A
+ * animação {@code idle} (LED piscando devagar, varredura calma na tela) vira {@code scan} enquanto alguém segura o
+ * clique escaneando com este aparelho.
  */
-public class AnalyzerItem extends Item {
+public class AnalyzerItem extends Item implements GeoItem {
     public static final double RANGE = 24.0;
     public static final int SCAN_TICKS = 30;
     /** Marca, nos dados persistentes do jogador, de que ele já recebeu o analisador inicial. */
@@ -50,6 +67,12 @@ public class AnalyzerItem extends Item {
     private static Runnable terminalOpener = () -> { };
     /** Quem está escaneando o quê (id da entidade), no servidor. */
     private static final Map<UUID, Integer> SCANNING = new HashMap<>();
+    private static final RawAnimation IDLE = RawAnimation.begin().thenLoop("animation.analyzer.idle");
+    private static final RawAnimation SCAN = RawAnimation.begin().thenLoop("animation.analyzer.scan");
+    /** O cliente registra aqui quem diz se um aparelho está escaneando agora (o uso de quem o segura). */
+    private static Predicate<ItemStack> scanningCheck = stack -> false;
+
+    private final AnimatableInstanceCache animationCache = GeckoLibUtil.createInstanceCache(this);
 
     public AnalyzerItem(Properties properties) {
         super(properties);
@@ -57,6 +80,42 @@ public class AnalyzerItem extends Item {
 
     public static void setTerminalOpener(Runnable opener) {
         terminalOpener = opener;
+    }
+
+    public static void setScanningCheck(Predicate<ItemStack> check) {
+        scanningCheck = check;
+    }
+
+    @Override
+    public void initializeClient(Consumer<IClientItemExtensions> consumer) {
+        consumer.accept(AnalyzerRenderer.EXTENSIONS);
+    }
+
+    @Override
+    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+        controllers.add(new AnimationController<>(this, "analyzer", 3, state -> {
+            ItemStack stack = state.getData(DataTickets.ITEMSTACK);
+            return state.setAndContinue(stack != null && scanningCheck.test(stack) ? SCAN : IDLE);
+        }));
+    }
+
+    @Override
+    public AnimatableInstanceCache getAnimatableInstanceCache() {
+        return animationCache;
+    }
+
+    /** Cada aparelho ganha um id do GeckoLib, para que um escaneando não anime os outros. */
+    @Override
+    public void inventoryTick(ItemStack stack, Level level, Entity entity, int slot, boolean selected) {
+        if (level instanceof ServerLevel server) {
+            GeoItem.getOrAssignId(stack, server);
+        }
+    }
+
+    /** O id gravado no aparelho não deve fazer a mão abaixar e subir de novo. */
+    @Override
+    public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
+        return slotChanged || !oldStack.is(newStack.getItem());
     }
 
     @Override

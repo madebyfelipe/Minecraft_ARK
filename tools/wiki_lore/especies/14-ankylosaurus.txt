@@ -1,0 +1,13 @@
+id: ankylosaurus
+nome: Anquilossauro
+selos: Herbívoro, Montável
+
+Um tanque vivo do fim do Cretáceo, na América do Norte: placas de osso no corpo inteiro, até nas pálpebras, e uma clava maciça na ponta da cauda. Há fósseis de parentes dele com os flancos quebrados e cicatrizados, marcas de duelos de clavadas entre machos.
+
+Vive sozinho nas planícies e taigas, pastando rente ao chão. Não foge e não investe. Diante de uma ameaça, qualquer ameaça, até um tiranossauro, ele para e vira a cauda para ela.
+
+Quem entra no arco atrás dele leva a clavada, mesmo que ele não o tenha visto chegar. O golpe quebra a perna: a vítima fica lenta e sem conseguir pular por um tempo. Pela frente, porém, ele não tem golpe nenhum. Desconfia de nós; andar agachado ajuda.
+
+Deixa esterco por onde passa, que aduba a terra como farinha de osso.
+
+> Amansei um com fardo de feno, que ele prefere; frutas silvestres, trigo e samambaia também servem. Com sela, a mordida dele quebra pedra e arranca carvão, ferro, cobre e lápis como uma picareta. Carrega uma bolsa razoável.

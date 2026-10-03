@@ -1,0 +1,11 @@
+id: elasmotherium
+nome: Elasmotério
+selos: Herbívoro, Montável
+
+O unicórnio-siberiano: um rinoceronte peludo, de várias toneladas, com um chifre enorme na testa. Viveu nas estepes da Eurásia durante a era do gelo e conviveu com os primeiros humanos modernos.
+
+Vive sozinho nas planícies, nevadas ou não. É nervoso e desconfia de nós: blefa, investe e só foge quando está à beira da morte. É a presa favorita do smilodon.
+
+Abre caminho por paredes de madeira quando quer passar.
+
+> O corpo dele é tão quente que aquece quem está por perto, e mais ainda quem vai montado: atravessei noites geladas assim. Amansa depressa, com fardo de feno, trigo, frutas silvestres ou raízes. Aceita ser montado sem sela e sem precisar de muita confiança.

@@ -8,7 +8,8 @@ package dev.madebyfelipe.iceagesurvival.core.mount;
  *       limitada: a câmera gira na hora, o bicho faz a curva. Quanto mais rápido, mais aberta a curva.</li>
  *   <li>Frente acelera até o cruzeiro; trás freia; sem tecla, ela plana e perde embalo devagar.</li>
  *   <li>Mergulhar troca altura por velocidade (até {@code diveMultiplier} × o cruzeiro); subir faz o
- *       contrário. Ao sair do mergulho o excesso de velocidade se perde aos poucos: é o rasante.</li>
+ *       contrário. Descer pouco (até {@link #GLIDE_PITCH}) é só planeio e não embala. Ao sair do mergulho o
+ *       excesso de velocidade se perde aos poucos: é o rasante.</li>
  *   <li>Abaixo da velocidade de sustentação ela afunda, mais rápido quanto mais devagar estiver.</li>
  *   <li>Pulo segurado bate as asas e sobe; o impulso (sprint) multiplica a velocidade máxima.</li>
  *   <li>Pousa ao tocar o chão devagar, sem bater as asas e sem olhar para cima. Rápida, raspa o
@@ -27,8 +28,17 @@ public final class FlightModel {
     public static final float MAX_PITCH = 75.0F;
     /** Olhando mais para cima que isto (graus), não pousa mesmo encostando no chão. */
     private static final float LANDING_MAX_UPWARD_PITCH = -10.0F;
-    /** Inclinação para baixo a partir da qual a montaria está mergulhando (animação de mergulho). */
-    public static final float DIVE_PITCH = 25.0F;
+    /**
+     * Inclinação para baixo a partir da qual a montaria está mergulhando (pose e animação de mergulho). Era 25°; o
+     * Felipe viu a pose de rasante em qualquer descidinha e ela passou para 40°, bem além do planeio
+     * ({@link #GLIDE_PITCH}).
+     */
+    public static final float DIVE_PITCH = 40.0F;
+    /**
+     * Zona morta do mergulho, em graus para baixo: até aqui a descida é planeio e não ganha velocidade pela inclinação
+     * (só o arrasto do planeio vale). Acima dela, o ganho cresce com o ângulo além da zona ({@link #diveGain}).
+     */
+    public static final float GLIDE_PITCH = 15.0F;
     /** Ticks do zero ao cruzeiro com a frente apertada, no padrão (o Pteranodonte): 1,25 s. */
     public static final double DEFAULT_ACCELERATION_TICKS = 25.0;
 
@@ -55,6 +65,7 @@ public final class FlightModel {
      * @param boostMultiplier multiplicador da máxima com impulso
      * @param strafeFraction  deslocamento lateral, em fração da velocidade atual
      * @param gravity         ganho por tick num mergulho vertical (perda, subindo na vertical); escala com o seno da inclinação
+     *                        ({@link FlightModel#diveGain})
      * @param diveMultiplier  teto do mergulho, em múltiplos do cruzeiro
      * @param overspeedBleed  fração do excesso sobre o cruzeiro perdida por tick (duração do rasante)
      * @param turnRate        curva máxima por tick na velocidade de cruzeiro, em graus
@@ -105,8 +116,8 @@ public final class FlightModel {
         } else if (input.forward() < 0) {
             next = speed - tuning.brake() * -input.forward();
         }
-        // Mergulhar ganha velocidade; subir perde.
-        next += tuning.gravity() * Math.sin(Math.toRadians(pitchDegrees));
+        // Mergulhar (além do planeio) ganha velocidade; subir perde.
+        next += diveGain(pitchDegrees, tuning);
         if (next > cruise) {
             // Acima do cruzeiro (mergulho ou impulso solto) o excesso se perde aos poucos: o rasante.
             next -= (next - cruise) * tuning.overspeedBleed();
@@ -114,6 +125,28 @@ public final class FlightModel {
             next -= tuning.drag();
         }
         return Math.max(0.0, Math.min(tuning.diveSpeed(), next));
+    }
+
+    /**
+     * Quanto a inclinação soma à velocidade por tick: {@code gravity × sen(ângulo efetivo)}.
+     *
+     * <ul>
+     *   <li>Subindo (pitch negativo), o ângulo efetivo é a própria inclinação: perde velocidade como sempre.</li>
+     *   <li>Descendo até {@link #GLIDE_PITCH} (15°), é planeio: ganho zero.</li>
+     *   <li>Além disso, os 15°–90° reais viram 0°–90° efetivos, {@code (pitch − 15) × 90 / 75}: o ganho nasce do zero em
+     *   15° (contínuo, sem degrau) e chega ao mesmo de antes no mergulho vertical. No limite de {@link #MAX_PITCH}
+     *   (75°, efetivo 72°) dá 95% do mergulho vertical; a 40° ({@link #DIVE_PITCH}, efetivo 30°), metade.</li>
+     * </ul>
+     */
+    public static double diveGain(float pitchDegrees, Tuning tuning) {
+        if (pitchDegrees <= 0.0F) {
+            return tuning.gravity() * Math.sin(Math.toRadians(pitchDegrees));
+        }
+        if (pitchDegrees <= GLIDE_PITCH) {
+            return 0.0;
+        }
+        double effective = Math.min(90.0, (pitchDegrees - GLIDE_PITCH) * 90.0 / (90.0 - GLIDE_PITCH));
+        return tuning.gravity() * Math.sin(Math.toRadians(effective));
     }
 
     /** Curva máxima por tick nesta velocidade: plena até o cruzeiro, mais aberta acima dele. */

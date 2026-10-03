@@ -1,0 +1,50 @@
+id: comportamento
+titulo: Comportamento
+subtitulo: Ler os sinais de cada espécie
+
+== Sinais que aprendi a ler
+
+- Manada que para de pastar e encara: notou alguém. Se for você, afaste-se devagar.
+- Investida curta que para no meio do caminho: é blefe. A próxima pode não ser.
+- Predador imóvel, em silêncio, perto de uma manada: está espreitando. O rugido vem junto com o bote.
+- Rugido seguido de correria: a caçada começou. Saia do caminho da manada.
+- Bicho dormindo encolhido num canto em plena luz do dia, ou em plena noite: está fora do seu horário. Só acorda se for ferido.
+- Carniceiro rondando um corpo: há um predador maior por perto, ou haverá.
+- Animal que ataca e recua em seguida, sem pressa de terminar: veneno. Ele vai seguir o seu rastro.
+
+== Escapar
+
+Cada caçador tem uma fraqueza. O smilodon detesta água e não entra nela nem para terminar uma caçada. O utahraptor não atravessa copas fechadas, e uma mata densa o despista. A bicada do kelenken, se encontrar um escudo erguido, trava o bico dele por um instante.
+
+Contra os grandes, distância é tudo: na perseguição, quem se afasta o bastante é deixado para trás. Contra os que caçam em bando, nunca fique sozinho.
+
+> Um animal amansado ao seu lado muda a conta do predador. Raramente ele acha que vale a pena.
+
+== Registro de espécies
+
+Resumo do que já registrei, com a época de onde cada animal deveria ter vindo. Os detalhes estão na ficha de cada espécie.
+
+| Espécie | Época de origem | Temperamento |
+|---|---|---|
+| Dodô | Holoceno, ilha Maurício | Manso, foge de tudo |
+| Galimimo | Cretáceo Superior, Mongólia | Arisco, foge |
+| Elasmotério | Pleistoceno, estepes da Eurásia | Nervoso, investe |
+| Mamute-Lanoso | Pleistoceno, estepes geladas | Defende a manada |
+| Estegossauro | Jurássico Superior, América do Norte | Defende a manada |
+| Tricerátopo | Fim do Cretáceo, América do Norte | Investe sem medo |
+| Anquilossauro | Fim do Cretáceo, América do Norte | Golpeia com a cauda |
+| Brontossauro | Jurássico Superior, América do Norte | Pacífico, mas enorme |
+| Pteranodonte | Cretáceo Superior, mares rasos | Indiferente |
+| Quetzalcoatlus | Fim do Cretáceo, América do Norte | Indiferente a nós |
+| Ornitholestes | Jurássico Superior, América do Norte | Tímido, noturno |
+| Velociraptor | Cretáceo Superior, deserto de Gobi | Tímido, caça pequenos |
+| Utahraptor | Cretáceo Inferior, América do Norte | Caça em bando |
+| Kelenken | Mioceno, Patagônia | Caçador |
+| Smilodon | Pleistoceno, Américas | Caçador de emboscada |
+| Urso-Terrível | Pleistoceno, América do Norte | Caçador |
+| Megalania | Pleistoceno, Austrália | Caçador venenoso |
+| Baryonyx | Cretáceo Inferior, Europa | Pescador, caçador |
+| Alossauro | Jurássico Superior, América do Norte | Caça em bando |
+| Espinossauro | Cretáceo Superior, norte da África | Soberano |
+| Tiranossauro Rex | Fim do Cretáceo, América do Norte | Soberano |
+| Giganotossauro | Cretáceo Superior, Patagônia | Ataca tudo |

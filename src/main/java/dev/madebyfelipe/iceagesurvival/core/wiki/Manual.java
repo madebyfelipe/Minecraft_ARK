@@ -5,7 +5,8 @@ import java.util.Optional;
 
 /**
  * O manual do Analisador, lido de {@code assets/iceagesurvival/wiki/manual.json} (gerado por {@code tools/gen_wiki.py}
- * a partir de {@code docs/*.html}): capítulos com páginas para a aba MANUAL e uma ficha por espécie para a DINO FILE.
+ * a partir do texto de lore em {@code tools/wiki_lore/}): capítulos com páginas para a aba MANUAL e uma ficha por
+ * espécie para a DINO FILE.
  *
  * <p>Sem classes do Minecraft (D10): as espécies são o id da entidade em texto ({@code iceagesurvival:smilodon}).
  */
