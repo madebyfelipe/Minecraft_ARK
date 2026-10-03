@@ -117,10 +117,10 @@ public final class CreatureTracker {
         return RadarHud.distanceText(reading, Component.translatable("iceagesurvival.locator.other_dimension"));
     }
 
-    /** O radar no canto; com o rastreador da caverna na mão, o dele tem a vez. */
+    /** O radar no canto. */
     public static void render(ForgeGui gui, GuiGraphics graphics, float partialTick, int screenWidth, int screenHeight) {
         CreatureLocator.Entry entry = tracked == null ? null : trackedEntry();
-        if (entry == null || !RadarHud.visible() || CaveTrackerHud.active()) {
+        if (entry == null || !RadarHud.visible()) {
             return;
         }
         RadarHud.Reading reading = read(entry);

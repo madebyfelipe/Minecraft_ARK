@@ -83,6 +83,7 @@ SPECIAL = {
                'vez e vale meia refeição; a maior leva só a bicada',
     'venom': 'mordida que solta: morde, recua e segue o rastro provando o ar com a língua; a peçonha (30 s) é choque '
              '(torpor) nas criaturas do mod e sangramento sem regeneração no jogador e nos vanilla; cura com o antídoto',
+    'bleed': 'mordida que corta: cada golpe que acerta abre sangramento, que empilha até 3 níveis (6 s cada vez)',
 }
 ACTIVITY = {'nocturnal': 'noturno: de dia dorme escondido e não caça; só acorda se atacado',
             'diurnal': 'diurno: à noite dorme escondido e não caça; só acorda se atacado'}
@@ -244,7 +245,7 @@ def group_text(spawn):
 
 
 def is_carnivore(b):
-    """Caça (tem presas) ou ataca por conta própria sem tabela de presas, como o boss Giganotossauro."""
+    """Caça (tem presas) ou ataca por conta própria sem tabela de presas."""
     return bool(b.get('prey')) or bool(b.get('aggressive'))
 
 
@@ -353,7 +354,7 @@ def card(key):
 
     hunt = ''
     if carnivore and not b.get('prey'):
-        # Agressivo sem tabela de presas (o boss): não caça pela ecologia, ataca quem chega perto.
+        # Agressivo sem tabela de presas: não caça pela ecologia, ataca quem chega perto.
         hunt = ('<h4>Caça</h4><table>'
                 + row('Ataque', f'não caça pela ecologia: ataca jogadores e criaturas a '
                                 f'{num(b.get("aggro_radius", 0))} blocos com a IA própria')

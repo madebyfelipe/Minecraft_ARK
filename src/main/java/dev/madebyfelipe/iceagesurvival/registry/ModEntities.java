@@ -73,12 +73,12 @@ public final class ModEntities {
     public static final RegistryObject<EntityType<LandCreature>> ANKYLOSAURUS =
             landCreature("ankylosaurus", 2.6F, 2.2F);
     /**
-     * Giganotosaurus, o boss da arena da caverna (D47): 12–13 m, ~8 t, um pouco mais comprido e mais leve que o T-Rex.
-     * Modelo, poses e sons do Jurassic Reborn em runtime (na escala 1, ~14 blocos de comprimento e 4,5 de altura). Não
-     * nasce sozinho: só o altar da arena o chama. Com 4,5 de altura não passa pela porta de 4 da arena.
+     * Giganotosaurus, o predador de dentes serrilhados que corta e deixa a presa sangrar: 12–13 m, ~8 t, menor e mais
+     * leve que o T-Rex. Modelo, poses e sons do Jurassic Reborn em runtime (na escala 1, ~14 blocos de comprimento e
+     * 4,5 de altura: a caixa já é a do modelo, e o T-Rex tem 5,4).
      */
-    public static final RegistryObject<EntityType<LandCreature>> GIGANOTOSAURUS = landCreature("giganotosaurus",
-            3.0F, 4.5F, dev.madebyfelipe.iceagesurvival.entity.GiganotosaurusBoss::new);
+    public static final RegistryObject<EntityType<LandCreature>> GIGANOTOSAURUS =
+            landCreature("giganotosaurus", 3.0F, 4.5F);
 
     public static final RegistryObject<EntityType<TestCreature>> TEST_CREATURE =
             ENTITY_TYPES.register("test_creature", () -> EntityType.Builder.of(TestCreature::new, MobCategory.CREATURE)

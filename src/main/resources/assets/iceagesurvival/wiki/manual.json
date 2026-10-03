@@ -11,7 +11,7 @@
      "blocks": [
       {
        "type": "paragraph",
-       "text": "Escrevo isto para quem vier depois. Eu era biólogo de apoio da base, contratado para estudar o permafrost em volta das instalações. Ninguém me contou o que o Projeto Limiar fazia nos níveis de baixo, só que consumia energia de uma cidade inteira."
+       "text": "Escrevo isto para quem vier depois. Eu era biólogo de apoio da base, contratado para estudar o permafrost em volta das instalações. Tinham encontrado ali, congeladas no gelo, espécies inteiras, em um estado de conservação que ninguém acreditava ser possível. Era o pretexto. Ninguém me contou o que o Projeto Limiar fazia nos níveis de baixo, só que consumia energia de uma cidade inteira."
       },
       {
        "type": "paragraph",
@@ -23,7 +23,57 @@
       },
       {
        "type": "note",
-       "text": "Não sei se o portal ainda está aberto. Sei que os animais não param de aparecer, e que nenhum deles sabe que não deveria estar aqui."
+       "text": "O portal fechou. Os animais ficaram, e nenhum deles sabe que não deveria estar aqui."
+      }
+     ]
+    },
+    {
+     "id": "diario/o-que-o-gelo-escondia",
+     "title": "O que o gelo escondia",
+     "blocks": [
+      {
+       "type": "paragraph",
+       "text": "Eu estudava os bichos congelados. Os militares procuravam outra coisa. Pelos registros que fui achando nos postos em volta da base, o permafrost guardava um material que eles queriam a qualquer custo: antimatéria, presa no gelo, instável, que não devia existir fora de um laboratório."
+      },
+      {
+       "type": "paragraph",
+       "text": "O clarão foi ela. Quando o material cedeu, o espaço e o tempo daquele vale colapsaram juntos, e o que estava espalhado por eras diferentes foi parar no mesmo lugar. Não foi uma porta que abriram. Foi uma ferida, e ela fechou sozinha."
+      },
+      {
+       "type": "paragraph",
+       "text": "Nada disso me foi dito antes. Eu só tinha o gelo e os bichos dentro dele."
+      }
+     ]
+    },
+    {
+     "id": "diario/o-equilibrio",
+     "title": "O equilíbrio",
+     "blocks": [
+      {
+       "type": "paragraph",
+       "text": "O mais estranho é que funciona. Passada a confusão dos primeiros dias, o vale se arrumou: herbívoros de épocas diferentes pastam juntos, os caçadores acharam presas, cada espécie tomou o seu canto. Um ecossistema que nunca existiu e que se sustenta sozinho."
+      },
+      {
+       "type": "paragraph",
+       "text": "É um equilíbrio frágil. Basta um caçador grande demais, ou faminto demais, para o resto ruir."
+      }
+     ]
+    },
+    {
+     "id": "diario/os-postos",
+     "title": "Os postos",
+     "blocks": [
+      {
+       "type": "paragraph",
+       "text": "Em volta da base ficam os postos militares, pequenos, de concreto, com o gelo já entrando pelas frestas. Muitos ainda têm terminais de pé. Alguns guardam registros: ordens, relatórios, conversas entre quem ficou. Aponto o analisador para um terminal e deixo ler; cada leitura me devolve uma nota que eu não tinha."
+      },
+      {
+       "type": "paragraph",
+       "text": "A base em si continua de pé, selada. Pelo que os registros contam, ainda há algo lá dentro, algo que eles mantiveram fechado antes do incidente. Os relatórios cortam sempre no mesmo ponto. Não sei o que é."
+      },
+      {
+       "type": "note",
+       "text": "Um dos relatórios diz que menos de dois por cento das espécies que já existiram foram descobertas. Não entendi na hora por que alguém escreveria isso num relatório militar."
       }
      ]
     },
@@ -145,6 +195,24 @@
       {
        "type": "paragraph",
        "text": "Alguns animais se escondem bem. Entre folhas, mato fechado ou neve funda, um bicho camuflado só é notado quando já está muito perto, seja ele caçador ou caça."
+      }
+     ]
+    },
+    {
+     "id": "ecologia/o-equilibrio-do-vale",
+     "title": "O equilíbrio do vale",
+     "blocks": [
+      {
+       "type": "paragraph",
+       "text": "Nada aqui estava no lugar quando o portal fechou, e mesmo assim cada coisa acabou achando o seu. Os herbívoros cuidam das plantas, os caçadores cuidam dos herbívoros, e as carcaças alimentam o resto. Nenhuma espécie manda no vale: cada predador toma o que a sua área aguenta, e quando um cai, outro ocupa o lugar."
+      },
+      {
+       "type": "paragraph",
+       "text": "O que ameaça esse arranjo é o excesso. Um caçador que come mais depressa do que a presa se refaz esvazia o vale de um lado e empurra a fome para o outro. Um animal grande demais para ser enfrentado por qualquer rival não tem quem o contenha."
+      },
+      {
+       "type": "note",
+       "text": "Se alguma vez o vale ficar vazio de caça, não foi o frio. Foi alguém comendo demais."
       }
      ]
     },
@@ -410,7 +478,7 @@
         [
          "Giganotossauro",
          "Cretáceo Superior, Patagônia",
-         "Ataca tudo"
+         "Caçador, mordida que sangra"
         ]
        ]
       }
@@ -535,7 +603,7 @@
       },
       {
        "type": "note",
-       "text": "A cabeça de um tiranossauro e a de um espinossauro, presas a uma bússola, apontam para as cavernas profundas. Não fui até o fim de nenhuma. Ouvi o que ruge lá embaixo."
+       "text": "Vencido, o soberano não morre; aceita a mão de quem o venceu. Mas o que ele aceita de um, não aceita de outro: o duelo é com quem o desafiou."
       }
      ]
     }
@@ -630,7 +698,7 @@
     },
     {
      "type": "note",
-     "text": "Vencido o duelo, ele desaba e aceita ser amansado com peixe cru, charque ou carne vermelha. A cabeça dele, junto com a de um tiranossauro, aponta o caminho para as cavernas profundas."
+     "text": "Vencido o duelo, ele desaba e aceita ser amansado com peixe cru, charque ou carne vermelha."
     }
    ]
   },
@@ -809,7 +877,7 @@
     },
     {
      "type": "note",
-     "text": "Vencido o duelo, ele desaba e aceita ser amansado com carne vermelha crua ou charque. Montado, abre caminho até pela pedra. A cabeça dele, junto com a de um espinossauro, aponta o caminho para as cavernas profundas."
+     "text": "Vencido o duelo, ele desaba e aceita ser amansado com carne vermelha crua ou charque. Montado, abre caminho até pela pedra."
     }
    ]
   },
@@ -1050,19 +1118,23 @@
    "blocks": [
     {
      "type": "paragraph",
-     "text": "Do meio do Cretáceo, na Patagônia: tão grande quanto o tiranossauro, mas com dentes finos e serrilhados como lâminas. Não esmagava ossos; cortava e deixava a presa sangrar. Caçava os maiores herbívoros que já existiram."
+     "text": "Do meio do Cretáceo, na Patagônia: quase tão grande quanto o tiranossauro, mas mais comprido e mais leve, com dentes finos e serrilhados como lâminas. Não esmagava ossos; cortava e deixava a presa sangrar. Caçava os maiores herbívoros que já existiram."
     },
     {
      "type": "paragraph",
-     "text": "Não vive na superfície. Algo ruge no fundo das cavernas profundas, longe de tudo, numa câmara enorme. A cabeça de um tiranossauro e a de um espinossauro, presas a uma bússola, apontam a entrada mais próxima."
+     "text": "Caça sozinho em um território amplo e prefere os gigantes de pescoço comprido e o tricerátopo. Tem a presa na mira antes que ela o perceba, e espera a ferida fazer o trabalho. Gente, quando tem fome."
     },
     {
      "type": "paragraph",
-     "text": "Ataca tudo o que vê. As mordidas abrem feridas que sangram e se acumulam. Ferido, ele ruge, puxa quem está perto e passa a investir derrubando; perto do fim, fica frenético, mais rápido e mais difícil de ferir."
+     "text": "As mordidas abrem feridas que sangram e se acumulam: cada golpe novo piora a anterior. Quem sobrevive ao primeiro precisa fugir, ou não chega longe."
+    },
+    {
+     "type": "paragraph",
+     "text": "Derruba paredes de madeira só de passar."
     },
     {
      "type": "note",
-     "text": "Não há como amansá-lo. Dizem que uma cabeça de soberano deixada no altar da câmara o chama de novo. Vencido, deixa a cabeça e dentes serrilhados que viram uma espada que faz sangrar."
+     "text": "Pode ser amansado como qualquer caçador: faz-se dormir, e depois se alimenta com carne crua. Os dentes que deixa, quando cai, viram uma espada que faz sangrar."
     }
    ]
   },

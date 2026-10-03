@@ -44,19 +44,11 @@ public final class ModBlocks {
             "chemistry_bench",
             () -> new ChemistryBenchBlock(BlockBehaviour.Properties.copy(Blocks.CRAFTING_TABLE)));
 
-    /** Cabeças-troféu dos apex: decoração, e o tributo para desafiar outro da espécie. */
+    /** Cabeças-troféu dos apex: decoração. */
     public static final RegistryObject<dev.madebyfelipe.iceagesurvival.block.TrophyHeadBlock> TYRANNOSAURUS_HEAD =
             trophyHead("tyrannosaurus_head");
     public static final RegistryObject<dev.madebyfelipe.iceagesurvival.block.TrophyHeadBlock> SPINOSAURUS_HEAD =
             trophyHead("spinosaurus_head");
-    /** Troféu do boss (D47): a cabeça do Giganotosaurus vencido. */
-    public static final RegistryObject<dev.madebyfelipe.iceagesurvival.block.TrophyHeadBlock> GIGANOTOSAURUS_HEAD =
-            trophyHead("giganotosaurus_head");
-
-    /** Altar no centro da arena da caverna (D47): o tributo chama o Giganotosaurus. Não se quebra. */
-    public static final RegistryObject<dev.madebyfelipe.iceagesurvival.endgame.ArenaAltarBlock> ARENA_ALTAR =
-            BLOCKS.register("arena_altar", () -> new dev.madebyfelipe.iceagesurvival.endgame.ArenaAltarBlock(
-                    BlockBehaviour.Properties.copy(Blocks.BEDROCK).noOcclusion()));
 
     private static RegistryObject<dev.madebyfelipe.iceagesurvival.block.TrophyHeadBlock> trophyHead(String name) {
         return BLOCKS.register(name, () -> new dev.madebyfelipe.iceagesurvival.block.TrophyHeadBlock(

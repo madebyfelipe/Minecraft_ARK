@@ -1,6 +1,6 @@
 {
   "replace": false,
   "values": [
-    "iceagesurvival:arena_cave"
+    "#iceagesurvival:spawn_anywhere"
   ]
 }

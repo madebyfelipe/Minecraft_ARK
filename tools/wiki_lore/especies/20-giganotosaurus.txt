@@ -2,10 +2,12 @@ id: giganotosaurus
 nome: Giganotossauro
 selos: Carnívoro, Agressivo
 
-Do meio do Cretáceo, na Patagônia: tão grande quanto o tiranossauro, mas com dentes finos e serrilhados como lâminas. Não esmagava ossos; cortava e deixava a presa sangrar. Caçava os maiores herbívoros que já existiram.
+Do meio do Cretáceo, na Patagônia: quase tão grande quanto o tiranossauro, mas mais comprido e mais leve, com dentes finos e serrilhados como lâminas. Não esmagava ossos; cortava e deixava a presa sangrar. Caçava os maiores herbívoros que já existiram.
 
-Não vive na superfície. Algo ruge no fundo das cavernas profundas, longe de tudo, numa câmara enorme. A cabeça de um tiranossauro e a de um espinossauro, presas a uma bússola, apontam a entrada mais próxima.
+Caça sozinho em um território amplo e prefere os gigantes de pescoço comprido e o tricerátopo. Tem a presa na mira antes que ela o perceba, e espera a ferida fazer o trabalho. Gente, quando tem fome.
 
-Ataca tudo o que vê. As mordidas abrem feridas que sangram e se acumulam. Ferido, ele ruge, puxa quem está perto e passa a investir derrubando; perto do fim, fica frenético, mais rápido e mais difícil de ferir.
+As mordidas abrem feridas que sangram e se acumulam: cada golpe novo piora a anterior. Quem sobrevive ao primeiro precisa fugir, ou não chega longe.
 
-> Não há como amansá-lo. Dizem que uma cabeça de soberano deixada no altar da câmara o chama de novo. Vencido, deixa a cabeça e dentes serrilhados que viram uma espada que faz sangrar.
+Derruba paredes de madeira só de passar.
+
+> Pode ser amansado como qualquer caçador: faz-se dormir, e depois se alimenta com carne crua. Os dentes que deixa, quando cai, viram uma espada que faz sangrar.

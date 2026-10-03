@@ -5,7 +5,6 @@ import dev.madebyfelipe.iceagesurvival.IceAgeSurvival;
 import dev.madebyfelipe.iceagesurvival.entity.LandCreature;
 import dev.madebyfelipe.iceagesurvival.entity.PrehistoricCreature;
 import dev.madebyfelipe.iceagesurvival.item.AnalyzerItem;
-import dev.madebyfelipe.iceagesurvival.network.CaveTargetPayload;
 import dev.madebyfelipe.iceagesurvival.network.DinoFilePayload;
 import dev.madebyfelipe.iceagesurvival.network.ScanResultPayload;
 import dev.madebyfelipe.iceagesurvival.registry.ModEntities;
@@ -15,13 +14,11 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.embedded.EmbeddedChannel;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.GlobalPos;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.CompoundTag;
@@ -313,19 +310,14 @@ public class AnalyzerTests {
                     14.5F, 6.0F, ScanResultPayload.State.OTHERS, "outro-dono", "uneasy", 0));
             messages.add(new ScanResultPayload(7, DODO, true, "Dodô", 10, false, 0.0F, 10.0F, 1.0F, 0.0F, 0.0F,
                     ScanResultPayload.State.UNCONSCIOUS, "", "panicked", 1));
-            messages.add(new CaveTargetPayload(Optional.of(GlobalPos.of(Level.OVERWORLD, new BlockPos(1500, -12, -2300)))));
-            messages.add(new CaveTargetPayload(Optional.of(GlobalPos.of(Level.NETHER, new BlockPos(-40, 70, 8)))));
-            messages.add(new CaveTargetPayload(Optional.empty()));
 
             for (Object message : messages) {
                 Object back;
                 if (message instanceof DinoFilePayload dinoFile) {
                     back = roundTrip(helper, dinoFile, DinoFilePayload::encode, DinoFilePayload::decode);
-                } else if (message instanceof ScanResultPayload scan) {
-                    back = roundTrip(helper, scan, ScanResultPayload::encode, ScanResultPayload::decode);
                 } else {
-                    back = roundTrip(helper, (CaveTargetPayload) message, CaveTargetPayload::encode,
-                            CaveTargetPayload::decode);
+                    back = roundTrip(helper, (ScanResultPayload) message, ScanResultPayload::encode,
+                            ScanResultPayload::decode);
                 }
                 helper.assertTrue(message.equals(back), "ida e volta mudou o pacote: " + message + " → " + back);
             }

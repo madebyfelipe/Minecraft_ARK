@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Gera as texturas 16x16 das cabeças-troféu dos apex (T-Rex e Espinossauro) e do boss (Giganotosaurus).
+"""Gera as texturas 16x16 das cabeças-troféu dos apex (T-Rex e Espinossauro).
 
 Como os outros gen_*.py: rodar de novo SOBRESCREVE edições feitas à mão.
 """
@@ -17,8 +17,6 @@ GUM = (120, 40, 40)
 PALETTES = {
     "tyrannosaurus_head": [(110, 82, 58), (96, 70, 48), (126, 94, 66), (84, 60, 42)],
     "spinosaurus_head": [(92, 104, 92), (80, 92, 82), (106, 118, 104), (70, 80, 72)],
-    # O boss da arena (D47): areia com sombra cinza, a pele "sand" do modelo do Jurassic Reborn.
-    "giganotosaurus_head": [(150, 124, 92), (132, 108, 80), (166, 140, 104), (112, 94, 74)],
 }
 
 

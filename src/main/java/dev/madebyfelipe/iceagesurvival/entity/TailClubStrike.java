@@ -2,7 +2,6 @@ package dev.madebyfelipe.iceagesurvival.entity;
 
 import dev.madebyfelipe.iceagesurvival.core.ecology.TailClub;
 import dev.madebyfelipe.iceagesurvival.registry.ModEffects;
-import dev.madebyfelipe.iceagesurvival.registry.ModTags;
 import dev.madebyfelipe.iceagesurvival.species.BehaviorProfile;
 import dev.madebyfelipe.iceagesurvival.species.WarinessProfile;
 import javax.annotation.Nullable;
@@ -21,7 +20,7 @@ import net.minecraftforge.event.entity.living.LivingHurtEvent;
  *   costas leva a clavada antes do bote. Inimigo da selvagem: o alvo dela, o jogador (agachado, só a metade do
  *   alcance), o predador selvagem e os monstros. Da domesticada: só o alvo dela.</li>
  *   <li><b>Golpe:</b> o golpe da espécie ({@code doHurtTarget}, que toca a animação da cauda) e a perna quebrada
- *   ({@link ModEffects#BROKEN_LEG}) em quem não é da mesma espécie nem da tag {@code leg_break_immune}.</li>
+ *   ({@link ModEffects#BROKEN_LEG}) em quem não é da mesma espécie.</li>
  *   <li><b>Duelo:</b> entre dois da mesma espécie o golpe é no flanco e não leva o rival abaixo de
  *   {@link TailClub#DUEL_FLOOR} da vida ({@link #onHurt}).</li>
  * </ul>
@@ -78,7 +77,7 @@ public final class TailClubStrike {
 
     /** Depois de um golpe que acertou ({@code doHurtTarget}): a perna quebrada. */
     static void afterHit(PrehistoricCreature creature, LivingEntity target) {
-        if (target.getType() == creature.getType() || target.getType().is(ModTags.LEG_BREAK_IMMUNE)) {
+        if (target.getType() == creature.getType()) {
             return;
         }
         target.addEffect(new MobEffectInstance(ModEffects.BROKEN_LEG.get(), TailClub.LEG_BREAK_TICKS), creature);

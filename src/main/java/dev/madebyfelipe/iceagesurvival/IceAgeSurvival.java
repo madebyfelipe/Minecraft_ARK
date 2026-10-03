@@ -51,7 +51,6 @@ public class IceAgeSurvival {
         ModArmorMaterials.ARMOR_MATERIALS.register(modEventBus);
         ModItems.ITEMS.register(modEventBus);
         ModEffects.EFFECTS.register(modEventBus);
-        dev.madebyfelipe.iceagesurvival.registry.ModStructures.register(modEventBus);
         dev.madebyfelipe.iceagesurvival.primal.PrimalStations.register(modEventBus);
         dev.madebyfelipe.iceagesurvival.defense.Defenses.register(modEventBus);
         dev.madebyfelipe.iceagesurvival.compat.ExternalFaunaCleanup.register(modEventBus);
@@ -67,8 +66,6 @@ public class IceAgeSurvival {
                 () -> () -> IceAgeSurvivalClient.init(modEventBus, modContainer));
 
         MinecraftForge.EVENT_BUS.addListener(ColdExposure::onPlayerTick);
-        MinecraftForge.EVENT_BUS.addListener(dev.madebyfelipe.iceagesurvival.item.CaveTrackerItem::onPlayerTick);
-        MinecraftForge.EVENT_BUS.addListener(dev.madebyfelipe.iceagesurvival.item.CaveTrackerItem::onLoggedOut);
         MinecraftForge.EVENT_BUS.addListener(dev.madebyfelipe.iceagesurvival.item.AnalyzerItem::onLoggedIn);
         MinecraftForge.EVENT_BUS.addListener(dev.madebyfelipe.iceagesurvival.item.AnalyzerItem::onLoggedOut);
         MinecraftForge.EVENT_BUS.addListener(WildSpawner::onServerTick);

@@ -79,7 +79,12 @@ public record BehaviorProfile(
          * Peçonha (Megalania): morde, solta e segue o rastro da presa envenenada até ela cair
          * ({@code entity/VenomBite}).
          */
-        VENOM("venom");
+        VENOM("venom"),
+        /**
+         * Mordida que corta (Giganotosaurus, dentes serrilhados de faca): cada golpe que acerta abre sangramento, que
+         * empilha até {@code HuntSpecials.BLEED_LEVEL_CAP} níveis ({@code effect/BleedingEffect}).
+         */
+        BLEED("bleed");
 
         public static final Codec<HuntSpecial> CODEC = StringRepresentable.fromEnum(HuntSpecial::values);
         private final String id;

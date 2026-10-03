@@ -147,7 +147,6 @@ final class CreaturePoses {
             case ATTACK, FISH_STRIKE -> ATTACKING;
             case ROAR -> ROARING;
             case CALL -> CALLING;
-            case INJURED -> INJURED;
             default -> null;
         };
     }

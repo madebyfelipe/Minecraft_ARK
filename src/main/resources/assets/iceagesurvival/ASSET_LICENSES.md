@@ -60,8 +60,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
 
-`textures/item/cave_tracker_00.png` a `cave_tracker_31.png` (Rastreador da Caverna, D47: os quadros da agulha girando) são autorais, desenhadas pixel a pixel por `tools/gen_cave_tracker.py`.
-
 `textures/item/analyzer.png` (Analisador, o ícone da GUI) é autoral, desenhada pixel a pixel por `tools/gen_analyzer.py`. O modelo 3D animado do Analisador (`geo/item/analyzer.geo.json`, `animations/item/analyzer.animation.json`, `textures/item/analyzer_3d.png`, `textures/item/analyzer_3d_glowmask.png` e `models/item/analyzer.json`) também é autoral, gerado pelo mesmo script; nada vem de outro mod ou jogo.
 
 O **Anquilossauro** usa o modelo, a textura, as animações e os sons do Revival (`fossil:ankylosaurus`),

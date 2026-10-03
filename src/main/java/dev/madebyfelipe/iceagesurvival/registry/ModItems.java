@@ -113,11 +113,7 @@ public final class ModItems {
     public static final RegistryObject<dev.madebyfelipe.iceagesurvival.item.AnalyzerItem> ANALYZER =
             ITEMS.register("analyzer", () -> new dev.madebyfelipe.iceagesurvival.item.AnalyzerItem(
                     new Item.Properties().stacksTo(1).rarity(net.minecraft.world.item.Rarity.UNCOMMON)));
-    /** Rastreador da caverna da arena (D47), feito com os troféus de apex: aparelho de mão, não se gasta. */
-    public static final RegistryObject<dev.madebyfelipe.iceagesurvival.item.CaveTrackerItem> CAVE_TRACKER =
-            ITEMS.register("cave_tracker", () -> new dev.madebyfelipe.iceagesurvival.item.CaveTrackerItem(
-                    new Item.Properties().stacksTo(1).rarity(net.minecraft.world.item.Rarity.RARE)));
-    /** Dente serrilhado do Giganotosaurus (D47): a recompensa do boss, para a espada serrilhada. */
+    /** Dente serrilhado do Giganotosaurus: o que a carcaça dele deixa, para a espada serrilhada. */
     public static final RegistryObject<Item> SERRATED_TOOTH = ITEMS.register("serrated_tooth",
             () -> new Item(new Item.Properties().rarity(net.minecraft.world.item.Rarity.EPIC)));
     /** Espada serrilhada (D47): o corte faz sangrar, como a mordida do Giganotosaurus. */
@@ -189,10 +185,6 @@ public final class ModItems {
     public static final RegistryObject<BlockItem> SPINOSAURUS_HEAD = ITEMS.register("spinosaurus_head",
             () -> new BlockItem(ModBlocks.SPINOSAURUS_HEAD.get(), new Item.Properties().stacksTo(16)
                     .rarity(net.minecraft.world.item.Rarity.RARE)));
-    public static final RegistryObject<BlockItem> GIGANOTOSAURUS_HEAD = ITEMS.register("giganotosaurus_head",
-            () -> new BlockItem(ModBlocks.GIGANOTOSAURUS_HEAD.get(), new Item.Properties().stacksTo(16)
-                    .rarity(net.minecraft.world.item.Rarity.EPIC)));
-    public static final RegistryObject<BlockItem> ARENA_ALTAR = blockItem("arena_altar", ModBlocks.ARENA_ALTAR);
     public static final RegistryObject<BlockItem> REVIVE_TABLE = blockItem("revive_table", ModBlocks.REVIVE_TABLE);
 
     /** Fica no corpo da criatura domesticada que morreu; revive-a na mesa de reviver com um diamante. */
@@ -295,10 +287,7 @@ public final class ModItems {
             event.accept(REVIVE_TABLE);
             event.accept(TYRANNOSAURUS_HEAD);
             event.accept(SPINOSAURUS_HEAD);
-            event.accept(GIGANOTOSAURUS_HEAD);
-            event.accept(ARENA_ALTAR);
             event.accept(ANALYZER);
-            event.accept(CAVE_TRACKER);
             event.accept(SERRATED_TOOTH);
             event.accept(SERRATED_SWORD);
         } else if (event.getTabKey() == CreativeModeTabs.NATURAL_BLOCKS) {

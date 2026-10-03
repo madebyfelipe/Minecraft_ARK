@@ -47,4 +47,4 @@ Resumo do que já registrei, com a época de onde cada animal deveria ter vindo.
 | Alossauro | Jurássico Superior, América do Norte | Caça em bando |
 | Espinossauro | Cretáceo Superior, norte da África | Soberano |
 | Tiranossauro Rex | Fim do Cretáceo, América do Norte | Soberano |
-| Giganotossauro | Cretáceo Superior, Patagônia | Ataca tudo |
+| Giganotossauro | Cretáceo Superior, Patagônia | Caçador, mordida que sangra |

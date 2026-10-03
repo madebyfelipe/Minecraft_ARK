@@ -230,14 +230,13 @@ public class AnkylosaurusTests {
 
     // ---- Perna quebrada ----
 
-    /** A clavada quebra a perna do mob vanilla (−60% de velocidade), não a de outro Anquilossauro nem a do boss. */
+    /** A clavada quebra a perna do mob vanilla (−60% de velocidade), não a de outro Anquilossauro. */
     @GameTest(template = ARENA, batch = "ankylo_leg", timeoutTicks = 40)
-    public static void theBrokenLegSlowsButSparesKinAndTheBoss(GameTestHelper helper) {
+    public static void theBrokenLegSlowsButSparesKin(GameTestHelper helper) {
         HuntTests.clearStrays(helper);
         LandCreature ankylosaurus = helper.spawnWithNoFreeWill(ModEntities.ANKYLOSAURUS.get(), 4, 0, 4);
         IronGolem golem = helper.spawnWithNoFreeWill(EntityType.IRON_GOLEM, 4, 0, 7);
         LandCreature rival = helper.spawnWithNoFreeWill(ModEntities.ANKYLOSAURUS.get(), 12, 0, 4);
-        LandCreature boss = helper.spawnWithNoFreeWill(ModEntities.GIGANOTOSAURUS.get(), 12, 0, 14);
 
         double speed = golem.getAttributeValue(Attributes.MOVEMENT_SPEED);
         helper.assertTrue(ankylosaurus.doHurtTarget(golem), "o golpe no golem não acertou");
@@ -251,9 +250,6 @@ public class AnkylosaurusTests {
 
         helper.assertTrue(ankylosaurus.doHurtTarget(rival), "o golpe no rival não acertou");
         helper.assertFalse(brokenLeg(rival), "outro Anquilossauro não deveria quebrar a perna");
-
-        boolean hitBoss = ankylosaurus.doHurtTarget(boss);
-        helper.assertFalse(brokenLeg(boss), "o Giganotosaurus é imune à perna quebrada (acertou: " + hitBoss + ")");
         helper.succeed();
     }
 

@@ -1,17 +1,15 @@
 #!/usr/bin/env python3
-"""Gera as texturas 16x16 do boss da arena (D47): dente serrilhado, espada serrilhada e o altar.
+"""Gera as texturas 16x16 do dente serrilhado e da espada serrilhada do Giganotosaurus (D47, mantidos na D51).
 
 Como os outros gen_*.py: rodar de novo SOBRESCREVE edições feitas à mão. Arte autoral, desenhada aqui pixel a pixel
 (nada do Jurassic Reborn nem do Revival).
 """
-import random
 from pathlib import Path
 
 from PIL import Image
 
 ASSETS = Path(__file__).resolve().parent.parent / "src" / "main" / "resources" / "assets" / "iceagesurvival"
 ITEMS = ASSETS / "textures" / "item"
-BLOCKS = ASSETS / "textures" / "block"
 SIZE = 16
 
 CLEAR = (0, 0, 0, 0)
@@ -88,57 +86,11 @@ def sword():
     return img
 
 
-def stone(rng):
-    img = Image.new("RGBA", (SIZE, SIZE))
-    for y in range(SIZE):
-        for x in range(SIZE):
-            shade = STONE[(x // 4 + y // 4 + rng.randrange(2)) % len(STONE)]
-            if x % 8 == 0 or y % 4 == 0:
-                shade = STONE[0]
-            img.putpixel((x, y), shade + (255,))
-    return img
-
-
-def altar_side(rng):
-    img = stone(rng)
-    # Fileira de dentes entalhada no meio, com runas de sangue.
-    for x in range(4, 12):
-        img.putpixel((x, 7), OUTLINE)
-        if x % 2 == 0:
-            img.putpixel((x, 8), ENAMEL[0] + (255,))
-            img.putpixel((x, 9), ENAMEL[0] + (255,))
-        else:
-            img.putpixel((x, 8), ENAMEL[1] + (255,))
-    for x, y in [(5, 5), (7, 4), (9, 5), (11, 4), (6, 11), (8, 10), (10, 11)]:
-        img.putpixel((x, y), RUNE[(x + y) % 2] + (255,))
-    return img
-
-
-def altar_top(rng, lit):
-    img = stone(rng)
-    # Bacia no centro com o desenho de uma pegada de terópode (três dedos).
-    basin = GLOW if lit else RUNE
-    for y in range(4, 12):
-        for x in range(4, 12):
-            img.putpixel((x, y), STONE[0] + (255,))
-    for x, y in [(7, 10), (8, 10), (7, 9), (8, 9), (7, 8), (8, 8),
-                 (5, 5), (6, 6), (6, 7), (7, 4), (7, 5), (7, 6), (8, 4), (8, 5), (8, 6),
-                 (10, 5), (9, 6), (9, 7)]:
-        img.putpixel((x, y), basin[(x + y) % 2] + (255,))
-    return img
-
-
 def main():
-    rng = random.Random(47)
     ITEMS.mkdir(parents=True, exist_ok=True)
-    BLOCKS.mkdir(parents=True, exist_ok=True)
     outputs = {
         ITEMS / "serrated_tooth.png": tooth(),
         ITEMS / "serrated_sword.png": sword(),
-        BLOCKS / "arena_altar_side.png": altar_side(rng),
-        BLOCKS / "arena_altar_bottom.png": stone(rng),
-        BLOCKS / "arena_altar_top.png": altar_top(rng, False),
-        BLOCKS / "arena_altar_top_summoning.png": altar_top(rng, True),
     }
     for path, img in outputs.items():
         img.save(path)

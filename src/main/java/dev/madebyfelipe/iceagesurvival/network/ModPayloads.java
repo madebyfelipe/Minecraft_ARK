@@ -41,8 +41,6 @@ public final class ModPayloads {
                 CreatureStatusPayload::handle);
         registerClientbound(RifleTracerPayload.class, RifleTracerPayload::encode, RifleTracerPayload::decode,
                 RifleTracerPayload::handle);
-        registerClientbound(CaveTargetPayload.class, CaveTargetPayload::encode, CaveTargetPayload::decode,
-                CaveTargetPayload::handle);
         registerClientbound(DinoFilePayload.class, DinoFilePayload::encode, DinoFilePayload::decode,
                 DinoFilePayload::handle);
         registerClientbound(ScanResultPayload.class, ScanResultPayload::encode, ScanResultPayload::decode,

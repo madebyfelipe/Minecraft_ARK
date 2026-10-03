@@ -14,8 +14,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * O radar dos localizadores — o das criaturas ({@link CreatureTracker}) e o rastreador da caverna
- * ({@link CaveTrackerHud}): no canto superior direito, de proa para cima, anel de bússola que gira com o olhar,
+ * O radar do localizador de criaturas ({@link CreatureTracker}): no canto superior direito, de proa para cima, anel de bússola que gira com o olhar,
  * varredura, o marcador do alvo (preso na borda além de {@link RadarMath#RANGE} blocos) e, embaixo, um painel com o
  * nome, a distância e a diferença de altura. Sem sinal (outra dimensão, nada para achar), chuvisco no disco.
  */

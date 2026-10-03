@@ -1,7 +1,6 @@
 package dev.madebyfelipe.iceagesurvival.effect;
 
 import dev.madebyfelipe.iceagesurvival.IceAgeSurvival;
-import dev.madebyfelipe.iceagesurvival.endgame.BossPhase;
 import dev.madebyfelipe.iceagesurvival.entity.PrehistoricCreature;
 import dev.madebyfelipe.iceagesurvival.registry.ModEffects;
 import javax.annotation.Nullable;
@@ -87,7 +86,8 @@ public class BleedingEffect extends MobEffect {
         }
         MobEffect bleeding = ModEffects.BLEEDING.get();
         MobEffectInstance current = victim.getEffect(bleeding);
-        int amplifier = BossPhase.stackedAmplifier(current == null ? -1 : current.getAmplifier(), levels, cap);
+        int amplifier = dev.madebyfelipe.iceagesurvival.core.ecology.HuntSpecials.stackedBleedAmplifier(
+                current == null ? -1 : current.getAmplifier(), levels, cap);
         int duration = Math.max(durationTicks, current == null ? 0 : current.getDuration());
         MobEffectInstance next = new MobEffectInstance(bleeding, duration, amplifier);
         if (!victim.canBeAffected(next)) {

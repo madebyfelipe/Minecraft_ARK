@@ -1,6 +1,0 @@
-{
-  "parent": "iceagesurvival:block/arena_altar",
-  "textures": {
-    "top": "iceagesurvival:block/arena_altar_top_summoning"
-  }
-}

@@ -1028,6 +1028,8 @@ public abstract class PrehistoricCreature extends TamableAnimal {
             }
             case SWALLOW -> SwallowStrike.onStrike(this, target);
             case VENOM -> VenomBite.onStrike(this, target);
+            case BLEED -> dev.madebyfelipe.iceagesurvival.effect.BleedingEffect.cut(target, this,
+                    HuntSpecials.BLEED_LEVELS_PER_BITE, HuntSpecials.BLEED_LEVEL_CAP, HuntSpecials.BLEED_TICKS);
             default -> {
             }
         }

@@ -1,6 +1,0 @@
-{
-  "parent": "minecraft:item/generated",
-  "textures": {
-    "layer0": "iceagesurvival:item/cave_tracker_06"
-  }
-}

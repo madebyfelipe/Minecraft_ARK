@@ -38,8 +38,6 @@ public class IceAgeSurvivalClient {
         MinecraftForge.EVENT_BUS.addListener(CreatureTracker::onClientTick);
         MinecraftForge.EVENT_BUS.addListener(Thermometer::onLoggingOut);
         ColdStatusPayload.setClientHandler(Thermometer::receive);
-        dev.madebyfelipe.iceagesurvival.network.CaveTargetPayload.setClientHandler(CaveTrackerHud::receive);
-        MinecraftForge.EVENT_BUS.addListener(CaveTrackerHud::onLoggingOut);
         dev.madebyfelipe.iceagesurvival.network.DinoFilePayload.setClientHandler(
                 dev.madebyfelipe.iceagesurvival.client.dex.DinoFileClient::receive);
         dev.madebyfelipe.iceagesurvival.network.ScanResultPayload.setClientHandler(
@@ -86,10 +84,6 @@ public class IceAgeSurvivalClient {
             MenuScreens.register(ModMenus.PREP_STATION.get(), ChemistryBenchScreen::new);
             MenuScreens.register(ModMenus.REVIVE_TABLE.get(), ChemistryBenchScreen::new);
             MenuScreens.register(ModMenus.CREATURE_STORAGE.get(), CreatureStorageScreen::new);
-            // A agulha do rastreador da caverna, com os 32 quadros do modelo, como a bússola vanilla.
-            net.minecraft.client.renderer.item.ItemProperties.register(ModItems.CAVE_TRACKER.get(),
-                    net.minecraft.resources.ResourceLocation.withDefaultNamespace("angle"),
-                    new net.minecraft.client.renderer.item.CompassItemPropertyFunction(CaveTrackerHud::compassTarget));
         });
     }
 
@@ -103,7 +97,6 @@ public class IceAgeSurvivalClient {
         event.registerAboveAll("creature_hud", CreatureHud::render);
         event.registerAbove(VanillaGuiOverlay.HOTBAR.id(), "thermometer", Thermometer::render);
         event.registerAbove(VanillaGuiOverlay.HOTBAR.id(), "creature_tracker", CreatureTracker::render);
-        event.registerAbove(VanillaGuiOverlay.HOTBAR.id(), "cave_tracker", CaveTrackerHud::render);
         event.registerAbove(VanillaGuiOverlay.CROSSHAIR.id(), "analyzer_scan",
                 dev.madebyfelipe.iceagesurvival.client.dex.ScanOverlay::render);
         event.registerAbove(VanillaGuiOverlay.HOTBAR.id(), "flight_stamina", CreatureHud::renderFlightStamina);

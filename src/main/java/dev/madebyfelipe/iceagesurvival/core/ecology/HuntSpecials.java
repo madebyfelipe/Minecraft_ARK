@@ -26,6 +26,10 @@ public final class HuntSpecials {
     public static final double BEAK_PIERCE = 0.3;
     /** A bicada que bate num escudo trava o bico: a ave fica parada e sem atacar por 2 s. */
     public static final int BEAK_STUCK_TICKS = 40;
+    /** Mordida que corta ({@code bleed}): níveis de sangramento por golpe, teto e duração (ticks). */
+    public static final int BLEED_LEVELS_PER_BITE = 1;
+    public static final int BLEED_LEVEL_CAP = 3;
+    public static final int BLEED_TICKS = 120;
     /** Recuo depois da bicada, em ticks. */
     public static final int RETREAT_TICKS = 30;
     /** Salto: só a esta distância da presa (perto demais, morde; longe demais, corre). */
@@ -108,5 +112,16 @@ public final class HuntSpecials {
     /** O dano extra da bicada, que ignora armadura. */
     public static double beakPierce(double attackDamage) {
         return attackDamage * BEAK_PIERCE;
+    }
+
+    /**
+     * O nível de sangramento depois de uma mordida, como amplificador do efeito (nível 1 = 0): soma {@code levels}
+     * ao que a vítima já tem ({@code currentAmplifier}, ou -1 se não sangra) e para no teto ({@code cap} níveis).
+     * Uma vítima que já sangra acima do teto não baixa.
+     */
+    public static int stackedBleedAmplifier(int currentAmplifier, int levels, int cap) {
+        int current = Math.max(-1, currentAmplifier);
+        int stacked = Math.min(current + levels, cap - 1);
+        return Math.max(current, stacked);
     }
 }
