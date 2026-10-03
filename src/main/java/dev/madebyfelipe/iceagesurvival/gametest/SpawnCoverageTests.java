@@ -77,7 +77,24 @@ public class SpawnCoverageTests {
         helper.succeed();
     }
 
+    /** Pteranodonte e Quetzalcoatlus ficam no teto próprio dos voadores, fora do teto do chão. */
+    @GameTest(template = EMPTY, batch = BATCH)
+    public static void flyersHaveTheirOwnCap(GameTestHelper helper) {
+        var level = helper.getLevel();
+        helper.assertTrue(WildSpawner.isFlyer(level, ModEntities.PTERANODON.get()), "Pteranodonte deveria ser voador");
+        helper.assertTrue(WildSpawner.isFlyer(level, ModEntities.QUETZALCOATLUS.get()), "Quetzal deveria ser voador");
+        helper.assertFalse(WildSpawner.isFlyer(level, ModEntities.STEGOSAURUS.get()), "Estegossauro não voa");
+        helper.assertTrue(WildSpawnRules.FLYER_CAP > 0, "sem vaga para voadores");
+        helper.succeed();
+    }
+
     // ---- Qualquer bioma com o peso base, o triplo no ideal ----
+
+    /**
+     * Espécies cujo ideal é o mundo inteiro: o Pteranodonte nasce com o peso cheio em todo bioma (pedido do Felipe,
+     * 2026-10-03 — "volte o spawn do ptero em todo lugar"). Para elas vale o triplo em todo bioma do Overworld.
+     */
+    private static final java.util.Set<String> IDEAL_EVERYWHERE = java.util.Set.of("pteranodon");
 
     /**
      * A reposição oferece a espécie em todo bioma do Overworld; fora do ideal, com o peso base. A selva (ou o
@@ -96,7 +113,9 @@ public class SpawnCoverageTests {
             var ideal = spawn.favored().get().biomes();
             Holder<Biome> away = awayFromHome(biomes, ideal);
             if (away == null) {
-                problems.add(id + ": todo bioma de " + AWAY_FROM_HOME + " é ideal");
+                if (!IDEAL_EVERYWHERE.contains(id)) {
+                    problems.add(id + ": todo bioma de " + AWAY_FROM_HOME + " é ideal");
+                }
             } else if (!away.is(spawn.biomes()) || spawn.weightIn(away) != spawn.weight()) {
                 problems.add(id + " em " + key(away) + ": nasce " + away.is(spawn.biomes()) + ", peso "
                         + spawn.weightIn(away) + " (base " + spawn.weight() + ")");
@@ -173,6 +192,20 @@ public class SpawnCoverageTests {
             }
             var ideal = spawn.favored().get().biomes();
             Holder<Biome> away = awayFromHome(biomes, ideal);
+            if (away == null && IDEAL_EVERYWHERE.contains(id)) {
+                // Ideal em todo lugar: o mesmo peso (w + 2w) em todo bioma do Overworld.
+                int everywhere = -1;
+                for (Holder<Biome> biome : biomes.getTagOrEmpty(BiomeTags.IS_OVERWORLD)) {
+                    int actual = generationWeight(biome, type);
+                    if (everywhere < 0) {
+                        everywhere = actual;
+                    }
+                    if (actual <= 0 || actual != everywhere) {
+                        problems.add(id + " em " + key(biome) + ": peso " + actual + ", esperado " + everywhere);
+                    }
+                }
+                return;
+            }
             if (away == null) {
                 problems.add(id + ": todo bioma de " + AWAY_FROM_HOME + " é ideal");
                 return;

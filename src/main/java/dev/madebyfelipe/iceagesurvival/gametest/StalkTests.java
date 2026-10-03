@@ -162,11 +162,13 @@ public class StalkTests {
     }
 
     /**
-     * Sozinho, o Alossauro só acompanha a manada esperando um desgarrado: notado antes disso, desiste em vez
-     * de investir contra a manada inteira.
+     * Sozinho, o Alossauro espreita a manada de Galimimos — que não se defende junto, então ele pode atacar — e,
+     * notado, dá o bote em vez de desistir. Antes o solitário nunca atacava presa de manada e aqui desistia; a
+     * desistência diante da manada que ele não encara segue nos testes de {@code HuntChoice.chooseToStalk}
+     * (2026-10-03).
      */
     @GameTest(template = ARENA, batch = "stalk_alone_spotted", timeoutTicks = 200)
-    public static void aLoneStalkerSpottedGivesUp(GameTestHelper helper) {
+    public static void aLoneStalkerSpottedPouncesOnAHerdItCanTake(GameTestHelper helper) {
         HuntTests.clearStrays(helper);
         List<LandCreature> herd = herd(helper, ModEntities.GALLIMIMUS.get(), 2, 4, 6);
         LandCreature hunter = hungry(helper, ModEntities.ALLOSAURUS.get(), 4, 38);
@@ -175,9 +177,10 @@ public class StalkTests {
             hunter.blowStalk();
         });
         helper.runAtTickTime(105, () -> {
-            helper.assertTrue(hunter.getTarget() == null, "sozinho e visto, deveria ter desistido: " + hunter.getTarget());
-            helper.assertTrue(hunter.recentlyFailedHunt(), "a desistência deveria contar como caçada frustrada");
-            helper.assertFalse(herd.stream().anyMatch(LandCreature::isHunted), "a manada não deveria se saber caçada");
+            helper.assertTrue(hunter.getTarget() instanceof LandCreature target && herd.contains(target),
+                    "notado, deveria dar o bote num Galimimo: " + hunter.getTarget());
+            helper.assertFalse(hunter.recentlyFailedHunt(), "não deveria contar como caçada frustrada");
+            helper.assertTrue(herd.stream().anyMatch(LandCreature::isHunted), "a manada deveria se saber caçada");
             helper.succeed();
         });
     }

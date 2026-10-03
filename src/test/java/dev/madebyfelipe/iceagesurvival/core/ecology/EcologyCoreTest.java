@@ -94,6 +94,18 @@ class EcologyCoreTest {
         assertEquals(1, HuntChoice.choose(herd, 64, 1, Hunger.Drive.HUNTING));
     }
 
+    /**
+     * O T-Rex sozinho e com fome: a manada de Tricerátopos (a favorita) ele não encara, mas o dodô no meio do bando,
+     * sim — antes o solitário descartava toda presa de manada e ficava só espreitando.
+     */
+    @Test
+    void soloHunterTakesEasyPreyFromAHerd() {
+        HuntChoice.Prey triceratopsHerd = new HuntChoice.Prey(20, 1.9, false, 1.0, false, 3, 3);
+        HuntChoice.Prey dodoInFlock = new HuntChoice.Prey(30, 0.05, false, 1.0, false, 0, 5);
+        assertEquals(-1, HuntChoice.choose(List.of(triceratopsHerd), 72, 1, Hunger.Drive.HUNTING));
+        assertEquals(1, HuntChoice.choose(List.of(triceratopsHerd, dodoInFlock), 72, 1, Hunger.Drive.HUNTING));
+    }
+
     @Test
     void packTakesOnBiggerPreyThanALoneHunter() {
         // Mamute ~2,4× o alossauro: um sozinho não encara; três, sim.

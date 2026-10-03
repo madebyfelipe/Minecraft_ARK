@@ -98,16 +98,57 @@ public final class WildSpawner {
     /** Como {@link #trySpawnAround(ServerLevel, ServerPlayer)}, com as distâncias dadas. */
     public static int trySpawnAround(ServerLevel level, ServerPlayer player, int minDistance, int maxDistance) {
         Object2IntMap<EntityType<?>> nearby = countNearby(level, player);
-        int cap = effectiveMaximumPopulation();
-        int total = nearby.values().intStream().sum();
-        int groups = total < cap * SPARSE_FRACTION ? SPARSE_GROUPS : 1;
+        Occupancy start = Occupancy.of(level, nearby);
+        int groups = start.ground() < effectiveMaximumPopulation() * SPARSE_FRACTION
+                || start.flyers() < WildSpawnRules.FLYER_CAP * SPARSE_FRACTION ? SPARSE_GROUPS : 1;
         RandomGenerator random = level.random::nextLong;
         int spawned = 0;
         for (int round = 0; round < groups; round++) {
-            int born = spawnOneGroup(level, player, nearby, cap - total - spawned, minDistance, maxDistance, random);
-            spawned += born;
+            spawned += spawnOneGroup(level, player, nearby, minDistance, maxDistance, random);
         }
         return spawned;
+    }
+
+    /** As três categorias do teto: quem anda no chão (herbívoros dentro dele) e os voadores, à parte. */
+    private record Occupancy(int ground, int herbivores, int flyers) {
+        static Occupancy of(ServerLevel level, Object2IntMap<EntityType<?>> nearby) {
+            int ground = 0;
+            int herbivores = 0;
+            int flyers = 0;
+            for (var entry : nearby.object2IntEntrySet()) {
+                int count = entry.getIntValue();
+                if (isFlyer(level, entry.getKey())) {
+                    flyers += count;
+                } else {
+                    ground += count;
+                    if (!isCarnivore(level, entry.getKey())) {
+                        herbivores += count;
+                    }
+                }
+            }
+            return new Occupancy(ground, herbivores, flyers);
+        }
+
+        /** Vagas que esta espécie ainda tem na categoria dela. */
+        int room(ServerLevel level, EntityType<?> type) {
+            if (isFlyer(level, type)) {
+                return WildSpawnRules.FLYER_CAP - flyers;
+            }
+            int cap = effectiveMaximumPopulation();
+            int groundRoom = cap - ground;
+            return isCarnivore(level, type) ? groundRoom
+                    : Math.min(groundRoom, WildSpawnRules.herbivoreRoom(cap, herbivores));
+        }
+
+        /** Se a vaga da categoria desta espécie já é disputada ({@link WildSpawnRules#contested}). */
+        boolean contested(ServerLevel level, EntityType<?> type) {
+            if (isFlyer(level, type)) {
+                return WildSpawnRules.contested(flyers, WildSpawnRules.FLYER_CAP);
+            }
+            int cap = effectiveMaximumPopulation();
+            return isCarnivore(level, type) ? WildSpawnRules.contested(ground, cap)
+                    : WildSpawnRules.contested(herbivores, WildSpawnRules.herbivoreCap(cap));
+        }
     }
 
     /**
@@ -115,10 +156,8 @@ public final class WildSpawner {
      * que o jogador pisa: quem está na borda de uma tundra também vê a fauna da tundra.
      */
     private static int spawnOneGroup(ServerLevel level, ServerPlayer player, Object2IntMap<EntityType<?>> nearby,
-                                     int totalRoom, int minDistance, int maxDistance, RandomGenerator random) {
-        if (totalRoom <= 0) {
-            return 0;
-        }
+                                     int minDistance, int maxDistance, RandomGenerator random) {
+        Occupancy occupancy = Occupancy.of(level, nearby);
         int min = minDistance;
         int max = Math.max(min + 1, maxDistance);
         for (int attempt = 0; attempt < POSITION_ATTEMPTS; attempt++) {
@@ -132,23 +171,20 @@ public final class WildSpawner {
             if (reports.isEmpty()) {
                 continue;
             }
-            // Um quarto do teto é dos carnívoros: herbívoro só entra no sorteio enquanto há vaga de herbívoro.
-            int herbivoreRoom = WildSpawnRules.herbivoreRoom(effectiveMaximumPopulation(), herbivoresNearby(level, nearby));
+            // Cada espécie disputa a vaga da categoria dela, com a regra de diversidade do sorteio.
             List<WildSpawnRules.Candidate> candidates = new ArrayList<>(reports.size());
             for (Report report : reports) {
-                boolean blocked = !isCarnivore(level, report.type()) && herbivoreRoom <= 0;
-                candidates.add(new WildSpawnRules.Candidate(
-                        blocked ? 0 : report.weight(), report.nearby(), report.profile().maxNearby()));
+                int weight = occupancy.room(level, report.type()) <= 0 ? 0
+                        : WildSpawnRules.fairWeight(report.weight(), report.nearby(), report.profile().groupMax(),
+                        occupancy.contested(level, report.type()));
+                candidates.add(new WildSpawnRules.Candidate(weight, report.nearby(), report.profile().maxNearby()));
             }
             int chosen = WildSpawnRules.pick(candidates, random);
             if (chosen < 0) {
                 continue;
             }
             Report report = reports.get(chosen);
-            int room = Math.min(report.profile().maxNearby() - report.nearby(), totalRoom);
-            if (!isCarnivore(level, report.type())) {
-                room = Math.min(room, herbivoreRoom);
-            }
+            int room = Math.min(report.profile().maxNearby() - report.nearby(), occupancy.room(level, report.type()));
             int group = WildSpawnRules.groupSize(report.profile().groupMin(), report.profile().groupMax(), room, random);
             BlockPos origin = surfacePos(level, x, z, report.type());
             if (group <= 0 || origin == null || !canSpawnAt(level, report.type(), origin, report.profile())) {
@@ -205,17 +241,23 @@ public final class WildSpawner {
         return Math.max(ServerConfig.WILD_SPAWN_DENSITY_RADIUS.get(), ServerConfig.WILD_SPAWN_MAX_DISTANCE.get() + 32);
     }
 
+    /** Voador: a espécie voa ({@code mount.flying}) e fica no teto próprio dos voadores. */
+    public static boolean isFlyer(ServerLevel level, EntityType<?> type) {
+        return Species.of(level.registryAccess(), type).flatMap(Species::mount)
+                .map(dev.madebyfelipe.iceagesurvival.species.MountProfile::flying).orElse(false);
+    }
+
     /** Carnívoro: a espécie tem presa ({@code behavior.prey}). */
     public static boolean isCarnivore(ServerLevel level, EntityType<?> type) {
         return Species.of(level.registryAccess(), type).flatMap(Species::behavior)
                 .flatMap(dev.madebyfelipe.iceagesurvival.species.BehaviorProfile::prey).isPresent();
     }
 
-    /** Quantos herbívoros selvagens há nestas contagens. */
+    /** Quantos herbívoros selvagens do chão há nestas contagens. */
     public static int herbivoresNearby(ServerLevel level, Object2IntMap<EntityType<?>> nearby) {
         int herbivores = 0;
         for (var entry : nearby.object2IntEntrySet()) {
-            if (!isCarnivore(level, entry.getKey())) {
+            if (!isCarnivore(level, entry.getKey()) && !isFlyer(level, entry.getKey())) {
                 herbivores += entry.getIntValue();
             }
         }

@@ -82,8 +82,8 @@ SPECIAL = {
     'swallow': 'engole inteira: a presa da dieta que cabe no bico (porte até 0,1 do dele, nunca filhote) some de uma '
                'vez e vale meia refeição; a maior leva só a bicada',
 }
-ACTIVITY = {'nocturnal': 'noturno: de dia dorme escondido e não caça; acorda ferido ou com a ameaça',
-            'diurnal': 'diurno: à noite dorme escondido e não caça; acorda ferido ou com a ameaça'}
+ACTIVITY = {'nocturnal': 'noturno: de dia dorme escondido e não caça; só acorda se atacado',
+            'diurnal': 'diurno: à noite dorme escondido e não caça; só acorda se atacado'}
 
 
 def esc(text):

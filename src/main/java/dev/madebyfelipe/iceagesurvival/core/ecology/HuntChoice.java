@@ -45,6 +45,12 @@ public final class HuntChoice {
         }
     }
 
+    /** Porte somado do grupo (porte × defensores) a partir do qual o caçador solitário não entra nele. */
+    public static final double SOLO_GROUP_RISK = 0.5;
+
+    /** Nota mínima de uma presa que não foi vetada. */
+    public static final double MIN_VALID_SCORE = 0.01;
+
     /** Quanto cada ponto de preferência da dieta soma à nota: pesa mais que a facilidade. */
     public static final double PREFERENCE_VALUE = 1.0;
 
@@ -64,8 +70,11 @@ public final class HuntChoice {
         if (!prey.baby() && defended > capacity) {
             return -1.0;
         }
-        // Presa de manada no meio do grupo: o caçador solitário não arrisca; o bando, sim.
-        if (!prey.isolated() && !prey.baby() && pack <= 1) {
+        // Presa no meio de um grupo que se defende junto e pesa (a manada com defesa em grupo, o jogador com os
+        // aliados): o caçador solitário não arrisca; o bando, sim. Grupo miúdo para ele (porte somado abaixo de
+        // SOLO_GROUP_RISK: os dodôs para o T-Rex) é presa — antes o solitário descartava toda presa de manada e o
+        // T-Rex com fome passava por eles (2026-10-03).
+        if (!prey.isolated() && !prey.baby() && pack <= 1 && prey.defenders() > 1 && defended >= SOLO_GROUP_RISK) {
             return -1.0;
         }
         double score = 1.0;
@@ -82,7 +91,9 @@ public final class HuntChoice {
         score += (prey.preference() - 1) * PREFERENCE_VALUE;
         // Mais perto, melhor: perde até 1 ponto na borda do raio.
         score -= prey.distance() / Math.max(1.0, huntRadius);
-        return score;
+        // Não vetada, nunca abaixo do mínimo: a de preferência 0 é o último recurso, não presa proibida (a nota dela
+        // ficava negativa e o T-Rex faminto nunca pegava um dodô).
+        return Math.max(MIN_VALID_SCORE, score);
     }
 
     /**

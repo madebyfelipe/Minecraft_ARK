@@ -32,6 +32,49 @@ public final class WildSpawnRules {
         return Math.max(0, herbivoreCap(totalCap) - herbivoresNearby);
     }
 
+    /**
+     * Teto próprio dos voadores (Pteranodonte, Quetzalcoatlus) por jogador. Eles ficam fora do teto do chão: no céu
+     * não tomam o lugar de ninguém, e dentro dele o Pteranodonte (até 8) disputava vaga com as manadas e os
+     * predadores.
+     */
+    public static final int FLYER_CAP = 8;
+
+    /** Espécie que ainda não tem ninguém por perto entra no sorteio com este peso a mais. */
+    public static final int ABSENT_BOOST = 3;
+
+    /** A partir desta fração do teto da categoria, a vaga é disputada: cada espécie fica com um bando por perto. */
+    public static final double CONTESTED_FRACTION = 0.5;
+
+    /** Se a categoria já está cheia o bastante para a vaga ser disputada. */
+    public static boolean contested(int occupied, int cap) {
+        return occupied >= cap * CONTESTED_FRACTION;
+    }
+
+    /**
+     * Peso de uma espécie no sorteio, com a regra de diversidade. Antes o sorteio era só pelo peso e a fauna não some
+     * sozinha: as espécies de peso alto e bando grande (dodô, mamute, Galimimo, Pteranodonte) enchiam o teto primeiro
+     * e a composição congelava — cada espécie nova diluía as outras e as raras (Estegossauro, Tricerátopo, Quetzal)
+     * quase nunca entravam.
+     *
+     * <ul>
+     *   <li>ninguém dela por perto: peso × {@value #ABSENT_BOOST};</li>
+     *   <li>vaga disputada e já com um bando inteiro ({@code groupMax}) por perto: fora do sorteio;</li>
+     *   <li>senão, o peso.</li>
+     * </ul>
+     */
+    public static int fairWeight(int weight, int nearby, int groupMax, boolean contested) {
+        if (weight <= 0) {
+            return 0;
+        }
+        if (nearby <= 0) {
+            return weight * ABSENT_BOOST;
+        }
+        if (contested && nearby >= Math.max(1, groupMax)) {
+            return 0;
+        }
+        return weight;
+    }
+
     /** Deslocamento horizontal em blocos, em relação ao jogador. */
     public record Offset(int x, int z) {
     }

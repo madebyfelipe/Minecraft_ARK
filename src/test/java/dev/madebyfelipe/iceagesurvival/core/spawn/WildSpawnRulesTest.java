@@ -108,4 +108,55 @@ class WildSpawnRulesTest {
         assertEquals(0, WildSpawnRules.herbivoreRoom(28, 21));
         assertEquals(0, WildSpawnRules.herbivoreRoom(28, 25), "herbívoro a mais não abre vaga negativa");
     }
+
+    @Test
+    void absentSpeciesGetsTheBoostAndAFullHerdWaitsWhenContested() {
+        assertEquals(6 * WildSpawnRules.ABSENT_BOOST, WildSpawnRules.fairWeight(6, 0, 4, true));
+        assertEquals(6, WildSpawnRules.fairWeight(6, 2, 4, true), "bando incompleto segue no sorteio");
+        assertEquals(0, WildSpawnRules.fairWeight(6, 4, 4, true), "bando inteiro, vaga disputada: espera");
+        assertEquals(6, WildSpawnRules.fairWeight(6, 4, 4, false), "vaga folgada: pode o segundo bando");
+        assertEquals(0, WildSpawnRules.fairWeight(0, 0, 4, false), "peso zero continua fora");
+        assertTrue(WildSpawnRules.contested(14, 27));
+        assertTrue(!WildSpawnRules.contested(13, 27));
+    }
+
+    /**
+     * Os herbívoros do spawn enchendo as 27 vagas, um grupo por vez, a partir do zero: com a regra de diversidade as
+     * sete espécies aparecem quase sempre; só pelo peso, Estegossauro, Tricerátopo ou Brontossauro ficavam de fora.
+     */
+    @Test
+    void fillingTheHerbivoreCapKeepsEverySpecies() {
+        // dodô, Elasmotério, Galimimo, mamute, Brontossauro, Estegossauro, Tricerátopo: peso, bando mín./máx., teto
+        int[][] species = {{14, 2, 5, 10}, {12, 1, 1, 1}, {7, 3, 5, 5}, {10, 3, 5, 5}, {6, 2, 4, 4}, {12, 2, 4, 4},
+                {8, 2, 4, 4}};
+        int cap = WildSpawnRules.herbivoreCap(36);
+        Random random = new Random(11);
+        int complete = 0;
+        int runs = 400;
+        for (int run = 0; run < runs; run++) {
+            int[] nearby = new int[species.length];
+            int total = 0;
+            for (int draw = 0; draw < 60 && total < cap; draw++) {
+                boolean contested = WildSpawnRules.contested(total, cap);
+                List<Candidate> candidates = new java.util.ArrayList<>();
+                for (int i = 0; i < species.length; i++) {
+                    int[] sp = species[i];
+                    candidates.add(new Candidate(WildSpawnRules.fairWeight(sp[0], nearby[i], sp[2], contested),
+                            nearby[i], sp[3]));
+                }
+                int chosen = WildSpawnRules.pick(candidates, random);
+                if (chosen < 0) {
+                    break;
+                }
+                int room = Math.min(species[chosen][3] - nearby[chosen], cap - total);
+                int group = WildSpawnRules.groupSize(species[chosen][1], species[chosen][2], room, random);
+                nearby[chosen] += group;
+                total += group;
+            }
+            if (java.util.Arrays.stream(nearby).allMatch(count -> count > 0)) {
+                complete++;
+            }
+        }
+        assertTrue(complete >= runs * 0.9, "todas as espécies em só " + complete + " de " + runs);
+    }
 }

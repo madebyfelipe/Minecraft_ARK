@@ -40,6 +40,8 @@ public class HuntGoal extends Goal {
     private static final double ESCAPE_FACTOR = 1.5;
     /** Na perseguição (depois da disparada), a presa que abre esta distância do predador escapou. */
     public static final double CHASE_GIVE_UP_DISTANCE = 30.0;
+    /** Espreitando presa que não pode atacar, de quanto em quanto tempo procura uma que pode. */
+    private static final int RECONSIDER_INTERVAL = 40;
 
     private final PrehistoricCreature creature;
     private final TagKey<EntityType<?>> prey;
@@ -187,6 +189,12 @@ public class HuntGoal extends Goal {
         return new HuntGoal(hunter, preyTag).pick(hunter.hungerDrive(), false);
     }
 
+    /** Se esta presa, na conta de agora, seria atacada (e não só acompanhada esperando se desgarrar). */
+    private boolean attackableNow(LivingEntity candidate) {
+        return candidate.isAlive() && HuntChoice.choose(List.of(prospect(candidate)), creature.huntRadius(),
+                packSize(), creature.hungerDrive()) == 0;
+    }
+
     /** Na perseguição, a presa abriu mais de {@link #CHASE_GIVE_UP_DISTANCE} blocos: o predador desiste. */
     public static boolean escaped(PrehistoricCreature hunter, LivingEntity prey) {
         return hunter.distanceTo(prey) > CHASE_GIVE_UP_DISTANCE;
@@ -225,6 +233,20 @@ public class HuntGoal extends Goal {
 
     @Override
     public void tick() {
+        // Espreitando uma manada que não encara (a da favorita, esperando uma se desgarrar), não ignora a presa fácil
+        // que aparece: troca por ela. Antes o T-Rex seguia a manada de Tricerátopos com Galimimos passando ao lado.
+        if (creature.isStalking() && creature.tickCount % RECONSIDER_INTERVAL == 0 && quarry != null
+                && !attackableNow(quarry)) {
+            LivingEntity easier = pick(creature.hungerDrive(), false);
+            if (easier != null && easier != quarry) {
+                quarry = easier;
+                creature.setTarget(easier);
+                creature.beginHunt();
+                creature.setHuntRevealed(false);
+                creature.rallyPack(easier);
+                return;
+            }
+        }
         // A presa segue se sabendo caçada enquanto o predador vem.
         // Quem espreita só renova o aviso depois do bote; antes disso a manada não sabe de nada.
         boolean revealed = !creature.stalks() || creature.huntRevealed();
