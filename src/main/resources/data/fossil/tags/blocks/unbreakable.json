@@ -1,0 +1,11 @@
+{
+  "replace": false,
+  "values": [
+    "iceagesurvival:wood_wall",
+    "iceagesurvival:stone_wall",
+    "iceagesurvival:wood_gate",
+    "iceagesurvival:stone_gate",
+    "iceagesurvival:large_wood_gate",
+    "iceagesurvival:large_stone_gate"
+  ]
+}

@@ -6,6 +6,7 @@ import dev.madebyfelipe.iceagesurvival.defense.BearTrapBlockEntity;
 import dev.madebyfelipe.iceagesurvival.defense.DefenseBlocks;
 import dev.madebyfelipe.iceagesurvival.defense.DefenseDamage;
 import dev.madebyfelipe.iceagesurvival.defense.DefenseGateBlock;
+import dev.madebyfelipe.iceagesurvival.entity.BlockBreaking;
 import dev.madebyfelipe.iceagesurvival.entity.LandCreature;
 import dev.madebyfelipe.iceagesurvival.entity.PrehistoricCreature;
 import dev.madebyfelipe.iceagesurvival.registry.ModEntities;
@@ -37,8 +38,8 @@ import net.minecraftforge.gametest.GameTestHolder;
 import net.minecraftforge.gametest.PrefixGameTestTemplate;
 
 /**
- * Blocos de defesa: muro alto, portões, armadilhas e a cobertura de folhagem, e a regra de que só os gigantes
- * derrubam madeira, por golpes contados.
+ * Blocos de defesa: muro alto, portões, armadilhas e a cobertura de folhagem, e a regra de que só quem tem
+ * {@code body.breaks: wood} derruba madeira, por golpes contados (D44; o resto em {@link BlockBreakingTests}).
  */
 @GameTestHolder(IceAgeSurvival.MODID)
 @PrefixGameTestTemplate(false)
@@ -114,33 +115,29 @@ public class DefenseTests {
             helper.assertFalse(block instanceof LeavesBlock, block + " é folha (o gigante quebraria esbarrando)");
             helper.assertTrue(DefenseBlocks.isDefense(block.defaultBlockState()), block + " não é defesa");
         }
-        helper.assertTrue(ModEntities.TYRANNOSAURUS.get().is(DefenseBlocks.WALL_BREAKERS)
-                && ModEntities.SPINOSAURUS.get().is(DefenseBlocks.WALL_BREAKERS)
-                && ModEntities.BRONTOSAURUS.get().is(DefenseBlocks.WALL_BREAKERS), "faltam gigantes em #wall_breakers");
-        helper.assertFalse(ModEntities.MAMMOTH.get().is(DefenseBlocks.WALL_BREAKERS), "o mamute não é gigante de muro");
         helper.succeed();
     }
 
     // ---- Golpes dos gigantes ----
 
-    /** Seis golpes de T-Rex derrubam o muro de madeira; o de pedra não cede nunca. */
+    /** Três golpes de T-Rex (gigante) derrubam o muro de madeira; o de pedra não cede nunca. */
     @GameTest(template = EMPTY, timeoutTicks = 40)
-    public static void giantBreaksWoodInSixHitsButNotStone(GameTestHelper helper) {
+    public static void giantBreaksWoodInThreeHitsButNotStone(GameTestHelper helper) {
         LandCreature rex = helper.spawnWithNoFreeWill(ModEntities.TYRANNOSAURUS.get(), 1, 2, 1);
         BlockPos wood = new BlockPos(0, 2, 0);
         BlockPos stone = new BlockPos(2, 2, 2);
         helper.setBlock(wood, DefenseBlocks.WOOD_WALL.get());
         helper.setBlock(stone, DefenseBlocks.STONE_WALL.get());
-        for (int tick = 1; tick < DefenseDamage.HITS_TO_BREAK; tick++) {
+        for (int tick = 1; tick < BlockBreaking.DEFENSE_HITS_GIANT; tick++) {
             helper.runAtTickTime(tick, () -> {
                 helper.assertTrue(DefenseDamage.hit(rex, helper.absolutePos(wood), helper.getBlockState(wood)),
                         "o golpe do T-Rex na madeira deveria contar");
                 DefenseDamage.hit(rex, helper.absolutePos(stone), helper.getBlockState(stone));
             });
         }
-        helper.runAtTickTime(DefenseDamage.HITS_TO_BREAK + 1, () -> {
+        helper.runAtTickTime(BlockBreaking.DEFENSE_HITS_GIANT + 1, () -> {
             helper.assertBlockPresent(DefenseBlocks.WOOD_WALL.get(), wood);
-            helper.assertTrue(DefenseDamage.hits(helper.getLevel(), helper.absolutePos(wood)) == DefenseDamage.HITS_TO_BREAK - 1,
+            helper.assertTrue(DefenseDamage.hits(helper.getLevel(), helper.absolutePos(wood)) == BlockBreaking.DEFENSE_HITS_GIANT - 1,
                     "golpes contados: " + DefenseDamage.hits(helper.getLevel(), helper.absolutePos(wood)));
             DefenseDamage.hit(rex, helper.absolutePos(wood), helper.getBlockState(wood));
             helper.assertBlockNotPresent(DefenseBlocks.WOOD_WALL.get(), wood);
@@ -153,7 +150,7 @@ public class DefenseTests {
         });
     }
 
-    /** Criatura fora de #wall_breakers não conta golpe nem na madeira. */
+    /** Criatura sem {@code body.breaks: wood} não conta golpe nem na madeira. */
     @GameTest(template = EMPTY)
     public static void commonCreatureDoesNotBreakWood(GameTestHelper helper) {
         LandCreature smilodon = helper.spawnWithNoFreeWill(ModEntities.SMILODON.get(), 1, 2, 1);
@@ -166,7 +163,7 @@ public class DefenseTests {
         helper.succeed();
     }
 
-    /** Golpes em partes diferentes do mesmo portão somam no portão; no sexto, ele cai inteiro. */
+    /** Golpes em partes diferentes do mesmo portão somam no portão; no último, ele cai inteiro. */
     @GameTest(template = EMPTY, timeoutTicks = 40)
     public static void hitsOnAGateAddUpOnTheWholeGate(GameTestHelper helper) {
         Player owner = helper.makeMockSurvivalPlayer();
@@ -175,11 +172,11 @@ public class DefenseTests {
         BlockPos upper = lower.above();
         place(helper, owner, DefenseBlocks.WOOD_GATE.get(), lower);
         helper.assertBlockPresent(DefenseBlocks.WOOD_GATE.get(), upper);
-        for (int tick = 1; tick <= DefenseDamage.HITS_TO_BREAK; tick++) {
+        for (int tick = 1; tick <= BlockBreaking.DEFENSE_HITS_GIANT; tick++) {
             BlockPos part = tick % 2 == 0 ? upper : lower;
             int count = tick;
             helper.runAtTickTime(tick, () -> {
-                if (count < DefenseDamage.HITS_TO_BREAK) {
+                if (count < BlockBreaking.DEFENSE_HITS_GIANT) {
                     // As duas partes na mesma mordida contam um golpe só.
                     DefenseDamage.hit(rex, helper.absolutePos(lower), helper.getBlockState(lower));
                     DefenseDamage.hit(rex, helper.absolutePos(upper), helper.getBlockState(upper));
@@ -190,7 +187,7 @@ public class DefenseTests {
                 }
             });
         }
-        helper.runAtTickTime(DefenseDamage.HITS_TO_BREAK + 2, () -> {
+        helper.runAtTickTime(BlockBreaking.DEFENSE_HITS_GIANT + 2, () -> {
             helper.assertBlockNotPresent(DefenseBlocks.WOOD_GATE.get(), lower);
             helper.assertBlockNotPresent(DefenseBlocks.WOOD_GATE.get(), upper);
             helper.succeed();
@@ -237,11 +234,11 @@ public class DefenseTests {
     }
 
     /**
-     * O Alossauro montado (fora de #wall_breakers, {@code break_hardness} sem restrição de tag) quebra a terra à frente
-     * mordendo, mas não o muro de madeira, nem conta golpe nele.
+     * O Alossauro montado ({@code break_hardness} sem restrição de tag, {@code body.breaks: wood}, não gigante) quebra
+     * a terra à frente mordendo e conta um golpe no muro de madeira, sem derrubá-lo (são seis).
      */
     @GameTest(template = EMPTY, batch = "defense_bite_common")
-    public static void mountedCommonBiteLeavesDefenses(GameTestHelper helper) {
+    public static void mountedAllosaurusBiteDigsAndStrikesTheWall(GameTestHelper helper) {
         Player owner = PredatorTests.survivalPlayer(helper);
         LandCreature allosaurus = mounted(helper, owner, ModEntities.ALLOSAURUS.get());
         BlockPos wood = new BlockPos(4, 1, 6);
@@ -251,7 +248,8 @@ public class DefenseTests {
         helper.assertTrue(allosaurus.attackAsMount(owner, null), "a mordida deveria sair sem alvo");
         helper.assertBlockNotPresent(net.minecraft.world.level.block.Blocks.DIRT, dirt);
         helper.assertBlockPresent(DefenseBlocks.WOOD_WALL.get(), wood);
-        helper.assertTrue(DefenseDamage.hits(helper.getLevel(), helper.absolutePos(wood)) == 0, "o Alossauro contou golpe");
+        helper.assertTrue(DefenseDamage.hits(helper.getLevel(), helper.absolutePos(wood)) == 1,
+                "o Alossauro deveria contar um golpe: " + DefenseDamage.hits(helper.getLevel(), helper.absolutePos(wood)));
         helper.succeed();
     }
 

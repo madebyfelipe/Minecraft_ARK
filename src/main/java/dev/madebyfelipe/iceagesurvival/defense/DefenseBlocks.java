@@ -1,17 +1,12 @@
 package dev.madebyfelipe.iceagesurvival.defense;
 
 import dev.madebyfelipe.iceagesurvival.IceAgeSurvival;
-import dev.madebyfelipe.iceagesurvival.entity.PrehistoricCreature;
 import java.util.ArrayList;
 import java.util.List;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageType;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
@@ -32,8 +27,8 @@ import net.minecraftforge.registries.RegistryObject;
 /**
  * Muros altos, portões e armadilhas: registros próprios (blocos, itens, block entities), fora dos {@code Mod*}.
  *
- * <p>Regras comuns: quem colocou é o dono (guardado na block entity); madeira cede só aos gigantes de
- * {@link #WALL_BREAKERS}, por golpes contados ({@link DefenseDamage}); pedra, nenhuma criatura quebra; e nenhuma
+ * <p>Regras comuns: quem colocou é o dono (guardado na block entity); madeira cede a quem tem
+ * {@code body.breaks: wood}, por golpes contados ({@link DefenseDamage}, D44); pedra, nenhuma criatura quebra; e nenhuma
  * criatura quebra bloco de defesa esbarrando (nenhum está em {@code #iceagesurvival:plowable}).
  */
 public final class DefenseBlocks {
@@ -41,10 +36,6 @@ public final class DefenseBlocks {
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, IceAgeSurvival.MODID);
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES =
             DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, IceAgeSurvival.MODID);
-
-    /** Os gigantes que derrubam muro e portão de madeira: T-Rex, Espinossauro e Bronto. */
-    public static final TagKey<EntityType<?>> WALL_BREAKERS =
-            TagKey.create(Registries.ENTITY_TYPE, IceAgeSurvival.id("wall_breakers"));
 
     /** Dano das armadilhas (espetos, espinhos, urso); tipo de dano por dados em {@code damage_type/defense_trap.json}. */
     public static final ResourceKey<DamageType> TRAP_DAMAGE =
@@ -148,16 +139,5 @@ public final class DefenseBlocks {
     /** O dano das armadilhas. */
     public static DamageSource trapDamage(Level level) {
         return new DamageSource(level.registryAccess().registryOrThrow(Registries.DAMAGE_TYPE).getHolderOrThrow(TRAP_DAMAGE));
-    }
-
-    /**
-     * A mordida montada ({@link PrehistoricCreature#attackAsMount}) pegou um bloco de defesa: nunca o destrói
-     * direto; se a montaria é um gigante ({@link #WALL_BREAKERS}) e o bloco é de madeira, conta um golpe nele.
-     * Qualquer outra criatura não faz nada. Respeita a proteção do spawn como a mordida faz com o resto.
-     */
-    public static void biteHit(PrehistoricCreature mount, ServerPlayer rider, BlockPos pos, BlockState state) {
-        if (mount.level().mayInteract(rider, pos)) {
-            DefenseDamage.hit(mount, pos, state);
-        }
     }
 }

@@ -23,10 +23,10 @@
   "body": {
     "knockback_resistance": 1.0,
     "step_height": 1.5,
-    "breaks_leaves": true,
     "plow_hardness": 2.0,
     "amphibious": true,
-    "swim_speed": 5.0
+    "swim_speed": 5.0,
+    "breaks": "wood"
   },
   "taming": {
     "torpor_decay_per_second": 2.0,

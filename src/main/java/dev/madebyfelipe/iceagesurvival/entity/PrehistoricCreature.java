@@ -2106,7 +2106,7 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         setBase(Attributes.KNOCKBACK_RESISTANCE, body.knockbackResistance());
         setMaxUpStep((float) body.stepHeight());
         setBase(net.minecraftforge.common.ForgeMod.SWIM_SPEED.get(), body.swimSpeed());
-        breaksLeaves = body.breaksLeaves();
+        breaksLeaves = body.breaksPlants();
         plowHardness = body.plowHardness();
         if (BlockBreaking.walksThroughLeaves(this, plowHardness, breaksLeaves)) {
             // Sem isto o pathfinder contorna copas que a criatura consegue atravessar.
