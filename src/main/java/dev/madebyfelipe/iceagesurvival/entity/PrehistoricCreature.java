@@ -3740,6 +3740,9 @@ public abstract class PrehistoricCreature extends TamableAnimal {
 
     @Override
     public InteractionResult mobInteract(Player player, InteractionHand hand) {
+        if (player.getItemInHand(hand).getItem() instanceof dev.madebyfelipe.iceagesurvival.item.AnalyzerItem) {
+            return InteractionResult.PASS; // o Analisador escaneia: o clique segue para o item
+        }
         if (isApex() && !isTame() && !isUnconscious() && duel == null && isTrophyOf(player.getItemInHand(hand))) {
             if (!level().isClientSide) {
                 startDuel(player, hand, player.getItemInHand(hand));

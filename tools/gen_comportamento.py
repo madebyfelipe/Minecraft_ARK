@@ -94,7 +94,7 @@ def esc(text):
 
 def num(value):
     value = float(value)
-    return f'{value:.0f}' if value == int(value) else f'{value:.2f}'.rstrip('0').replace('.', ',')
+    return f'{value:.0f}' if value == int(value) else f'{value:.2f}'.rstrip('0').rstrip('.').replace('.', ',')
 
 
 def tag_values(kind, ref, seen=None):
@@ -142,7 +142,7 @@ def biome_names(ids):
 
 lang = json.loads(LANG.read_text())
 sizes = {name: (float(w), float(h)) for name, w, h in
-         re.findall(r'landCreature\("(\w+)",\s*([\d.]+)F,\s*([\d.]+)F\)', ENTITIES.read_text())}
+         re.findall(r'landCreature\("(\w+)",\s*([\d.]+)F,\s*([\d.]+)F[,)]', ENTITIES.read_text())}
 species = {f.stem: json.loads(f.read_text()) for f in sorted(SPECIES.glob('*.json')) if f.stem != 'test_creature'}
 disabled = set(tag_values('entity_types', '#iceagesurvival:disabled'))
 apex = set(tag_values('entity_types', '#iceagesurvival:apex'))
@@ -243,6 +243,11 @@ def group_text(spawn):
     return f'{low}–{high}' if high != low else str(low)
 
 
+def is_carnivore(b):
+    """Caça (tem presas) ou ataca por conta própria sem tabela de presas, como o boss Giganotossauro."""
+    return bool(b.get('prey')) or bool(b.get('aggressive'))
+
+
 def row(label, value):
     return f'<tr><th>{esc(label)}</th><td>{value}</td></tr>'
 
@@ -254,7 +259,7 @@ def card(key):
     eco = ecology(key)
     entity = f'iceagesurvival:{key}'
     width, height = sizes.get(key, (0, 0))
-    carnivore = bool(b.get('prey'))
+    carnivore = is_carnivore(b)
     role = 'Carnívoro' if carnivore else 'Herbívoro'
     badges = [f'<span class="badge {"meat" if carnivore else "leaf"}">{role}</span>']
     if 'mount' in data:
@@ -347,7 +352,13 @@ def card(key):
         sense.append(row('Cautela', 'sem perfil de cautela'))
 
     hunt = ''
-    if carnivore:
+    if carnivore and not b.get('prey'):
+        # Agressivo sem tabela de presas (o boss): não caça pela ecologia, ataca quem chega perto.
+        hunt = ('<h4>Caça</h4><table>'
+                + row('Ataque', f'não caça pela ecologia: ataca jogadores e criaturas a '
+                                f'{num(b.get("aggro_radius", 0))} blocos com a IA própria')
+                + '</table>')
+    elif carnivore:
         largest, who = largest_prey_alert(key)
         effective = max(eco['hunt_radius'], largest + PERCEPTION_MARGIN if largest else 0)
         rows = [
@@ -433,7 +444,7 @@ def summary_row(key):
         faro = '—'
     off = ' <span class="badge off">desligado</span>' if entity in disabled else ''
     return (f'<tr><td><a href="#{key}">{esc(name(entity))}</a>{off}</td>'
-            f'<td>{"Carnívoro" if b.get("prey") else "Herbívoro"}</td>'
+            f'<td>{"Carnívoro" if is_carnivore(b) else "Herbívoro"}</td>'
             f'<td>{group_text(spawn)}</td>'
             f'<td>{num(w["alert_radius"]) if w else "—"}</td><td>{faro}</td>'
             f'<td>{len(hunted_by.get(entity, []))}</td></tr>')

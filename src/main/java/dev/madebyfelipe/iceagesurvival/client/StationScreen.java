@@ -16,7 +16,7 @@ public abstract class StationScreen<M extends StationMenu> extends AbstractConta
     protected static final int SUBTLE = TechStyle.SUBTLE;
     protected static final int WARM = 0xFFE8743B;
     protected static final int COLD = 0xFF4FA8E8;
-    protected static final int GREEN = 0xFF5FB36B;
+    protected static final int GREEN = TechStyle.ACCENT;
 
     protected StationScreen(M menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);

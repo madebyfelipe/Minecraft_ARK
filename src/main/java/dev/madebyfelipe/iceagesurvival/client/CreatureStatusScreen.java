@@ -36,8 +36,8 @@ public class CreatureStatusScreen extends Screen {
     private static final int VALUE = TechStyle.TEXT;
     private static final int POINTS = TechStyle.BRIGHT;
     private static final int LEVEL = TechStyle.AMBER;
-    private static final int PREVIEW_BACK = 0xFF050A08;
-    private static final int PREVIEW_GRID = 0x0E8CF0A8;
+    private static final int PREVIEW_BACK = 0xFF040D12;
+    private static final int PREVIEW_GRID = 0x1838C6D9;
 
     /** Criatura cujo status foi pedido e ainda não chegou; -1 se nenhuma. */
     private static int pendingId = -1;
@@ -233,7 +233,7 @@ public class CreatureStatusScreen extends Screen {
         graphics.drawString(font, Component.translatable("iceagesurvival.status.affinity"), x, y, LABEL);
         String affinity = String.format(Locale.ROOT, "%.0f / %.0f", status.affinity(), PrehistoricCreature.MAX_AFFINITY);
         graphics.drawString(font, affinity, right - font.width(affinity), y, VALUE);
-        TechStyle.bar(graphics, x, y + 9, right - x, 2, status.affinity() / PrehistoricCreature.MAX_AFFINITY, 0xFF5FB36B);
+        TechStyle.bar(graphics, x, y + 9, right - x, 2, status.affinity() / PrehistoricCreature.MAX_AFFINITY, TechStyle.ACCENT);
         y += ROW_HEIGHT + 4;
 
         infoRow(graphics, x, right, y, "iceagesurvival.status.orders", Component.translatable(
@@ -261,7 +261,7 @@ public class CreatureStatusScreen extends Screen {
         } else if (status.maturation() < 1.0F) {
             infoRow(graphics, x, right, y, "iceagesurvival.status.maturation",
                     Component.literal(Math.round(status.maturation() * 100) + "%"));
-            TechStyle.bar(graphics, x, y + 9, right - x, 2, status.maturation(), 0xFF5FB36B);
+            TechStyle.bar(graphics, x, y + 9, right - x, 2, status.maturation(), TechStyle.ACCENT);
         }
     }
 

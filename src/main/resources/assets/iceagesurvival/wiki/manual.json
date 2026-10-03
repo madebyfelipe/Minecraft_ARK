@@ -1,0 +1,3497 @@
+{
+ "chapters": [
+  {
+   "id": "ecologia",
+   "title": "Ecologia",
+   "subtitle": "Ecologia de predadores, presas e manadas",
+   "pages": [
+    {
+     "id": "ecologia/intro",
+     "title": "Introdução",
+     "blocks": [
+      {
+       "type": "paragraph",
+       "text": "As criaturas selvagens vivem em bandos com território, fome compartilhada e uma cadeia alimentar em que o jogador também entra. O carnívoro espreita a manada antes de disparar; a presa encara ou foge conforme o porte e quem a defende."
+      },
+      {
+       "type": "note",
+       "text": "Regra central: o servidor decide a IA. Toda criatura selvagem vive num bando com identidade própria; o carnívoro caça pela fome e pela tabela de dieta, que inclui o jogador como mais uma presa, e caça espreitando: acompanha a manada sem ser notado e só então dispara. Domesticação tira a criatura da ecologia selvagem. A ficha de cada espécie está em Comportamento por espécie."
+      }
+     ]
+    },
+    {
+     "id": "ecologia/1",
+     "title": "1. Caminho de uma interação",
+     "blocks": [
+      {
+       "type": "list",
+       "ordered": true,
+       "items": [
+        "Percepção: O carnívoro fareja a presa sempre de mais longe do que ela o percebe; a presa nota ameaças pelo raio de alerta, menor para quem espreita.",
+        "Contexto: Fome do bando, dieta, porte, quem defende a presa, ferimentos, filhotes e território.",
+        "Decisão: Ignorar, observar, recuar, fugir, blefar, investir, defender o território ou começar a espreitar.",
+        "Consequência: A disparada avisa a manada, que foge ou encara; o predador persegue, desiste a 30 blocos ou come pelo bando."
+       ]
+      },
+      {
+       "type": "paragraph",
+       "text": "Há três relações diferentes: presa–caçador (fome, dieta e chance de vencer), território (qualquer bando contra outra espécie mais fraca que entra no seu espaço) e guerra entre bandos da mesma espécie. Além delas, machos adultos de bandos diferentes da mesma espécie disputam espaço."
+      }
+     ]
+    },
+    {
+     "id": "ecologia/2",
+     "title": "2. Bando",
+     "blocks": [
+      {
+       "type": "paragraph",
+       "text": "Cada criatura selvagem guarda o id do seu bando, salvo no mundo. Quem nasce junto — na geração do terreno, na reposição ou em família — já sai no mesmo bando; o limite de membros é o group_max da espécie. Criatura de mundo antigo, sem bando, é adotada pelo bando com vaga mais próximo ou funda outro. Dois bandos da mesma espécie não se fundem. Domesticada, a criatura sai do bando."
+      },
+      {
+       "type": "heading",
+       "text": "Tudo é por bando"
+      },
+      {
+       "type": "paragraph",
+       "text": "Líder, seguir a manada, alerta, defesa em grupo, caça em bando, bônus de bando e \"desgarrado\" contam só os membros do mesmo bando, não qualquer indivíduo da espécie por perto."
+      },
+      {
+       "type": "heading",
+       "text": "Fome do bando"
+      },
+      {
+       "type": "paragraph",
+       "text": "Quando um membro come, o bando inteiro fica saciado. A refeição é repartida: um dodô dividido por três Alossauros quase não mata a fome. Matar o jogador conta como refeição inteira."
+      }
+     ]
+    },
+    {
+     "id": "ecologia/3",
+     "title": "3. Fome e caça",
+     "blocks": [
+      {
+       "type": "paragraph",
+       "text": "O predador acumula tempo desde a última refeição. A fome não causa dano: ela regula a disposição de procurar presas."
+      },
+      {
+       "type": "table",
+       "columns": [
+        "Estado",
+        "Comportamento",
+        "Implicação"
+       ],
+       "rows": [
+        [
+         "Saciado",
+         "Não procura presas nem escolhe o jogador.",
+         "Tempo de behavior.sated_seconds (padrão 180 s), para o bando inteiro."
+        ],
+        [
+         "Oportunista",
+         "Só uma presa fácil (filhote, ferida, desgarrada) e perto.",
+         "Usa 35% do faro e exige nota mínima; nunca o jogador."
+        ],
+        [
+         "Caçando",
+         "Procura pelo faro em todo o raio de caça; sem presa à vista, sai rondando o mapa.",
+         "Escolhida a presa, espreita antes de disparar (seção 4)."
+        ]
+       ]
+      },
+      {
+       "type": "paragraph",
+       "text": "O carnívoro percebe antes de ser percebido. O faro de caça efetivo nunca é menor que o maior raio de alerta das presas da dieta + 8 blocos (Perception). Um teste automático falha se um JSON de espécie quebrar a regra."
+      },
+      {
+       "type": "paragraph",
+       "text": "faro efetivo = max(hunt_radius, maior alert_radius/calf_radius das presas + 8)"
+      },
+      {
+       "type": "heading",
+       "text": "Como uma presa é avaliada"
+      },
+      {
+       "type": "list",
+       "ordered": false,
+       "items": [
+        "Dieta: cada carnívoro tem uma tabela (behavior.diet) de 3 (favorita) a 0 (último recurso). A preferência pesa mais que a facilidade.",
+        "Vulnerabilidade: filhotes, feridas e desgarradas valem mais.",
+        "Quem defende: a manada que defende junto conta inteira. Sozinho, o caçador não ataca a presa no meio da manada, só a desgarrada; em bando, encara presa maior.",
+        "Porte e distância: presa maior alimenta mais; mais perto é melhor.",
+        "Nunca: criatura domesticada, inconsciente ou da mesma espécie."
+       ]
+      },
+      {
+       "type": "paragraph",
+       "text": "capacidade do caçador = 1,3 + 1,25 × (membros do bando − 1) + 1,0 se a presa estiver isolada"
+      }
+     ]
+    },
+    {
+     "id": "ecologia/4",
+     "title": "4. Espreita e perseguição",
+     "blocks": [
+      {
+       "type": "paragraph",
+       "text": "Todo carnívoro caça espreitando (hunt_style padrão stalk). Escolhida a presa, a manada ainda não se sabe caçada."
+      },
+      {
+       "type": "list",
+       "ordered": true,
+       "items": [
+        "Acompanha: Anda devagar, sem rugir, em volta da manada.",
+        "Fica fora do aviso: Quem espreita é notado só a 50% do alerta da presa; ronda logo além disso, longe de todos da manada.",
+        "Dispara: No que vier primeiro: presa desgarrada, presa que chega perto, manada que o nota, ferimento ou 20–40 s.",
+        "Persegue: Ruge e avisa a manada; o bando dispara junto. Fôlego de chase_seconds; a presa que abre 30 blocos escapou."
+       ]
+      },
+      {
+       "type": "heading",
+       "text": "Sozinho diante da manada"
+      },
+      {
+       "type": "paragraph",
+       "text": "O caçador solitário também acompanha a manada que não encara, esperando um desgarrado. Se o tempo acaba ou a manada o nota antes, ele desiste — nada de investir contra o grupo inteiro."
+      },
+      {
+       "type": "heading",
+       "text": "Contra o jogador"
+      },
+      {
+       "type": "paragraph",
+       "text": "Não há raio de alerta a respeitar: chega pelas costas e dá o bote perto, ou na hora em que o jogador o vê."
+      },
+      {
+       "type": "heading",
+       "text": "Escapou"
+      },
+      {
+       "type": "paragraph",
+       "text": "Depois da disparada, a presa que se afasta mais de 30 blocos escapou: o predador desiste, se frustra (estresse) e passa 30 s sem caçar. Espreitando, vale o alcance do faro."
+      },
+      {
+       "type": "heading",
+       "text": "Ronda"
+      },
+      {
+       "type": "paragraph",
+       "text": "Com fome e sem presa à vista, o líder sai rondando trechos de 48 a 96 blocos, fora do próprio território se preciso; o bando segue. A procura continua no caminho."
+      },
+      {
+       "type": "heading",
+       "text": "A marca de cada caçador"
+      },
+      {
+       "type": "paragraph",
+       "text": "Pela biologia real, os três caçadores médios caçam de jeitos diferentes (behavior.hunt_special):"
+      },
+      {
+       "type": "table",
+       "columns": [
+        "Caçador",
+        "Marca",
+        "Na vida real"
+       ],
+       "rows": [
+        [
+         "Smilodon",
+         "Emboscada: no bote, a arrancada mais rápida dos três (+50% por 4 s); o primeiro golpe agarra e prende a presa (lenta por 2 s). Solitário, fôlego curto.",
+         "160–280 kg, patas dianteiras mais fortes que as de qualquer felino vivo: arrancadas curtas e luta corpo a corpo."
+        ],
+        [
+         "Utahraptor",
+         "Bando: o maior bônus de bando (+40% de dano e velocidade) e, no bote, salta sobre a presa a 3–10 blocos.",
+         "O maior dromeossaurídeo, 6–7 m e ~500 kg."
+        ],
+        [
+         "Kelenken",
+         "A mais forte sozinha: a bicada passa da armadura (30% a mais) e ela recua um instante depois de acertar; corredora de fôlego longo (40 s).",
+         "A maior ave-terrível, 2,5–3 m, 40–50 km/h; bico fundido ao crânio, \"golpe e recua\"."
+        ],
+        [
+         "Ornitholestes",
+         "Agarrão: sem arrancada, o primeiro golpe do bote prende a presa pequena. Noturno, camuflado no sub-bosque e na neve alta, come carniça longe de predador maior; domesticado, é sentinela (behavior.habits).",
+         "Terópode de 2 m e 15 kg do sub-bosque jurássico; mãos longas de garras, órbitas grandes (provável hábito noturno), oportunista."
+        ]
+       ]
+      }
+     ]
+    },
+    {
+     "id": "ecologia/5",
+     "title": "5. Lutar ou fugir",
+     "blocks": [
+      {
+       "type": "paragraph",
+       "text": "Espécies com behavior.wariness avaliam ameaças numa faixa de percepção. A decisão considera a distância entre as bordas das hitboxes, a proporção de tamanho, quantos caçam e quantos defendem, se a ameaça se aproxima, se há filhote e se a criatura foi surpreendida. O estresse amplia a percepção e torna as reações imprevisíveis."
+      },
+      {
+       "type": "table",
+       "columns": [
+        "Sinal",
+        "Resposta provável"
+       ],
+       "rows": [
+        [
+         "Ameaça grande demais (razão de área ≥ 1,5)",
+         "Fuga, mesmo para espécies que normalmente investem."
+        ],
+        [
+         "Disparada de um bando ou de predador do seu porte",
+         "A manada dispara."
+        ],
+        [
+         "Predador espreitando",
+         "Só é notado a 50% do alerta; notado, perde a surpresa e dispara (ou desiste, se estiver sozinho)."
+        ],
+        [
+         "Ameaça dentro do raio de investida",
+         "Investida defensiva; surpreendida muito perto, ataca sem blefar."
+        ],
+        [
+         "Ameaça se aproxima e ainda há distância",
+         "Blefe, investida ou recuo, conforme as chances da espécie."
+        ],
+        [
+         "Filhote próximo",
+         "Percepção maior e defesa mais determinada."
+        ],
+        [
+         "Ameaça camuflada (habits.camouflage) em folhas, mato ou neve alta",
+         "Só é notada à fração da camuflagem do raio (Ornitholestes: 50%); vale também para o predador que a procura como presa."
+        ],
+        [
+         "Criatura dormindo fora do seu horário (habits.activity)",
+         "Nota a ameaça a metade do raio; notada, acorda e reage como acordada."
+        ]
+       ]
+      },
+      {
+       "type": "paragraph",
+       "text": "Encarar de perto, blefar ou investir avisa o carnívoro: quem tem metade da força do outro lado (porte × manada ÷ bando), ou menos, cede e larga a caça mesmo com fome. Abaixo de flee_health_fraction, a criatura foge de quem a feriu."
+      }
+     ]
+    },
+    {
+     "id": "ecologia/6",
+     "title": "6. Território e guerra entre bandos",
+     "blocks": [
+      {
+       "type": "paragraph",
+       "text": "Todo bando, herbívoro inclusive, defende um raio em volta de cada membro: 8 a 24 blocos, pelo tamanho da manada (raio de manada + 6) ou, no solitário, pelo porte. Quem entra é intruso."
+      },
+      {
+       "type": "table",
+       "columns": [
+        "Intruso",
+        "Resposta"
+       ],
+       "rows": [
+        [
+         "Outro bando da mesma espécie",
+         "Guerra: os dois bandos lutam até um fugir (cada um no próprio flee_health_fraction) ou morrer."
+        ],
+        [
+         "Outra espécie mais fraca (porte × quantos lutam juntos)",
+         "O bando ameaça e investe até o intruso sair; a briga termina quando ele sai."
+        ],
+        [
+         "Outra espécie mais forte",
+         "Quem cede é este: entrar no território de um bando mais forte é desencorajado, e o mais fraco sai antes de apanhar."
+        ],
+        [
+         "Predador com fome diante da própria presa",
+         "Fora do território: aí decide a caça, dos dois lados."
+        ]
+       ]
+      },
+      {
+       "type": "paragraph",
+       "text": "Jogadores e bichos do vanilla ficam fora do território (a reação ao jogador é a cautela de cada espécie). Domesticadas entram como intrusas só quando não estão montadas. Machos adultos de bandos diferentes da mesma espécie ainda disputam espaço dentro do rival_radius; quem cai abaixo de metade da vida desiste."
+      }
+     ]
+    },
+    {
+     "id": "ecologia/7",
+     "title": "7. O jogador faz parte da cadeia ecológica",
+     "blocks": [
+      {
+       "type": "heading",
+       "text": "Presa da tabela de dieta"
+      },
+      {
+       "type": "paragraph",
+       "text": "O jogador entra na mesma conta das outras presas, só para quem o tem na dieta (o Velociraptor não tem) e só com fome de verdade. O Utahraptor o prefere a uma vaca; o Espinossauro o deixa por último."
+      },
+      {
+       "type": "heading",
+       "text": "O bando do jogador"
+      },
+      {
+       "type": "paragraph",
+       "text": "Outros jogadores e as criaturas domesticadas por perto (16 blocos) contam como quem o defende. Sozinho, ele é presa desgarrada; ao lado de um Tricerátopo domesticado, fica caro de caçar."
+      },
+      {
+       "type": "heading",
+       "text": "Depois de matar ou comer"
+      },
+      {
+       "type": "paragraph",
+       "text": "Quem matou o jogador, ou caçou há pouco, fica saciado com o bando e não ataca sem ser provocado. Ferido pelo jogador, revida: é defesa, não caçada."
+      },
+      {
+       "type": "heading",
+       "text": "Apex: tributo e desafio"
+      },
+      {
+       "type": "paragraph",
+       "text": "T-Rex e Espinossauro não caem com tranquilizante. Quem traz a cabeça de outro da espécie (dropada ao matá-lo) é reconhecido como caçador hábil: o apex não o ataca, e com um clique a cabeça abre o desafio — o jogador e até 3 criaturas dele; uma quarta, ou outro jogador, cancela. Vencido, o apex cai desmaiado e é domado com carne."
+      },
+      {
+       "type": "heading",
+       "text": "Herbívoro cauteloso"
+      },
+      {
+       "type": "paragraph",
+       "text": "Com wariness.players, percebe o jogador como outra ameaça. Agachar reduz o alcance conforme sneak_factor."
+      }
+     ]
+    },
+    {
+     "id": "ecologia/8",
+     "title": "8. Exemplos da fauna",
+     "blocks": [
+      {
+       "type": "table",
+       "columns": [
+        "Encontro",
+        "Resultado esperado",
+        "Condição importante"
+       ],
+       "rows": [
+        [
+         "Alossauro sozinho × manada de Galimimos",
+         "Acompanha a manada a ~15 blocos sem ser visto; ataca o primeiro que se desgarrar.",
+         "Notado antes, ou depois de 20–40 s sem desgarrado, desiste."
+        ],
+        [
+         "Bando de Alossauros × manada de Galimimos",
+         "Espreita junto e dispara; a manada foge.",
+         "Em bando, encara a manada; o bote de um leva o bando inteiro."
+        ],
+        [
+         "Alossauros × manada de mamutes",
+         "O bando não encara a manada que se defende junta.",
+         "Um mamute desgarrado ainda cabe no bando de três."
+        ],
+        [
+         "T-Rex × Brontossauro",
+         "Ignora a manada; pega o Brontossauro desgarrado.",
+         "Isolamento conta só membros do mesmo bando."
+        ],
+        [
+         "T-Rex × Elasmotério",
+         "Espreita o Elasmotério solitário e dispara perto ou no fim do tempo; o Elasmotério foge.",
+         "A 30 blocos de distância na perseguição, desiste."
+        ],
+        [
+         "Mamutes × Velociraptor",
+         "O raptor, mais fraco, evita o território da manada ou é expulso.",
+         "A reação começa pela presença, mesmo saciado."
+        ],
+        [
+         "Dois bandos de raptores",
+         "Guerra até um fugir ou morrer.",
+         "Vale para qualquer espécie, herbívora inclusive."
+        ]
+       ]
+      }
+     ]
+    },
+    {
+     "id": "ecologia/9",
+     "title": "9. Dados e implementação",
+     "blocks": [
+      {
+       "type": "paragraph",
+       "text": "O comportamento vem do JSON de cada espécie; o código fornece goals reutilizáveis e as tags de entidade definem presas e ameaças. Os números de cada espécie estão em Comportamento por espécie."
+      },
+      {
+       "type": "list",
+       "ordered": false,
+       "items": [
+        "behavior.prey e behavior.diet: quem pode ser caçado e a preferência (3 a 0), jogador incluído.",
+        "behavior.hunt_style: stalk (padrão) ou chase.",
+        "behavior.ecology.hunt_radius, hunger_seconds, chase_seconds, rival_radius e sated_seconds.",
+        "behavior.herd_radius, group_defense, migrates e spawn.group_min/max: bando e limite.",
+        "behavior.wariness: alerta, investida, blefe, recuo, filhote, jogador.",
+        "spawn.weight, favored, max_nearby, spacing e min_distance: onde e quanto nasce. O teto total efetivo é 50% de wildSpawnMaxTotal (36 por jogador), do qual os herbívoros ocupam no máximo 3/4."
+       ]
+      },
+      {
+       "type": "paragraph",
+       "text": "Implementação: HuntGoal, StalkGoal, ChaseGoal, ProwlGoal, TerritoryGoal, WaryGoal e RivalryGoal; regras puras em HuntChoice, Perception, HuntSpecials, ApexDuel e ThreatResponse."
+      }
+     ]
+    },
+    {
+     "id": "ecologia/10",
+     "title": "10. Limites e leitura de comportamento",
+     "blocks": [
+      {
+       "type": "list",
+       "ordered": false,
+       "items": [
+        "Nem todo encontro vira ataque: saciedade do bando, dieta, porte, isolamento, estresse e território filtram a resposta.",
+        "Um predador parado perto de uma manada pode estar espreitando: ela só reage quando o nota ou na disparada.",
+        "O alerta é estado de IA, não garantia de golpe: terreno e caminho mudam o resultado.",
+        "As varreduras são espaçadas; perceber ou escolher uma presa pode levar alguns ticks."
+       ]
+      },
+      {
+       "type": "note",
+       "text": "Testes de regressão: ./gradlew build cobre as regras puras (fome, escolha e acompanhamento de presa, percepção, reação por porte); ./gradlew runGameTestServer cobre bandos, território, espreita (manada sem aviso, desgarrado, bando notado, solitário que desiste), desistência a 30 blocos, a regra de percepção em todos os JSON e o jogador na dieta."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "comportamento",
+   "title": "Comportamento",
+   "subtitle": "Comportamento por espécie",
+   "pages": [
+    {
+     "id": "comportamento/intro",
+     "title": "Introdução",
+     "blocks": [
+      {
+       "type": "paragraph",
+       "text": "Uma ficha por criatura, lida dos dados do mod: com quem anda, o que defende, de quão longe percebe, o que come, quem a caça e onde nasce. As regras gerais estão em Ecologia."
+      },
+      {
+       "type": "note",
+       "text": "Como ler: o faro de caça é o efetivo, sempre pelo menos o maior alerta das presas + 8 blocos (o carnívoro percebe antes de ser percebido). Quem espreita é notado a 50% do alerta, e ronda logo além disso (+3). Preferência da dieta: favorita › boa › aceitável › último recurso."
+      }
+     ]
+    },
+    {
+     "id": "comportamento/resumo",
+     "title": "Resumo",
+     "blocks": [
+      {
+       "type": "table",
+       "columns": [
+        "Espécie",
+        "Papel",
+        "Bando",
+        "Alerta",
+        "Faro de caça",
+        "Predadores"
+       ],
+       "rows": [
+        [
+         "Alossauro",
+         "Carnívoro",
+         "2–3",
+         "30",
+         "64",
+         "0"
+        ],
+        [
+         "Baryonyx",
+         "Carnívoro",
+         "1",
+         "28",
+         "40",
+         "0"
+        ],
+        [
+         "Espinossauro",
+         "Carnívoro",
+         "1",
+         "32",
+         "56",
+         "0"
+        ],
+        [
+         "Kelenken",
+         "Carnívoro",
+         "1–2",
+         "26",
+         "48",
+         "0"
+        ],
+        [
+         "Lobo-Terrível (desligado)",
+         "Carnívoro",
+         "1",
+         "22",
+         "56",
+         "0"
+        ],
+        [
+         "Megalania",
+         "Carnívoro",
+         "1",
+         "24",
+         "40",
+         "0"
+        ],
+        [
+         "Ornitholestes",
+         "Carnívoro",
+         "1",
+         "20",
+         "32",
+         "5"
+        ],
+        [
+         "Quetzalcoatlus",
+         "Carnívoro",
+         "2–4",
+         "24",
+         "40",
+         "1"
+        ],
+        [
+         "Smilodon",
+         "Carnívoro",
+         "1",
+         "24",
+         "48",
+         "0"
+        ],
+        [
+         "Tiranossauro Rex",
+         "Carnívoro",
+         "1",
+         "36",
+         "72",
+         "0"
+        ],
+        [
+         "Urso-Terrível",
+         "Carnívoro",
+         "1",
+         "28",
+         "44",
+         "0"
+        ],
+        [
+         "Utahraptor",
+         "Carnívoro",
+         "2–3",
+         "26",
+         "56",
+         "0"
+        ],
+        [
+         "Velociraptor",
+         "Carnívoro",
+         "1–2",
+         "20",
+         "32",
+         "4"
+        ],
+        [
+         "Anquilossauro",
+         "Herbívoro",
+         "1",
+         "20",
+         "—",
+         "6"
+        ],
+        [
+         "Brontossauro",
+         "Herbívoro",
+         "2–4",
+         "36",
+         "—",
+         "6"
+        ],
+        [
+         "Dodô",
+         "Herbívoro",
+         "2–5",
+         "8",
+         "—",
+         "12"
+        ],
+        [
+         "Elasmotério",
+         "Herbívoro",
+         "1",
+         "28",
+         "—",
+         "8"
+        ],
+        [
+         "Estegossauro",
+         "Herbívoro",
+         "2–4",
+         "24",
+         "—",
+         "6"
+        ],
+        [
+         "Galimimo",
+         "Herbívoro",
+         "3–5",
+         "24",
+         "—",
+         "9"
+        ],
+        [
+         "Giganotossauro",
+         "Carnívoro",
+         "1",
+         "—",
+         "—",
+         "0"
+        ],
+        [
+         "Mamute-Lanoso",
+         "Herbívoro",
+         "3–5",
+         "32",
+         "—",
+         "6"
+        ],
+        [
+         "Pteranodonte",
+         "Herbívoro",
+         "2–4",
+         "—",
+         "—",
+         "0"
+        ],
+        [
+         "Tricerátopo",
+         "Herbívoro",
+         "2–4",
+         "28",
+         "—",
+         "6"
+        ]
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "species": {
+  "iceagesurvival:allosaurus": {
+   "name": "Alossauro",
+   "badges": [
+    "Carnívoro",
+    "Montável",
+    "Agressivo"
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "1,8 × 3,4 blocos · velocidade 0,4"
+    },
+    {
+     "type": "heading",
+     "text": "Bando e território"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Bando",
+       "2–3 (limite 3); manada de raio 12; defende o grupo"
+      ],
+      [
+       "Território do bando",
+       "18 blocos em volta de cada membro; passeia num raio de 56 da toca"
+      ],
+      [
+       "Foge ferido",
+       "abaixo de 15% da vida"
+      ],
+      [
+       "Nervosismo",
+       "0,7"
+      ],
+      [
+       "Quebra blocos",
+       "madeira (muro/portão nosso em 6 golpes, madeira vanilla em 3) só para alcançar o alvo"
+      ],
+      [
+       "Carcaça",
+       "morto selvagem sem jogador, fica caído com 12 porções de carne por até 10 min: o predador mais forte come primeiro; o jogador carneia a sobra com machado ou espada"
+      ]
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Percepção"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Alerta",
+       "30 blocos"
+      ],
+      [
+       "Nota quem espreita a",
+       "15 blocos"
+      ],
+      [
+       "Lutar ou fugir",
+       "investe a 5 blocos, 10% recua"
+      ],
+      [
+       "Jogador",
+       "não o teme"
+      ]
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Caça"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Faro de caça",
+       "64 blocos (maior alerta das presas: 36, de Brontossauro, + 8)"
+      ],
+      [
+       "Fome",
+       "caça de novo depois de 360 s sem comer; saciado por 180 s (o bando inteiro)"
+      ],
+      [
+       "Caça",
+       "espreita e dispara; fôlego de 30 s; desiste se a presa abrir 30 blocos"
+      ],
+      [
+       "Bônus de bando",
+       "+25% de dano e velocidade com aliado do bando a 16 blocos"
+      ]
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Dieta"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "favorita: Estegossauro, Galimimo",
+      "boa: Brontossauro, Elasmotério",
+      "aceitável: Jogador, Mamute-Lanoso, Tricerátopo, aldeão, alpaca (TFC), boar (TFC), bongo (TFC), burro, caribou (TFC), cavalo, cow (TFC), deer (TFC), donkey (TFC), gazelle (TFC), goat (TFC), horse (TFC), lhama, mercador, moose (TFC), mule (TFC), musk ox (TFC), pig (TFC), sheep (TFC), vaca, wildebeest (TFC), yak (TFC)",
+      "último recurso: Anquilossauro, Dodô, cabra, ovelha, porco"
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Ao espreitar, ronda a esta distância da presa: Estegossauro a ~15; Galimimo a ~15; Brontossauro a ~21; Elasmotério a ~17; Tricerátopo a ~17; Mamute-Lanoso a ~19 blocos."
+    },
+    {
+     "type": "paragraph",
+     "text": "Caçado por: ninguém."
+    },
+    {
+     "type": "heading",
+     "text": "Spawn"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Biomas",
+       "qualquer bioma da superfície (e do TerraFirmaCraft)"
+      ],
+      [
+       "Ideal",
+       "savana, planalto de savana, savana ventosa, planície, planície de girassóis, terras áridas, terras áridas arborizadas, eroded_badlands, planície nevada; no TerraFirmaCraft: planícies, terras baixas, colinas, colinas onduladas, terras áridas, terras áridas invertidas, cânions, cânions baixos"
+      ],
+      [
+       "Frequência",
+       "peso 1; 3 no ideal (×3); até 3 perto do jogador; a 400+ blocos do spawn"
+      ]
+     ]
+    }
+   ]
+  },
+  "iceagesurvival:baryonyx": {
+   "name": "Baryonyx",
+   "badges": [
+    "Carnívoro",
+    "Montável",
+    "Agressivo"
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "1,8 × 2,7 blocos · velocidade 0,38"
+    },
+    {
+     "type": "heading",
+     "text": "Bando e território"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Bando",
+       "1 (limite 1); solitário"
+      ],
+      [
+       "Território do bando",
+       "11,2 blocos em volta de cada membro; passeia num raio de 40 da toca"
+      ],
+      [
+       "Foge ferido",
+       "abaixo de 20% da vida"
+      ],
+      [
+       "Nervosismo",
+       "0,7"
+      ],
+      [
+       "Quebra blocos",
+       "madeira (muro/portão nosso em 6 golpes, madeira vanilla em 3) só para alcançar o alvo"
+      ],
+      [
+       "Carcaça",
+       "morto selvagem sem jogador, fica caído com 10 porções de carne por até 10 min: o predador mais forte come primeiro; o jogador carneia a sobra com machado ou espada"
+      ],
+      [
+       "Carniça",
+       "com fome, come carne crua do chão, longe de predador maior (16 blocos)"
+      ],
+      [
+       "Pesca",
+       "selvagem, pesca na água sem gelo a 24 blocos (35% de chance quando procura comida); domesticado e parado, pesca a 6 blocos e guarda o peixe"
+      ]
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Percepção"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Alerta",
+       "28 blocos"
+      ],
+      [
+       "Nota quem espreita a",
+       "14 blocos"
+      ],
+      [
+       "Lutar ou fugir",
+       "investe a 4 blocos, 15% recua"
+      ],
+      [
+       "Jogador",
+       "não o teme"
+      ]
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Caça"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Faro de caça",
+       "40 blocos (maior alerta das presas: 24, de Galimimo, + 8)"
+      ],
+      [
+       "Fome",
+       "caça de novo depois de 360 s sem comer; saciado por 240 s (o bando inteiro)"
+      ],
+      [
+       "Caça",
+       "espreita e dispara; fôlego de 25 s; desiste se a presa abrir 30 blocos"
+      ],
+      [
+       "Marca",
+       "garra-gancho: o primeiro golpe depois do bote fisga a presa na água (qualquer porte) ou em terra (do porte dele para baixo), puxa-a para perto e a prende"
+      ]
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Dieta"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "favorita: peixes",
+      "boa: Dodô, Galimimo, Ornitholestes, cabra, ovelha, porco",
+      "aceitável: Velociraptor, boar (TFC), chicken (TFC), coelho, duck (TFC), galinha, goat (TFC), grouse (TFC), pheasant (TFC), pig (TFC), rabbit (TFC), sheep (TFC), turkey (TFC)",
+      "último recurso: Jogador"
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Ao espreitar, ronda a esta distância da presa: Dodô a ~7; Galimimo a ~15; Ornitholestes a ~13; Velociraptor a ~13 blocos."
+    },
+    {
+     "type": "paragraph",
+     "text": "Caçado por: ninguém."
+    },
+    {
+     "type": "heading",
+     "text": "Spawn"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Biomas",
+       "qualquer bioma da superfície (e do TerraFirmaCraft)"
+      ],
+      [
+       "Ideal",
+       "rio, pântano, praia, planície nevada; no TerraFirmaCraft: rio, lago, lago de montanha, lago de montanha antiga, lago de planalto, costa, pântano salgado, planícies de maré, terras baixas"
+      ],
+      [
+       "Frequência",
+       "peso 1; 3 no ideal (×3); até 2 perto do jogador; a 300+ blocos do spawn"
+      ]
+     ]
+    }
+   ]
+  },
+  "iceagesurvival:spinosaurus": {
+   "name": "Espinossauro",
+   "badges": [
+    "Carnívoro",
+    "Montável",
+    "Agressivo",
+    "Apex"
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "2,7 × 5,6 blocos · velocidade 0,3"
+    },
+    {
+     "type": "heading",
+     "text": "Bando e território"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Bando",
+       "1 (limite 1); solitário"
+      ],
+      [
+       "Território do bando",
+       "14,8 blocos em volta de cada membro; passeia num raio de 40 da toca"
+      ],
+      [
+       "Foge ferido",
+       "abaixo de 10% da vida"
+      ],
+      [
+       "Nervosismo",
+       "0,5"
+      ],
+      [
+       "Apex",
+       "não cai com tranquilizante; só se doma vencendo o desafio com a cabeça de outro da espécie"
+      ],
+      [
+       "Quebra blocos",
+       "madeira (muro/portão nosso em 3 golpes, madeira vanilla em 2) só para alcançar o alvo; derruba tronco ao esbarrar"
+      ],
+      [
+       "Carcaça",
+       "morto selvagem sem jogador, fica caído com 26 porções de carne por até 10 min: o predador mais forte come primeiro; o jogador carneia a sobra com machado ou espada"
+      ]
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Percepção"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Alerta",
+       "32 blocos"
+      ],
+      [
+       "Nota quem espreita a",
+       "16 blocos"
+      ],
+      [
+       "Lutar ou fugir",
+       "investe a 5 blocos, 10% recua"
+      ],
+      [
+       "Jogador",
+       "não o teme"
+      ]
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Caça"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Faro de caça",
+       "56 blocos (maior alerta das presas: 36, de Brontossauro, + 8)"
+      ],
+      [
+       "Fome",
+       "caça de novo depois de 420 s sem comer; saciado por 180 s (o bando inteiro)"
+      ],
+      [
+       "Caça",
+       "espreita e dispara; fôlego de 18 s; desiste se a presa abrir 30 blocos"
+      ]
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Dieta"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "boa: Dodô, Galimimo",
+      "aceitável: aldeão, alpaca (TFC), boar (TFC), bongo (TFC), burro, cabra, caribou (TFC), cavalo, cow (TFC), deer (TFC), donkey (TFC), gazelle (TFC), goat (TFC), horse (TFC), lhama, mercador, mule (TFC), ovelha, pig (TFC), porco, sheep (TFC), vaca, wildebeest (TFC)",
+      "último recurso: Jogador, Anquilossauro, Brontossauro, Elasmotério, Estegossauro, Mamute-Lanoso, Tricerátopo"
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Ao espreitar, ronda a esta distância da presa: Galimimo a ~15; Dodô a ~7; Elasmotério a ~17; Mamute-Lanoso a ~19; Estegossauro a ~15; Tricerátopo a ~17 blocos."
+    },
+    {
+     "type": "paragraph",
+     "text": "Caçado por: ninguém."
+    },
+    {
+     "type": "heading",
+     "text": "Spawn"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Biomas",
+       "qualquer bioma da superfície (e do TerraFirmaCraft)"
+      ],
+      [
+       "Ideal",
+       "rio, pântano, mangue, praia, planície nevada; no TerraFirmaCraft: rio, lago, lago de montanha, lago de montanha antiga, lago de planalto, costa, pântano salgado, planícies de maré, terras baixas"
+      ],
+      [
+       "Frequência",
+       "peso 1; 3 no ideal (×3); até 1 perto do jogador; a 400+ blocos do spawn"
+      ]
+     ]
+    }
+   ]
+  },
+  "iceagesurvival:kelenken": {
+   "name": "Kelenken",
+   "badges": [
+    "Carnívoro",
+    "Montável",
+    "Agressivo"
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "1,8 × 4 blocos · velocidade 0,42"
+    },
+    {
+     "type": "heading",
+     "text": "Bando e território"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Bando",
+       "1–2 (limite 2); solitário"
+      ],
+      [
+       "Território do bando",
+       "11,2 blocos em volta de cada membro; passeia num raio de 48 da toca"
+      ],
+      [
+       "Foge ferido",
+       "abaixo de 20% da vida"
+      ],
+      [
+       "Nervosismo",
+       "0,9"
+      ],
+      [
+       "Quebra blocos",
+       "só folhas e plantas, ao passar"
+      ]
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Percepção"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Alerta",
+       "26 blocos"
+      ],
+      [
+       "Nota quem espreita a",
+       "13 blocos"
+      ],
+      [
+       "Lutar ou fugir",
+       "investe a 4 blocos, 15% recua"
+      ],
+      [
+       "Jogador",
+       "não o teme"
+      ]
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Caça"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Faro de caça",
+       "48 blocos (maior alerta das presas: 28, de Elasmotério, + 8)"
+      ],
+      [
+       "Fome",
+       "caça de novo depois de 360 s sem comer; saciado por 180 s (o bando inteiro)"
+      ],
+      [
+       "Caça",
+       "espreita e dispara; fôlego de 40 s; desiste se a presa abrir 30 blocos"
+      ],
+      [
+       "Marca",
+       "bicada: 30% do dano a mais ignorando armadura, e recua 1,5 s depois de acertar"
+      ]
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Dieta"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "favorita: Dodô, cabra, coelho, ovelha, porco",
+      "boa: Galimimo, Ornitholestes, Velociraptor, galinha, raposa",
+      "aceitável: Jogador, aldeão, chicken (TFC), duck (TFC), fox (TFC), goat (TFC), grouse (TFC), mercador, peafowl (TFC), penguin (TFC), pheasant (TFC), pig (TFC), quail (TFC), rabbit (TFC), rat (TFC), sheep (TFC), turkey (TFC)",
+      "último recurso: Elasmotério"
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Ao espreitar, ronda a esta distância da presa: Dodô a ~7; Galimimo a ~15; Velociraptor a ~13; Ornitholestes a ~13; Elasmotério a ~17 blocos."
+    },
+    {
+     "type": "paragraph",
+     "text": "Caçado por: ninguém."
+    },
+    {
+     "type": "heading",
+     "text": "Spawn"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Biomas",
+       "qualquer bioma da superfície (e do TerraFirmaCraft)"
+      ],
+      [
+       "Ideal",
+       "savana, planalto de savana, savana ventosa, planície, planície de girassóis, terras áridas, planície nevada; no TerraFirmaCraft: planícies, terras baixas, colinas, colinas onduladas, terras áridas, terras áridas invertidas, cânions, cânions baixos"
+      ],
+      [
+       "Frequência",
+       "peso 2; 6 no ideal (×3); até 2 perto do jogador; a 300+ blocos do spawn"
+      ]
+     ]
+    }
+   ]
+  },
+  "iceagesurvival:dire_wolf": {
+   "name": "Lobo-Terrível",
+   "badges": [
+    "Carnívoro",
+    "Desligado",
+    "Agressivo"
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "0,8 × 1,2 blocos · velocidade 0,34"
+    },
+    {
+     "type": "heading",
+     "text": "Bando e território"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Bando",
+       "1 (limite 1); manada de raio 10; defende o grupo"
+      ],
+      [
+       "Território do bando",
+       "16 blocos em volta de cada membro; passeia num raio de 40 da toca"
+      ],
+      [
+       "Foge ferido",
+       "abaixo de 20% da vida"
+      ],
+      [
+       "Nervosismo",
+       "1"
+      ],
+      [
+       "Quebra blocos",
+       "nada"
+      ]
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Percepção"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Alerta",
+       "22 blocos"
+      ],
+      [
+       "Nota quem espreita a",
+       "11 blocos"
+      ],
+      [
+       "Lutar ou fugir",
+       "investe a 3 blocos, 20% recua"
+      ],
+      [
+       "Jogador",
+       "não o teme"
+      ]
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Caça"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Faro de caça",
+       "56 blocos (maior alerta das presas: 32, de Mamute-Lanoso, + 8)"
+      ],
+      [
+       "Fome",
+       "caça de novo depois de 300 s sem comer; saciado por 180 s (o bando inteiro)"
+      ],
+      [
+       "Caça",
+       "espreita e dispara; fôlego de 40 s; desiste se a presa abrir 30 blocos"
+      ]
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Dieta"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "aceitável: Dodô, Mamute-Lanoso, Ornitholestes, chicken (TFC), coelho, duck (TFC), fox (TFC), galinha, grouse (TFC), ovelha, peafowl (TFC), penguin (TFC), pheasant (TFC), pig (TFC), porco, quail (TFC), rabbit (TFC), raposa, rat (TFC), sheep (TFC), turkey (TFC)"
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Ao espreitar, ronda a esta distância da presa: Dodô a ~7; Ornitholestes a ~13; Mamute-Lanoso a ~19 blocos."
+    },
+    {
+     "type": "paragraph",
+     "text": "Caçado por: ninguém."
+    },
+    {
+     "type": "heading",
+     "text": "Spawn"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Spawn",
+       "não nasce sozinho"
+      ]
+     ]
+    }
+   ]
+  },
+  "iceagesurvival:megalania": {
+   "name": "Megalania",
+   "badges": [
+    "Carnívoro",
+    "Agressivo"
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "1,5 × 1,1 blocos · velocidade 0,3"
+    },
+    {
+     "type": "heading",
+     "text": "Bando e território"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Bando",
+       "1 (limite 1); solitário"
+      ],
+      [
+       "Território do bando",
+       "10 blocos em volta de cada membro; passeia num raio de 48 da toca"
+      ],
+      [
+       "Foge ferido",
+       "abaixo de 20% da vida"
+      ],
+      [
+       "Nervosismo",
+       "0,8"
+      ],
+      [
+       "Quebra blocos",
+       "nada"
+      ],
+      [
+       "Horário",
+       "diurno: à noite dorme escondido e não caça; só acorda se atacado"
+      ]
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Percepção"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Alerta",
+       "24 blocos"
+      ],
+      [
+       "Nota quem espreita a",
+       "12 blocos"
+      ],
+      [
+       "Lutar ou fugir",
+       "investe a 4 blocos, 15% recua"
+      ],
+      [
+       "Jogador",
+       "não o teme"
+      ]
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Caça"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Faro de caça",
+       "40 blocos (maior alerta das presas: 28, de Elasmotério, + 8)"
+      ],
+      [
+       "Fome",
+       "caça de novo depois de 480 s sem comer; saciado por 180 s (o bando inteiro)"
+      ],
+      [
+       "Caça",
+       "espreita e dispara; fôlego de 60 s; desiste se a presa abrir 30 blocos"
+      ],
+      [
+       "Marca",
+       "mordida que solta: morde, recua e segue o rastro provando o ar com a língua; a peçonha (30 s) é choque (torpor) nas criaturas do mod e sangramento sem regeneração no jogador e nos vanilla; cura com o antídoto"
+      ]
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Dieta"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "favorita: Dodô, cabra, ovelha, porco",
+      "boa: Galimimo, burro, cavalo, coelho, galinha, lhama, vaca",
+      "aceitável: Jogador, Ornitholestes, Velociraptor, aldeão, alpaca (TFC), boar (TFC), chicken (TFC), cow (TFC), deer (TFC), donkey (TFC), gazelle (TFC), goat (TFC), horse (TFC), mercador, mule (TFC), pig (TFC), rabbit (TFC), sheep (TFC), turkey (TFC), wildebeest (TFC)",
+      "último recurso: Elasmotério"
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Ao espreitar, ronda a esta distância da presa: Dodô a ~7; Galimimo a ~15; Velociraptor a ~13; Ornitholestes a ~13; Elasmotério a ~17 blocos."
+    },
+    {
+     "type": "paragraph",
+     "text": "Caçado por: ninguém."
+    },
+    {
+     "type": "heading",
+     "text": "Spawn"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Biomas",
+       "qualquer bioma da superfície (e do TerraFirmaCraft)"
+      ],
+      [
+       "Ideal",
+       "savana, planalto de savana, savana ventosa, terras áridas, eroded_badlands, terras áridas arborizadas, planície nevada; no TerraFirmaCraft: terras áridas, terras áridas invertidas, cânions, cânions baixos"
+      ],
+      [
+       "Frequência",
+       "peso 2; 6 no ideal (×3); até 1 perto do jogador; a 300+ blocos do spawn"
+      ]
+     ]
+    }
+   ]
+  },
+  "iceagesurvival:ornitholestes": {
+   "name": "Ornitholestes",
+   "badges": [
+    "Carnívoro"
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "0,7 × 1,1 blocos · velocidade 0,42"
+    },
+    {
+     "type": "heading",
+     "text": "Bando e território"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Bando",
+       "1 (limite 1); solitário"
+      ],
+      [
+       "Território do bando",
+       "8 blocos em volta de cada membro; passeia num raio de 32 da toca"
+      ],
+      [
+       "Foge ferido",
+       "abaixo de 40% da vida"
+      ],
+      [
+       "Nervosismo",
+       "1,5"
+      ],
+      [
+       "Quebra blocos",
+       "nada"
+      ],
+      [
+       "Horário",
+       "noturno: de dia dorme escondido e não caça; só acorda se atacado"
+      ],
+      [
+       "Camuflagem",
+       "escondido em folhas, mato ou neve alta, é notado a 50% do raio"
+      ],
+      [
+       "Carniça",
+       "com fome, come carne crua do chão, longe de predador maior (16 blocos)"
+      ],
+      [
+       "Sentinela",
+       "domesticado, avisa o dono de predador selvagem a 32 blocos"
+      ]
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Percepção"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Alerta",
+       "20 blocos"
+      ],
+      [
+       "Nota quem espreita a",
+       "10 blocos"
+      ],
+      [
+       "Lutar ou fugir",
+       "investe a 2 blocos, 20% blefe, 60% recua"
+      ],
+      [
+       "Jogador",
+       "é ameaça (agachado, a 50% do alerta)"
+      ]
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Caça"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Faro de caça",
+       "32 blocos (maior alerta das presas: 12, de Dodô, + 8)"
+      ],
+      [
+       "Fome",
+       "caça de novo depois de 300 s sem comer; saciado por 120 s (o bando inteiro)"
+      ],
+      [
+       "Caça",
+       "espreita e dispara; fôlego de 12 s; desiste se a presa abrir 30 blocos"
+      ],
+      [
+       "Marca",
+       "agarrão: sem arrancada; o primeiro golpe do bote prende a presa do porte dele para baixo (lenta 2 s)"
+      ]
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Dieta"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "favorita: coelho, sapo",
+      "boa: Dodô, galinha",
+      "aceitável: chicken (TFC), duck (TFC), fox (TFC), frog (TFC), grouse (TFC), peafowl (TFC), penguin (TFC), pheasant (TFC), quail (TFC), rabbit (TFC), rat (TFC), turkey (TFC)",
+      "último recurso: raposa"
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Ao espreitar, ronda a esta distância da presa: Dodô a ~7 blocos."
+    },
+    {
+     "type": "paragraph",
+     "text": "Caçado por: Baryonyx (boa), Kelenken (boa), Megalania (aceitável), Quetzalcoatlus (aceitável), Velociraptor (aceitável)"
+    },
+    {
+     "type": "heading",
+     "text": "Spawn"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Biomas",
+       "qualquer bioma da superfície (e do TerraFirmaCraft)"
+      ],
+      [
+       "Ideal",
+       "floresta, floresta de flores, floresta de bétulas, taiga, bosque nevado, planície nevada; no TerraFirmaCraft: colinas, colinas onduladas, terras altas, planalto, montanhas antigas"
+      ],
+      [
+       "Frequência",
+       "peso 4; 12 no ideal (×3); até 2 perto do jogador; desde o spawn"
+      ]
+     ]
+    }
+   ]
+  },
+  "iceagesurvival:quetzalcoatlus": {
+   "name": "Quetzalcoatlus",
+   "badges": [
+    "Carnívoro",
+    "Montável"
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "2,2 × 4,5 blocos · velocidade 0,3"
+    },
+    {
+     "type": "heading",
+     "text": "Bando e território"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Bando",
+       "2–4 (limite 4); manada de raio 16; defende o grupo"
+      ],
+      [
+       "Território do bando",
+       "22 blocos em volta de cada membro"
+      ],
+      [
+       "Foge ferido",
+       "abaixo de 25% da vida"
+      ],
+      [
+       "Nervosismo",
+       "1"
+      ],
+      [
+       "Quebra blocos",
+       "nada"
+      ],
+      [
+       "Horário",
+       "diurno: à noite dorme escondido e não caça; só acorda se atacado"
+      ],
+      [
+       "Pesca",
+       "selvagem, pesca na água sem gelo a 32 blocos (30% de chance quando procura comida); domesticado e parado, pesca a 6 blocos e guarda o peixe"
+      ],
+      [
+       "Fôlego de voo",
+       "90 s no nível 1 (+4% por ponto)"
+      ]
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Percepção"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Alerta",
+       "24 blocos"
+      ],
+      [
+       "Nota quem espreita a",
+       "12 blocos"
+      ],
+      [
+       "Lutar ou fugir",
+       "investe a 3 blocos, 50% recua"
+      ],
+      [
+       "Jogador",
+       "não o teme"
+      ]
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Caça"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Faro de caça",
+       "40 blocos (maior alerta das presas: 20, de Ornitholestes, + 8)"
+      ],
+      [
+       "Fome",
+       "caça de novo depois de 300 s sem comer; saciado por 240 s (o bando inteiro)"
+      ],
+      [
+       "Caça",
+       "espreita e dispara; fôlego de 15 s; desiste se a presa abrir 30 blocos"
+      ],
+      [
+       "Marca",
+       "engole inteira: a presa da dieta que cabe no bico (porte até 0,1 do dele, nunca filhote) some de uma vez e vale meia refeição; a maior leva só a bicada"
+      ]
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Dieta"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "favorita: peixes",
+      "boa: Dodô, coelho, galinha, sapo",
+      "aceitável: Ornitholestes, Velociraptor, chicken (TFC), duck (TFC), frog (TFC), grouse (TFC), pheasant (TFC), quail (TFC), rabbit (TFC), rat (TFC)"
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Ao espreitar, ronda a esta distância da presa: Dodô a ~7; Ornitholestes a ~13; Velociraptor a ~13 blocos."
+    },
+    {
+     "type": "paragraph",
+     "text": "Caçado por: Tiranossauro Rex (aceitável)"
+    },
+    {
+     "type": "heading",
+     "text": "Spawn"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Biomas",
+       "qualquer bioma da superfície (e do TerraFirmaCraft)"
+      ],
+      [
+       "Ideal",
+       "planície, planície de girassóis, savana, planalto de savana, rio, planície nevada; no TerraFirmaCraft: planícies, terras baixas, colinas onduladas, rio, lago"
+      ],
+      [
+       "Frequência",
+       "peso 2; 6 no ideal (×3); até 4 perto do jogador; a 400+ blocos do spawn"
+      ]
+     ]
+    }
+   ]
+  },
+  "iceagesurvival:smilodon": {
+   "name": "Smilodon",
+   "badges": [
+    "Carnívoro",
+    "Montável",
+    "Agressivo"
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "1,3 × 2,3 blocos · velocidade 0,4"
+    },
+    {
+     "type": "heading",
+     "text": "Bando e território"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Bando",
+       "1 (limite 1); solitário"
+      ],
+      [
+       "Território do bando",
+       "9,2 blocos em volta de cada membro; passeia num raio de 32 da toca"
+      ],
+      [
+       "Foge ferido",
+       "abaixo de 25% da vida"
+      ],
+      [
+       "Nervosismo",
+       "0,8"
+      ],
+      [
+       "Quebra blocos",
+       "só folhas e plantas, ao passar"
+      ]
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Percepção"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Alerta",
+       "24 blocos"
+      ],
+      [
+       "Nota quem espreita a",
+       "12 blocos"
+      ],
+      [
+       "Lutar ou fugir",
+       "investe a 4 blocos, 15% recua"
+      ],
+      [
+       "Jogador",
+       "não o teme"
+      ]
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Caça"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Faro de caça",
+       "48 blocos (maior alerta das presas: 36, de Brontossauro, + 8)"
+      ],
+      [
+       "Fome",
+       "caça de novo depois de 360 s sem comer; saciado por 180 s (o bando inteiro)"
+      ],
+      [
+       "Caça",
+       "espreita e dispara; fôlego de 12 s; desiste se a presa abrir 30 blocos"
+      ],
+      [
+       "Marca",
+       "emboscada: arrancada +50% por 4 s no bote, e o primeiro golpe agarra (presa lenta 2 s)"
+      ]
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Dieta"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "favorita: Elasmotério, burro, cabra, cavalo, lhama, vaca",
+      "boa: Galimimo, ovelha, porco",
+      "aceitável: Jogador, Mamute-Lanoso, aldeão, alpaca (TFC), boar (TFC), bongo (TFC), caribou (TFC), cow (TFC), deer (TFC), donkey (TFC), gazelle (TFC), goat (TFC), horse (TFC), mercador, mule (TFC), pig (TFC), sheep (TFC), wildebeest (TFC)",
+      "último recurso: Anquilossauro, Brontossauro, Dodô, Estegossauro, Tricerátopo"
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Ao espreitar, ronda a esta distância da presa: Elasmotério a ~17; Galimimo a ~15; Mamute-Lanoso a ~19; Dodô a ~7; Estegossauro a ~15; Tricerátopo a ~17 blocos."
+    },
+    {
+     "type": "paragraph",
+     "text": "Caçado por: ninguém."
+    },
+    {
+     "type": "heading",
+     "text": "Spawn"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Biomas",
+       "qualquer bioma da superfície (e do TerraFirmaCraft)"
+      ],
+      [
+       "Ideal",
+       "savana, planalto de savana, floresta, taiga, planície nevada; no TerraFirmaCraft: colinas, colinas onduladas, terras altas, planalto, montanhas antigas"
+      ],
+      [
+       "Frequência",
+       "peso 4; 12 no ideal (×3); até 1 perto do jogador; desde o spawn"
+      ]
+     ]
+    }
+   ]
+  },
+  "iceagesurvival:tyrannosaurus": {
+   "name": "Tiranossauro Rex",
+   "badges": [
+    "Carnívoro",
+    "Montável",
+    "Agressivo",
+    "Apex"
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "2,7 × 5,4 blocos · velocidade 0,3"
+    },
+    {
+     "type": "heading",
+     "text": "Bando e território"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Bando",
+       "1 (limite 1); solitário"
+      ],
+      [
+       "Território do bando",
+       "14,8 blocos em volta de cada membro; passeia num raio de 160 da toca"
+      ],
+      [
+       "Foge ferido",
+       "abaixo de 10% da vida"
+      ],
+      [
+       "Nervosismo",
+       "0,4"
+      ],
+      [
+       "Apex",
+       "não cai com tranquilizante; só se doma vencendo o desafio com a cabeça de outro da espécie"
+      ],
+      [
+       "Quebra blocos",
+       "madeira (muro/portão nosso em 3 golpes, madeira vanilla em 2) só para alcançar o alvo; derruba tronco ao esbarrar"
+      ],
+      [
+       "Carcaça",
+       "morto selvagem sem jogador, fica caído com 28 porções de carne por até 10 min: o predador mais forte come primeiro; o jogador carneia a sobra com machado ou espada"
+      ]
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Percepção"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Alerta",
+       "36 blocos"
+      ],
+      [
+       "Nota quem espreita a",
+       "18 blocos"
+      ],
+      [
+       "Lutar ou fugir",
+       "investe a 6 blocos, 5% recua"
+      ],
+      [
+       "Jogador",
+       "não o teme"
+      ]
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Caça"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Faro de caça",
+       "72 blocos (maior alerta das presas: 36, de Brontossauro, + 8)"
+      ],
+      [
+       "Fome",
+       "caça de novo depois de 480 s sem comer; saciado por 180 s (o bando inteiro)"
+      ],
+      [
+       "Caça",
+       "espreita e dispara; fôlego de 20 s; desiste se a presa abrir 30 blocos"
+      ]
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Dieta"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "favorita: Tricerátopo",
+      "boa: Brontossauro, Elasmotério, Estegossauro, Mamute-Lanoso",
+      "aceitável: Jogador, Anquilossauro, Galimimo, Quetzalcoatlus, aldeão, alpaca (TFC), boar (TFC), bongo (TFC), burro, caribou (TFC), cavalo, cow (TFC), deer (TFC), donkey (TFC), gazelle (TFC), goat (TFC), horse (TFC), lhama, mercador, moose (TFC), mule (TFC), musk ox (TFC), pig (TFC), sheep (TFC), vaca, wildebeest (TFC), yak (TFC)",
+      "último recurso: Dodô, cabra, ovelha, porco"
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Ao espreitar, ronda a esta distância da presa: Tricerátopo a ~17; Brontossauro a ~21; Estegossauro a ~15; Mamute-Lanoso a ~19; Elasmotério a ~17; Galimimo a ~15 blocos."
+    },
+    {
+     "type": "paragraph",
+     "text": "Caçado por: ninguém."
+    },
+    {
+     "type": "heading",
+     "text": "Spawn"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Biomas",
+       "qualquer bioma da superfície (e do TerraFirmaCraft)"
+      ],
+      [
+       "Ideal",
+       "floresta, floresta de flores, planície, planície de girassóis, taiga, planície nevada; no TerraFirmaCraft: planícies, terras baixas, colinas, colinas onduladas"
+      ],
+      [
+       "Frequência",
+       "peso 1; 3 no ideal (×3); até 1 perto do jogador; um grupo a cada 300 blocos; a 300+ blocos do spawn"
+      ]
+     ]
+    }
+   ]
+  },
+  "iceagesurvival:direbear": {
+   "name": "Urso-Terrível",
+   "badges": [
+    "Carnívoro",
+    "Montável",
+    "Agressivo"
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "2 × 3 blocos · velocidade 0,32"
+    },
+    {
+     "type": "heading",
+     "text": "Bando e território"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Bando",
+       "1 (limite 1); solitário"
+      ],
+      [
+       "Território do bando",
+       "12 blocos em volta de cada membro; passeia num raio de 64 da toca"
+      ],
+      [
+       "Foge ferido",
+       "abaixo de 15% da vida"
+      ],
+      [
+       "Nervosismo",
+       "0,6"
+      ],
+      [
+       "Quebra blocos",
+       "só folhas e plantas, ao passar"
+      ],
+      [
+       "Carcaça",
+       "morto selvagem sem jogador, fica caído com 8 porções de carne por até 10 min: o predador mais forte come primeiro; o jogador carneia a sobra com machado ou espada"
+      ]
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Percepção"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Alerta",
+       "28 blocos"
+      ],
+      [
+       "Nota quem espreita a",
+       "14 blocos"
+      ],
+      [
+       "Lutar ou fugir",
+       "investe a 5 blocos, 10% recua"
+      ],
+      [
+       "Jogador",
+       "não o teme"
+      ]
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Caça"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Faro de caça",
+       "44 blocos (maior alerta das presas: 36, de Brontossauro, + 8)"
+      ],
+      [
+       "Fome",
+       "caça de novo depois de 420 s sem comer; saciado por 180 s (o bando inteiro)"
+      ],
+      [
+       "Caça",
+       "espreita e dispara; fôlego de 15 s; desiste se a presa abrir 30 blocos"
+      ]
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Dieta"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "boa: cabra, ovelha, porco, vaca",
+      "aceitável: Jogador, Dodô, Galimimo, aldeão, alpaca (TFC), boar (TFC), bongo (TFC), burro, caribou (TFC), cavalo, cow (TFC), deer (TFC), donkey (TFC), gazelle (TFC), goat (TFC), horse (TFC), lhama, mercador, moose (TFC), mule (TFC), musk ox (TFC), pig (TFC), sheep (TFC), wildebeest (TFC), yak (TFC)",
+      "último recurso: Anquilossauro, Brontossauro, Elasmotério, Estegossauro, Mamute-Lanoso, Tricerátopo"
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Ao espreitar, ronda a esta distância da presa: Dodô a ~7; Galimimo a ~15; Elasmotério a ~17; Mamute-Lanoso a ~19; Estegossauro a ~15; Tricerátopo a ~17 blocos."
+    },
+    {
+     "type": "paragraph",
+     "text": "Caçado por: ninguém."
+    },
+    {
+     "type": "heading",
+     "text": "Spawn"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Biomas",
+       "qualquer bioma da superfície (e do TerraFirmaCraft)"
+      ],
+      [
+       "Ideal",
+       "taiga, taiga antiga de pinheiros, taiga antiga de abetos, floresta, planície nevada; no TerraFirmaCraft: colinas, colinas onduladas, terras altas, planalto, montanhas antigas"
+      ],
+      [
+       "Frequência",
+       "peso 1; 3 no ideal (×3); até 1 perto do jogador; a 300+ blocos do spawn"
+      ]
+     ]
+    }
+   ]
+  },
+  "iceagesurvival:utahraptor": {
+   "name": "Utahraptor",
+   "badges": [
+    "Carnívoro",
+    "Montável",
+    "Agressivo"
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "1,2 × 2,3 blocos · velocidade 0,4"
+    },
+    {
+     "type": "heading",
+     "text": "Bando e território"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Bando",
+       "2–3 (limite 3); manada de raio 12; defende o grupo"
+      ],
+      [
+       "Território do bando",
+       "18 blocos em volta de cada membro; passeia num raio de 48 da toca"
+      ],
+      [
+       "Foge ferido",
+       "abaixo de 20% da vida"
+      ],
+      [
+       "Nervosismo",
+       "0,9"
+      ],
+      [
+       "Quebra blocos",
+       "nada"
+      ],
+      [
+       "Carcaça",
+       "morto selvagem sem jogador, fica caído com 6 porções de carne por até 10 min: o predador mais forte come primeiro; o jogador carneia a sobra com machado ou espada"
+      ]
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Percepção"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Alerta",
+       "26 blocos"
+      ],
+      [
+       "Nota quem espreita a",
+       "13 blocos"
+      ],
+      [
+       "Lutar ou fugir",
+       "investe a 4 blocos, 20% recua"
+      ],
+      [
+       "Jogador",
+       "não o teme"
+      ]
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Caça"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Faro de caça",
+       "56 blocos (maior alerta das presas: 36, de Brontossauro, + 8)"
+      ],
+      [
+       "Fome",
+       "caça de novo depois de 300 s sem comer; saciado por 180 s (o bando inteiro)"
+      ],
+      [
+       "Caça",
+       "espreita e dispara; fôlego de 30 s; desiste se a presa abrir 30 blocos"
+      ],
+      [
+       "Marca",
+       "salto: no bote, pula sobre a presa a 3–10 blocos"
+      ],
+      [
+       "Bônus de bando",
+       "+40% de dano e velocidade com aliado do bando a 16 blocos"
+      ]
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Dieta"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "favorita: Galimimo",
+      "boa: Jogador, Dodô, cabra, ovelha, porco",
+      "aceitável: Elasmotério, aldeão, alpaca (TFC), boar (TFC), bongo (TFC), burro, caribou (TFC), cavalo, cow (TFC), deer (TFC), donkey (TFC), gazelle (TFC), goat (TFC), horse (TFC), lhama, mercador, mule (TFC), pig (TFC), sheep (TFC), vaca, wildebeest (TFC)",
+      "último recurso: Anquilossauro, Brontossauro, Estegossauro, Mamute-Lanoso, Tricerátopo"
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Ao espreitar, ronda a esta distância da presa: Galimimo a ~15; Dodô a ~7; Elasmotério a ~17; Estegossauro a ~15; Tricerátopo a ~17; Brontossauro a ~21 blocos."
+    },
+    {
+     "type": "paragraph",
+     "text": "Caçado por: ninguém."
+    },
+    {
+     "type": "heading",
+     "text": "Spawn"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Biomas",
+       "qualquer bioma da superfície (e do TerraFirmaCraft)"
+      ],
+      [
+       "Ideal",
+       "taiga, taiga antiga de abetos, floresta, planície nevada; no TerraFirmaCraft: colinas, colinas onduladas, terras altas, planalto, montanhas antigas, terras áridas, terras áridas invertidas, cânions, cânions baixos"
+      ],
+      [
+       "Frequência",
+       "peso 2; 6 no ideal (×3); até 3 perto do jogador; a 350+ blocos do spawn"
+      ]
+     ]
+    }
+   ]
+  },
+  "iceagesurvival:velociraptor": {
+   "name": "Velociraptor",
+   "badges": [
+    "Carnívoro"
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "0,6 × 0,9 blocos · velocidade 0,4"
+    },
+    {
+     "type": "heading",
+     "text": "Bando e território"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Bando",
+       "1–2 (limite 2); manada de raio 8; defende o grupo"
+      ],
+      [
+       "Território do bando",
+       "14 blocos em volta de cada membro; passeia num raio de 40 da toca"
+      ],
+      [
+       "Foge ferido",
+       "abaixo de 50% da vida"
+      ],
+      [
+       "Nervosismo",
+       "1,4"
+      ],
+      [
+       "Quebra blocos",
+       "nada"
+      ]
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Percepção"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Alerta",
+       "20 blocos"
+      ],
+      [
+       "Nota quem espreita a",
+       "10 blocos"
+      ],
+      [
+       "Lutar ou fugir",
+       "investe a 2,5 blocos, 50% blefe, 50% recua"
+      ],
+      [
+       "Jogador",
+       "é ameaça (agachado, a 50% do alerta)"
+      ]
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Caça"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Faro de caça",
+       "32 blocos (maior alerta das presas: 20, de Ornitholestes, + 8)"
+      ],
+      [
+       "Fome",
+       "caça de novo depois de 300 s sem comer; saciado por 120 s (o bando inteiro)"
+      ],
+      [
+       "Caça",
+       "espreita e dispara; fôlego de 15 s; desiste se a presa abrir 30 blocos"
+      ],
+      [
+       "Bônus de bando",
+       "+25% de dano e velocidade com aliado do bando a 16 blocos"
+      ]
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Dieta"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "favorita: coelho",
+      "boa: Dodô, galinha",
+      "aceitável: Ornitholestes, chicken (TFC), duck (TFC), fox (TFC), frog (TFC), grouse (TFC), peafowl (TFC), penguin (TFC), pheasant (TFC), quail (TFC), rabbit (TFC), raposa, rat (TFC), sapo, turkey (TFC)"
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Ao espreitar, ronda a esta distância da presa: Dodô a ~7; Ornitholestes a ~13 blocos."
+    },
+    {
+     "type": "paragraph",
+     "text": "Caçado por: Kelenken (boa), Baryonyx (aceitável), Megalania (aceitável), Quetzalcoatlus (aceitável)"
+    },
+    {
+     "type": "heading",
+     "text": "Spawn"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Biomas",
+       "qualquer bioma da superfície (e do TerraFirmaCraft)"
+      ],
+      [
+       "Ideal",
+       "deserto, terras áridas, eroded_badlands, terras áridas arborizadas, savana, planície nevada; no TerraFirmaCraft: planícies, terras baixas, colinas, colinas onduladas, terras áridas, terras áridas invertidas, cânions, cânions baixos"
+      ],
+      [
+       "Frequência",
+       "peso 5; 15 no ideal (×3); até 2 perto do jogador; a 300+ blocos do spawn"
+      ]
+     ]
+    }
+   ]
+  },
+  "iceagesurvival:ankylosaurus": {
+   "name": "Anquilossauro",
+   "badges": [
+    "Herbívoro",
+    "Montável"
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "2,6 × 2,2 blocos · velocidade 0,18"
+    },
+    {
+     "type": "heading",
+     "text": "Bando e território"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Bando",
+       "1 (limite 1); solitário"
+      ],
+      [
+       "Território do bando",
+       "14,4 blocos em volta de cada membro"
+      ],
+      [
+       "Foge ferido",
+       "abaixo de 15% da vida"
+      ],
+      [
+       "Nervosismo",
+       "0,5"
+      ],
+      [
+       "Quebra blocos",
+       "só folhas e plantas, ao passar"
+      ],
+      [
+       "Carcaça",
+       "morto selvagem sem jogador, fica caído com 24 porções de carne por até 10 min: o predador mais forte come primeiro; o jogador carneia a sobra com machado ou espada"
+      ],
+      [
+       "Esterco",
+       "adulto acordado deixa um a cada ~10 min, e mais um a cada 60 de alimento que come; aduba como farinha de osso"
+      ],
+      [
+       "Montado",
+       "a mordida minera a tag #iceagesurvival:ankylosaurus_harvestable até dureza 4,5, com os drops de minecraft:stone_pickaxe"
+      ]
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Percepção"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Alerta",
+       "20 blocos (24 com filhote)"
+      ],
+      [
+       "Nota quem espreita a",
+       "10 blocos"
+      ],
+      [
+       "Lutar ou fugir",
+       "não foge nem investe: a 6 blocos vira a cauda e golpeia quem entra no arco de trás (100°, 4,5 blocos do centro), mesmo sem tê-lo notado; o golpe quebra a perna (−60% de velocidade, sem pulo, 5 s); pela frente não tem golpe; entre dois da espécie, duelo no flanco que não passa de 40% da vida, 15% recua"
+      ],
+      [
+       "Jogador",
+       "é ameaça (agachado, a 50% do alerta)"
+      ]
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Caçado por: Tiranossauro Rex (aceitável), Alossauro (último recurso), Espinossauro (último recurso), Smilodon (último recurso), Urso-Terrível (último recurso), Utahraptor (último recurso)"
+    },
+    {
+     "type": "heading",
+     "text": "Spawn"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Biomas",
+       "qualquer bioma da superfície (e do TerraFirmaCraft)"
+      ],
+      [
+       "Ideal",
+       "planície, planície de girassóis, planície nevada, taiga, taiga nevada, taiga antiga de pinheiros, taiga antiga de abetos, bosque nevado; no TerraFirmaCraft: planícies, terras baixas, colinas, colinas onduladas"
+      ],
+      [
+       "Frequência",
+       "peso 3; 9 no ideal (×3); até 2 perto do jogador; a 300+ blocos do spawn"
+      ]
+     ]
+    }
+   ]
+  },
+  "iceagesurvival:brontosaurus": {
+   "name": "Brontossauro",
+   "badges": [
+    "Herbívoro",
+    "Montável"
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "4 × 8 blocos · velocidade 0,2"
+    },
+    {
+     "type": "heading",
+     "text": "Bando e território"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Bando",
+       "2–4 (limite 4); manada de raio 18; defende o grupo; migra"
+      ],
+      [
+       "Território do bando",
+       "24 blocos em volta de cada membro"
+      ],
+      [
+       "Nervosismo",
+       "0,6"
+      ],
+      [
+       "Quebra blocos",
+       "madeira (muro/portão nosso em 3 golpes, madeira vanilla em 2) só para alcançar o alvo; derruba tronco ao esbarrar"
+      ],
+      [
+       "Carcaça",
+       "morto selvagem sem jogador, fica caído com 60 porções de carne por até 10 min: o predador mais forte come primeiro; o jogador carneia a sobra com machado ou espada"
+      ]
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Percepção"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Alerta",
+       "36 blocos"
+      ],
+      [
+       "Nota quem espreita a",
+       "18 blocos"
+      ],
+      [
+       "Lutar ou fugir",
+       "investe a 3 blocos, 70% blefe, 40% recua"
+      ],
+      [
+       "Jogador",
+       "é ameaça (agachado, a 50% do alerta)"
+      ]
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Caçado por: Alossauro (boa), Tiranossauro Rex (boa), Espinossauro (último recurso), Smilodon (último recurso), Urso-Terrível (último recurso), Utahraptor (último recurso)"
+    },
+    {
+     "type": "heading",
+     "text": "Spawn"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Biomas",
+       "qualquer bioma da superfície (e do TerraFirmaCraft)"
+      ],
+      [
+       "Ideal",
+       "planície, planície de girassóis, savana, planalto de savana, prado, planície nevada; no TerraFirmaCraft: planícies, terras baixas, colinas, colinas onduladas"
+      ],
+      [
+       "Frequência",
+       "peso 6; 18 no ideal (×3); até 4 perto do jogador; um grupo a cada 300 blocos; desde o spawn"
+      ]
+     ]
+    }
+   ]
+  },
+  "iceagesurvival:dodo": {
+   "name": "Dodô",
+   "badges": [
+    "Herbívoro"
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "0,7 × 0,9 blocos · velocidade 0,1"
+    },
+    {
+     "type": "heading",
+     "text": "Bando e território"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Bando",
+       "2–5 (limite 5); manada de raio 8; defende o grupo"
+      ],
+      [
+       "Território do bando",
+       "14 blocos em volta de cada membro"
+      ],
+      [
+       "Foge ferido",
+       "abaixo de 35% da vida"
+      ],
+      [
+       "Nervosismo",
+       "0,3"
+      ],
+      [
+       "Quebra blocos",
+       "nada"
+      ]
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Percepção"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Alerta",
+       "8 blocos (12 com filhote)"
+      ],
+      [
+       "Nota quem espreita a",
+       "4 blocos"
+      ],
+      [
+       "Lutar ou fugir",
+       "não investe: foge"
+      ],
+      [
+       "Jogador",
+       "não o teme"
+      ]
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Caçado por: Kelenken (favorita), Megalania (favorita), Baryonyx (boa), Espinossauro (boa), Ornitholestes (boa), Quetzalcoatlus (boa), Utahraptor (boa), Velociraptor (boa), Urso-Terrível (aceitável), Alossauro (último recurso), Smilodon (último recurso), Tiranossauro Rex (último recurso)"
+    },
+    {
+     "type": "heading",
+     "text": "Spawn"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Biomas",
+       "qualquer bioma da superfície (e do TerraFirmaCraft)"
+      ],
+      [
+       "Ideal",
+       "praia, floresta, selva esparsa, planície nevada; no TerraFirmaCraft: planícies, terras baixas, colinas, colinas onduladas"
+      ],
+      [
+       "Frequência",
+       "peso 14; 42 no ideal (×3); até 10 perto do jogador; desde o spawn"
+      ]
+     ]
+    }
+   ]
+  },
+  "iceagesurvival:elasmotherium": {
+   "name": "Elasmotério",
+   "badges": [
+    "Herbívoro",
+    "Montável"
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "1,8 × 2,4 blocos · velocidade 0,26"
+    },
+    {
+     "type": "heading",
+     "text": "Bando e território"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Bando",
+       "1 (limite 1); solitário"
+      ],
+      [
+       "Território do bando",
+       "11,2 blocos em volta de cada membro"
+      ],
+      [
+       "Foge ferido",
+       "abaixo de 10% da vida"
+      ],
+      [
+       "Nervosismo",
+       "1,2"
+      ],
+      [
+       "Quebra blocos",
+       "madeira (muro/portão nosso em 6 golpes, madeira vanilla em 3) só para alcançar o alvo"
+      ],
+      [
+       "Carcaça",
+       "morto selvagem sem jogador, fica caído com 18 porções de carne por até 10 min: o predador mais forte come primeiro; o jogador carneia a sobra com machado ou espada"
+      ]
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Percepção"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Alerta",
+       "28 blocos"
+      ],
+      [
+       "Nota quem espreita a",
+       "14 blocos"
+      ],
+      [
+       "Lutar ou fugir",
+       "investe a 4 blocos, 55% blefe, 35% recua"
+      ],
+      [
+       "Jogador",
+       "é ameaça (agachado, a 50% do alerta)"
+      ]
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Caçado por: Smilodon (favorita), Alossauro (boa), Tiranossauro Rex (boa), Utahraptor (aceitável), Espinossauro (último recurso), Kelenken (último recurso), Megalania (último recurso), Urso-Terrível (último recurso)"
+    },
+    {
+     "type": "heading",
+     "text": "Spawn"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Biomas",
+       "qualquer bioma da superfície (e do TerraFirmaCraft)"
+      ],
+      [
+       "Ideal",
+       "planície nevada, planície, planície de girassóis, savana; no TerraFirmaCraft: planícies, terras baixas, colinas, colinas onduladas"
+      ],
+      [
+       "Frequência",
+       "peso 12; 36 no ideal (×3); até 1 perto do jogador; desde o spawn"
+      ]
+     ]
+    }
+   ]
+  },
+  "iceagesurvival:stegosaurus": {
+   "name": "Estegossauro",
+   "badges": [
+    "Herbívoro"
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "4,35 × 5,45 blocos · velocidade 0,22"
+    },
+    {
+     "type": "heading",
+     "text": "Bando e território"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Bando",
+       "2–4 (limite 4); manada de raio 14; defende o grupo; migra"
+      ],
+      [
+       "Território do bando",
+       "20 blocos em volta de cada membro"
+      ],
+      [
+       "Nervosismo",
+       "0,9"
+      ],
+      [
+       "Quebra blocos",
+       "madeira (muro/portão nosso em 3 golpes, madeira vanilla em 2) só para alcançar o alvo; derruba tronco ao esbarrar"
+      ],
+      [
+       "Carcaça",
+       "morto selvagem sem jogador, fica caído com 22 porções de carne por até 10 min: o predador mais forte come primeiro; o jogador carneia a sobra com machado ou espada"
+      ]
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Percepção"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Alerta",
+       "24 blocos"
+      ],
+      [
+       "Nota quem espreita a",
+       "12 blocos"
+      ],
+      [
+       "Lutar ou fugir",
+       "investe a 3 blocos, 20% blefe, 30% recua"
+      ],
+      [
+       "Jogador",
+       "é ameaça (agachado, a 50% do alerta)"
+      ]
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Caçado por: Alossauro (favorita), Tiranossauro Rex (boa), Espinossauro (último recurso), Smilodon (último recurso), Urso-Terrível (último recurso), Utahraptor (último recurso)"
+    },
+    {
+     "type": "heading",
+     "text": "Spawn"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Biomas",
+       "qualquer bioma da superfície (e do TerraFirmaCraft)"
+      ],
+      [
+       "Ideal",
+       "savana, planalto de savana, planície, floresta, planície nevada; no TerraFirmaCraft: planícies, terras baixas, colinas, colinas onduladas"
+      ],
+      [
+       "Frequência",
+       "peso 12; 36 no ideal (×3); até 4 perto do jogador; desde o spawn"
+      ]
+     ]
+    }
+   ]
+  },
+  "iceagesurvival:gallimimus": {
+   "name": "Galimimo",
+   "badges": [
+    "Herbívoro",
+    "Montável"
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "1,2 × 2,3 blocos · velocidade 0,42"
+    },
+    {
+     "type": "heading",
+     "text": "Bando e território"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Bando",
+       "3–5 (limite 5); manada de raio 12"
+      ],
+      [
+       "Território do bando",
+       "18 blocos em volta de cada membro"
+      ],
+      [
+       "Foge ferido",
+       "abaixo de 90% da vida"
+      ],
+      [
+       "Nervosismo",
+       "1,6"
+      ],
+      [
+       "Quebra blocos",
+       "só folhas e plantas, ao passar"
+      ],
+      [
+       "Carcaça",
+       "morto selvagem sem jogador, fica caído com 6 porções de carne por até 10 min: o predador mais forte come primeiro; o jogador carneia a sobra com machado ou espada"
+      ]
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Percepção"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Alerta",
+       "24 blocos"
+      ],
+      [
+       "Nota quem espreita a",
+       "12 blocos"
+      ],
+      [
+       "Lutar ou fugir",
+       "não investe: foge"
+      ],
+      [
+       "Jogador",
+       "é ameaça (agachado, a 50% do alerta)"
+      ]
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Caçado por: Alossauro (favorita), Utahraptor (favorita), Baryonyx (boa), Espinossauro (boa), Kelenken (boa), Megalania (boa), Smilodon (boa), Tiranossauro Rex (aceitável), Urso-Terrível (aceitável)"
+    },
+    {
+     "type": "heading",
+     "text": "Spawn"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Biomas",
+       "qualquer bioma da superfície (e do TerraFirmaCraft)"
+      ],
+      [
+       "Ideal",
+       "planície, planície de girassóis, savana, deserto, planície nevada; no TerraFirmaCraft: planícies, terras baixas, colinas, colinas onduladas"
+      ],
+      [
+       "Frequência",
+       "peso 7; 21 no ideal (×3); até 5 perto do jogador; desde o spawn"
+      ]
+     ]
+    }
+   ]
+  },
+  "iceagesurvival:giganotosaurus": {
+   "name": "Giganotossauro",
+   "badges": [
+    "Carnívoro",
+    "Agressivo"
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "3 × 4,5 blocos · velocidade 0,3"
+    },
+    {
+     "type": "heading",
+     "text": "Bando e território"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Bando",
+       "1 (limite 1); solitário"
+      ],
+      [
+       "Território do bando",
+       "16 blocos em volta de cada membro"
+      ],
+      [
+       "Nervosismo",
+       "0"
+      ],
+      [
+       "Quebra blocos",
+       "nada"
+      ]
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Percepção"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Cautela",
+       "sem perfil de cautela"
+      ]
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Caça"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Ataque",
+       "não caça pela ecologia: ataca jogadores e criaturas a 40 blocos com a IA própria"
+      ]
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Caçado por: ninguém."
+    },
+    {
+     "type": "heading",
+     "text": "Spawn"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Spawn",
+       "não nasce sozinho"
+      ]
+     ]
+    }
+   ]
+  },
+  "iceagesurvival:mammoth": {
+   "name": "Mamute-Lanoso",
+   "badges": [
+    "Herbívoro",
+    "Montável"
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "3 × 4,65 blocos · velocidade 0,22"
+    },
+    {
+     "type": "heading",
+     "text": "Bando e território"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Bando",
+       "3–5 (limite 5); manada de raio 14; defende o grupo; migra"
+      ],
+      [
+       "Território do bando",
+       "20 blocos em volta de cada membro"
+      ],
+      [
+       "Nervosismo",
+       "0,8"
+      ],
+      [
+       "Quebra blocos",
+       "madeira (muro/portão nosso em 3 golpes, madeira vanilla em 2) só para alcançar o alvo; derruba tronco ao esbarrar"
+      ],
+      [
+       "Carcaça",
+       "morto selvagem sem jogador, fica caído com 28 porções de carne por até 10 min: o predador mais forte come primeiro; o jogador carneia a sobra com machado ou espada"
+      ]
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Percepção"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Alerta",
+       "32 blocos"
+      ],
+      [
+       "Nota quem espreita a",
+       "16 blocos"
+      ],
+      [
+       "Lutar ou fugir",
+       "investe a 4 blocos, 60% blefe, 20% recua"
+      ],
+      [
+       "Jogador",
+       "é ameaça (agachado, a 50% do alerta)"
+      ]
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Caçado por: Tiranossauro Rex (boa), Alossauro (aceitável), Smilodon (aceitável), Espinossauro (último recurso), Urso-Terrível (último recurso), Utahraptor (último recurso)"
+    },
+    {
+     "type": "heading",
+     "text": "Spawn"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Biomas",
+       "qualquer bioma da superfície (e do TerraFirmaCraft)"
+      ],
+      [
+       "Ideal",
+       "planície nevada, picos de gelo, taiga nevada; no TerraFirmaCraft: planícies, terras baixas, colinas, colinas onduladas"
+      ],
+      [
+       "Frequência",
+       "peso 10; 30 no ideal (×3); até 5 perto do jogador; desde o spawn"
+      ]
+     ]
+    }
+   ]
+  },
+  "iceagesurvival:pteranodon": {
+   "name": "Pteranodonte",
+   "badges": [
+    "Herbívoro",
+    "Montável"
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "1,6 × 2 blocos · velocidade 0,32"
+    },
+    {
+     "type": "heading",
+     "text": "Bando e território"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Bando",
+       "2–4 (limite 4); manada de raio 18; defende o grupo"
+      ],
+      [
+       "Território do bando",
+       "24 blocos em volta de cada membro"
+      ],
+      [
+       "Nervosismo",
+       "1,2"
+      ],
+      [
+       "Quebra blocos",
+       "nada"
+      ],
+      [
+       "Pesca",
+       "selvagem, pesca na água sem gelo a 32 blocos (40% de chance quando procura comida); domesticado e parado, pesca a 6 blocos e guarda o peixe"
+      ],
+      [
+       "Fôlego de voo",
+       "30 s no nível 1 (+4% por ponto)"
+      ]
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Percepção"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Cautela",
+       "sem perfil de cautela"
+      ]
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Caçado por: ninguém."
+    },
+    {
+     "type": "heading",
+     "text": "Spawn"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Biomas",
+       "qualquer bioma da superfície (e do TerraFirmaCraft)"
+      ],
+      [
+       "Ideal",
+       "no TerraFirmaCraft: terras áridas, cânions, oceano profundo, fossa oceânica, terras altas, colinas, terras áridas invertidas, lago, cânions baixos, terras baixas, lago de montanha, montanhas, oceano, recife, lago de montanha oceânica, montanhas oceânicas, lago de montanha antiga, montanhas antigas, planícies, planalto, lago de planalto, rio, colinas onduladas, pântano salgado, costa, planícies de maré, lago vulcânico, montanhas vulcânicas, lago vulcânico oceânico, montanhas oceânicas vulcânicas"
+      ],
+      [
+       "Frequência",
+       "peso 10; 30 no ideal (×3); até 8 perto do jogador; desde o spawn"
+      ]
+     ]
+    }
+   ]
+  },
+  "iceagesurvival:triceratops": {
+   "name": "Tricerátopo",
+   "badges": [
+    "Herbívoro",
+    "Montável"
+   ],
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "5,2 × 5,5 blocos · velocidade 0,24"
+    },
+    {
+     "type": "heading",
+     "text": "Bando e território"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Bando",
+       "2–4 (limite 4); manada de raio 14; defende o grupo; migra"
+      ],
+      [
+       "Território do bando",
+       "20 blocos em volta de cada membro"
+      ],
+      [
+       "Nervosismo",
+       "0,7"
+      ],
+      [
+       "Quebra blocos",
+       "madeira (muro/portão nosso em 3 golpes, madeira vanilla em 2) só para alcançar o alvo; derruba tronco ao esbarrar"
+      ],
+      [
+       "Carcaça",
+       "morto selvagem sem jogador, fica caído com 30 porções de carne por até 10 min: o predador mais forte come primeiro; o jogador carneia a sobra com machado ou espada"
+      ]
+     ]
+    },
+    {
+     "type": "heading",
+     "text": "Percepção"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Alerta",
+       "28 blocos"
+      ],
+      [
+       "Nota quem espreita a",
+       "14 blocos"
+      ],
+      [
+       "Lutar ou fugir",
+       "investe a 6 blocos, 40% blefe, 10% recua"
+      ],
+      [
+       "Jogador",
+       "é ameaça (agachado, a 50% do alerta)"
+      ]
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Caçado por: Tiranossauro Rex (favorita), Alossauro (aceitável), Espinossauro (último recurso), Smilodon (último recurso), Urso-Terrível (último recurso), Utahraptor (último recurso)"
+    },
+    {
+     "type": "heading",
+     "text": "Spawn"
+    },
+    {
+     "type": "table",
+     "columns": [],
+     "rows": [
+      [
+       "Biomas",
+       "qualquer bioma da superfície (e do TerraFirmaCraft)"
+      ],
+      [
+       "Ideal",
+       "planície, planície de girassóis, floresta, prado, planície nevada; no TerraFirmaCraft: planícies, terras baixas, colinas, colinas onduladas"
+      ],
+      [
+       "Frequência",
+       "peso 8; 24 no ideal (×3); até 4 perto do jogador; desde o spawn"
+      ]
+     ]
+    }
+   ]
+  }
+ }
+}

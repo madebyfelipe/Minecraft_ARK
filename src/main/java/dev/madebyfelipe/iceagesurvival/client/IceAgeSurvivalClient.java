@@ -40,6 +40,13 @@ public class IceAgeSurvivalClient {
         ColdStatusPayload.setClientHandler(Thermometer::receive);
         dev.madebyfelipe.iceagesurvival.network.CaveTargetPayload.setClientHandler(CaveTrackerHud::receive);
         MinecraftForge.EVENT_BUS.addListener(CaveTrackerHud::onLoggingOut);
+        dev.madebyfelipe.iceagesurvival.network.DinoFilePayload.setClientHandler(
+                dev.madebyfelipe.iceagesurvival.client.dex.DinoFileClient::receive);
+        dev.madebyfelipe.iceagesurvival.network.ScanResultPayload.setClientHandler(
+                dev.madebyfelipe.iceagesurvival.client.dex.DinoFileClient::receiveScan);
+        MinecraftForge.EVENT_BUS.addListener(dev.madebyfelipe.iceagesurvival.client.dex.DinoFileClient::onLoggingOut);
+        dev.madebyfelipe.iceagesurvival.item.AnalyzerItem.setTerminalOpener(
+                dev.madebyfelipe.iceagesurvival.client.dex.AnalyzerScreen::open);
         PrimalStationsClient.init(modEventBus);
         DefensesClient.init(modEventBus);
         WeaponsClient.init(modEventBus);
@@ -87,6 +94,7 @@ public class IceAgeSurvivalClient {
     private static void registerReloadListeners(RegisterClientReloadListenersEvent event) {
         event.registerReloadListener(CreatureModelSettings.INSTANCE);
         event.registerReloadListener(dev.madebyfelipe.iceagesurvival.client.tabula.TabulaModels.INSTANCE);
+        event.registerReloadListener(dev.madebyfelipe.iceagesurvival.client.dex.WikiManual.INSTANCE);
     }
 
     private static void registerGuiOverlays(RegisterGuiOverlaysEvent event) {
@@ -94,6 +102,8 @@ public class IceAgeSurvivalClient {
         event.registerAbove(VanillaGuiOverlay.HOTBAR.id(), "thermometer", Thermometer::render);
         event.registerAbove(VanillaGuiOverlay.HOTBAR.id(), "creature_tracker", CreatureTracker::render);
         event.registerAbove(VanillaGuiOverlay.HOTBAR.id(), "cave_tracker", CaveTrackerHud::render);
+        event.registerAbove(VanillaGuiOverlay.CROSSHAIR.id(), "analyzer_scan",
+                dev.madebyfelipe.iceagesurvival.client.dex.ScanOverlay::render);
         event.registerAbove(VanillaGuiOverlay.HOTBAR.id(), "flight_stamina", CreatureHud::renderFlightStamina);
     }
 }

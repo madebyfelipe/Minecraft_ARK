@@ -109,6 +109,10 @@ public final class ModItems {
             "giganotosaurus_spawn_egg",
             () -> new ForgeSpawnEggItem(ModEntities.GIGANOTOSAURUS, 0x6B5A48, 0x9E3B2C, new Item.Properties()));
 
+    /** Analisador de campo: escaneia as criaturas para a DINO FILE e abre o terminal com o manual. Todo jogador começa com um. */
+    public static final RegistryObject<dev.madebyfelipe.iceagesurvival.item.AnalyzerItem> ANALYZER =
+            ITEMS.register("analyzer", () -> new dev.madebyfelipe.iceagesurvival.item.AnalyzerItem(
+                    new Item.Properties().stacksTo(1).rarity(net.minecraft.world.item.Rarity.UNCOMMON)));
     /** Rastreador da caverna da arena (D47), feito com os troféus de apex: aparelho de mão, não se gasta. */
     public static final RegistryObject<dev.madebyfelipe.iceagesurvival.item.CaveTrackerItem> CAVE_TRACKER =
             ITEMS.register("cave_tracker", () -> new dev.madebyfelipe.iceagesurvival.item.CaveTrackerItem(
@@ -293,6 +297,7 @@ public final class ModItems {
             event.accept(SPINOSAURUS_HEAD);
             event.accept(GIGANOTOSAURUS_HEAD);
             event.accept(ARENA_ALTAR);
+            event.accept(ANALYZER);
             event.accept(CAVE_TRACKER);
             event.accept(SERRATED_TOOTH);
             event.accept(SERRATED_SWORD);

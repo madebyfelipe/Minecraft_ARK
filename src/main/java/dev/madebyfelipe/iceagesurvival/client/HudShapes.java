@@ -13,26 +13,26 @@ import org.joml.Matrix4f;
  *
  * <p>Ângulos em graus, 0 no topo e crescendo no sentido horário, como em {@code core.locator.RadarMath}.
  */
-final class HudShapes {
+public final class HudShapes {
     /** Segmentos de uma volta inteira; o radar tem ~38 px de raio, então não se vê o polígono. */
     private static final int SEGMENTS = 64;
 
     private HudShapes() {
     }
 
-    static float pointX(float centerX, float radius, float degrees) {
+    public static float pointX(float centerX, float radius, float degrees) {
         return centerX + radius * Mth.sin(degrees * Mth.DEG_TO_RAD);
     }
 
-    static float pointY(float centerY, float radius, float degrees) {
+    public static float pointY(float centerY, float radius, float degrees) {
         return centerY - radius * Mth.cos(degrees * Mth.DEG_TO_RAD);
     }
 
-    static void disc(GuiGraphics graphics, float x, float y, float radius, int color) {
+    public static void disc(GuiGraphics graphics, float x, float y, float radius, int color) {
         ring(graphics, x, y, 0.0F, radius, color);
     }
 
-    static void ring(GuiGraphics graphics, float x, float y, float inner, float outer, int color) {
+    public static void ring(GuiGraphics graphics, float x, float y, float inner, float outer, int color) {
         arc(graphics, x, y, inner, outer, 0.0F, 360.0F, color, color);
     }
 
@@ -40,7 +40,7 @@ final class HudShapes {
      * Pedaço de anel de {@code from} a {@code to} (sentido horário), com a cor indo de {@code fromColor}
      * a {@code toColor} ao longo do ângulo. Com {@code inner} 0 vira um setor de pizza.
      */
-    static void arc(GuiGraphics graphics, float x, float y, float inner, float outer, float from, float to,
+    public static void arc(GuiGraphics graphics, float x, float y, float inner, float outer, float from, float to,
                     int fromColor, int toColor) {
         float sweep = to - from;
         int steps = Math.max(1, Mth.ceil(SEGMENTS * Math.abs(sweep) / 360.0F));
@@ -60,7 +60,7 @@ final class HudShapes {
         graphics.flush();
     }
 
-    static void triangle(GuiGraphics graphics, float x1, float y1, float x2, float y2, float x3, float y3, int color) {
+    public static void triangle(GuiGraphics graphics, float x1, float y1, float x2, float y2, float x3, float y3, int color) {
         Matrix4f matrix = graphics.pose().last().pose();
         VertexConsumer buffer = graphics.bufferSource().getBuffer(RenderType.gui());
         quad(buffer, matrix, x1, y1, color, x2, y2, color, x3, y3, color, x3, y3, color);
@@ -68,7 +68,7 @@ final class HudShapes {
     }
 
     /** Traço reto de largura {@code width}, de qualquer inclinação. */
-    static void line(GuiGraphics graphics, float x1, float y1, float x2, float y2, float width, int color) {
+    public static void line(GuiGraphics graphics, float x1, float y1, float x2, float y2, float width, int color) {
         float dx = x2 - x1;
         float dy = y2 - y1;
         float length = Mth.sqrt(dx * dx + dy * dy);
@@ -85,14 +85,14 @@ final class HudShapes {
     }
 
     /** Traço radial do raio {@code inner} ao {@code outer}, no ângulo dado. */
-    static void spoke(GuiGraphics graphics, float x, float y, float inner, float outer, float degrees, float width,
+    public static void spoke(GuiGraphics graphics, float x, float y, float inner, float outer, float degrees, float width,
                       int color) {
         line(graphics, pointX(x, inner, degrees), pointY(y, inner, degrees),
                 pointX(x, outer, degrees), pointY(y, outer, degrees), width, color);
     }
 
     /** Losango (marcador) centrado em (x, y). */
-    static void diamond(GuiGraphics graphics, float x, float y, float half, int color) {
+    public static void diamond(GuiGraphics graphics, float x, float y, float half, int color) {
         Matrix4f matrix = graphics.pose().last().pose();
         VertexConsumer buffer = graphics.bufferSource().getBuffer(RenderType.gui());
         quad(buffer, matrix, x, y - half, color, x - half, y, color, x, y + half, color, x + half, y, color);
@@ -103,7 +103,7 @@ final class HudShapes {
      * Seta de ponta em (x, y) apontando para {@code degrees}: o triângulo do marcador na borda do radar e
      * da agulha das bússolas pequenas.
      */
-    static void arrowHead(GuiGraphics graphics, float x, float y, float degrees, float length, float halfWidth,
+    public static void arrowHead(GuiGraphics graphics, float x, float y, float degrees, float length, float halfWidth,
                           int color) {
         float backX = pointX(x, -length, degrees);
         float backY = pointY(y, -length, degrees);
@@ -113,12 +113,12 @@ final class HudShapes {
     }
 
     /** Cor com a opacidade multiplicada por {@code alpha} (0 a 1). */
-    static int fade(int color, float alpha) {
+    public static int fade(int color, float alpha) {
         int a = Mth.clamp(Math.round((color >>> 24) * alpha), 0, 255);
         return (a << 24) | (color & 0xFFFFFF);
     }
 
-    static int lerpColor(int from, int to, float t) {
+    public static int lerpColor(int from, int to, float t) {
         int a = Math.round(Mth.lerp(t, from >>> 24, to >>> 24));
         int r = Math.round(Mth.lerp(t, from >> 16 & 0xFF, to >> 16 & 0xFF));
         int g = Math.round(Mth.lerp(t, from >> 8 & 0xFF, to >> 8 & 0xFF));

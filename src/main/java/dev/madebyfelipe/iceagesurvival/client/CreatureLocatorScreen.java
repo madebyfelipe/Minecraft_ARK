@@ -28,8 +28,8 @@ public class CreatureLocatorScreen extends Screen {
     private static final int TEXT_LEFT = 10 + 2 * 9 + 8;
     private static final int SCROLLBAR = 4;
 
-    private static final int DIAL_FACE = 0xFF0A1410;
-    private static final int ROW_TRACKED = 0x285FB36B;
+    private static final int DIAL_FACE = TechStyle.SLOT;
+    private static final int ROW_TRACKED = 0x2838C6D9;
     private static final int NORTH = 0xFFFF6B5B;
 
     private List<CreatureLocator.Entry> rows = List.of();

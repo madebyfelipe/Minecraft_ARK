@@ -26,13 +26,13 @@ final class RadarHud {
     static final int TEXT = TechStyle.TEXT;
     static final int SUBTLE = TechStyle.SUBTLE;
     static final int PANEL = TechStyle.HUD_PANEL;
-    static final int GRID = 0x355FB36B;
+    static final int GRID = 0x3538C6D9;
 
-    private static final int BEZEL = 0xE00C1A14;
-    private static final int TICK = 0x90A0E0B0;
-    private static final int LETTER = 0xFFD8F5E0;
+    private static final int BEZEL = 0xE01C262D;
+    private static final int TICK = 0x90B8D4E0;
+    private static final int LETTER = 0xFFDDEFF5;
     private static final int NORTH = 0xFFFF6B5B;
-    private static final int SCANLINE = 0x0C8CF0A8;
+    private static final int SCANLINE = 0x0C38C6D9;
 
     /** Raio do disco do radar, por dentro do anel da bússola. */
     private static final float SCOPE = 28.0F;
@@ -143,7 +143,8 @@ final class RadarHud {
 
     private static void drawRadar(GuiGraphics graphics, Font font, float x, float y, float yaw, Reading reading) {
         // Anel da bússola e o disco.
-        HudShapes.ring(graphics, x, y, RING, RING + 1.0F, ACCENT);
+        HudShapes.ring(graphics, x, y, RING, RING + 1.0F, TechStyle.METAL_LIGHT);
+        HudShapes.ring(graphics, x, y, RING + 1.0F, RING + 2.0F, TechStyle.METAL_SHADOW);
         HudShapes.ring(graphics, x, y, SCOPE, RING, BEZEL);
         HudShapes.disc(graphics, x, y, SCOPE, PANEL);
         HudShapes.ring(graphics, x, y, SCOPE - 0.5F, SCOPE + 0.5F, HudShapes.fade(ACCENT, 0.6F));
@@ -178,7 +179,7 @@ final class RadarHud {
 
         // Varredura com rastro.
         float sweep = (Util.getMillis() % (long) SWEEP_MILLIS) / SWEEP_MILLIS * 360.0F;
-        HudShapes.arc(graphics, x, y, 0.0F, SCOPE - 1.0F, sweep - SWEEP_TRAIL, sweep, 0x005FE38A, 0x605FE38A);
+        HudShapes.arc(graphics, x, y, 0.0F, SCOPE - 1.0F, sweep - SWEEP_TRAIL, sweep, 0x0038C6D9, 0x6038C6D9);
         HudShapes.spoke(graphics, x, y, 0.0F, SCOPE - 1.0F, sweep, 1.0F, HudShapes.fade(BRIGHT, 0.8F));
 
         // Índice da proa, no topo e por fora do anel.

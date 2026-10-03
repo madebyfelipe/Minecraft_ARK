@@ -24,8 +24,8 @@ import net.minecraft.world.item.ItemStack;
  */
 public class BenchScreen extends AbstractContainerScreen<BenchMenu> {
     private static final int SUBTLE = TechStyle.SUBTLE;
-    private static final int CRAFTABLE = 0xFF143020;
-    private static final int DIM = 0xA0060C0A;
+    private static final int CRAFTABLE = 0xFF0C2C34;
+    private static final int DIM = 0xA0061218;
 
     private static final int GRID_X = 8;
     private static final int GRID_Y = 17;
@@ -82,7 +82,7 @@ public class BenchScreen extends AbstractContainerScreen<BenchMenu> {
                 boolean craftable = menu.canCraft(recipe);
                 int x = leftPos + GRID_X + column * CELL;
                 int y = topPos + GRID_Y + row * CELL;
-                graphics.fill(x, y, x + CELL, y + CELL, index == hovered ? TechStyle.BRIGHT
+                graphics.fill(x, y, x + CELL, y + CELL, index == hovered ? TechStyle.AMBER
                         : craftable ? TechStyle.ACCENT : TechStyle.SLOT_EDGE);
                 graphics.fill(x + 1, y + 1, x + CELL - 1, y + CELL - 1, craftable ? CRAFTABLE : TechStyle.SLOT);
                 graphics.renderItem(recipe.result(), x + 1, y + 1);

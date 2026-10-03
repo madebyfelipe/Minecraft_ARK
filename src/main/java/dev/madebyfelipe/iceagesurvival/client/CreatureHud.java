@@ -23,7 +23,7 @@ public final class CreatureHud {
     private static final int BAR_HEIGHT = 9;
     private static final int GAP = 3;
 
-    private static final int BORDER_OWN = 0xFF5FB36B;
+    private static final int BORDER_OWN = TechStyle.ACCENT;
     private static final int BORDER_OTHER = 0xFFD08A3C;
     private static final int BORDER_WILD = 0xFF8A9199;
     private static final int TEXT = 0xFFFFFFFF;
