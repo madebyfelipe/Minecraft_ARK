@@ -51,6 +51,18 @@ public class ArenaCaveStructure extends Structure {
         return Optional.of(new GenerationStub(plan.arenaCenter(), builder -> plan.pieces().forEach(builder::addPiece)));
     }
 
+    /**
+     * A boca da caverna do ponto do anel {@code ring}, a mesma que {@link #findGenerationPoint} escolhe: a busca só
+     * depende do ruído do gerador, então dá o bloco exato sem carregar nem gerar o chunk. É o alvo do rastreador.
+     *
+     * @return {@code null} se ali não há terra seca (e então a caverna não nasceu)
+     */
+    public static BlockPos entranceAt(ChunkGenerator generator, LevelHeightAccessor height, RandomState state,
+            ChunkPos ring) {
+        return findDryEntrance(generator, height, state, ring.getMiddleBlockX(), ring.getMiddleBlockZ(),
+                generator.getSeaLevel());
+    }
+
     /** Procura em espiral, a partir do centro do chunk do anel, um ponto de terra seca acima do mar. */
     private static BlockPos findDryEntrance(ChunkGenerator generator, LevelHeightAccessor height, RandomState state,
             int centerX, int centerZ, int seaLevel) {

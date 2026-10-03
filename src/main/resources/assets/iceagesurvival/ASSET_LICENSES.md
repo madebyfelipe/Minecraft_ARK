@@ -60,7 +60,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
 
-`textures/item/cave_tracker.png` (Rastreador da Caverna, D47) é autoral, desenhada pixel a pixel por `tools/gen_cave_tracker.py`.
+`textures/item/cave_tracker_00.png` a `cave_tracker_31.png` (Rastreador da Caverna, D47: os quadros da agulha girando) são autorais, desenhadas pixel a pixel por `tools/gen_cave_tracker.py`.
 
 O **Anquilossauro** usa o modelo, a textura, as animações e os sons do Revival (`fossil:ankylosaurus`),
 carregados em runtime; nenhum desses arquivos é copiado para este repositório ou para o jar. As

@@ -15,7 +15,7 @@ import net.minecraft.network.chat.Component;
 
 /**
  * "Localizar criatura": as criaturas domesticadas do jogador, da mais perto para a mais longe, num painel
- * no estilo do radar ({@link CreatureTracker}). Cada linha tem uma bússola pequena apontando para a
+ * no estilo do radar ({@link RadarHud}). Cada linha tem uma bússola pequena apontando para a
  * criatura em relação ao olhar, nome, nível, distância, diferença de altura e coordenadas. "Localizar"
  * liga o radar e faz a criatura brilhar se estiver carregada; na mesma linha, "Parar" desliga.
  */
@@ -80,7 +80,7 @@ public class CreatureLocatorScreen extends Screen {
             int y = top + HEADER + index * ROW_HEIGHT + (ROW_HEIGHT - BUTTON_HEIGHT) / 2;
             addRenderableWidget(new TechButton(left + WIDTH - 6 - SCROLLBAR - BUTTON_WIDTH, y, BUTTON_WIDTH, BUTTON_HEIGHT,
                     Component.translatable(tracking ? "iceagesurvival.locator.stop" : "iceagesurvival.locator.locate"),
-                    tracking ? CreatureTracker.TARGET : CreatureTracker.BRIGHT,
+                    tracking ? RadarHud.TARGET : RadarHud.BRIGHT,
                     button -> {
                         if (tracking) {
                             CreatureTracker.stop();
@@ -114,7 +114,7 @@ public class CreatureLocatorScreen extends Screen {
 
         if (rows.isEmpty()) {
             graphics.drawCenteredString(font, Component.translatable("iceagesurvival.locator.empty"),
-                    left + WIDTH / 2, top + HEADER + 8, CreatureTracker.SUBTLE);
+                    left + WIDTH / 2, top + HEADER + 8, RadarHud.SUBTLE);
         }
         int textRight = right - 12 - SCROLLBAR - BUTTON_WIDTH;
         for (int index = 0; index < visibleRows && scroll + index < rows.size(); index++) {
@@ -122,13 +122,13 @@ public class CreatureLocatorScreen extends Screen {
             int y = top + HEADER + index * ROW_HEIGHT;
             if (entry.creature().equals(CreatureTracker.tracked())) {
                 graphics.fill(left + 1, y, right - 1, y + ROW_HEIGHT, ROW_TRACKED);
-                graphics.fill(left + 1, y, left + 3, y + ROW_HEIGHT, CreatureTracker.ACCENT);
+                graphics.fill(left + 1, y, left + 3, y + ROW_HEIGHT, RadarHud.ACCENT);
             } else if (mouseX >= left && mouseX < right && mouseY >= y && mouseY < y + ROW_HEIGHT) {
                 graphics.fill(left + 1, y, right - 1, y + ROW_HEIGHT, ROW_HOVER);
             }
             drawRow(graphics, entry, y, textRight);
             if (index > 0) {
-                graphics.fill(left + TEXT_LEFT, y, right - 8, y + 1, HudShapes.fade(CreatureTracker.ACCENT, 0.15F));
+                graphics.fill(left + TEXT_LEFT, y, right - 8, y + 1, HudShapes.fade(RadarHud.ACCENT, 0.15F));
             }
         }
         drawScrollbar(graphics, right);
@@ -141,12 +141,12 @@ public class CreatureLocatorScreen extends Screen {
         for (int y = top + 2; y < bottom - 1; y += 3) {
             graphics.fill(left + 1, y, right - 1, y + 1, SCANLINE);
         }
-        int edge = HudShapes.fade(CreatureTracker.ACCENT, 0.45F);
+        int edge = HudShapes.fade(RadarHud.ACCENT, 0.45F);
         graphics.fill(left, top, right, top + 1, edge);
         graphics.fill(left, bottom - 1, right, bottom, edge);
         graphics.fill(left, top, left + 1, bottom, edge);
         graphics.fill(right - 1, top, right, bottom, edge);
-        int corner = CreatureTracker.BRIGHT;
+        int corner = RadarHud.BRIGHT;
         graphics.fill(left - 1, top - 1, left + CORNER, top + 1, corner);
         graphics.fill(left - 1, top - 1, left + 1, top + CORNER, corner);
         graphics.fill(right - CORNER, top - 1, right + 1, top + 1, corner);
@@ -159,26 +159,26 @@ public class CreatureLocatorScreen extends Screen {
 
     /** Ponto piscando, título, a página e a linha com um brilho correndo por ela. */
     private void drawHeader(GuiGraphics graphics, int right) {
-        graphics.drawString(font, CreatureTracker.blink() ? "●" : "○", left + 8, top + 8, CreatureTracker.BRIGHT);
-        graphics.drawString(font, title, left + 18, top + 8, CreatureTracker.TEXT);
+        graphics.drawString(font, RadarHud.blink() ? "●" : "○", left + 8, top + 8, RadarHud.BRIGHT);
+        graphics.drawString(font, title, left + 18, top + 8, RadarHud.TEXT);
         if (rows.size() > visibleRows) {
             Component page = Component.literal((scroll + 1) + "–" + Math.min(rows.size(), scroll + visibleRows)
                     + " / " + rows.size());
-            graphics.drawString(font, page, right - 8 - font.width(page), top + 8, CreatureTracker.SUBTLE);
+            graphics.drawString(font, page, right - 8 - font.width(page), top + 8, RadarHud.SUBTLE);
         }
         int lineLeft = left + 8;
         int lineRight = right - 8;
         int lineY = top + 20;
-        graphics.fill(lineLeft, lineY, lineRight, lineY + 1, HudShapes.fade(CreatureTracker.ACCENT, 0.5F));
+        graphics.fill(lineLeft, lineY, lineRight, lineY + 1, HudShapes.fade(RadarHud.ACCENT, 0.5F));
         int span = lineRight - lineLeft;
         int glowWidth = 28;
         int glowX = lineLeft + (int) (Util.getMillis() / 6 % (span + glowWidth)) - glowWidth;
         graphics.fill(Math.max(lineLeft, glowX), lineY, Math.min(lineRight, glowX + glowWidth), lineY + 1,
-                CreatureTracker.BRIGHT);
+                RadarHud.BRIGHT);
     }
 
     private void drawRow(GuiGraphics graphics, CreatureLocator.Entry entry, int y, int textRight) {
-        CreatureTracker.Reading reading = CreatureTracker.read(entry);
+        RadarHud.Reading reading = CreatureTracker.read(entry);
         float dialX = left + 10 + DIAL;
         float dialY = y + ROW_HEIGHT / 2.0F;
         drawDial(graphics, dialX, dialY, reading);
@@ -186,16 +186,16 @@ public class CreatureLocatorScreen extends Screen {
         int x = left + TEXT_LEFT;
         Component level = Component.translatable("iceagesurvival.hud.level", entry.level());
         String name = font.plainSubstrByWidth(entry.name(), textRight - x - font.width(level) - 6);
-        graphics.drawString(font, name, x, y + 4, CreatureTracker.TEXT);
-        graphics.drawString(font, level, x + font.width(name) + 6, y + 4, CreatureTracker.TARGET);
+        graphics.drawString(font, name, x, y + 4, RadarHud.TEXT);
+        graphics.drawString(font, level, x + font.width(name) + 6, y + 4, RadarHud.TARGET);
 
         int used = x;
         if (reading != null) {
             Component distance = CreatureTracker.distanceText(reading);
-            Component height = CreatureTracker.heightText(reading);
-            graphics.drawString(font, distance, x, y + 14, reading.sameDimension() ? CreatureTracker.BRIGHT
-                    : CreatureTracker.SUBTLE);
-            graphics.drawString(font, height, x + font.width(distance) + 8, y + 14, CreatureTracker.SUBTLE);
+            Component height = RadarHud.heightText(reading);
+            graphics.drawString(font, distance, x, y + 14, reading.signal() ? RadarHud.BRIGHT
+                    : RadarHud.SUBTLE);
+            graphics.drawString(font, height, x + font.width(distance) + 8, y + 14, RadarHud.SUBTLE);
             used += font.width(distance) + 8 + font.width(height);
         }
         Component coords = Component.literal(entry.pos().getX() + ", " + entry.pos().getY() + ", " + entry.pos().getZ());
@@ -205,16 +205,16 @@ public class CreatureLocatorScreen extends Screen {
         graphics.pose().pushPose();
         graphics.pose().translate(textRight, y + 15, 0.0F);
         graphics.pose().scale(0.75F, 0.75F, 1.0F);
-        graphics.drawString(font, coords, -font.width(coords), 0, CreatureTracker.SUBTLE, false);
+        graphics.drawString(font, coords, -font.width(coords), 0, RadarHud.SUBTLE, false);
         graphics.pose().popPose();
     }
 
     /** A bússola da linha: proa para cima, um ponto vermelho no norte e a agulha na criatura. */
-    private void drawDial(GuiGraphics graphics, float x, float y, CreatureTracker.Reading reading) {
+    private void drawDial(GuiGraphics graphics, float x, float y, RadarHud.Reading reading) {
         HudShapes.disc(graphics, x, y, DIAL, DIAL_FACE);
-        HudShapes.ring(graphics, x, y, DIAL - 1.0F, DIAL, HudShapes.fade(CreatureTracker.ACCENT, 0.8F));
-        if (reading == null || !reading.sameDimension()) {
-            CreatureTracker.drawSmallCentered(graphics, font, Component.literal("?"), x, y, CreatureTracker.SUBTLE);
+        HudShapes.ring(graphics, x, y, DIAL - 1.0F, DIAL, HudShapes.fade(RadarHud.ACCENT, 0.8F));
+        if (reading == null || !reading.signal()) {
+            RadarHud.drawSmallCentered(graphics, font, Component.literal("?"), x, y, RadarHud.SUBTLE);
             return;
         }
         Minecraft minecraft = Minecraft.getInstance();
@@ -224,10 +224,10 @@ public class CreatureLocatorScreen extends Screen {
                     1.2F, NORTH);
         }
         float bearing = reading.bearing();
-        HudShapes.spoke(graphics, x, y, 0.0F, DIAL - 5.0F, bearing, 1.2F, CreatureTracker.TARGET);
+        HudShapes.spoke(graphics, x, y, 0.0F, DIAL - 5.0F, bearing, 1.2F, RadarHud.TARGET);
         HudShapes.arrowHead(graphics, HudShapes.pointX(x, DIAL - 2.0F, bearing), HudShapes.pointY(y, DIAL - 2.0F, bearing),
-                bearing, 4.0F, 2.5F, CreatureTracker.TARGET);
-        HudShapes.disc(graphics, x, y, 1.3F, CreatureTracker.TEXT);
+                bearing, 4.0F, 2.5F, RadarHud.TARGET);
+        HudShapes.disc(graphics, x, y, 1.3F, RadarHud.TEXT);
     }
 
     private void drawScrollbar(GuiGraphics graphics, int right) {
@@ -237,10 +237,10 @@ public class CreatureLocatorScreen extends Screen {
         int trackTop = top + HEADER;
         int trackHeight = visibleRows * ROW_HEIGHT;
         int x = right - 3 - SCROLLBAR / 2;
-        graphics.fill(x, trackTop, x + 2, trackTop + trackHeight, HudShapes.fade(CreatureTracker.ACCENT, 0.2F));
+        graphics.fill(x, trackTop, x + 2, trackTop + trackHeight, HudShapes.fade(RadarHud.ACCENT, 0.2F));
         int thumb = Math.max(8, trackHeight * visibleRows / rows.size());
         int thumbTop = trackTop + (trackHeight - thumb) * scroll / Math.max(1, rows.size() - visibleRows);
-        graphics.fill(x, thumbTop, x + 2, thumbTop + thumb, CreatureTracker.BRIGHT);
+        graphics.fill(x, thumbTop, x + 2, thumbTop + thumb, RadarHud.BRIGHT);
     }
 
     @Override
@@ -272,7 +272,7 @@ public class CreatureLocatorScreen extends Screen {
             graphics.fill(right - 1, y, right, bottom, edge);
             Font font = Minecraft.getInstance().font;
             graphics.drawCenteredString(font, getMessage(), x + width / 2, y + (height - 8) / 2,
-                    hot ? CreatureTracker.TEXT : color);
+                    hot ? RadarHud.TEXT : color);
         }
     }
 }

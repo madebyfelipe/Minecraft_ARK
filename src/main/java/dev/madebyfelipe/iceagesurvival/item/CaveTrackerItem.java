@@ -1,66 +1,125 @@
 package dev.madebyfelipe.iceagesurvival.item;
 
+import dev.madebyfelipe.iceagesurvival.network.CaveTargetPayload;
+import dev.madebyfelipe.iceagesurvival.network.ModPayloads;
 import dev.madebyfelipe.iceagesurvival.registry.ModStructures;
+import dev.madebyfelipe.iceagesurvival.world.cave.ArenaCaveStructure;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+import javax.annotation.Nullable;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.GlobalPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
-import net.minecraft.stats.Stats;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.EyeOfEnder;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 
 /**
- * Rastreador da caverna (D47): feito com os troféus de apex, é jogado como o Olho do Ender. Voa na direção da caverna
- * da arena mais próxima ({@code findNearestMapStructure} com a tag {@code #iceagesurvival:arena_cave}) e, como o olho
- * vanilla, volta como item 4 em 5 vezes. Jogar de novo mais adiante triangula a entrada.
+ * Rastreador da caverna (D47): feito com os troféus de apex, é um aparelho de mão. Segurado em qualquer das mãos,
+ * mostra no radar do canto a direção e a distância até a boca da caverna da arena mais próxima, e o ícone vira uma
+ * bússola apontando para ela. Não é jogado nem gasto.
+ *
+ * <p>O servidor acha a caverna ({@code findNearestMapStructure} com a tag {@code #iceagesurvival:arena_cave}) e a boca
+ * exata ({@link ArenaCaveStructure#entranceAt}), guarda a busca até o jogador andar {@link #RESEARCH_DISTANCE} blocos
+ * ou trocar de dimensão e manda o alvo ao cliente ao pegar o rastreador e quando ele muda.
  */
 public class CaveTrackerItem extends Item {
     /** Raio de busca em chunks; os anéis concêntricos são achados por lista, então serve qualquer valor grande. */
     public static final int SEARCH_RADIUS_CHUNKS = 100;
-    public static final String NO_CAVE_KEY = "message.iceagesurvival.cave_tracker.none";
+    /** Andou isto (na horizontal) desde a última busca, procura de novo: a mais próxima só muda numa viagem longa. */
+    public static final int RESEARCH_DISTANCE = 256;
+    /** De quanto em quanto tempo, com o rastreador na mão, o servidor confere se o alvo mudou. */
+    private static final int CHECK_TICKS = 20;
+
+    private static final Map<UUID, Signal> SIGNALS = new HashMap<>();
 
     public CaveTrackerItem(Properties properties) {
         super(properties);
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
-        ItemStack stack = player.getItemInHand(hand);
-        if (level instanceof ServerLevel server) {
-            BlockPos target = server.findNearestMapStructure(ModStructures.ARENA_CAVES, player.blockPosition(),
-                    SEARCH_RADIUS_CHUNKS, false);
-            if (target == null) {
-                player.displayClientMessage(
-                        Component.translatableWithFallback(NO_CAVE_KEY, "Nenhuma caverna da arena neste mundo"), true);
-                return InteractionResultHolder.fail(stack);
-            }
-            launch(server, player, stack, target);
-            if (!player.getAbilities().instabuild) {
-                stack.shrink(1);
-            }
-            player.awardStat(Stats.ITEM_USED.get(this));
-            player.swing(hand, true);
-        }
-        return InteractionResultHolder.consume(stack);
+    public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
+        tooltip.add(Component.translatable("item.iceagesurvival.cave_tracker.tooltip").withStyle(ChatFormatting.GRAY));
     }
 
-    /** Lança o olho vanilla carregando este item, com o som e o efeito do Olho do Ender. */
-    public static EyeOfEnder launch(ServerLevel level, Player player, ItemStack stack, BlockPos target) {
-        EyeOfEnder eye = new EyeOfEnder(level, player.getX(), player.getY(0.5), player.getZ());
-        eye.setItem(stack);
-        eye.signalTo(target);
-        level.gameEvent(GameEvent.PROJECTILE_SHOOT, eye.position(), GameEvent.Context.of(player));
-        level.addFreshEntity(eye);
-        level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.ENDER_EYE_LAUNCH,
-                SoundSource.NEUTRAL, 0.5F, 0.4F / (level.getRandom().nextFloat() * 0.4F + 0.8F));
-        level.levelEvent(null, 1003, player.blockPosition(), 0);
-        return eye;
+    public static boolean isHolding(Player player) {
+        return player.getMainHandItem().getItem() instanceof CaveTrackerItem
+                || player.getOffhandItem().getItem() instanceof CaveTrackerItem;
+    }
+
+    /** A boca da caverna da arena mais próxima de {@code from} nesta dimensão; {@code null} se não há nenhuma. */
+    @Nullable
+    public static BlockPos nearestMouth(ServerLevel level, BlockPos from) {
+        BlockPos ring = level.findNearestMapStructure(ModStructures.ARENA_CAVES, from, SEARCH_RADIUS_CHUNKS, false);
+        if (ring == null) {
+            return null;
+        }
+        return ArenaCaveStructure.entranceAt(level.getChunkSource().getGenerator(), level,
+                level.getChunkSource().randomState(), new ChunkPos(ring));
+    }
+
+    public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
+        if (event.phase != TickEvent.Phase.END || !(event.player instanceof ServerPlayer player)) {
+            return;
+        }
+        Signal signal = SIGNALS.get(player.getUUID());
+        if (!isHolding(player)) {
+            if (signal != null) {
+                signal.sent = null; // ao pegar de novo, manda outra vez
+            }
+            return;
+        }
+        if (signal == null) {
+            signal = new Signal();
+            SIGNALS.put(player.getUUID(), signal);
+        }
+        if (signal.sent != null && player.tickCount % CHECK_TICKS != 0) {
+            return;
+        }
+        Optional<GlobalPos> target = signal.target(player);
+        if (!target.equals(signal.sent)) {
+            signal.sent = target;
+            ModPayloads.sendToPlayer(player, new CaveTargetPayload(target));
+        }
+    }
+
+    public static void onLoggedOut(PlayerEvent.PlayerLoggedOutEvent event) {
+        SIGNALS.remove(event.getEntity().getUUID());
+    }
+
+    /** A última busca de um jogador e o que o cliente dele já sabe. */
+    private static final class Signal {
+        @Nullable
+        private ResourceKey<Level> dimension;
+        private BlockPos origin = BlockPos.ZERO;
+        private Optional<GlobalPos> mouth = Optional.empty();
+        /** O último alvo mandado; {@code null} quando o cliente ainda não tem o de agora. */
+        @Nullable
+        private Optional<GlobalPos> sent;
+
+        Optional<GlobalPos> target(ServerPlayer player) {
+            ServerLevel level = player.serverLevel();
+            BlockPos here = player.blockPosition();
+            long dx = here.getX() - origin.getX();
+            long dz = here.getZ() - origin.getZ();
+            if (!level.dimension().equals(dimension) || dx * dx + dz * dz > (long) RESEARCH_DISTANCE * RESEARCH_DISTANCE) {
+                dimension = level.dimension();
+                origin = here;
+                mouth = Optional.ofNullable(nearestMouth(level, here)).map(pos -> GlobalPos.of(level.dimension(), pos));
+            }
+            return mouth;
+        }
     }
 }

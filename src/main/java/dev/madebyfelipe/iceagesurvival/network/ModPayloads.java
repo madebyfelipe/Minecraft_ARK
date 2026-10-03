@@ -9,7 +9,7 @@ import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.simple.SimpleChannel;
 
 public final class ModPayloads {
-    private static final String PROTOCOL_VERSION = "7";
+    private static final String PROTOCOL_VERSION = "8";
     private static int nextMessageId;
 
     public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(
@@ -41,6 +41,8 @@ public final class ModPayloads {
                 CreatureStatusPayload::handle);
         registerClientbound(RifleTracerPayload.class, RifleTracerPayload::encode, RifleTracerPayload::decode,
                 RifleTracerPayload::handle);
+        registerClientbound(CaveTargetPayload.class, CaveTargetPayload::encode, CaveTargetPayload::decode,
+                CaveTargetPayload::handle);
     }
 
     private ModPayloads() {

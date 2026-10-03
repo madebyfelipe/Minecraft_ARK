@@ -6,6 +6,7 @@ import dev.madebyfelipe.iceagesurvival.registry.ModBlocks;
 import dev.madebyfelipe.iceagesurvival.registry.ModItems;
 import dev.madebyfelipe.iceagesurvival.registry.ModStructures;
 import dev.madebyfelipe.iceagesurvival.world.cave.ArenaCaveLayout;
+import dev.madebyfelipe.iceagesurvival.world.cave.ArenaCaveStructure;
 import dev.madebyfelipe.iceagesurvival.world.cave.CavePieces;
 import java.util.List;
 import net.minecraft.core.BlockPos;
@@ -17,6 +18,7 @@ import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.EyeOfEnder;
 import net.minecraft.world.item.ItemStack;
@@ -135,6 +137,8 @@ public class CaveTests {
                     CavePieces.Arena arena = find(start.getPieces(), CavePieces.Arena.class);
                     helper.assertTrue(entrance != null && arena != null, where + ": faltou a entrada ou a arena");
                     BlockPos mouth = entrance.mouth();
+                    helper.assertTrue(mouth.equals(ArenaCaveStructure.entranceAt(generator, height, randomState, chunk)),
+                            where + ": o rastreador aponta para outro lugar que não a boca " + mouth);
                     int surface = generator.getFirstOccupiedHeight(mouth.getX(), mouth.getZ(),
                             Heightmap.Types.WORLD_SURFACE_WG, height, randomState);
                     int floor = generator.getFirstOccupiedHeight(mouth.getX(), mouth.getZ(),
@@ -261,8 +265,8 @@ public class CaveTests {
         helper.assertTrue(recipe.isPresent(), "receita iceagesurvival:cave_tracker não carregou");
         Recipe<?> tracker = recipe.get();
         ItemStack result = tracker.getResultItem(helper.getLevel().registryAccess());
-        helper.assertTrue(result.is(ModItems.CAVE_TRACKER.get()) && result.getCount() == 4,
-                "a receita devia dar 4 rastreadores: " + result);
+        helper.assertTrue(result.is(ModItems.CAVE_TRACKER.get()) && result.getCount() == 1,
+                "a receita devia dar 1 rastreador: " + result);
         List<Ingredient> ingredients = tracker.getIngredients();
         helper.assertTrue(ingredients.size() == 3, "ingredientes: " + ingredients.size());
         for (ItemStack needed : List.of(new ItemStack(ModItems.TYRANNOSAURUS_HEAD.get()),
@@ -273,24 +277,42 @@ public class CaveTests {
         helper.succeed();
     }
 
-    /** Lançado, o rastreador vira um Olho do Ender vanilla que carrega o nosso item (e volta como ele). */
+    /** O rastreador é um aparelho de mão: usar não o gasta nem lança nada, e ele vale em qualquer das mãos. */
     @GameTest(template = EMPTY)
-    public static void trackerLaunchesAnEyeCarryingItself(GameTestHelper helper) {
+    public static void trackerIsAHandheldDeviceThatIsNotSpent(GameTestHelper helper) {
         ServerLevel level = helper.getLevel();
         Player player = helper.makeMockPlayer();
         BlockPos at = helper.absolutePos(new BlockPos(1, 2, 1));
         player.moveTo(at.getX() + 0.5, at.getY(), at.getZ() + 0.5);
-        BlockPos target = at.offset(2000, 0, 0);
-        EyeOfEnder eye = CaveTrackerItem.launch(level, player, new ItemStack(ModItems.CAVE_TRACKER.get(), 3), target);
-        helper.assertTrue(eye.getItem().is(ModItems.CAVE_TRACKER.get()) && eye.getItem().getCount() == 1,
-                "o olho devia carregar um rastreador: " + eye.getItem());
-        List<EyeOfEnder> eyes = level.getEntitiesOfClass(EyeOfEnder.class, new AABB(at).inflate(4));
-        helper.assertTrue(eyes.contains(eye), "o olho não entrou no mundo");
-        helper.runAfterDelay(5, () -> {
-            helper.assertTrue(eye.getDeltaMovement().x > 0, "o olho não voa na direção da caverna");
-            eye.discard();
-            helper.succeed();
-        });
+        ItemStack tracker = new ItemStack(ModItems.CAVE_TRACKER.get());
+        helper.assertTrue(tracker.getMaxStackSize() == 1, "o rastreador devia ser 1 por espaço");
+        helper.assertFalse(CaveTrackerItem.isHolding(player), "segurando sem nada na mão");
+        player.setItemInHand(InteractionHand.OFF_HAND, tracker);
+        helper.assertTrue(CaveTrackerItem.isHolding(player), "na mão secundária também vale");
+        player.setItemInHand(InteractionHand.OFF_HAND, ItemStack.EMPTY);
+        player.setItemInHand(InteractionHand.MAIN_HAND, tracker);
+        helper.assertTrue(CaveTrackerItem.isHolding(player), "na mão principal não contou");
+        tracker.use(level, player, InteractionHand.MAIN_HAND);
+        helper.assertTrue(player.getMainHandItem().is(ModItems.CAVE_TRACKER.get())
+                && player.getMainHandItem().getCount() == 1, "usar gastou o rastreador");
+        helper.assertTrue(level.getEntitiesOfClass(EyeOfEnder.class, new AABB(at).inflate(8)).isEmpty(),
+                "o rastreador não é mais jogado como o Olho do Ender");
+        helper.succeed();
+    }
+
+    /**
+     * A busca do rastreador no mundo de verdade das GameTests: responde sem travar e, se acha uma boca, ela está no
+     * anel, longe do spawn (o ponto do anel a 1500+, a boca a até 3 chunks dele).
+     */
+    @GameTest(template = EMPTY, timeoutTicks = 400)
+    public static void trackerSearchAnswersInTheRealWorld(GameTestHelper helper) {
+        BlockPos mouth = CaveTrackerItem.nearestMouth(helper.getLevel(), helper.absolutePos(BlockPos.ZERO));
+        if (mouth != null) {
+            double fromSpawn = Math.sqrt((double) mouth.getX() * mouth.getX() + (double) mouth.getZ() * mouth.getZ());
+            helper.assertTrue(fromSpawn >= MIN_DISTANCE_FROM_SPAWN - 16 * 4,
+                    "boca da caverna a " + (int) fromSpawn + " blocos do spawn: " + mouth);
+        }
+        helper.succeed();
     }
 
     private static <T> T find(List<StructurePiece> pieces, Class<T> type) {
