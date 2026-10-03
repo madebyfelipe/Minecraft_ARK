@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "iceagesurvival:tyrannosaurus_head"
+    },
+    {
+      "item": "iceagesurvival:spinosaurus_head"
+    },
+    {
+      "item": "minecraft:compass"
+    }
+  ],
+  "result": {
+    "item": "iceagesurvival:cave_tracker",
+    "count": 4
+  }
+}
