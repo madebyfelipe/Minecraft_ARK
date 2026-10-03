@@ -1,30 +1,6 @@
 {
   "replace": false,
   "values": [
-    "minecraft:snowy_plains",
-    "minecraft:snowy_taiga",
-    "minecraft:taiga",
-    "minecraft:grove",
-    "minecraft:snowy_slopes",
-    "minecraft:plains",
-    "minecraft:savanna",
-    "minecraft:forest",
-    "minecraft:meadow",
-    {
-      "id": "tfc:plains",
-      "required": false
-    },
-    {
-      "id": "tfc:lowlands",
-      "required": false
-    },
-    {
-      "id": "tfc:hills",
-      "required": false
-    },
-    {
-      "id": "tfc:rolling_hills",
-      "required": false
-    }
+    "#iceagesurvival:spawn_anywhere"
   ]
 }

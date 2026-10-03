@@ -131,6 +131,10 @@
   "spawn": {
     "biomes": "#iceagesurvival:spawns_kelenken",
     "weight": 2,
+    "favored": {
+      "biomes": "#iceagesurvival:ideal_kelenken",
+      "weight": 6
+    },
     "group_min": 1,
     "group_max": 2,
     "max_nearby": 2,

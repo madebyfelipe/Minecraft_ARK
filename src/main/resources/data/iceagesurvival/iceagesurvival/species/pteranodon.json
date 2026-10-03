@@ -35,12 +35,25 @@
     "feed_interval_seconds": 7,
     "foods": [
       {
-        "items": "#iceagesurvival:taming/raw_whitefish",
-        "value": 25
+        "items": "#iceagesurvival:taming/raw_fish",
+        "value": 30
       },
       {
-        "items": "#iceagesurvival:taming/raw_salmonid",
-        "value": 30
+        "items": [
+          "iceagesurvival:jerky"
+        ],
+        "value": 25,
+        "quality": 0.85
+      },
+      {
+        "items": "#iceagesurvival:taming/raw_small_meat",
+        "value": 20,
+        "quality": 0.6
+      },
+      {
+        "items": "#iceagesurvival:taming/cooked_fish",
+        "value": 12,
+        "quality": 0.4
       },
       {
         "items": "minecraft:rotten_flesh",
@@ -67,6 +80,10 @@
   "spawn": {
     "biomes": "#iceagesurvival:spawns_pteranodon",
     "weight": 10,
+    "favored": {
+      "biomes": "#iceagesurvival:ideal_pteranodon",
+      "weight": 30
+    },
     "group_min": 2,
     "group_max": 4,
     "max_nearby": 8,

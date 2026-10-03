@@ -135,6 +135,10 @@
   "spawn": {
     "biomes": "#iceagesurvival:spawns_smilodon",
     "weight": 4,
+    "favored": {
+      "biomes": "#iceagesurvival:ideal_smilodon",
+      "weight": 12
+    },
     "group_min": 1,
     "group_max": 1,
     "max_nearby": 1,

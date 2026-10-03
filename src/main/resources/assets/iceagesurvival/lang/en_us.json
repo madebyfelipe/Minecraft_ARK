@@ -260,5 +260,12 @@
   "message.iceagesurvival.gate.not_owner": "This gate is not yours.",
   "message.iceagesurvival.bear_trap.not_owner": "Only the trap's owner can reset it.",
   "death.attack.iceagesurvival.defense_trap": "%1$s was caught in a trap",
-  "death.attack.iceagesurvival.defense_trap.player": "%1$s was caught in a trap while fleeing %2$s"
+  "death.attack.iceagesurvival.defense_trap.player": "%1$s was caught in a trap while fleeing %2$s",
+  "entity.iceagesurvival.quetzalcoatlus": "Quetzalcoatlus",
+  "item.iceagesurvival.quetzalcoatlus_spawn_egg": "Quetzalcoatlus Spawn Egg",
+  "entity.iceagesurvival.megalania": "Megalania",
+  "item.iceagesurvival.megalania_spawn_egg": "Megalania Spawn Egg",
+  "effect.iceagesurvival.venom": "Venom",
+  "item.iceagesurvival.antidote": "Antidote",
+  "iceagesurvival.mount.no_open_sky": "%s needs open sky to take off"
 }

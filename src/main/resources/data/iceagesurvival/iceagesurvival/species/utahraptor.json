@@ -135,6 +135,10 @@
   "spawn": {
     "biomes": "#iceagesurvival:spawns_utahraptor",
     "weight": 2,
+    "favored": {
+      "biomes": "#iceagesurvival:ideal_utahraptor",
+      "weight": 6
+    },
     "group_min": 2,
     "group_max": 3,
     "max_nearby": 3,

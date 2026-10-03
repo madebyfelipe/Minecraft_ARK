@@ -1,13 +1,11 @@
 {
   "replace": false,
   "values": [
-    "minecraft:frozen_river",
-    "minecraft:snowy_beach",
-    "minecraft:frozen_ocean",
     "minecraft:river",
     "minecraft:swamp",
     "minecraft:mangrove_swamp",
     "minecraft:beach",
+    "minecraft:snowy_plains",
     {
       "id": "tfc:river",
       "required": false
@@ -38,6 +36,10 @@
     },
     {
       "id": "tfc:tidal_flats",
+      "required": false
+    },
+    {
+      "id": "tfc:lowlands",
       "required": false
     }
   ]

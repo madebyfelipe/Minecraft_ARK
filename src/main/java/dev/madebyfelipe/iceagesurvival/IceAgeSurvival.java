@@ -12,6 +12,7 @@ import dev.madebyfelipe.iceagesurvival.registry.ModAttachments;
 import dev.madebyfelipe.iceagesurvival.registry.ModBlockEntities;
 import dev.madebyfelipe.iceagesurvival.registry.ModBlocks;
 import dev.madebyfelipe.iceagesurvival.registry.ModMenus;
+import dev.madebyfelipe.iceagesurvival.registry.ModEffects;
 import dev.madebyfelipe.iceagesurvival.registry.ModEntities;
 import dev.madebyfelipe.iceagesurvival.registry.ModItems;
 import dev.madebyfelipe.iceagesurvival.species.Species;
@@ -49,6 +50,7 @@ public class IceAgeSurvival {
         ModEntities.ENTITY_TYPES.register(modEventBus);
         ModArmorMaterials.ARMOR_MATERIALS.register(modEventBus);
         ModItems.ITEMS.register(modEventBus);
+        ModEffects.EFFECTS.register(modEventBus);
         dev.madebyfelipe.iceagesurvival.primal.PrimalStations.register(modEventBus);
         dev.madebyfelipe.iceagesurvival.defense.Defenses.register(modEventBus);
         dev.madebyfelipe.iceagesurvival.compat.ExternalFaunaCleanup.register(modEventBus);

@@ -134,8 +134,8 @@
     "biomes": "#iceagesurvival:spawns_baryonyx",
     "weight": 1,
     "favored": {
-      "biomes": "#iceagesurvival:spawns_baryonyx_water",
-      "weight": 2
+      "biomes": "#iceagesurvival:ideal_baryonyx",
+      "weight": 3
     },
     "group_min": 1,
     "group_max": 1,

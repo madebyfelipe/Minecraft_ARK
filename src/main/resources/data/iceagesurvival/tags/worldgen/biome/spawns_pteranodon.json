@@ -1,38 +1,6 @@
 {
   "replace": false,
   "values": [
-    "#minecraft:is_overworld",
-    {
-      "id": "tfc:mountains",
-      "required": false
-    },
-    {
-      "id": "tfc:old_mountains",
-      "required": false
-    },
-    {
-      "id": "tfc:highlands",
-      "required": false
-    },
-    {
-      "id": "tfc:plateau",
-      "required": false
-    },
-    {
-      "id": "tfc:shore",
-      "required": false
-    },
-    {
-      "id": "tfc:oceanic_mountains",
-      "required": false
-    },
-    {
-      "id": "tfc:volcanic_mountains",
-      "required": false
-    },
-    {
-      "id": "tfc:volcanic_oceanic_mountains",
-      "required": false
-    }
+    "#iceagesurvival:spawn_anywhere"
   ]
 }

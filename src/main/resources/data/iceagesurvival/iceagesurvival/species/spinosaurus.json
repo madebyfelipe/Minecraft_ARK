@@ -121,7 +121,7 @@
     "biomes": "#iceagesurvival:spawns_spinosaurus",
     "weight": 1,
     "favored": {
-      "biomes": "#iceagesurvival:spawns_spinosaurus_water",
+      "biomes": "#iceagesurvival:ideal_spinosaurus",
       "weight": 3
     },
     "group_min": 1,

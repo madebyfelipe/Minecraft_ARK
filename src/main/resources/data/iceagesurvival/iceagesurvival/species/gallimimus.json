@@ -79,6 +79,10 @@
   "spawn": {
     "biomes": "#iceagesurvival:spawns_gallimimus",
     "weight": 7,
+    "favored": {
+      "biomes": "#iceagesurvival:ideal_gallimimus",
+      "weight": 21
+    },
     "group_min": 3,
     "group_max": 5,
     "max_nearby": 5,

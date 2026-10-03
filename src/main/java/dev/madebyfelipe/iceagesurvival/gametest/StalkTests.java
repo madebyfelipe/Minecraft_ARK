@@ -202,7 +202,7 @@ public class StalkTests {
         });
     }
 
-    /** Espinossauro: nasce sobretudo na beira d'água (peso 3), mas também em biomas abertos (peso 1). */
+    /** Espinossauro: nasce sobretudo na beira d'água (peso 3), mas também em qualquer outro bioma (peso 1). */
     @GameTest(template = EMPTY, batch = "stalk_spino_spawn")
     public static void spinosaurusFavorsWaterButNotOnly(GameTestHelper helper) {
         SpawnProfile spawn = Species.of(helper.getLevel().registryAccess(), ModEntities.SPINOSAURUS.get())
@@ -211,10 +211,11 @@ public class StalkTests {
         var river = biomes.getHolderOrThrow(Biomes.RIVER);
         var plains = biomes.getHolderOrThrow(Biomes.PLAINS);
         var desert = biomes.getHolderOrThrow(Biomes.DESERT);
-        helper.assertTrue(river.is(spawn.biomes()) && plains.is(spawn.biomes()), "deveria nascer no rio e na planície");
-        helper.assertFalse(desert.is(spawn.biomes()), "não deveria nascer no deserto");
+        helper.assertTrue(river.is(spawn.biomes()) && plains.is(spawn.biomes()) && desert.is(spawn.biomes()),
+                "deveria nascer no rio, na planície e no deserto");
         helper.assertTrue(spawn.weightIn(river) == 3, "peso no rio " + spawn.weightIn(river));
         helper.assertTrue(spawn.weightIn(plains) == 1, "peso na planície " + spawn.weightIn(plains));
+        helper.assertTrue(spawn.weightIn(desert) == 1, "peso no deserto " + spawn.weightIn(desert));
         helper.succeed();
     }
 }

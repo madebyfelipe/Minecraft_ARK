@@ -1,0 +1,12 @@
+{
+  "type": "forge:add_spawns",
+  "biomes": "#iceagesurvival:ideal_pteranodon",
+  "spawners": [
+    {
+      "type": "iceagesurvival:pteranodon",
+      "weight": 8,
+      "minCount": 2,
+      "maxCount": 4
+    }
+  ]
+}

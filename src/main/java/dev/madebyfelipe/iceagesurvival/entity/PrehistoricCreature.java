@@ -365,6 +365,12 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     /** Rumo e inclinação da trajetória no voo montado: seguem o olhar com curva limitada. */
     private float flightYaw;
     private float flightPitch;
+    /**
+     * Decolagem por salto montada ({@code mount.flight.leap_height}), no cliente de quem monta: ticks agachada que
+     * faltam e a velocidade vertical do salto em curso (0 = não está saltando).
+     */
+    private int takeoffCrouchTicks;
+    private double takeoffLeapSpeed;
     /** Só no cliente: a inclinação do corpo em voo (graus, + sobe o bico), seguindo a trajetória. */
     private float bodyFlightPitch;
     private float prevBodyFlightPitch;
@@ -806,6 +812,8 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         setNoGravity(allowed);
         if (!allowed) {
             flightSpeed = 0.0;
+            takeoffCrouchTicks = 0;
+            takeoffLeapSpeed = 0.0;
         }
     }
 
@@ -948,6 +956,8 @@ public abstract class PrehistoricCreature extends TamableAnimal {
                 grabTicks = HuntSpecials.GRAB_WINDOW_TICKS;
             }
             case GAFF -> armGaff();
+            case SWALLOW -> SwallowStrike.onPounce(this, target);
+            case VENOM -> VenomBite.onPounce(this, target);
             case PACK_LEAP -> {
                 if (onGround() && HuntSpecials.inLeapRange(distanceTo(target))) {
                     double[] leap = HuntSpecials.leapVelocity(target.getX() - getX(), target.getZ() - getZ());
@@ -996,9 +1006,18 @@ public abstract class PrehistoricCreature extends TamableAnimal {
                 retreatTicks = HuntSpecials.RETREAT_TICKS;
                 retreatFrom = target;
             }
+            case SWALLOW -> SwallowStrike.onStrike(this, target);
+            case VENOM -> VenomBite.onStrike(this, target);
             default -> {
             }
         }
+    }
+
+    /**
+     * Um gesto de uma vez do modelo (ex.: {@code eat}, {@code tongueflick}): no GeckoLib, a animação de mesmo nome; nos
+     * outros renderers, nada. Só no servidor.
+     */
+    public void gesture(String name) {
     }
 
     /**
@@ -2574,9 +2593,76 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         flightExhausted = FlightStamina.exhausted(flightExhausted, flightStaminaFraction(), TAKEOFF_STAMINA);
     }
 
+    /** Como a espécie voa ({@code mount.flight}); o padrão é o voo do Pteranodonte. */
+    public MountProfile.FlightStyle flightStyle() {
+        return mountProfile().map(MountProfile::flight).orElse(MountProfile.FlightStyle.DEFAULT);
+    }
+
     /**
-     * Servidor: voando gasta (subindo o dobro, planando em descida um quinto), pousada recarrega. O valor vai
-     * sincronizado: o cliente de quem monta limita a subida com ele.
+     * Fôlego gasto por segundo voando com esta variação de altura por tick, pelos custos da espécie: a subida que a
+     * térmica dá aqui ({@link #thermalLift()}) não conta como bater as asas.
+     */
+    public double flightDrainRate(double dyPerTick) {
+        return FlightStamina.drainRate(dyPerTick, thermalLift(), flightStyle().costs());
+    }
+
+    /**
+     * A subida que a térmica dá aqui e agora, em blocos/tick ({@link dev.madebyfelipe.iceagesurvival.core.mount.Thermals}):
+     * só para a espécie que usa térmicas, de dia, sem chuva, sobre terra, e menor quanto mais alto acima do chão. Vale
+     * nos dois lados: o cliente de quem monta sobe com ela, o servidor a desconta do fôlego.
+     */
+    public double thermalLift() {
+        MountProfile.FlightStyle style = flightStyle();
+        Level level = level();
+        if (style.thermalLift() <= 0.0 || level.dimensionType().hasFixedTime()) {
+            return 0.0;
+        }
+        BlockPos top = level.getHeightmapPos(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING,
+                blockPosition());
+        boolean overWater = !level.getFluidState(top.below()).isEmpty();
+        boolean daytime = dev.madebyfelipe.iceagesurvival.core.ecology.Activity.isDaytime(level.getDayTime());
+        if (!dev.madebyfelipe.iceagesurvival.core.mount.Thermals.active(daytime, level.isRaining(), overWater)) {
+            return 0.0;
+        }
+        return dev.madebyfelipe.iceagesurvival.core.mount.Thermals.lift(style.thermalLift(), getY() - top.getY(),
+                style.thermalCeiling());
+    }
+
+    /**
+     * Céu aberto para decolar num salto ({@code mount.flight.leap_height}): nenhum bloco sólido nem folha nos
+     * {@link dev.madebyfelipe.iceagesurvival.core.mount.LeapTakeoff#SKY_CLEARANCE} blocos acima da caixa de colisão.
+     * Quem não decola por salto sempre pode.
+     */
+    public boolean hasOpenSkyForTakeoff() {
+        if (!flightStyle().leaps()) {
+            return true;
+        }
+        Level level = level();
+        var box = getBoundingBox();
+        int minX = Mth.floor(box.minX);
+        int maxX = Mth.floor(box.maxX - 1.0E-4);
+        int minZ = Mth.floor(box.minZ);
+        int maxZ = Mth.floor(box.maxZ - 1.0E-4);
+        int fromY = Mth.floor(box.maxY);
+        int toY = Mth.floor(box.maxY + dev.madebyfelipe.iceagesurvival.core.mount.LeapTakeoff.SKY_CLEARANCE);
+        BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
+        for (int x = minX; x <= maxX; x++) {
+            for (int z = minZ; z <= maxZ; z++) {
+                for (int y = fromY; y <= toY; y++) {
+                    pos.set(x, y, z);
+                    var state = level.getBlockState(pos);
+                    if (state.is(net.minecraft.tags.BlockTags.LEAVES) || !state.getCollisionShape(level, pos).isEmpty()) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Servidor: voando gasta (pelos custos da espécie; no padrão, subindo o dobro e planando em descida um quinto),
+     * pousada recarrega. O valor vai sincronizado: o cliente de quem monta limita a subida com ele.
      */
     private void tickFlightStamina() {
         double max = maxFlightStamina();
@@ -2586,7 +2672,7 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         float fraction = flightStaminaFraction();
         if (isFlying() && !onGround()) {
             double dy = getY() - yo;
-            double rate = FlightStamina.drainRate(dy);
+            double rate = flightDrainRate(dy);
             fraction -= (float) (rate / 20.0 / max);
             if (fraction <= 0.0F) {
                 fraction = 0.0F;
@@ -3342,17 +3428,38 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     /** Voo montado, no cliente de quem monta ({@link FlightModel}). */
     private void tickFlight(Player player, boolean jumpPressed) {
         MountProfile mount = mountProfile().orElse(MountProfile.DEFAULT);
+        MountProfile.FlightStyle style = mount.flight();
         double maxSpeed = mount.flightSpeed();
-        FlightModel.Tuning tuning = FlightModel.Tuning.forMaxSpeed(maxSpeed, mount.flightTurnRate());
+        FlightModel.Tuning tuning = FlightModel.Tuning.forMaxSpeed(maxSpeed, mount.flightTurnRate(),
+                style.accelerationTicks());
         if (!isFlying()) {
             if (jumpPressed && isRideReady() && !isFlightExhausted()) {
+                if (!hasOpenSkyForTakeoff()) {
+                    // Galhos ou teto logo acima: não há como abrir as asas.
+                    player.displayClientMessage(Component.translatable("iceagesurvival.mount.no_open_sky",
+                            getDisplayName()), true);
+                    return;
+                }
                 setFlying(true);
-                flightSpeed = maxSpeed * FlightModel.TAKEOFF_SPEED_FRACTION;
                 flightYaw = getYRot();
                 flightPitch = 0.0F;
+                if (style.leaps() && onGround()) {
+                    // Decola parado: agacha, salta e só no topo do salto bate as asas (LeapTakeoff).
+                    flightSpeed = 0.0;
+                    takeoffCrouchTicks = dev.madebyfelipe.iceagesurvival.core.mount.LeapTakeoff.CROUCH_TICKS;
+                    takeoffLeapSpeed = dev.madebyfelipe.iceagesurvival.core.mount.LeapTakeoff.launchSpeed(
+                            style.leapHeight());
+                    setDeltaMovement(Vec3.ZERO);
+                    return;
+                }
+                flightSpeed = maxSpeed * FlightModel.TAKEOFF_SPEED_FRACTION;
                 Vec3 movement = getDeltaMovement();
                 setDeltaMovement(movement.x, FlightModel.TAKEOFF_LIFT, movement.z);
             }
+            return;
+        }
+        if (takeoffCrouchTicks > 0 || takeoffLeapSpeed > 0.0) {
+            tickTakeoffLeap(player, maxSpeed);
             return;
         }
         boolean exhausted = flightStaminaFraction() <= 0.0F;
@@ -3363,7 +3470,9 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         flightPitch = FlightModel.nextPitch(flightPitch, exhausted ? Math.max(player.getXRot(), 12.0F) : player.getXRot(),
                 tuning);
         flightSpeed = FlightModel.nextSpeed(flightSpeed, flightPitch, input, tuning);
-        FlightModel.Velocity velocity = FlightModel.velocity(flightSpeed, flightYaw, flightPitch, input, tuning);
+        // Planador de térmica: de dia, sobre terra, sobe devagar sem bater as asas.
+        FlightModel.Velocity velocity = FlightModel.velocity(flightSpeed, flightYaw, flightPitch, input, tuning,
+                thermalLift());
         if (onGround() && velocity.y() < 0) {
             // Rasante: encostou no chão rápido demais para pousar; desliza em vez de afundar.
             velocity = new FlightModel.Velocity(velocity.x(), 0.0, velocity.z());
@@ -3374,6 +3483,34 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         resetFallDistance();
         if (FlightModel.shouldLand(onGround(), riderJumpHeld, player.getXRot(), flightSpeed, tuning)) {
             setFlying(false);
+        }
+    }
+
+    /**
+     * A decolagem por salto montada: agachada, parada e virando com o olhar; depois o salto vertical, sem avanço; no
+     * topo (ou batendo a cabeça), o voo começa com o embalo da decolagem.
+     */
+    private void tickTakeoffLeap(Player player, double maxSpeed) {
+        flightYaw = player.getYRot();
+        setRot(flightYaw, 0.0F);
+        yRotO = yBodyRot = yHeadRot = flightYaw;
+        resetFallDistance();
+        if (takeoffCrouchTicks > 0) {
+            takeoffCrouchTicks--;
+            setDeltaMovement(0.0, 0.0, 0.0);
+            return;
+        }
+        if (verticalCollision && !onGround()) {
+            takeoffLeapSpeed = 0.0; // bateu a cabeça: o salto acaba ali
+        }
+        if (takeoffLeapSpeed > 0.0) {
+            setDeltaMovement(0.0, takeoffLeapSpeed, 0.0);
+            takeoffLeapSpeed = dev.madebyfelipe.iceagesurvival.core.mount.LeapTakeoff.nextSpeed(takeoffLeapSpeed);
+        }
+        if (takeoffLeapSpeed <= 0.0) {
+            takeoffLeapSpeed = 0.0;
+            flightSpeed = maxSpeed * FlightModel.TAKEOFF_SPEED_FRACTION;
+            flightPitch = 0.0F;
         }
     }
 

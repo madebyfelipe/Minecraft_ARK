@@ -61,7 +61,11 @@ public record CreatureAppearance(
             Map.entry("ornitholestes", new CreatureAppearance("ornitholestes", "ornitholestes/ornitholestes_male.png",
                     "idle", "walk", "attack", "sleep", "walk", "run")),
             Map.entry("pteranodon", new CreatureAppearance("pteranodon", "pteranodon/pteranodon_male.png",
-                    "idle", "walk", "attack", "sleep", "fly", "walk", "dive"))
+                    "idle", "walk", "attack", "sleep", "fly", "walk", "dive")),
+            Map.entry("quetzalcoatlus", new CreatureAppearance("quetzalcoatlus",
+                    "quetzalcoatlus/quetzalcoatlus_male.png", "idle", "walk", "attack", "sleep", "fly", "run", "dive")),
+            Map.entry("megalania", new CreatureAppearance("megalania", "megalania/megalania_male.png",
+                    "idle", "walk", "attack_1", "sleep", "walk", "run"))
     );
 
     public static Optional<CreatureAppearance> forEntity(ResourceLocation entityId) {

@@ -1,0 +1,12 @@
+{
+  "type": "forge:add_spawns",
+  "biomes": "#iceagesurvival:ideal_stegosaurus",
+  "spawners": [
+    {
+      "type": "iceagesurvival:stegosaurus",
+      "weight": 8,
+      "minCount": 2,
+      "maxCount": 4
+    }
+  ]
+}

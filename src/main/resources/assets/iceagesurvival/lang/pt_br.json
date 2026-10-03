@@ -260,5 +260,12 @@
   "message.iceagesurvival.gate.not_owner": "Este portão não é seu.",
   "message.iceagesurvival.bear_trap.not_owner": "Só o dono da armadilha pode rearmá-la.",
   "death.attack.iceagesurvival.defense_trap": "%1$s caiu numa armadilha",
-  "death.attack.iceagesurvival.defense_trap.player": "%1$s caiu numa armadilha fugindo de %2$s"
+  "death.attack.iceagesurvival.defense_trap.player": "%1$s caiu numa armadilha fugindo de %2$s",
+  "entity.iceagesurvival.quetzalcoatlus": "Quetzalcoatlus",
+  "item.iceagesurvival.quetzalcoatlus_spawn_egg": "Ovo Gerador de Quetzalcoatlus",
+  "entity.iceagesurvival.megalania": "Megalania",
+  "item.iceagesurvival.megalania_spawn_egg": "Ovo Gerador de Megalania",
+  "effect.iceagesurvival.venom": "Peçonha",
+  "item.iceagesurvival.antidote": "Antídoto",
+  "iceagesurvival.mount.no_open_sky": "%s precisa de céu aberto para decolar"
 }

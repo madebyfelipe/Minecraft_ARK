@@ -81,6 +81,10 @@
   "spawn": {
     "biomes": "#iceagesurvival:spawns_mammoth",
     "weight": 10,
+    "favored": {
+      "biomes": "#iceagesurvival:ideal_mammoth",
+      "weight": 30
+    },
     "group_min": 3,
     "group_max": 5,
     "max_nearby": 5,

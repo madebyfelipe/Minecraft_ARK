@@ -1,0 +1,12 @@
+{
+  "type": "forge:add_spawns",
+  "biomes": "#iceagesurvival:ideal_quetzalcoatlus",
+  "spawners": [
+    {
+      "type": "iceagesurvival:quetzalcoatlus",
+      "weight": 2,
+      "minCount": 2,
+      "maxCount": 4
+    }
+  ]
+}

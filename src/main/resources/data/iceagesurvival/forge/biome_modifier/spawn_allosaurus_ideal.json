@@ -1,0 +1,12 @@
+{
+  "type": "forge:add_spawns",
+  "biomes": "#iceagesurvival:ideal_allosaurus",
+  "spawners": [
+    {
+      "type": "iceagesurvival:allosaurus",
+      "weight": 2,
+      "minCount": 2,
+      "maxCount": 3
+    }
+  ]
+}

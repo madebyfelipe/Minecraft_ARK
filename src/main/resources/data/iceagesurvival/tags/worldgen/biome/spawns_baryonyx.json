@@ -1,7 +1,6 @@
 {
   "replace": false,
   "values": [
-    "#iceagesurvival:spawns_baryonyx_water",
-    "#iceagesurvival:spawns_baryonyx_open"
+    "#iceagesurvival:spawn_anywhere"
   ]
 }
