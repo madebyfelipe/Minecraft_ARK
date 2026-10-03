@@ -395,7 +395,7 @@ public class AnalyzerScreen extends Screen {
         }
         Optional<ScanResultPayload> scan = known ? DinoFileClient.lastScan(sheet.get().species()) : Optional.empty();
         int headerHeight = 34;
-        int analysisHeight = scan.isPresent() ? 70 : 0;
+        int analysisHeight = scan.isPresent() ? 76 : 0;
         int body = known ? (layout == null ? 0 : layout.height()) : 40;
         contentHeight = headerHeight + analysisHeight + body;
         clampContentScroll();
@@ -461,7 +461,7 @@ public class AnalyzerScreen extends Screen {
 
     /** A leitura do último exemplar escaneado: nome, nível, sexo, vida, torpor, estado e o selo de perigo. */
     private void renderAnalysis(GuiGraphics graphics, ScanResultPayload scan, int x, int y, int right) {
-        int boxBottom = y + 64;
+        int boxBottom = y + 70;
         graphics.fill(x, y, right, boxBottom, 0x50040D12);
         TechStyle.border(graphics, x, y, right, boxBottom, HudShapes.fade(TechStyle.METAL, 0.9F));
         graphics.fill(x + 1, y + 1, right - 1, y + 11, TechStyle.METAL_DARK);
@@ -535,7 +535,8 @@ public class AnalyzerScreen extends Screen {
         if (model != null) {
             float visualHeight = model.getBbHeight() * 1.25F;
             float visualLength = Math.max(model.getBbWidth(), model.getBbHeight() * 0.5F) * 2.2F;
-            float fit = Math.min((y2 - y1 - 30) / visualHeight, (x2 - x1 - 10) / visualLength);
+            // Girando, o corpo comprido passa de frente para o lado: cabe pelo comprimento com folga.
+            float fit = Math.min((y2 - y1 - 34) / visualHeight, (x2 - x1 - 10) / (visualLength * 1.35F));
             int scale = Math.max(3, Math.round(fit));
             float angle = (Util.getMillis() % 9000L) / 9000.0F * 360.0F;
             model.yBodyRot = angle;

@@ -122,11 +122,15 @@ public final class CreatureHud {
         }
         if (own) {
             y += GAP;
-            graphics.drawString(font, Component.translatable("iceagesurvival.hud.orders",
+            Component orders = Component.translatable("iceagesurvival.hud.orders",
                     CreatureStatusScreen.movementName(creature.movement()),
-                    CreatureStatusScreen.stanceName(creature.stance())), x, y, TEXT);
+                    CreatureStatusScreen.stanceName(creature.stance()));
+            graphics.drawString(font, orders, x, y, TEXT);
+            // A dica da tecla só quando cabe ao lado das ordens.
             Component hint = Component.translatable("iceagesurvival.hud.status_hint", CommandInput.statusKeyName());
-            graphics.drawString(font, hint, right - font.width(hint), y, SUBTLE);
+            if (font.width(orders) + 6 + font.width(hint) <= right - x) {
+                graphics.drawString(font, hint, right - font.width(hint), y, SUBTLE);
+            }
         }
     }
 
