@@ -32,6 +32,11 @@ public final class BlockBreaking {
         }
     }
 
+    /** Se o pathfinder deve tratar copa como caminho livre: a criatura a atravessa quebrando. */
+    public static boolean walksThroughLeaves(PrehistoricCreature creature, float plowHardness, boolean breaksLeaves) {
+        return breaksLeaves || plowHardness > 0.0F;
+    }
+
     /**
      * Quebra, à frente do corpo, os blocos da tag {@code plowable} com dureza até o limite da
      * espécie. Só vegetação e neve: o chão e as encostas ficam, e a criatura sobe por eles.
