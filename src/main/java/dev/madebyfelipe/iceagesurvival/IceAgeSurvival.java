@@ -51,6 +51,7 @@ public class IceAgeSurvival {
         ModArmorMaterials.ARMOR_MATERIALS.register(modEventBus);
         ModItems.ITEMS.register(modEventBus);
         ModEffects.EFFECTS.register(modEventBus);
+        dev.madebyfelipe.iceagesurvival.registry.ModStructures.register(modEventBus);
         dev.madebyfelipe.iceagesurvival.primal.PrimalStations.register(modEventBus);
         dev.madebyfelipe.iceagesurvival.defense.Defenses.register(modEventBus);
         dev.madebyfelipe.iceagesurvival.compat.ExternalFaunaCleanup.register(modEventBus);

@@ -66,6 +66,12 @@ public final class ModEntities {
      * e comprido. Modelo, animações e sons do Revival em runtime.
      */
     public static final RegistryObject<EntityType<LandCreature>> MEGALANIA = landCreature("megalania", 1.5F, 1.1F);
+    /**
+     * Giganotosaurus, o boss da arena da caverna (D47): 12–13 m, ~8 t, um pouco mais comprido e mais leve que o T-Rex.
+     * Modelo, poses e sons do Jurassic Reborn em runtime. Não nasce sozinho: só o altar da arena o chama.
+     */
+    public static final RegistryObject<EntityType<LandCreature>> GIGANOTOSAURUS = landCreature("giganotosaurus",
+            3.0F, 6.0F, dev.madebyfelipe.iceagesurvival.entity.GiganotosaurusBoss::new);
 
     public static final RegistryObject<EntityType<TestCreature>> TEST_CREATURE =
             ENTITY_TYPES.register("test_creature", () -> EntityType.Builder.of(TestCreature::new, MobCategory.CREATURE)
@@ -83,8 +89,14 @@ public final class ModEntities {
     }
 
     private static RegistryObject<EntityType<LandCreature>> landCreature(String id, float width, float height) {
+        return landCreature(id, width, height, LandCreature::new);
+    }
+
+    /** Espécie com classe própria (o boss), ainda na lista das terrestres. */
+    private static RegistryObject<EntityType<LandCreature>> landCreature(String id, float width, float height,
+                                                                         EntityType.EntityFactory<LandCreature> factory) {
         RegistryObject<EntityType<LandCreature>> holder = ENTITY_TYPES.register(id,
-                () -> EntityType.Builder.<LandCreature>of(LandCreature::new, MobCategory.CREATURE)
+                () -> EntityType.Builder.<LandCreature>of(factory, MobCategory.CREATURE)
                         .sized(width, height)
                         .clientTrackingRange(10)
                         .build(id));

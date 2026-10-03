@@ -270,5 +270,13 @@
   "item.iceagesurvival.antidote.tooltip": "Cura a peçonha da Megalania. Beba, ou use numa criatura.",
   "death.attack.iceagesurvival.venom": "%1$s sangrou até a morte envenenado",
   "death.attack.iceagesurvival.venom.player": "%1$s sangrou até a morte pela peçonha de %2$s",
-  "iceagesurvival.mount.no_open_sky": "%s precisa de céu aberto para decolar"
+  "iceagesurvival.mount.no_open_sky": "%s precisa de céu aberto para decolar",
+  "entity.iceagesurvival.giganotosaurus": "Giganotossauro",
+  "item.iceagesurvival.giganotosaurus_spawn_egg": "Ovo Gerador de Giganotossauro",
+  "block.iceagesurvival.giganotosaurus_head": "Cabeça de Giganotossauro",
+  "block.iceagesurvival.arena_altar": "Altar da Arena",
+  "item.iceagesurvival.cave_tracker": "Rastreador da Caverna",
+  "item.iceagesurvival.serrated_tooth": "Dente Serrilhado",
+  "item.iceagesurvival.serrated_sword": "Espada Serrilhada",
+  "effect.iceagesurvival.bleeding": "Sangramento"
 }

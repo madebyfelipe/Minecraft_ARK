@@ -102,6 +102,21 @@ public final class ModItems {
     public static final RegistryObject<ForgeSpawnEggItem> MEGALANIA_SPAWN_EGG = ITEMS.register(
             "megalania_spawn_egg",
             () -> new ForgeSpawnEggItem(ModEntities.MEGALANIA, 0x5A4A32, 0xB59A5E, new Item.Properties()));
+    public static final RegistryObject<ForgeSpawnEggItem> GIGANOTOSAURUS_SPAWN_EGG = ITEMS.register(
+            "giganotosaurus_spawn_egg",
+            () -> new ForgeSpawnEggItem(ModEntities.GIGANOTOSAURUS, 0x6B5A48, 0x9E3B2C, new Item.Properties()));
+
+    /** Rastreador da caverna da arena (D47), feito com os troféus de apex. */
+    public static final RegistryObject<dev.madebyfelipe.iceagesurvival.item.CaveTrackerItem> CAVE_TRACKER =
+            ITEMS.register("cave_tracker", () -> new dev.madebyfelipe.iceagesurvival.item.CaveTrackerItem(
+                    new Item.Properties().stacksTo(16).rarity(net.minecraft.world.item.Rarity.RARE)));
+    /** Dente serrilhado do Giganotosaurus (D47): a recompensa do boss, para a espada serrilhada. */
+    public static final RegistryObject<Item> SERRATED_TOOTH = ITEMS.register("serrated_tooth",
+            () -> new Item(new Item.Properties().rarity(net.minecraft.world.item.Rarity.EPIC)));
+    /** Espada serrilhada (D47): o corte faz sangrar, como a mordida do Giganotosaurus. */
+    public static final RegistryObject<net.minecraft.world.item.SwordItem> SERRATED_SWORD = ITEMS.register(
+            "serrated_sword", () -> new net.minecraft.world.item.SwordItem(net.minecraft.world.item.Tiers.DIAMOND, 3,
+                    -2.4F, new Item.Properties().rarity(net.minecraft.world.item.Rarity.EPIC)));
 
     /** Antídoto contra a peçonha da Megalania (mesa química). */
     public static final RegistryObject<dev.madebyfelipe.iceagesurvival.item.AntidoteItem> ANTIDOTE = ITEMS.register(
@@ -164,6 +179,10 @@ public final class ModItems {
     public static final RegistryObject<BlockItem> SPINOSAURUS_HEAD = ITEMS.register("spinosaurus_head",
             () -> new BlockItem(ModBlocks.SPINOSAURUS_HEAD.get(), new Item.Properties().stacksTo(16)
                     .rarity(net.minecraft.world.item.Rarity.RARE)));
+    public static final RegistryObject<BlockItem> GIGANOTOSAURUS_HEAD = ITEMS.register("giganotosaurus_head",
+            () -> new BlockItem(ModBlocks.GIGANOTOSAURUS_HEAD.get(), new Item.Properties().stacksTo(16)
+                    .rarity(net.minecraft.world.item.Rarity.EPIC)));
+    public static final RegistryObject<BlockItem> ARENA_ALTAR = blockItem("arena_altar", ModBlocks.ARENA_ALTAR);
     public static final RegistryObject<BlockItem> REVIVE_TABLE = blockItem("revive_table", ModBlocks.REVIVE_TABLE);
 
     /** Fica no corpo da criatura domesticada que morreu; revive-a na mesa de reviver com um diamante. */
@@ -232,6 +251,7 @@ public final class ModItems {
             event.accept(BARYONYX_SPAWN_EGG);
             event.accept(QUETZALCOATLUS_SPAWN_EGG);
             event.accept(MEGALANIA_SPAWN_EGG);
+            event.accept(GIGANOTOSAURUS_SPAWN_EGG);
         } else if (event.getTabKey() == CreativeModeTabs.COMBAT) {
             event.accept(TRANQ_ARROW);
             event.accept(TRANQ_DART);
@@ -263,6 +283,11 @@ public final class ModItems {
             event.accept(REVIVE_TABLE);
             event.accept(TYRANNOSAURUS_HEAD);
             event.accept(SPINOSAURUS_HEAD);
+            event.accept(GIGANOTOSAURUS_HEAD);
+            event.accept(ARENA_ALTAR);
+            event.accept(CAVE_TRACKER);
+            event.accept(SERRATED_TOOTH);
+            event.accept(SERRATED_SWORD);
         } else if (event.getTabKey() == CreativeModeTabs.NATURAL_BLOCKS) {
             event.accept(BLACK_FRUIT_LEAVES);
             event.accept(BLACK_FRUIT_SAPLING);

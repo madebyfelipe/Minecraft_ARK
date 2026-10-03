@@ -13,6 +13,9 @@ public final class ModEffects {
 
     /** Peçonha da Megalania. */
     public static final RegistryObject<MobEffect> VENOM = EFFECTS.register("venom", VenomEffect::new);
+    /** Sangramento da mordida cortante do Giganotosaurus (D47). */
+    public static final RegistryObject<MobEffect> BLEEDING = EFFECTS.register("bleeding",
+            dev.madebyfelipe.iceagesurvival.effect.BleedingEffect::new);
 
     private ModEffects() {
     }
