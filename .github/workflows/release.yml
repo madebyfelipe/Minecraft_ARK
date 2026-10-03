@@ -1,20 +1,59 @@
 name: Release
 
 # Publica o release da versão do gradle.properties: compila, monta o .mrpack (tools/build_mrpack.py) e anexa o
-# .mrpack e o jar, com as notas de docs/releases/v<versão>.md. Dispara com uma tag v* ou à mão (workflow_dispatch);
-# à mão, a tag v<versão> é criada no commit escolhido.
+# .mrpack e o jar, com as notas de docs/releases/v<versão>.md, criando a tag v<versão> no commit.
+# Dispara num push na main (só quando as notas da versão existem e o release ainda não), numa tag v* ou à mão.
 
 on:
   push:
+    branches: [main]
     tags: ['v*']
   workflow_dispatch:
 
 permissions:
   contents: write
 
+concurrency:
+  group: release
+
 jobs:
-  release:
+  check:
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      publish: ${{ steps.version.outputs.publish }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check version
+        id: version
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version="$(sed -n 's/^mod_version=//p' gradle.properties)"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          if [ "$GITHUB_REF_TYPE" = tag ] && [ "v$version" != "$GITHUB_REF_NAME" ]; then
+            echo "A tag $GITHUB_REF_NAME não bate com mod_version=$version" >&2
+            exit 1
+          fi
+          if [ ! -f "docs/releases/v$version.md" ]; then
+            echo "Sem docs/releases/v$version.md: nada a publicar."
+            [ "$GITHUB_REF_TYPE" = branch ] && [ "$GITHUB_EVENT_NAME" = push ] || exit 1
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+          elif gh release view "v$version" --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
+            echo "O release v$version já existe."
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "publish=true" >> "$GITHUB_OUTPUT"
+          fi
+
+  release:
+    needs: check
+    if: needs.check.outputs.publish == 'true'
+    runs-on: ubuntu-latest
+    env:
+      VERSION: ${{ needs.check.outputs.version }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -27,16 +66,6 @@ jobs:
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
-
-      - name: Check version
-        run: |
-          version="$(sed -n 's/^mod_version=//p' gradle.properties)"
-          if [ "$GITHUB_REF_TYPE" = tag ] && [ "v$version" != "$GITHUB_REF_NAME" ]; then
-            echo "A tag $GITHUB_REF_NAME não bate com mod_version=$version" >&2
-            exit 1
-          fi
-          test -f "docs/releases/v$version.md"
-          echo "VERSION=$version" >> "$GITHUB_ENV"
 
       - name: Build with Gradle
         run: ./gradlew build

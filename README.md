@@ -29,4 +29,4 @@ tools/deploy-prism.sh       # copia o jar para a instância de teste do Prism La
 
 A instância do Prism usa uma cópia do jar. Depois de `./gradlew build`, rode `tools/deploy-prism.sh` e reinicie o jogo para testar a versão nova.
 
-Para publicar um release: suba `mod_version` em `gradle.properties`, escreva as notas em `docs/releases/v<versão>.md` e envie a tag `v<versão>` (ou rode o workflow `Release` à mão, que cria a tag). Ele compila, monta o `.mrpack` (`tools/build_mrpack.py`) e publica o release com o `.mrpack` e o jar.
+Para publicar um release: suba `mod_version` em `gradle.properties`, escreva as notas em `docs/releases/v<versão>.md` e integre na `main` (ou envie a tag `v<versão>`). O workflow `Release` cria a tag, compila, monta o `.mrpack` (`tools/build_mrpack.py`) e publica o release com o `.mrpack` e o jar.
