@@ -152,6 +152,8 @@
   "iceagesurvival.breeding.pregnant": "%s está prenhe",
   "iceagesurvival.status.mating_on": "Acasalamento: ligado",
   "iceagesurvival.status.mating_off": "Acasalamento: desligado",
+  "iceagesurvival.status.mating_short_on": "Acasalar: sim",
+  "iceagesurvival.status.mating_short_off": "Acasalar: não",
   "iceagesurvival.status.sex": "Sexo",
   "iceagesurvival.status.female": "Fêmea",
   "iceagesurvival.status.male": "Macho",

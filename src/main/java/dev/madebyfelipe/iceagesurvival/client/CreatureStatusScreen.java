@@ -27,10 +27,11 @@ import net.minecraft.network.chat.Component;
  */
 public class CreatureStatusScreen extends Screen {
     private static final int WIDTH = 276;
-    private static final int HEIGHT = 262;
+    /** Cabe na interface pequena (240 de altura, escala 2 em 854×480) com a moldura. */
+    private static final int HEIGHT = 234;
     private static final int PREVIEW_WIDTH = 96;
     private static final int REFRESH_TICKS = 20;
-    private static final int ROW_HEIGHT = 12;
+    private static final int ROW_HEIGHT = 11;
 
     private static final int LABEL = TechStyle.SUBTLE;
     private static final int VALUE = TechStyle.TEXT;
@@ -79,17 +80,19 @@ public class CreatureStatusScreen extends Screen {
         left = (width - WIDTH) / 2;
         top = (height - HEIGHT) / 2;
         buttons.clear();
-        mating = addRenderableWidget(new TechButton(left + 8, top + HEIGHT - 70, WIDTH - 16, 18, matingLabel(),
+        int y = top + HEIGHT - 46;
+        // Primeira fileira: seguir, parar e o acasalamento, num terço cada.
+        int x = addWhistleRow(y, 3, Whistle.FOLLOW, Whistle.STAY);
+        mating = addRenderableWidget(new TechButton(x, y, (WIDTH - 16 - 4 * 2) / 3, 18, matingLabel(),
                 TechStyle.BRIGHT, b -> ModPayloads.sendToServer(new ToggleMatingPayload(creature.getId()))));
-        int y = top + HEIGHT - 48;
-        addWhistleRow(y, Whistle.FOLLOW, Whistle.STAY);
-        addWhistleRow(y + 22, Whistle.PASSIVE, Whistle.NEUTRAL, Whistle.DEFEND, Whistle.FLEE);
+        addWhistleRow(y + 22, 4, Whistle.PASSIVE, Whistle.NEUTRAL, Whistle.DEFEND, Whistle.FLEE);
         updateButtons();
     }
 
-    private void addWhistleRow(int y, Whistle... whistles) {
+    /** Uma fileira de {@code slots} botões; devolve onde começaria o próximo. */
+    private int addWhistleRow(int y, int slots, Whistle... whistles) {
         int gap = 4;
-        int buttonWidth = (WIDTH - 16 - gap * (whistles.length - 1)) / whistles.length;
+        int buttonWidth = (WIDTH - 16 - gap * (slots - 1)) / slots;
         int x = left + 8;
         for (Whistle whistle : whistles) {
             // Desligado é a ordem em vigor: fica aceso, como uma aba escolhida.
@@ -99,11 +102,12 @@ public class CreatureStatusScreen extends Screen {
             buttons.put(whistle, addRenderableWidget(button));
             x += buttonWidth + gap;
         }
+        return x;
     }
 
     private Component matingLabel() {
-        return Component.translatable(creature.isMatingEnabled() ? "iceagesurvival.status.mating_on"
-                : "iceagesurvival.status.mating_off");
+        return Component.translatable(creature.isMatingEnabled() ? "iceagesurvival.status.mating_short_on"
+                : "iceagesurvival.status.mating_short_off");
     }
 
     /** O botão da ordem em vigor fica desligado e aceso, como uma aba selecionada. */
@@ -163,7 +167,7 @@ public class CreatureStatusScreen extends Screen {
         graphics.drawString(font, level, left + WIDTH - 8 - font.width(level), top + 8, LEVEL);
 
         renderPreview(graphics, mouseX, mouseY);
-        renderStats(graphics, left + PREVIEW_WIDTH + 8, top + 28);
+        renderStats(graphics, left + PREVIEW_WIDTH + 8, top + 27);
     }
 
     /** Quanto o modelo passa da caixa de colisão, para caber no quadro da prévia. */
@@ -174,7 +178,7 @@ public class CreatureStatusScreen extends Screen {
         int x1 = left + 8;
         int y1 = top + 26;
         int x2 = left + PREVIEW_WIDTH;
-        int y2 = top + HEIGHT - 78;
+        int y2 = top + HEIGHT - 52;
         // Quadro de holograma: fundo escuro, grade fina e o chão onde ficam os pés.
         graphics.fill(x1, y1, x2, y2, PREVIEW_BACK);
         for (int gx = x1 + 8; gx < x2; gx += 8) {

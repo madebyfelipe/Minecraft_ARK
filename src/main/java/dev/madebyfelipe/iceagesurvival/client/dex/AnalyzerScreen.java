@@ -369,9 +369,9 @@ public class AnalyzerScreen extends Screen {
             }
             boolean known = DinoFileClient.isRegistered(sheet.species());
             String number = String.format(Locale.ROOT, "No.%02d", row + 1);
-            graphics.drawString(font, number, x + 8, y + 2, known ? TechStyle.AMBER : LOCKED, false);
+            graphics.drawString(font, number, x + 9, y + 2, known ? TechStyle.AMBER : LOCKED, false);
             String name = known ? sheet.name().toUpperCase(Locale.ROOT) : "???";
-            graphics.drawString(font, font.plainSubstrByWidth(name, LIST_WIDTH - 46), x + 40, y + 2,
+            graphics.drawString(font, ellipsize(name, LIST_WIDTH - 48), x + 42, y + 2,
                     known ? (selected ? TechStyle.TEXT : TechStyle.BRIGHT) : LOCKED, false);
         }
     }
@@ -559,7 +559,7 @@ public class AnalyzerScreen extends Screen {
             }
         }
         if (!known) {
-            graphics.drawCenteredString(font, "???", centerX, (y1 + y2) / 2 - 4, TechStyle.blink() ? LOCKED : TechStyle.SUBTLE);
+            graphics.drawCenteredString(font, "???", centerX, y1 + 22, TechStyle.blink() ? LOCKED : TechStyle.SUBTLE);
         }
         if (newEntry && sheet.species().equals(lastSpecies) && Util.getMillis() - openedAt < NEW_ENTRY_MILLIS
                 && TechStyle.blink()) {
@@ -614,7 +614,7 @@ public class AnalyzerScreen extends Screen {
             } else if (hovered) {
                 graphics.fill(x, y, x + LIST_WIDTH - 4, y + ROW, TechStyle.HOVER);
             }
-            graphics.drawString(font, font.plainSubstrByWidth(row.page().title(), LIST_WIDTH - 16), x + 9, y + 2,
+            graphics.drawString(font, ellipsize(row.page().title(), LIST_WIDTH - 16), x + 9, y + 2,
                     selected ? TechStyle.TEXT : TechStyle.BRIGHT, false);
         }
     }
@@ -645,6 +645,14 @@ public class AnalyzerScreen extends Screen {
         layout.draw(graphics, font, pageLeft, y + headerHeight, contentTop, contentBottom);
         graphics.disableScissor();
         renderContentScrollbar(graphics, pageRight + 4);
+    }
+
+    /** Corta o texto na largura, com reticências quando não cabe. */
+    private String ellipsize(String text, int width) {
+        if (font.width(text) <= width) {
+            return text;
+        }
+        return font.plainSubstrByWidth(text, width - font.width("…")) + "…";
     }
 
     private void clampContentScroll() {

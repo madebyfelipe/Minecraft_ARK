@@ -53,7 +53,7 @@ final class WikiLayout {
             } else if (block instanceof Manual.Bullets bullets) {
                 for (int index = 0; index < bullets.items().size(); index++) {
                     String marker = bullets.ordered() ? (index + 1) + "." : "▪";
-                    elements.add(text(font, bullets.items().get(index), width, 10, PARAGRAPH, marker));
+                    elements.add(text(font, bullets.items().get(index), width, bullets.ordered() ? 14 : 10, PARAGRAPH, marker));
                 }
                 elements.add(spacer(GAP - 2));
             } else if (block instanceof Manual.Table table) {

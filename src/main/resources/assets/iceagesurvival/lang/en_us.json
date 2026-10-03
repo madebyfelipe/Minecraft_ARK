@@ -152,6 +152,8 @@
   "iceagesurvival.breeding.pregnant": "%s is pregnant",
   "iceagesurvival.status.mating_on": "Mating: on",
   "iceagesurvival.status.mating_off": "Mating: off",
+  "iceagesurvival.status.mating_short_on": "Breed: on",
+  "iceagesurvival.status.mating_short_off": "Breed: off",
   "iceagesurvival.status.sex": "Sex",
   "iceagesurvival.status.female": "Female",
   "iceagesurvival.status.male": "Male",
