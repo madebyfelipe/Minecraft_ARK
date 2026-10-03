@@ -31,6 +31,9 @@ public record CreatureAppearance(
         this(model, texture, idle, walk, attack, unconscious, fly, walk);
     }
 
+    /** Modelos do Revival cujas animações não têm o prefixo {@code animation.<modelo>.}. */
+    private static final java.util.Set<String> UNPREFIXED_ANIMATIONS = java.util.Set.of("quetzalcoatlus");
+
     private static final Map<String, CreatureAppearance> REVIVAL = Map.ofEntries(Map.entry("dodo",
                     new CreatureAppearance("dodo", "dodo/dodo_male.png", "idle", "walk", "attack_1", "sleep_1",
                             "walk", "run")),
@@ -84,8 +87,12 @@ public record CreatureAppearance(
         return revivalResource("animations/entity/" + model + ".animation.json");
     }
 
+    /**
+     * O prefixo dos nomes das animações no arquivo do Revival: {@code animation.<modelo>.}, menos nos modelos em que
+     * elas vêm sem prefixo ({@code fly}, {@code idle}…), como o do Quetzalcoatlus.
+     */
     public String animationPrefix() {
-        return "animation." + model + ".";
+        return UNPREFIXED_ANIMATIONS.contains(model) ? "" : "animation." + model + ".";
     }
 
     private static ResourceLocation revivalResource(String path) {

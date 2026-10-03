@@ -115,7 +115,7 @@
     ]
   },
   "mount": {
-    "seat_height": 2.1,
+    "seat_height": 6.3,
     "min_affinity": 25,
     "speed_multiplier": 0.9,
     "flying": true,

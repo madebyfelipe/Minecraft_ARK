@@ -56,7 +56,8 @@ public final class ModEntities {
     public static final RegistryObject<EntityType<LandCreature>> BARYONYX = landCreature("baryonyx", 1.8F, 2.7F);
     /**
      * Quetzalcoatlus, o maior pterossauro: 10–11 m de envergadura, ~220 kg, de pé da altura de uma girafa. Modelo e
-     * animações do Revival em runtime.
+     * animações do Revival em runtime, na escala 3,6. A caixa fica menor que o desenho: ela dá o porte das regras de
+     * ecologia, e um porte maior que o do T-Rex não condiz com os ~220 kg do animal.
      */
     public static final RegistryObject<EntityType<LandCreature>> QUETZALCOATLUS =
             landCreature("quetzalcoatlus", 2.2F, 4.5F);
