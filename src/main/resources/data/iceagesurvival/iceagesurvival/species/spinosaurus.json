@@ -76,7 +76,8 @@
       "hunger_seconds": 420,
       "chase_seconds": 18,
       "rival_radius": 48,
-      "nervousness": 0.5
+      "nervousness": 0.5,
+      "carcass_portions": 26
     },
     "diet": [
       {

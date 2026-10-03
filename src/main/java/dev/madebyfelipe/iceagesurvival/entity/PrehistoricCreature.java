@@ -41,6 +41,7 @@ import dev.madebyfelipe.iceagesurvival.core.mount.FlightModel;
 import dev.madebyfelipe.iceagesurvival.core.mount.FlightStamina;
 import dev.madebyfelipe.iceagesurvival.core.ecology.Activity;
 import dev.madebyfelipe.iceagesurvival.core.ecology.Camouflage;
+import dev.madebyfelipe.iceagesurvival.core.ecology.Carcass;
 import dev.madebyfelipe.iceagesurvival.core.ecology.Carrion;
 import dev.madebyfelipe.iceagesurvival.core.ecology.Hunger;
 import dev.madebyfelipe.iceagesurvival.core.ecology.Sentinel;
@@ -202,6 +203,8 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     private static final String TAG_FLIGHT_STAMINA = "FlightStamina";
     private static final String TAG_CORPSE = "Corpse";
     private static final String TAG_CORPSE_TICKS = "CorpseTicks";
+    private static final String TAG_CARCASS_LEFT = "CarcassLeft";
+    private static final String TAG_CARCASS_TOTAL = "CarcassTotal";
     private static final String TAG_MATING = "Mating";
     private static final String TAG_NEXT_MATING = "NextMating";
     private static final String TAG_GESTATION_END = "GestationEnd";
@@ -408,6 +411,12 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     private int beakStuckTicks;
     /** Há quanto tempo é corpo, em ticks. */
     private int corpseTicks;
+    /** Carcaça ({@link Carcass}): porções de carne que restam e as que havia; 0 = não é carcaça. */
+    private int carcassLeft;
+    private int carcassTotal;
+    /** A carcaça de que esta criatura está comendo (ou indo comer); nula fora do {@code CarcassGoal}. */
+    @Nullable
+    private PrehistoricCreature feedingOn;
     /** Vinte minutos: depois disso o corpo some e o que sobrou cai no chão. */
     public static final int CORPSE_TICKS = 20 * 60 * 20;
     /** Esgotou o fôlego de voo: só decola de novo com {@link #TAKEOFF_STAMINA}. */
@@ -2574,6 +2583,12 @@ public abstract class PrehistoricCreature extends TamableAnimal {
 
     private void tickCorpse() {
         corpseTicks++;
+        if (carcassTotal > 0) {
+            if (corpseTicks >= Carcass.LIFETIME_TICKS || carcassLeft <= 0) {
+                discard(); // comida até o fim, ou passou o prazo
+            }
+            return;
+        }
         // Some no fim do prazo, ou quando já tiraram tudo (e o implante).
         boolean emptied = corpseTicks > 40 && corpseTicks % 20 == 0 && inventory.isEmpty() && !isSaddled();
         if (corpseTicks >= CORPSE_TICKS || emptied) {
@@ -2588,6 +2603,105 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     @Override
     public boolean isInvulnerableTo(DamageSource source) {
         return isCorpse() && !source.is(DamageTypeTags.BYPASSES_INVULNERABILITY) || super.isInvulnerableTo(source);
+    }
+
+    // ---- Carcaça ({@link Carcass}) ----
+
+    /** Carcaça de presa grande morta selvagem sem jogador. */
+    public boolean isCarcass() {
+        return isCorpse() && carcassTotal > 0;
+    }
+
+    /** Carcaça com carne para comer. */
+    public boolean hasCarcassMeat() {
+        return isCarcass() && carcassLeft > 0 && isAlive();
+    }
+
+    public int carcassPortionsLeft() {
+        return carcassLeft;
+    }
+
+    @Nullable
+    public PrehistoricCreature feedingOn() {
+        return feedingOn != null && feedingOn.hasCarcassMeat() ? feedingOn : null;
+    }
+
+    public void setFeedingOn(@Nullable PrehistoricCreature carcass) {
+        feedingOn = carcass;
+    }
+
+    /** Morte pelo jogador (ou pela criatura dele, ou ferida por ele há pouco): o loot é dele, não fica carcaça. */
+    private boolean killedByPlayer(DamageSource source) {
+        return source.getEntity() instanceof Player || lastHurtByPlayerTime > 0
+                || source.getEntity() instanceof net.minecraft.world.entity.OwnableEntity pet
+                && pet.getOwnerUUID() != null;
+    }
+
+    /** Morreu selvagem sem jogador e é presa grande: fica caída, com as porções da espécie. */
+    private void becomeCarcass() {
+        ejectPassengers();
+        for (net.minecraft.world.entity.Mob mob : level().getEntitiesOfClass(net.minecraft.world.entity.Mob.class,
+                getBoundingBox().inflate(CALM_RADIUS), mob -> mob.getTarget() == this)) {
+            if (mob instanceof PrehistoricCreature hunter) {
+                hunter.endHunt(); // a caçada acabou bem: agora é comer (CarcassGoal)
+            }
+        }
+        calmAttackers();
+        setTarget(null);
+        getNavigation().stop();
+        setDeltaMovement(0.0, getDeltaMovement().y, 0.0);
+        setHealth(1.0F);
+        entityData.set(DATA_CORPSE, true);
+        corpseTicks = 0;
+        carcassTotal = ecology().carcassPortions();
+        carcassLeft = carcassTotal;
+    }
+
+    /** Uma bocada: tira uma porção. Falso se já não há carne. */
+    public boolean biteCarcass() {
+        if (!hasCarcassMeat()) {
+            return false;
+        }
+        carcassLeft--;
+        return true;
+    }
+
+    /** Comeu uma porção de carcaça: {@code fraction} da fome, como uma refeição. */
+    public void eatCarcassPortion(double fraction) {
+        // As bocadas somam: cada porção mata {@code fraction} da fome a partir do que já foi matado (o eat sozinho
+        // só garante a fração da refeição, e cinco bocadas valeriam uma).
+        long hungerTicks = ecology().hungerSeconds() * 20L;
+        long now = level().getGameTime();
+        ticksSinceMeal();
+        long floor = Math.max(lastMealTime, now - hungerTicks);
+        lastMealTime = Math.min(now, floor + Math.round(fraction * hungerTicks));
+        eat(fraction, null);
+        playSound(SoundEvents.GENERIC_EAT, 1.0F, 0.8F + getRandom().nextFloat() * 0.2F);
+    }
+
+    /**
+     * O jogador carneia a sobra com machado ou espada: sai o loot da espécie na proporção da carne que resta
+     * ({@link Carcass#butcherShare}) e a carcaça acaba.
+     */
+    private void butcher(Player player, InteractionHand hand, ItemStack tool) {
+        double share = Carcass.butcherShare(carcassLeft, carcassTotal);
+        carcassLeft = 0;
+        setLastHurtByPlayer(player);
+        java.util.List<net.minecraft.world.entity.item.ItemEntity> drops = new java.util.ArrayList<>();
+        captureDrops(drops);
+        dropFromLootTable(damageSources().playerAttack(player), true);
+        captureDrops(null);
+        for (net.minecraft.world.entity.item.ItemEntity drop : drops) {
+            ItemStack stack = drop.getItem();
+            int count = (int) Math.round(stack.getCount() * share);
+            if (count > 0) {
+                stack.setCount(count);
+                level().addFreshEntity(drop);
+            }
+        }
+        tool.hurtAndBreak(1, player, broken -> broken.broadcastBreakEvent(hand));
+        playSound(SoundEvents.PLAYER_ATTACK_SWEEP, 1.0F, 0.8F);
+        discard();
     }
 
     // ---- Fôlego de voo ----
@@ -3540,6 +3654,11 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         if (!level().isClientSide && !isTame()) {
             stressHerd(Stress.Event.HERD_KILLED);
         }
+        if (!level().isClientSide && !isTame() && !isCorpse() && !source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)
+                && ecology().carcassPortions() > 0 && !killedByPlayer(source)) {
+            becomeCarcass();
+            return;
+        }
         super.die(source);
         if (!level().isClientSide && isDeadOrDying()) {
             CreatureLocator.forget(this);
@@ -3604,6 +3723,16 @@ public abstract class PrehistoricCreature extends TamableAnimal {
                 startDuel(player, hand, player.getItemInHand(hand));
             }
             return InteractionResult.sidedSuccess(level().isClientSide);
+        }
+        if (isCarcass()) {
+            ItemStack tool = player.getItemInHand(hand);
+            if (tool.is(net.minecraft.tags.ItemTags.AXES) || tool.is(net.minecraft.tags.ItemTags.SWORDS)) {
+                if (!level().isClientSide) {
+                    butcher(player, hand, tool);
+                }
+                return InteractionResult.sidedSuccess(level().isClientSide);
+            }
+            return InteractionResult.PASS;
         }
         if (isCorpse()) {
             // O corpo só se abre: o inventário e o implante.
@@ -3877,6 +4006,8 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         if (isCorpse()) {
             compound.putBoolean(TAG_CORPSE, true);
             compound.putInt(TAG_CORPSE_TICKS, corpseTicks);
+            compound.putInt(TAG_CARCASS_LEFT, carcassLeft);
+            compound.putInt(TAG_CARCASS_TOTAL, carcassTotal);
         }
         compound.putBoolean(TAG_MATING, isMatingEnabled());
         compound.putLong(TAG_NEXT_MATING, nextMatingTime);
@@ -3910,6 +4041,8 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         setFlightStaminaFraction(compound.contains(TAG_FLIGHT_STAMINA) ? compound.getFloat(TAG_FLIGHT_STAMINA) : 1.0F);
         entityData.set(DATA_CORPSE, compound.getBoolean(TAG_CORPSE));
         corpseTicks = compound.getInt(TAG_CORPSE_TICKS);
+        carcassLeft = compound.getInt(TAG_CARCASS_LEFT);
+        carcassTotal = compound.getInt(TAG_CARCASS_TOTAL);
         entityData.set(DATA_MATING, compound.getBoolean(TAG_MATING));
         nextMatingTime = compound.getLong(TAG_NEXT_MATING);
         zoneChecked = compound.getBoolean(TAG_ZONE_CHECKED);

@@ -72,7 +72,8 @@
       "lift": 0.5
     },
     "ecology": {
-      "nervousness": 0.7
+      "nervousness": 0.7,
+      "carcass_portions": 30
     }
   },
   "mount": {

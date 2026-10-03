@@ -64,7 +64,8 @@
       "lift": 0.1
     },
     "ecology": {
-      "nervousness": 0.9
+      "nervousness": 0.9,
+      "carcass_portions": 22
     }
   },
   "storage": {

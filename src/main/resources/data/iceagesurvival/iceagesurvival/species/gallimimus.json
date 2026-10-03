@@ -66,7 +66,8 @@
       "flee_speed": 1.5
     },
     "ecology": {
-      "nervousness": 1.6
+      "nervousness": 1.6,
+      "carcass_portions": 6
     }
   },
   "mount": {

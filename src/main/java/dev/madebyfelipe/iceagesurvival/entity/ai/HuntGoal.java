@@ -123,7 +123,8 @@ public class HuntGoal extends Goal {
 
     private boolean able() {
         return !creature.isTame() && !creature.isBaby() && !creature.isUnconscious() && !creature.isVehicle()
-                && creature.yieldingFrom() == null && !creature.restsNow();
+                && creature.yieldingFrom() == null && !creature.restsNow()
+                && creature.feedingOn() == null; // comendo (ou indo comer) uma carcaça: a caça espera
     }
 
     @Override

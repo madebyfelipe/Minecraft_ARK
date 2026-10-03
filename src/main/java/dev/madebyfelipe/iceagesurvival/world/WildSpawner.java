@@ -270,7 +270,7 @@ public final class WildSpawner {
         Object2IntMap<EntityType<?>> counts = new Object2IntOpenHashMap<>();
         AABB box = player.getBoundingBox().inflate(radius);
         for (PrehistoricCreature creature : level.getEntitiesOfClass(PrehistoricCreature.class, box,
-                creature -> !creature.isTame())) {
+                creature -> !creature.isTame() && !creature.isCorpse())) {
             counts.mergeInt(creature.getType(), 1, Integer::sum);
         }
         return counts;

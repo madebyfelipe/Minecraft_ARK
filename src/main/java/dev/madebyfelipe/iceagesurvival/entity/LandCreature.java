@@ -139,8 +139,12 @@ public class LandCreature extends PrehistoricCreature implements GeoEntity, Geck
         }
         goalSelector.addGoal(5, new FollowMotherGoal(this, calm * 1.6));
         if (behavior.habits().activity() != dev.madebyfelipe.iceagesurvival.core.ecology.Activity.Pattern.ALWAYS) {
-            // Abaixo da cautela, da fuga e da caçada: quem dorme acorda com a ameaça.
+            // Abaixo da cautela, da fuga e da caçada; deitada, só o golpe a acorda.
             goalSelector.addGoal(4, new dev.madebyfelipe.iceagesurvival.entity.ai.RestGoal(this, calm * 1.3));
+        }
+        if (behavior.prey().isPresent() || behavior.habits().scavenges()) {
+            // Carcaça de presa grande: quem caça ou é carniceiro, com fome, vem comer (Carcass).
+            goalSelector.addGoal(4, new dev.madebyfelipe.iceagesurvival.entity.ai.CarcassGoal(this, calm * 1.5));
         }
         if (behavior.habits().scavenges()) {
             goalSelector.addGoal(4, new dev.madebyfelipe.iceagesurvival.entity.ai.ScavengeGoal(this, calm * 1.5));
