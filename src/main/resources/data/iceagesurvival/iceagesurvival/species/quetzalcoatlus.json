@@ -1,0 +1,163 @@
+{
+  "stats": {
+    "health": {
+      "base": 110,
+      "per_point": 0.08
+    },
+    "attack": {
+      "base": 12,
+      "per_point": 0.04
+    },
+    "speed": {
+      "base": 0.3
+    },
+    "torpor": {
+      "base": 220,
+      "per_point": 0.06
+    },
+    "armor": {
+      "base": 2,
+      "per_point": 0.03
+    },
+    "flight_stamina": {
+      "base": 90,
+      "per_point": 0.04
+    }
+  },
+  "body": {
+    "knockback_resistance": 1.0,
+    "step_height": 1.1
+  },
+  "taming": {
+    "torpor_decay_per_second": 1.8,
+    "required_food": 200,
+    "required_food_per_level": 0.015,
+    "feed_interval_seconds": 8,
+    "foods": [
+      {
+        "items": "#iceagesurvival:taming/raw_fish",
+        "value": 30
+      },
+      {
+        "items": [
+          "iceagesurvival:jerky"
+        ],
+        "value": 25,
+        "quality": 0.85
+      },
+      {
+        "items": "#iceagesurvival:taming/raw_small_meat",
+        "value": 20,
+        "quality": 0.6
+      },
+      {
+        "items": "#iceagesurvival:taming/cooked_fish",
+        "value": 12,
+        "quality": 0.4
+      }
+    ]
+  },
+  "behavior": {
+    "aggressive": false,
+    "aggro_radius": 16,
+    "flee_health_fraction": 0.25,
+    "herd_radius": 16,
+    "group_defense": true,
+    "prey": "#iceagesurvival:quetzalcoatlus_prey",
+    "hunt_special": "swallow",
+    "sated_seconds": 240,
+    "habits": {
+      "activity": "diurnal",
+      "fishing": {
+        "chance": 0.3,
+        "radius": 32,
+        "tame_radius": 6
+      }
+    },
+    "wariness": {
+      "threats": "#iceagesurvival:predators",
+      "players": false,
+      "alert_radius": 24,
+      "charge_radius": 3,
+      "retreat_chance": 0.5,
+      "charge_chance": 0.05,
+      "charge_speed": 1.5,
+      "flee_speed": 1.6
+    },
+    "ecology": {
+      "hunt_radius": 40,
+      "hunger_seconds": 300,
+      "chase_seconds": 15,
+      "rival_radius": 24,
+      "nervousness": 1.0
+    },
+    "diet": [
+      {
+        "prey": "#iceagesurvival:fish",
+        "preference": 3
+      },
+      {
+        "prey": [
+          "minecraft:frog",
+          "minecraft:rabbit",
+          "minecraft:chicken",
+          "iceagesurvival:dodo"
+        ],
+        "preference": 2
+      },
+      {
+        "prey": [
+          "iceagesurvival:ornitholestes",
+          "iceagesurvival:velociraptor"
+        ],
+        "preference": 1
+      }
+    ]
+  },
+  "mount": {
+    "seat_height": 2.1,
+    "min_affinity": 25,
+    "speed_multiplier": 0.9,
+    "flying": true,
+    "flight_speed": 1.1,
+    "flight_turn_rate": 50,
+    "flight": {
+      "acceleration_seconds": 4.0,
+      "climb_cost": 3.0,
+      "cruise_cost": 1.0,
+      "glide_cost": 0.05,
+      "leap_height": 2.5,
+      "thermal_lift": 0.06,
+      "thermal_ceiling": 48
+    }
+  },
+  "storage": {
+    "slots": 27
+  },
+  "spawn": {
+    "biomes": "#iceagesurvival:spawns_quetzalcoatlus",
+    "weight": 2,
+    "favored": {
+      "biomes": "#iceagesurvival:ideal_quetzalcoatlus",
+      "weight": 6
+    },
+    "group_min": 2,
+    "group_max": 4,
+    "max_nearby": 4,
+    "min_distance": 400
+  },
+  "sounds": {
+    "ambient": "jurassicreborn:quetzalcoatlus_living",
+    "hurt": "jurassicreborn:quetzalcoatlus_hurt",
+    "death": "jurassicreborn:quetzalcoatlus_death",
+    "alert": "jurassicreborn:quetzalcoatlus_threat",
+    "attack": "minecraft:entity.ravager.attack",
+    "volume": 1.4
+  },
+  "breeding": {
+    "offspring": "egg",
+    "incubation_seconds": 600,
+    "maturation_seconds": 2400,
+    "cooldown_seconds": 1200
+  }
+}

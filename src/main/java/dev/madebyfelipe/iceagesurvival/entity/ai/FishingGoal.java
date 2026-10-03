@@ -234,11 +234,25 @@ public class FishingGoal extends Goal {
                 return pos;
             }
             Path path = creature.getNavigation().createPath(pos, 1);
-            if (path != null && path.canReach()) {
+            if (path != null && (path.canReach() || endsInReach(path, pos))) {
                 return pos;
             }
         }
         return null;
+    }
+
+    /**
+     * O caminho para na beira, ao alcance do bote: quem não é anfíbio e é largo (o Quetzalcoatlus) não entra na lagoa
+     * com o corpo todo, mas pesca da margem como a garça — a mesma distância que {@link #arrived()} aceita.
+     */
+    private boolean endsInReach(Path path, BlockPos water) {
+        var end = path.getEndNode();
+        if (end == null || Math.abs(end.y - water.getY()) > 2) {
+            return false; // de cima de um barranco não se pesca
+        }
+        double dx = end.x + 0.5 - (water.getX() + 0.5);
+        double dz = end.z + 0.5 - (water.getZ() + 0.5);
+        return Math.sqrt(dx * dx + dz * dz) <= Fishing.ARRIVE_DISTANCE + creature.getBbWidth() * 0.5;
     }
 
     private boolean arrivedAt(BlockPos pos) {

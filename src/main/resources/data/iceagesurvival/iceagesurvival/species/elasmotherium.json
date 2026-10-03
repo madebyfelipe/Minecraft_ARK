@@ -90,6 +90,10 @@
   "spawn": {
     "biomes": "#iceagesurvival:spawns_elasmotherium",
     "weight": 12,
+    "favored": {
+      "biomes": "#iceagesurvival:ideal_elasmotherium",
+      "weight": 36
+    },
     "group_min": 1,
     "group_max": 1,
     "max_nearby": 1,

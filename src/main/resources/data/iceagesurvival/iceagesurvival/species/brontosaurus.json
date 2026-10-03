@@ -82,6 +82,10 @@
   "spawn": {
     "biomes": "#iceagesurvival:spawns_brontosaurus",
     "weight": 6,
+    "favored": {
+      "biomes": "#iceagesurvival:ideal_brontosaurus",
+      "weight": 18
+    },
     "group_min": 2,
     "group_max": 4,
     "max_nearby": 4,

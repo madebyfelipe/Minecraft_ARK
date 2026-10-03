@@ -1,0 +1,44 @@
+{
+  "replace": false,
+  "values": [
+    "#iceagesurvival:fish",
+    "minecraft:rabbit",
+    "minecraft:chicken",
+    "minecraft:frog",
+    "iceagesurvival:dodo",
+    "iceagesurvival:ornitholestes",
+    "iceagesurvival:velociraptor",
+    {
+      "id": "tfc:rabbit",
+      "required": false
+    },
+    {
+      "id": "tfc:chicken",
+      "required": false
+    },
+    {
+      "id": "tfc:frog",
+      "required": false
+    },
+    {
+      "id": "tfc:duck",
+      "required": false
+    },
+    {
+      "id": "tfc:grouse",
+      "required": false
+    },
+    {
+      "id": "tfc:pheasant",
+      "required": false
+    },
+    {
+      "id": "tfc:quail",
+      "required": false
+    },
+    {
+      "id": "tfc:rat",
+      "required": false
+    }
+  ]
+}

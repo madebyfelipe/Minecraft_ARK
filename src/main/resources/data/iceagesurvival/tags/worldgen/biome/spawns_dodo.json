@@ -1,34 +1,6 @@
 {
   "replace": false,
   "values": [
-    "minecraft:snowy_plains",
-    "minecraft:snowy_taiga",
-    "minecraft:grove",
-    "minecraft:snowy_beach",
-    "minecraft:taiga",
-    "minecraft:ice_spikes",
-    "minecraft:snowy_slopes",
-    "minecraft:plains",
-    "minecraft:sunflower_plains",
-    "minecraft:meadow",
-    "minecraft:forest",
-    "minecraft:birch_forest",
-    "minecraft:beach",
-    {
-      "id": "tfc:plains",
-      "required": false
-    },
-    {
-      "id": "tfc:lowlands",
-      "required": false
-    },
-    {
-      "id": "tfc:hills",
-      "required": false
-    },
-    {
-      "id": "tfc:rolling_hills",
-      "required": false
-    }
+    "#iceagesurvival:spawn_anywhere"
   ]
 }

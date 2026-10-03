@@ -63,6 +63,10 @@
   "spawn": {
     "biomes": "#iceagesurvival:spawns_dodo",
     "weight": 14,
+    "favored": {
+      "biomes": "#iceagesurvival:ideal_dodo",
+      "weight": 42
+    },
     "group_min": 2,
     "group_max": 5,
     "max_nearby": 10,

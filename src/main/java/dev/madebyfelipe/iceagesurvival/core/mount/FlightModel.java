@@ -29,6 +29,8 @@ public final class FlightModel {
     private static final float LANDING_MAX_UPWARD_PITCH = -10.0F;
     /** Inclinação para baixo a partir da qual a montaria está mergulhando (animação de mergulho). */
     public static final float DIVE_PITCH = 25.0F;
+    /** Ticks do zero ao cruzeiro com a frente apertada, no padrão (o Pteranodonte): 1,25 s. */
+    public static final double DEFAULT_ACCELERATION_TICKS = 25.0;
 
     private FlightModel() {
     }
@@ -65,8 +67,16 @@ public final class FlightModel {
                          double pitchRate, double landingFraction) {
         /** Balanceamento padrão para uma montaria com esta velocidade máxima e curva (graus/segundo). */
         public static Tuning forMaxSpeed(double maxSpeed, double turnDegreesPerSecond) {
-            return new Tuning(maxSpeed, maxSpeed / 25.0, maxSpeed / 12.0, maxSpeed / 400.0, 0.3,
-                    0.12, 0.3, 1.5, 0.35, maxSpeed / 20.0, 2.2, 0.025, turnDegreesPerSecond / 20.0,
+            return forMaxSpeed(maxSpeed, turnDegreesPerSecond, DEFAULT_ACCELERATION_TICKS);
+        }
+
+        /**
+         * Balanceamento padrão com a aceleração da espécie: {@code accelerationTicks} do zero ao cruzeiro com a frente
+         * apertada. O Quetzalcoatlus, de 200–250 kg e asas de planador, embala devagar.
+         */
+        public static Tuning forMaxSpeed(double maxSpeed, double turnDegreesPerSecond, double accelerationTicks) {
+            return new Tuning(maxSpeed, maxSpeed / Math.max(1.0, accelerationTicks), maxSpeed / 12.0, maxSpeed / 400.0,
+                    0.3, 0.12, 0.3, 1.5, 0.35, maxSpeed / 20.0, 2.2, 0.025, turnDegreesPerSecond / 20.0,
                     turnDegreesPerSecond / 20.0 * 0.75, 0.6);
         }
 
@@ -134,6 +144,15 @@ public final class FlightModel {
 
     /** Velocidade da montaria: no rumo e na inclinação dela, mais lateral, sustentação e asas. */
     public static Velocity velocity(double speed, float yawDegrees, float pitchDegrees, Input input, Tuning tuning) {
+        return velocity(speed, yawDegrees, pitchDegrees, input, tuning, 0.0);
+    }
+
+    /**
+     * Velocidade da montaria numa térmica ({@link Thermals}): o ar quente soma {@code thermalLift} blocos/tick de subida,
+     * sem bater as asas — o planador sobe devagar só planando.
+     */
+    public static Velocity velocity(double speed, float yawDegrees, float pitchDegrees, Input input, Tuning tuning,
+                                    double thermalLift) {
         double yaw = Math.toRadians(yawDegrees);
         double pitch = Math.toRadians(pitchDegrees);
         double cosPitch = Math.cos(pitch);
@@ -150,6 +169,7 @@ public final class FlightModel {
         if (input.climb()) {
             y += tuning.climbRate();
         }
+        y += Math.max(0.0, thermalLift);
         return new Velocity(x, y, z);
     }
 

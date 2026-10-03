@@ -1,7 +1,6 @@
 {
   "replace": false,
   "values": [
-    "#iceagesurvival:spawns_spinosaurus_water",
-    "#iceagesurvival:spawns_spinosaurus_open"
+    "#iceagesurvival:spawn_anywhere"
   ]
 }

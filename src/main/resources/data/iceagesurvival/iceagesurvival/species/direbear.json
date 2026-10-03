@@ -122,6 +122,10 @@
   "spawn": {
     "biomes": "#iceagesurvival:spawns_direbear",
     "weight": 1,
+    "favored": {
+      "biomes": "#iceagesurvival:ideal_direbear",
+      "weight": 3
+    },
     "group_min": 1,
     "group_max": 1,
     "max_nearby": 1,

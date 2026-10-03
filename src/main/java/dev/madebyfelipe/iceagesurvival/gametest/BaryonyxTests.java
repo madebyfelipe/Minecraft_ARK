@@ -169,13 +169,15 @@ public class BaryonyxTests {
         var frozenRiver = biomes.getHolderOrThrow(Biomes.FROZEN_RIVER);
         helper.assertTrue(snowyPlains.is(spawn.biomes()), "deveria nascer na planície nevada");
         helper.assertTrue(river.is(spawn.biomes()) && frozenRiver.is(spawn.biomes()), "deveria nascer nos rios");
-        TagKey<Biome> water = TagKey.create(Registries.BIOME, IceAgeSurvival.id("spawns_baryonyx_water"));
-        helper.assertTrue(spawn.favored().map(favored -> favored.biomes().equals(water)).orElse(false),
-                "deveria preferir #spawns_baryonyx_water: " + spawn.favored());
-        helper.assertTrue(frozenRiver.is(water) && river.is(water), "rio e rio congelado são água");
-        helper.assertTrue(spawn.weightIn(frozenRiver) > spawn.weightIn(snowyPlains),
-                "deveria ser mais comum na água (" + spawn.weightIn(frozenRiver) + ") que na planície ("
-                        + spawn.weightIn(snowyPlains) + ")");
+        TagKey<Biome> ideal = TagKey.create(Registries.BIOME, IceAgeSurvival.id("ideal_baryonyx"));
+        helper.assertTrue(spawn.favored().map(favored -> favored.biomes().equals(ideal)).orElse(false),
+                "deveria preferir #ideal_baryonyx: " + spawn.favored());
+        var plains = biomes.getHolderOrThrow(Biomes.PLAINS);
+        var swamp = biomes.getHolderOrThrow(Biomes.SWAMP);
+        helper.assertTrue(river.is(ideal) && swamp.is(ideal), "rio e pântano são o habitat dele");
+        helper.assertTrue(spawn.weightIn(river) > spawn.weightIn(plains),
+                "deveria ser mais comum no rio (" + spawn.weightIn(river) + ") que na planície ("
+                        + spawn.weightIn(plains) + ")");
         helper.succeed();
     }
 

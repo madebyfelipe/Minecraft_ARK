@@ -266,5 +266,6 @@
   "entity.iceagesurvival.megalania": "Megalania",
   "item.iceagesurvival.megalania_spawn_egg": "Ovo Gerador de Megalania",
   "effect.iceagesurvival.venom": "Peçonha",
-  "item.iceagesurvival.antidote": "Antídoto"
+  "item.iceagesurvival.antidote": "Antídoto",
+  "iceagesurvival.mount.no_open_sky": "%s precisa de céu aberto para decolar"
 }

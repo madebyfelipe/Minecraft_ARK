@@ -114,6 +114,10 @@
   "spawn": {
     "biomes": "#iceagesurvival:spawns_velociraptor",
     "weight": 5,
+    "favored": {
+      "biomes": "#iceagesurvival:ideal_velociraptor",
+      "weight": 15
+    },
     "group_min": 1,
     "group_max": 2,
     "max_nearby": 2,

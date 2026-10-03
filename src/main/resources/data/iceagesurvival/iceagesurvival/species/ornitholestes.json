@@ -119,6 +119,10 @@
   "spawn": {
     "biomes": "#iceagesurvival:spawns_ornitholestes",
     "weight": 4,
+    "favored": {
+      "biomes": "#iceagesurvival:ideal_ornitholestes",
+      "weight": 12
+    },
     "group_min": 1,
     "group_max": 1,
     "max_nearby": 2,

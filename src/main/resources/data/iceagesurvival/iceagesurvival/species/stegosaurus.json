@@ -73,6 +73,10 @@
   "spawn": {
     "biomes": "#iceagesurvival:spawns_stegosaurus",
     "weight": 12,
+    "favored": {
+      "biomes": "#iceagesurvival:ideal_stegosaurus",
+      "weight": 36
+    },
     "group_min": 2,
     "group_max": 4,
     "max_nearby": 4,

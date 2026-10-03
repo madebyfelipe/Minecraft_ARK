@@ -1,10 +1,10 @@
 {
   "type": "forge:add_spawns",
-  "biomes": "#iceagesurvival:spawns_baryonyx_water",
+  "biomes": "#iceagesurvival:spawns_baryonyx",
   "spawners": [
     {
       "type": "iceagesurvival:baryonyx",
-      "weight": 2,
+      "weight": 1,
       "minCount": 1,
       "maxCount": 1
     }

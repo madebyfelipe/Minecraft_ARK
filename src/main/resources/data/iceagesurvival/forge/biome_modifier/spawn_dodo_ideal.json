@@ -1,0 +1,12 @@
+{
+  "type": "forge:add_spawns",
+  "biomes": "#iceagesurvival:ideal_dodo",
+  "spawners": [
+    {
+      "type": "iceagesurvival:dodo",
+      "weight": 14,
+      "minCount": 4,
+      "maxCount": 7
+    }
+  ]
+}

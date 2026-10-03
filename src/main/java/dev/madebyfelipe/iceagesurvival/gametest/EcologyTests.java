@@ -153,12 +153,14 @@ public class EcologyTests {
 
     @GameTest(template = EMPTY)
     public static void naturalSpawnWeightsAreReducedAndRareSpeciesRemain(GameTestHelper helper) {
-        assertSpawnWeight(helper, Biomes.SNOWY_PLAINS, ModEntities.DODO.get(), 7);
-        assertSpawnWeight(helper, Biomes.SNOWY_PLAINS, ModEntities.VELOCIRAPTOR.get(), 2);
-        assertSpawnWeight(helper, Biomes.SNOWY_PLAINS, ModEntities.PTERANODON.get(), 4);
-        assertSpawnWeight(helper, Biomes.TAIGA, ModEntities.SMILODON.get(), 2);
+        // Peso base w em qualquer bioma; a planície nevada é ideal de todas e soma o triplo (w + 2w).
+        assertSpawnWeight(helper, Biomes.JUNGLE, ModEntities.DODO.get(), 7);
+        assertSpawnWeight(helper, Biomes.SNOWY_PLAINS, ModEntities.DODO.get(), 21);
+        assertSpawnWeight(helper, Biomes.SNOWY_PLAINS, ModEntities.VELOCIRAPTOR.get(), 6);
+        assertSpawnWeight(helper, Biomes.SNOWY_PLAINS, ModEntities.PTERANODON.get(), 12);
+        assertSpawnWeight(helper, Biomes.TAIGA, ModEntities.SMILODON.get(), 6);
         // O Smilodon substitui o bando de Velociraptores na planície nevada do spawn.
-        assertSpawnWeight(helper, Biomes.SNOWY_PLAINS, ModEntities.SMILODON.get(), 2);
+        assertSpawnWeight(helper, Biomes.SNOWY_PLAINS, ModEntities.SMILODON.get(), 6);
         helper.succeed();
     }
 
@@ -357,14 +359,16 @@ public class EcologyTests {
         helper.assertTrue(listed, EntityType.getKey(type) + " não nasce em " + biomeKey.location());
     }
 
+    /** Peso total da espécie na geração do bioma: no ideal, o modificador base (w) mais o do ideal (2w). */
     private static void assertSpawnWeight(GameTestHelper helper, ResourceKey<Biome> biomeKey, EntityType<?> type,
                                           int expectedWeight) {
         Biome biome = helper.getLevel().registryAccess().registryOrThrow(Registries.BIOME).getOrThrow(biomeKey);
-        var spawner = biome.getMobSettings().getMobs(MobCategory.CREATURE).unwrap().stream()
-                .filter(candidate -> candidate.type == type).findFirst()
-                .orElseThrow(() -> new AssertionError(EntityType.getKey(type) + " não nasce em "
-                        + biomeKey.location()));
-        int actualWeight = spawner.getWeight().asInt();
+        var spawners = biome.getMobSettings().getMobs(MobCategory.CREATURE).unwrap().stream()
+                .filter(candidate -> candidate.type == type).toList();
+        if (spawners.isEmpty()) {
+            throw new AssertionError(EntityType.getKey(type) + " não nasce em " + biomeKey.location());
+        }
+        int actualWeight = spawners.stream().mapToInt(spawner -> spawner.getWeight().asInt()).sum();
         helper.assertTrue(actualWeight == expectedWeight, EntityType.getKey(type) + " peso "
                 + actualWeight + ", esperado " + expectedWeight);
     }
@@ -380,7 +384,7 @@ public class EcologyTests {
         SpawnProfile mammoth = Species.of(registries, ModEntities.MAMMOTH.get()).orElseThrow().spawn().orElseThrow();
         helper.assertTrue(stego.minDistance() == 0, "o Estegossauro deveria nascer já no spawn");
         helper.assertTrue(stego.weight() >= mammoth.weight(), "peso " + stego.weight() + " abaixo do mamute");
-        assertSpawnWeight(helper, Biomes.SNOWY_PLAINS, ModEntities.STEGOSAURUS.get(), 4);
+        assertSpawnWeight(helper, Biomes.SNOWY_PLAINS, ModEntities.STEGOSAURUS.get(), 12);
         helper.succeed();
     }
 

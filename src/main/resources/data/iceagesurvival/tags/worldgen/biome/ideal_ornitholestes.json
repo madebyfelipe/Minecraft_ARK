@@ -1,0 +1,31 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:forest",
+    "minecraft:flower_forest",
+    "minecraft:birch_forest",
+    "minecraft:taiga",
+    "minecraft:grove",
+    "minecraft:snowy_plains",
+    {
+      "id": "tfc:hills",
+      "required": false
+    },
+    {
+      "id": "tfc:rolling_hills",
+      "required": false
+    },
+    {
+      "id": "tfc:highlands",
+      "required": false
+    },
+    {
+      "id": "tfc:plateau",
+      "required": false
+    },
+    {
+      "id": "tfc:old_mountains",
+      "required": false
+    }
+  ]
+}

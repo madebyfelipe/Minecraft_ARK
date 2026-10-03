@@ -85,6 +85,10 @@
   "spawn": {
     "biomes": "#iceagesurvival:spawns_triceratops",
     "weight": 8,
+    "favored": {
+      "biomes": "#iceagesurvival:ideal_triceratops",
+      "weight": 24
+    },
     "group_min": 2,
     "group_max": 4,
     "max_nearby": 4,

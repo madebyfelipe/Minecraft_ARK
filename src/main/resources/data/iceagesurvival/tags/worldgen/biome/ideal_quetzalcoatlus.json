@@ -1,0 +1,31 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:plains",
+    "minecraft:sunflower_plains",
+    "minecraft:savanna",
+    "minecraft:savanna_plateau",
+    "minecraft:river",
+    "minecraft:snowy_plains",
+    {
+      "id": "tfc:plains",
+      "required": false
+    },
+    {
+      "id": "tfc:lowlands",
+      "required": false
+    },
+    {
+      "id": "tfc:rolling_hills",
+      "required": false
+    },
+    {
+      "id": "tfc:river",
+      "required": false
+    },
+    {
+      "id": "tfc:lake",
+      "required": false
+    }
+  ]
+}

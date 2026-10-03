@@ -266,5 +266,6 @@
   "entity.iceagesurvival.megalania": "Megalania",
   "item.iceagesurvival.megalania_spawn_egg": "Megalania Spawn Egg",
   "effect.iceagesurvival.venom": "Venom",
-  "item.iceagesurvival.antidote": "Antidote"
+  "item.iceagesurvival.antidote": "Antidote",
+  "iceagesurvival.mount.no_open_sky": "%s needs open sky to take off"
 }
