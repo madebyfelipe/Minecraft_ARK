@@ -99,14 +99,6 @@ public final class ModItems {
             "quetzalcoatlus_spawn_egg",
             () -> new ForgeSpawnEggItem(ModEntities.QUETZALCOATLUS, 0x8A6E58, 0xC23B2E, new Item.Properties()));
 
-    public static final RegistryObject<ForgeSpawnEggItem> MEGALANIA_SPAWN_EGG = ITEMS.register(
-            "megalania_spawn_egg",
-            () -> new ForgeSpawnEggItem(ModEntities.MEGALANIA, 0x5A4A32, 0xB59A5E, new Item.Properties()));
-
-    /** Antídoto contra a peçonha da Megalania (mesa química). */
-    public static final RegistryObject<dev.madebyfelipe.iceagesurvival.item.AntidoteItem> ANTIDOTE = ITEMS.register(
-            "antidote", () -> new dev.madebyfelipe.iceagesurvival.item.AntidoteItem(new Item.Properties().stacksTo(16)));
-
     /** Pele grossa dos animais da era do gelo: vira a roupa que segura o frio. */
     public static final RegistryObject<Item> PELT = simpleItem("pelt");
 
@@ -231,7 +223,6 @@ public final class ModItems {
             event.accept(ORNITHOLESTES_SPAWN_EGG);
             event.accept(BARYONYX_SPAWN_EGG);
             event.accept(QUETZALCOATLUS_SPAWN_EGG);
-            event.accept(MEGALANIA_SPAWN_EGG);
         } else if (event.getTabKey() == CreativeModeTabs.COMBAT) {
             event.accept(TRANQ_ARROW);
             event.accept(TRANQ_DART);
@@ -255,7 +246,6 @@ public final class ModItems {
             event.accept(DODO_MEAT);
             event.accept(COOKED_DODO_MEAT);
             event.accept(JERKY);
-            event.accept(ANTIDOTE);
         } else if (event.getTabKey() == CreativeModeTabs.FUNCTIONAL_BLOCKS) {
             event.accept(INCUBATOR);
             event.accept(CHEMISTRY_BENCH);

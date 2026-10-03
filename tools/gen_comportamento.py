@@ -56,12 +56,31 @@ BIOMES = {
     'badlands': 'terras áridas', 'ocean': 'oceano', 'cold_ocean': 'oceano frio',
     'windswept_savanna': 'savana ventosa', 'wooded_badlands': 'terras áridas arborizadas', 'sparse_jungle': 'selva esparsa',
 }
+TFC_BIOMES = {
+    'plains': 'planícies', 'lowlands': 'terras baixas', 'hills': 'colinas', 'rolling_hills': 'colinas onduladas',
+    'highlands': 'terras altas', 'plateau': 'planalto', 'mountains': 'montanhas', 'old_mountains': 'montanhas antigas',
+    'volcanic_mountains': 'montanhas vulcânicas', 'oceanic_mountains': 'montanhas oceânicas',
+    'volcanic_oceanic_mountains': 'montanhas oceânicas vulcânicas', 'badlands': 'terras áridas',
+    'inverted_badlands': 'terras áridas invertidas', 'canyons': 'cânions', 'low_canyons': 'cânions baixos',
+    'river': 'rio', 'lake': 'lago', 'mountain_lake': 'lago de montanha', 'old_mountain_lake': 'lago de montanha antiga',
+    'volcanic_mountain_lake': 'lago vulcânico', 'oceanic_mountain_lake': 'lago de montanha oceânica',
+    'volcanic_oceanic_mountain_lake': 'lago vulcânico oceânico', 'plateau_lake': 'lago de planalto', 'shore': 'costa',
+    'tidal_flats': 'planícies de maré', 'salt_marsh': 'pântano salgado', 'ocean': 'oceano', 'ocean_reef': 'recife',
+    'deep_ocean': 'oceano profundo', 'deep_ocean_trench': 'fossa oceânica',
+}
+TAG_NAMES = {'#iceagesurvival:fish': 'peixes'}
+# Tag que põe a espécie em todo bioma (overworld + TFC); o ideal vem em spawn.favored.
+ANYWHERE = '#iceagesurvival:spawn_anywhere'
 PREFERENCE = {3: 'favorita', 2: 'boa', 1: 'aceitável', 0: 'último recurso'}
 SPECIAL = {
     'ambush': 'emboscada: arrancada +50% por 4 s no bote, e o primeiro golpe agarra (presa lenta 2 s)',
     'pack_leap': 'salto: no bote, pula sobre a presa a 3–10 blocos',
     'beak_strike': 'bicada: 30% do dano a mais ignorando armadura, e recua 1,5 s depois de acertar',
     'grab': 'agarrão: sem arrancada; o primeiro golpe do bote prende a presa do porte dele para baixo (lenta 2 s)',
+    'gaff': 'garra-gancho: o primeiro golpe depois do bote fisga a presa na água (qualquer porte) ou em terra (do '
+            'porte dele para baixo), puxa-a para perto e a prende',
+    'swallow': 'engole inteira: a presa da dieta que cabe no bico (porte até 0,1 do dele, nunca filhote) some de uma '
+               'vez e vale meia refeição; a maior leva só a bicada',
 }
 ACTIVITY = {'nocturnal': 'noturno: de dia dorme escondido e não caça; acorda ferido ou com a ameaça',
             'diurnal': 'diurno: à noite dorme escondido e não caça; acorda ferido ou com a ameaça'}
@@ -93,6 +112,32 @@ def tag_values(kind, ref, seen=None):
     return out
 
 
+def includes_tag(kind, ref, target, seen=None):
+    """Se a tag (ou uma tag aninhada nela) inclui a tag alvo."""
+    seen = seen or set()
+    if ref == target:
+        return True
+    if ref in seen:
+        return False
+    seen.add(ref)
+    namespace, path = ref.lstrip('#').split(':')
+    file = DATA / namespace / 'tags' / kind / f'{path}.json'
+    if not file.exists():
+        return False
+    values = [v if isinstance(v, str) else v['id'] for v in json.loads(file.read_text())['values']]
+    return any(includes_tag(kind, v, target, seen) for v in values if v.startswith('#'))
+
+
+def biome_names(ids):
+    """Nomes dos biomas, os do TerraFirmaCraft à parte."""
+    vanilla = [BIOMES.get(i.split(':')[1], i.split(':')[1]) for i in ids if not i.startswith('tfc:')]
+    tfc = [TFC_BIOMES.get(i.split(':')[1], i.split(':')[1]) for i in ids if i.startswith('tfc:')]
+    text = ', '.join(dict.fromkeys(vanilla))
+    if tfc:
+        text += ('; ' if text else '') + 'no TerraFirmaCraft: ' + ', '.join(dict.fromkeys(tfc))
+    return text
+
+
 lang = json.loads(LANG.read_text())
 sizes = {name: (float(w), float(h)) for name, w, h in
          re.findall(r'landCreature\("(\w+)",\s*([\d.]+)F,\s*([\d.]+)F\)', ENTITIES.read_text())}
@@ -102,9 +147,14 @@ apex = set(tag_values('entity_types', '#iceagesurvival:apex'))
 
 
 def name(entity_id):
+    if entity_id.startswith('#'):
+        return TAG_NAMES.get(entity_id, entity_id)
     if entity_id.startswith('iceagesurvival:'):
         return lang.get('entity.iceagesurvival.' + entity_id.split(':')[1], entity_id)
-    return VANILLA.get(entity_id, entity_id.split(':')[1])
+    namespace, path = entity_id.split(':')
+    if namespace != 'minecraft':
+        return f'{path.replace("_", " ")} ({namespace.upper()})'
+    return VANILLA.get(entity_id, path)
 
 
 def behavior(key):
@@ -144,17 +194,37 @@ def defend_radius(key):
     return min(max(radius, 8.0), 24.0)
 
 
+def diet_prey(entry):
+    """As presas de uma linha da dieta: lista de ids ou uma tag."""
+    prey = entry['prey']
+    if isinstance(prey, str):
+        return tag_values('entity_types', prey) if prey.startswith('#') else [prey]
+    return prey
+
+
 def diet(key):
-    """Preferência de cada presa: a tabela de dieta, e o que está só na tag fica com 1."""
+    """Preferência de cada presa: a primeira linha da dieta que casa, e o que está só na tag fica com 1."""
     table = {}
     for entry in behavior(key).get('diet', []):
-        for entity in entry['prey']:
-            table[entity] = entry['preference']
+        for entity in diet_prey(entry):
+            table.setdefault(entity, entry['preference'])
     for entity in prey_types(key):
         table.setdefault(entity, 1)
-    if 'minecraft:player' not in {e for entry in behavior(key).get('diet', []) for e in entry['prey']}:
+    if 'minecraft:player' not in {e for entry in behavior(key).get('diet', []) for e in diet_prey(entry)}:
         table.pop('minecraft:player', None)
     return table
+
+
+def diet_labels(key, entities):
+    """Troca pelo nome da tag os membros de uma tag da dieta que estão todos na mesma preferência."""
+    out = list(entities)
+    for entry in behavior(key).get('diet', []):
+        tag = entry['prey']
+        if isinstance(tag, str) and tag in TAG_NAMES:
+            members = set(tag_values('entity_types', tag))
+            if members and members <= set(out):
+                out = [e for e in out if e not in members] + [tag]
+    return out
 
 
 carnivores = [k for k in species if behavior(k).get('prey')]
@@ -217,6 +287,11 @@ def card(key):
                            f'{num(habits["camouflage"] * 100)}% do raio'))
     if habits.get('scavenges'):
         social.append(row('Carniça', 'com fome, come carne crua do chão, longe de predador maior (16 blocos)'))
+    fishing = habits.get('fishing')
+    if fishing:
+        social.append(row('Pesca', f'selvagem, pesca na água sem gelo a {num(fishing["radius"])} blocos '
+                           f'({num(fishing["chance"] * 100)}% de chance quando procura comida); domesticado e parado, '
+                           f'pesca a {num(fishing["tame_radius"])} blocos e guarda o peixe'))
     if habits.get('sentinel_radius'):
         social.append(row('Sentinela', f'domesticado, avisa o dono de predador selvagem a {num(habits["sentinel_radius"])} blocos'))
     flight = data.get('stats', {}).get('flight_stamina')
@@ -267,7 +342,7 @@ def card(key):
             by_pref.setdefault(preference, []).append(prey)
         items = []
         for preference in sorted(by_pref, reverse=True):
-            names = sorted(by_pref[preference], key=lambda e: (e != 'minecraft:player', name(e)))
+            names = sorted(diet_labels(key, by_pref[preference]), key=lambda e: (e != 'minecraft:player', name(e)))
             items.append(f'<li><span class="pref p{preference}">{PREFERENCE[preference]}</span> '
                          + ', '.join(f'<strong>{esc(name(e))}</strong>' if e == 'minecraft:player' else esc(name(e))
                                      for e in names) + '</li>')
@@ -288,13 +363,16 @@ def card(key):
 
     spawn_rows = []
     if spawn:
-        biomes = [BIOMES.get(v.split(':')[1], v.split(':')[1]) for v in tag_values('worldgen/biome', spawn['biomes'])]
         favored = spawn.get('favored')
-        weight = f'peso {spawn.get("weight", 10)}'
+        base = spawn.get('weight', 10)
+        if includes_tag('worldgen/biome', spawn['biomes'], ANYWHERE):
+            spawn_rows.append(row('Biomas', 'qualquer bioma da superfície (e do TerraFirmaCraft)'))
+        else:
+            spawn_rows.append(row('Biomas', esc(biome_names(tag_values('worldgen/biome', spawn['biomes'])))))
+        weight = f'peso {base}'
         if favored:
-            fav = [BIOMES.get(v.split(':')[1], v.split(':')[1]) for v in tag_values('worldgen/biome', favored['biomes'])]
-            weight += f'; {favored["weight"]} em {", ".join(fav)}'
-        spawn_rows.append(row('Biomas', esc(', '.join(dict.fromkeys(biomes)))))
+            spawn_rows.append(row('Ideal', esc(biome_names(tag_values('worldgen/biome', favored['biomes'])))))
+            weight += f'; {favored["weight"]} no ideal (×{num(favored["weight"] / base)})'
         spawn_rows.append(row('Frequência', weight + f'; até {spawn.get("max_nearby", 4)} perto do jogador'
                               + (f'; um grupo a cada {spawn["spacing"]} blocos' if spawn.get('spacing') else '')
                               + (f'; a {spawn["min_distance"]}+ blocos do spawn' if spawn.get('min_distance') else
