@@ -59,6 +59,24 @@ public class WildlifeTests {
         });
     }
 
+    /**
+     * O jogador foge de um Tricerátopo em direção ao mamute: o mamute encara a ameaça maior (o Tricerátopo atrás
+     * dele), não quem corre (pedido do Felipe, 2026-10-03). O Tricerátopo fica sem vontade própria, marcado como
+     * agressivo atrás do jogador, para a cena não depender da investida dele.
+     */
+    @GameTest(template = ARENA, batch = BATCH + "_flee_to_mammoth", timeoutTicks = 200)
+    public static void theMammothFacesWhatChasesThePlayer(GameTestHelper helper) {
+        HuntTests.clearStrays(helper);
+        LandCreature mammoth = helper.spawn(ModEntities.MAMMOTH.get(), 4, 0, 10);
+        ServerPlayer player = PredatorTests.survivalPlayer(helper);
+        player.moveTo(helper.absoluteVec(new Vec3(10.5, 0, 10.5)));
+        LandCreature triceratops = helper.spawnWithNoFreeWill(ModEntities.TRICERATOPS.get(), 20, 0, 10);
+        triceratops.setTarget(player);
+        triceratops.setAggressive(true);
+        helper.succeedWhen(() -> helper.assertTrue(mammoth.confronting() == triceratops,
+                "o mamute encara " + mammoth.confronting() + ", não o Tricerátopo atrás do jogador"));
+    }
+
     /** Agachado e a uma distância educada, o jogador passa: o faro conta mais que a vista. */
     @GameTest(template = ARENA, batch = BATCH + "_2", timeoutTicks = 120)
     public static void sneakingPastAtADistanceDoesNotProvoke(GameTestHelper helper) {

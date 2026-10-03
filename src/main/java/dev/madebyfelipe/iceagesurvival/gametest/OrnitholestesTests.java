@@ -55,6 +55,7 @@ public class OrnitholestesTests {
     private static final String DAY_SLEEP = "ornitholestes_day_sleep";
     private static final String DAY_WAKE = "ornitholestes_day_wake";
     private static final String DAY_TAMED = "ornitholestes_day_tamed";
+    private static final String DAY_DEEP = "ornitholestes_day_deep";
     private static final String NIGHT_AWAKE = "ornitholestes_night_awake";
     private static final String NIGHT_EAT = "ornitholestes_night_eat";
     private static final String NIGHT_GUARDED = "ornitholestes_night_guarded";
@@ -89,6 +90,16 @@ public class OrnitholestesTests {
 
     @AfterBatch(batch = DAY_WAKE)
     public static void afterDayWake(ServerLevel level) {
+        restoreHour(level);
+    }
+
+    @BeforeBatch(batch = DAY_DEEP)
+    public static void beforeDayDeep(ServerLevel level) {
+        setHour(level, NOON);
+    }
+
+    @AfterBatch(batch = DAY_DEEP)
+    public static void afterDayDeep(ServerLevel level) {
         restoreHour(level);
     }
 
@@ -342,6 +353,32 @@ public class OrnitholestesTests {
                     + hunter.restsNow() + ", objetivos " + hunter.goalSelector.getRunningGoals()
                     .map(goal -> goal.getGoal().getClass().getSimpleName()).toList() + ")");
             helper.assertFalse(hunter.isResting(), "ferido, continuou dormindo");
+        });
+    }
+
+    /**
+     * Sono pesado: o jogador ao lado não o acorda — só o golpe (pedido do Felipe, 2026-10-03; antes notava a ameaça
+     * a metade do raio e fugia).
+     */
+    @GameTest(template = ARENA, batch = DAY_DEEP, timeoutTicks = 700)
+    public static void theSleepingOrnitholestesIgnoresAPlayerNearby(GameTestHelper helper) {
+        HuntTests.clearStrays(helper);
+        helper.getLevel().setDayTime(NOON);
+        LandCreature hunter = helper.spawn(ModEntities.ORNITHOLESTES.get(), 16, 0, 16);
+        long[] asleepAt = {-1};
+        Player[] player = {null};
+        helper.onEachTick(() -> {
+            if (asleepAt[0] < 0 && hunter.isResting()) {
+                asleepAt[0] = helper.getTick();
+                player[0] = helper.makeMockSurvivalPlayer();
+                Vec3 beside = hunter.position().add(2.0, 0.0, 0.0);
+                player[0].moveTo(beside.x, beside.y, beside.z);
+            } else if (asleepAt[0] >= 0) {
+                helper.assertTrue(hunter.isResting(), "acordou com o jogador ao lado, sem ser atacado");
+                if (helper.getTick() - asleepAt[0] > 200) {
+                    helper.succeed();
+                }
+            }
         });
     }
 

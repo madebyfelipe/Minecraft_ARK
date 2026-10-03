@@ -8,7 +8,9 @@ import dev.madebyfelipe.iceagesurvival.core.ecology.ThreatResponse.Reaction;
 import dev.madebyfelipe.iceagesurvival.entity.PrehistoricCreature;
 import dev.madebyfelipe.iceagesurvival.species.BehaviorProfile;
 import dev.madebyfelipe.iceagesurvival.species.WarinessProfile;
+import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.List;
 import javax.annotation.Nullable;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.LivingEntity;
@@ -40,8 +42,10 @@ import net.minecraft.world.phys.Vec3;
  */
 public class WaryGoal extends Goal {
     private static final int SCAN_INTERVAL = 10;
-    /** Dormindo, nota as ameaças a esta fração do raio. */
-    private static final double RESTING_FACTOR = 0.5;
+    /** Quem investe ou persegue alguém pesa isto a mais na escolha da ameaça. */
+    private static final double ACTIVE_DANGER = 1.5;
+    /** Diferença de perigo abaixo da qual vale a mais próxima (e não se troca de ameaça). */
+    private static final double DANGER_MARGIN = 1.2;
     private static final int DECISION_INTERVAL = 20;
     private static final int SNORT_INTERVAL = 50;
     private static final int CALM_DOWN_TICKS = 60;
@@ -91,6 +95,10 @@ public class WaryGoal extends Goal {
             return false;
         }
         LivingEntity noticed = creature.takeNoticedThreat();
+        // Dormindo, não nota ninguém: só o golpe a acorda (hurt tira o sono, e aí a cautela volta a valer).
+        if (creature.isResting()) {
+            return false;
+        }
         // O aviso da manada (ou de quem encara) só vale se, para esta criatura, aquilo é ameaça.
         if (noticed != null && !isThreat(noticed, profile())) {
             noticed = null;
@@ -100,7 +108,7 @@ public class WaryGoal extends Goal {
                 return false;
             }
             scanCooldown = SCAN_INTERVAL + creature.getRandom().nextInt(5);
-            noticed = nearestThreat(profile());
+            noticed = biggestThreat(profile());
         }
         if (noticed == null || (creature.getTarget() != null && !isActivelyThreatening(noticed))) {
             return false;
@@ -123,6 +131,7 @@ public class WaryGoal extends Goal {
         snortCooldown = 0;
         outOfRangeTicks = 0;
         lastDistance = gap(threat);
+        creature.setConfronting(threat);
         // Notado, quem espreitava perde a surpresa e dá o bote (StalkGoal).
         if (threat instanceof PrehistoricCreature stalker && stalker.isStalking()) {
             stalker.blowStalk();
@@ -139,6 +148,7 @@ public class WaryGoal extends Goal {
     @Override
     public void stop() {
         threat = null;
+        creature.setConfronting(null);
         state = Reaction.IGNORE;
         creature.getNavigation().stop();
         creature.setAggressive(false);
@@ -156,6 +166,10 @@ public class WaryGoal extends Goal {
         }
         stateTicks++;
         WarinessProfile profile = profile();
+        if (state != Reaction.CHARGE && --scanCooldown <= 0) {
+            scanCooldown = SCAN_INTERVAL + creature.getRandom().nextInt(5);
+            switchToBiggerThreat(profile);
+        }
         double distance = gap(threat);
         double radius = detectionRadius(threat, profile, creature.hasCalfNearby(profile.calfRadius()));
         outOfRangeTicks = distance > radius * 1.3 && !creature.isHunted() ? outOfRangeTicks + 1 : 0;
@@ -330,23 +344,60 @@ public class WaryGoal extends Goal {
 
     // ---- Quem é ameaça ----
 
+    /**
+     * A ameaça que mais pesa no raio: a de maior porte relativo, e quem está investindo pesa mais
+     * ({@value #ACTIVE_DANGER}×); a distância só desempata. Antes era a mais próxima, e o jogador que fugia de um
+     * Tricerátopo em direção ao mamute virava o alvo do mamute, com o Tricerátopo logo atrás (pedido do Felipe,
+     * 2026-10-03).
+     */
     @Nullable
-    private LivingEntity nearestThreat(WarinessProfile profile) {
+    private LivingEntity biggestThreat(WarinessProfile profile) {
         double reach = Math.max(profile.alertRadius(), profile.calfRadius())
                 * Stress.perceptionMultiplier(creature.stress());
-        LivingEntity nearest = null;
-        double best = Double.MAX_VALUE;
         boolean calf = creature.hasCalfNearby(profile.calfRadius());
+        List<LivingEntity> inRange = new ArrayList<>();
+        double maxDanger = 0.0;
         for (LivingEntity candidate : creature.level().getEntitiesOfClass(LivingEntity.class,
                 creature.getBoundingBox().inflate(reach, 6.0, reach), other -> isThreat(other, profile))) {
-            double distance = gap(candidate);
-            double radius = detectionRadius(candidate, profile, calf);
-            if (distance <= radius && distance < best) {
-                best = distance;
-                nearest = candidate;
+            if (gap(candidate) <= detectionRadius(candidate, profile, calf)) {
+                inRange.add(candidate);
+                maxDanger = Math.max(maxDanger, danger(candidate));
             }
         }
-        return nearest;
+        LivingEntity chosen = null;
+        double bestDistance = Double.MAX_VALUE;
+        for (LivingEntity candidate : inRange) {
+            double distance = gap(candidate);
+            if (danger(candidate) * DANGER_MARGIN >= maxDanger && distance < bestDistance) {
+                bestDistance = distance;
+                chosen = candidate;
+            }
+        }
+        return chosen;
+    }
+
+    /** Porte relativo da ameaça, maior se ela está investindo ou atrás de alguém. */
+    private double danger(LivingEntity candidate) {
+        double danger = creature.sizeRatioOf(candidate);
+        if (candidate instanceof PrehistoricCreature wild
+                && (isActivelyThreatening(wild) || wild.isPursuingPlayer())) {
+            danger *= ACTIVE_DANGER;
+        }
+        return danger;
+    }
+
+    /** Encarando uma ameaça, troca por outra bem mais perigosa que apareceu no raio. */
+    private void switchToBiggerThreat(WarinessProfile profile) {
+        LivingEntity bigger = biggestThreat(profile);
+        if (bigger == null || bigger == threat || danger(bigger) <= danger(threat) * DANGER_MARGIN) {
+            return;
+        }
+        threat = bigger;
+        creature.setConfronting(threat);
+        outOfRangeTicks = 0;
+        lastDistance = gap(threat);
+        decide(false);
+        creature.alertHerdToThreat(threat);
     }
 
     private boolean isThreat(LivingEntity other, WarinessProfile profile) {
@@ -365,7 +416,7 @@ public class WaryGoal extends Goal {
             if (creature.isTame()) {
                 return false;
             }
-            boolean activeThreat = isActivelyThreatening(creature);
+            boolean activeThreat = isActivelyThreatening(creature) || creature.isPursuingPlayer();
             if (isHunter(creature)) {
                 boolean thisIsPrey = this.creature.behavior()
                         .map(behavior -> behavior.prey().isEmpty()).orElse(true);
@@ -422,15 +473,12 @@ public class WaryGoal extends Goal {
 
     /**
      * Até onde nota esta ameaça agora; quem espreita, só à metade ({@link Perception#STALKER_FACTOR}); a ameaça
-     * escondida no sub-bosque, à fração da camuflagem; dormindo, à metade.
+     * escondida no sub-bosque, à fração da camuflagem.
      */
     private double detectionRadius(LivingEntity threat, WarinessProfile profile, boolean calf) {
         double radius = ThreatResponse.detectionRadius(profile.tuning(), sneaking(threat), calf, creature.stress());
         if (threat instanceof PrehistoricCreature stalker && stalker.isStalking()) {
             radius = Perception.stalkerNoticeRadius(radius);
-        }
-        if (creature.isResting()) {
-            radius *= RESTING_FACTOR;
         }
         return PrehistoricCreature.perceivedRadius(threat, radius);
     }

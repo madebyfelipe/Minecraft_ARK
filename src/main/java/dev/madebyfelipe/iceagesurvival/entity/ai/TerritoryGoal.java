@@ -44,7 +44,7 @@ public class TerritoryGoal extends Goal {
     @Override
     public boolean canUse() {
         if (creature.isTame() || creature.isBaby() || creature.isUnconscious() || creature.isVehicle()
-                || creature.getTarget() != null || creature.yieldingFrom() != null || creature.groupId() == null
+                || creature.isResting() || creature.getTarget() != null || creature.yieldingFrom() != null || creature.groupId() == null
                 || --scanCooldown > 0) {
             return false;
         }

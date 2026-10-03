@@ -223,7 +223,7 @@ public class LandCreature extends PrehistoricCreature implements GeoEntity, Geck
                 return false;
             }
             targetConditions.range(getFollowDistance());
-            return creature().yieldingFrom() == null && super.canUse()
+            return creature().yieldingFrom() == null && !creature().isResting() && super.canUse()
                     && !(target instanceof Player player && creature().respectsTribute(player));
         }
     }

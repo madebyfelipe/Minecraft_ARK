@@ -337,6 +337,9 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     @Nullable
     private LivingEntity intimidator;
     private long intimidatedUntil;
+    /** Quem a cautela ({@code WaryGoal}) está encarando, blefando ou investindo agora; nulo fora dela. */
+    @Nullable
+    private LivingEntity confronting;
     /**
      * Já conferida contra a zona de perigo da espécie. A geração do terreno roda antes de o spawn do
      * mundo estar decidido, e mundos de versões anteriores têm fauna que hoje não nasceria ali.
@@ -1382,6 +1385,29 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         }
         intimidator = other;
         intimidatedUntil = level().getGameTime() + INTIMIDATION_TICKS;
+    }
+
+    @Nullable
+    public LivingEntity confronting() {
+        return confronting;
+    }
+
+    /** A cautela começou ou parou de encarar alguém. */
+    public void setConfronting(@Nullable LivingEntity other) {
+        confronting = other;
+    }
+
+    /**
+     * Selvagem e agressiva atrás de um jogador — investindo nele pela cautela ou perseguindo-o como alvo. Para quem
+     * está em volta, é a ameaça que vem junto com o jogador que foge: o mamute encara o Tricerátopo, não quem corre
+     * dele.
+     */
+    public boolean isPursuingPlayer() {
+        if (isTame() || isBaby() || isUnconscious() || !isAlive()) {
+            return false;
+        }
+        LivingEntity chased = getTarget() instanceof Player ? getTarget() : confronting;
+        return chased instanceof Player && chased.isAlive() && isAggressive();
     }
 
     /** Se {@code other} confrontou esta criatura há pouco. */

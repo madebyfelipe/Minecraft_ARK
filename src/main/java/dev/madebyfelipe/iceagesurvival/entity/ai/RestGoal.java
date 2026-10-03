@@ -10,8 +10,8 @@ import net.minecraft.world.level.levelgen.Heightmap;
 
 /**
  * Fora do horário de atividade ({@code behavior.habits.activity}), a criatura selvagem procura um esconderijo por
- * perto (folhas, mato, neve alta — {@link Camouflage}) e dorme ali até a hora dela. Acorda ferida, com alvo ou quando
- * uma ameaça chega perto: a cautela ({@link WaryGoal}, acima deste) toma o controle e o sono acaba.
+ * perto (folhas, mato, neve alta — {@link Camouflage}) e dorme ali até a hora dela. Deitada, só acorda ferida: a
+ * cautela, o território e a caça não notam nada enquanto ela dorme (pedido do Felipe, 2026-10-03).
  */
 public class RestGoal extends Goal {
     /** Raio em que procura o esconderijo. */
