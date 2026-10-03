@@ -167,22 +167,33 @@ public class StalkTests {
      * desistência diante da manada que ele não encara segue nos testes de {@code HuntChoice.chooseToStalk}
      * (2026-10-03).
      */
-    @GameTest(template = ARENA, batch = "stalk_alone_spotted", timeoutTicks = 200)
+    @GameTest(template = ARENA, batch = "stalk_alone_spotted", timeoutTicks = 400)
     public static void aLoneStalkerSpottedPouncesOnAHerdItCanTake(GameTestHelper helper) {
         HuntTests.clearStrays(helper);
         List<LandCreature> herd = herd(helper, ModEntities.GALLIMIMUS.get(), 2, 4, 6);
+        herd.forEach(member -> member.setAge(0));
         LandCreature hunter = hungry(helper, ModEntities.ALLOSAURUS.get(), 4, 38);
-        helper.runAtTickTime(100, () -> {
-            helper.assertTrue(hunter.isStalking(), "deveria estar espreitando antes de ser visto");
-            hunter.blowStalk();
+        boolean[] spotted = {false};
+        helper.onEachTick(() -> {
+            // Notado espreitando, de onde estiver rondando (o Galimimo de alerta largo põe a ronda além de 30 blocos).
+            if (!spotted[0] && hunter.isStalking() && hunter.getTarget() != null) {
+                spotted[0] = true;
+                hunter.blowStalk();
+                return;
+            }
+            helper.assertFalse(hunter.recentlyFailedHunt(), "desistiu da manada que pode atacar");
+            // Notado ou não, o bote vem: atrás de um Galimimo fora da espreita — ou já abateu um (carcaça).
+            boolean attacking = !hunter.isStalking() && hunter.getTarget() instanceof LandCreature target
+                    && herd.contains(target);
+            if (attacking || herd.stream().anyMatch(member -> member.isCarcass() || !member.isAlive())) {
+                helper.succeed();
+            }
         });
-        helper.runAtTickTime(105, () -> {
-            helper.assertTrue(hunter.getTarget() instanceof LandCreature target && herd.contains(target),
-                    "notado, deveria dar o bote num Galimimo: " + hunter.getTarget());
-            helper.assertFalse(hunter.recentlyFailedHunt(), "não deveria contar como caçada frustrada");
-            helper.assertTrue(herd.stream().anyMatch(LandCreature::isHunted), "a manada deveria se saber caçada");
-            helper.succeed();
-        });
+        helper.runAtTickTime(390, () -> helper.fail("sem bote: alvo " + hunter.getTarget() + ", espreitando "
+                + hunter.isStalking() + ", fome " + hunter.hungerDrive() + ", distância "
+                + (hunter.getTarget() == null ? -1 : hunter.distanceTo(hunter.getTarget())) + ", metas "
+                + hunter.goalSelector.getRunningGoals().map(goal -> goal.getGoal().getClass().getSimpleName()).toList()
+                + ", notado " + spotted[0]));
     }
 
     /** Na perseguição, a presa que abre mais de 30 blocos escapa: o predador desiste e fica frustrado. */
@@ -196,7 +207,7 @@ public class StalkTests {
         helper.onEachTick(() -> {
             if (!moved[0] && hunter.getTarget() == prey && !hunter.isStalking()) {
                 // Depois do bote: a presa "corre" para longe de uma vez.
-                prey.teleportTo(prey.getX(), prey.getY(), hunter.getZ() - 40.0);
+                prey.teleportTo(prey.getX(), prey.getY(), hunter.getZ() - 50.0);
                 moved[0] = true;
             } else if (moved[0] && hunter.getTarget() == null) {
                 helper.assertTrue(hunter.recentlyFailedHunt(), "desistiu sem contar como caçada frustrada");

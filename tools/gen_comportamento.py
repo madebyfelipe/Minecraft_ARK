@@ -281,6 +281,15 @@ def card(key):
     social.append(row('Nervosismo', num(eco['nervousness'])))
     if entity in apex:
         social.append(row('Apex', 'não cai com tranquilizante; só se doma vencendo o desafio com a cabeça de outro da espécie'))
+    body = data.get('body', {})
+    breaks = body.get('breaks', 'plants' if body.get('breaks_leaves') else 'none')
+    giant = body.get('giant', False)
+    social.append(row('Quebra blocos', {
+        'wood': 'madeira (muro/portão nosso em ' + ('3' if giant else '6') + ' golpes, madeira vanilla em '
+                + ('2' if giant else '3') + ') só para alcançar o alvo' + ('; derruba tronco ao esbarrar' if giant else ''),
+        'plants': 'só folhas e plantas, ao passar',
+        'none': 'nada',
+    }.get(breaks, 'nada')))
     carcass = b.get('ecology', {}).get('carcass_portions', 0)
     if carcass:
         social.append(row('Carcaça', f'morto selvagem sem jogador, fica caído com {carcass} porções de carne por até '

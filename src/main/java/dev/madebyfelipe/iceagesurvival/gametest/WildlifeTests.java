@@ -71,6 +71,9 @@ public class WildlifeTests {
         ServerPlayer player = PredatorTests.survivalPlayer(helper);
         player.moveTo(helper.absoluteVec(new Vec3(10.5, 0, 10.5)));
         LandCreature triceratops = helper.spawnWithNoFreeWill(ModEntities.TRICERATOPS.get(), 20, 0, 10);
+        // Adultos: o sorteio de família pode pôr filhote, e filhote não é ameaça para ninguém.
+        mammoth.setAge(0);
+        triceratops.setAge(0);
         triceratops.setTarget(player);
         triceratops.setAggressive(true);
         helper.succeedWhen(() -> helper.assertTrue(mammoth.confronting() == triceratops,

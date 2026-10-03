@@ -40,6 +40,10 @@ public class HuntGoal extends Goal {
     private static final double ESCAPE_FACTOR = 1.5;
     /** Na perseguição (depois da disparada), a presa que abre esta distância do predador escapou. */
     public static final double CHASE_GIVE_UP_DISTANCE = 30.0;
+    /** Além da distância do bote, quanto a presa precisa abrir para escapar. */
+    public static final double ESCAPE_MARGIN = 6.0;
+    /** Nunca além disto: o bote de muito longe não segura a caçada. */
+    public static final double MAX_ESCAPE_DISTANCE = 45.0;
     /** Espreitando presa que não pode atacar, de quanto em quanto tempo procura uma que pode. */
     private static final int RECONSIDER_INTERVAL = 40;
 
@@ -198,7 +202,11 @@ public class HuntGoal extends Goal {
 
     /** Na perseguição, a presa abriu mais de {@link #CHASE_GIVE_UP_DISTANCE} blocos: o predador desiste. */
     public static boolean escaped(PrehistoricCreature hunter, LivingEntity prey) {
-        return hunter.distanceTo(prey) > CHASE_GIVE_UP_DISTANCE;
+        // A espreita ronda a presa de alerta largo (o Galimimo) além de 30 blocos: o bote dali não é a presa que
+        // escapou. Vale abrir 30 blocos ou a distância do bote mais uma folga, o que for maior, até 45 (2026-10-03).
+        double limit = Math.min(MAX_ESCAPE_DISTANCE,
+                Math.max(CHASE_GIVE_UP_DISTANCE, hunter.huntStartDistance() + ESCAPE_MARGIN));
+        return hunter.distanceTo(prey) > limit;
     }
 
     /** Quantos da espécie caçam juntos aqui (1 = sozinho). */

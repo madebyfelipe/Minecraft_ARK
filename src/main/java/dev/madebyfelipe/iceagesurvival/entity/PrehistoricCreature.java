@@ -1583,6 +1583,14 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     /** Começou a perseguir uma presa. */
     public void beginHunt() {
         huntStartTime = level().getGameTime();
+        huntStartDistance = getTarget() != null ? distanceTo(getTarget()) : 0.0;
+    }
+
+    /** Distância até a presa quando a perseguição começou (o bote de quem espreitava, de longe). */
+    private double huntStartDistance;
+
+    public double huntStartDistance() {
+        return huntStartDistance;
     }
 
     /** Já deu o bote nesta caçada: a presa pode saber que é caçada. Quem espreita começa escondido. */
