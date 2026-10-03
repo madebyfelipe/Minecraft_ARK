@@ -278,5 +278,6 @@
   "item.iceagesurvival.cave_tracker": "Cave Tracker",
   "item.iceagesurvival.serrated_tooth": "Serrated Tooth",
   "item.iceagesurvival.serrated_sword": "Serrated Sword",
-  "effect.iceagesurvival.bleeding": "Bleeding"
+  "effect.iceagesurvival.bleeding": "Bleeding",
+  "message.iceagesurvival.cave_tracker.none": "No arena cave in this world"
 }

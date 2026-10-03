@@ -278,5 +278,6 @@
   "item.iceagesurvival.cave_tracker": "Rastreador da Caverna",
   "item.iceagesurvival.serrated_tooth": "Dente Serrilhado",
   "item.iceagesurvival.serrated_sword": "Espada Serrilhada",
-  "effect.iceagesurvival.bleeding": "Sangramento"
+  "effect.iceagesurvival.bleeding": "Sangramento",
+  "message.iceagesurvival.cave_tracker.none": "Nenhuma caverna da arena neste mundo"
 }
