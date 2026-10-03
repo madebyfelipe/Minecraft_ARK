@@ -20,7 +20,10 @@ public record ChemistryRecipe(Supplier<Item> first, int firstCount, Supplier<Ite
             new ChemistryRecipe(ModItems.BLACK_FRUIT::get, 1, () -> Items.ROTTEN_FLESH, 1, ModItems.NARCOTIC::get, 2, 100),
             new ChemistryRecipe(() -> Items.SUGAR, 2, () -> Items.SWEET_BERRIES, 1, ModItems.STIMULANT::get, 2, 100),
             // Mesa de trabalho: 1 flecha + 1 narcótico → 1 flecha tranquilizante.
-            new ChemistryRecipe(() -> Items.ARROW, 4, ModItems.NARCOTIC::get, 1, ModItems.TRANQ_ARROW::get, 4, 120));
+            new ChemistryRecipe(() -> Items.ARROW, 4, ModItems.NARCOTIC::get, 1, ModItems.TRANQ_ARROW::get, 4, 120),
+            // Antídoto contra a peçonha da Megalania: carvão (vegetal ou mineral) num frasco de vidro.
+            new ChemistryRecipe(() -> Items.CHARCOAL, 1, () -> Items.GLASS_BOTTLE, 1, ModItems.ANTIDOTE::get, 1, 100),
+            new ChemistryRecipe(() -> Items.COAL, 1, () -> Items.GLASS_BOTTLE, 1, ModItems.ANTIDOTE::get, 1, 100));
 
     /** Um minuto para a carne apodrecer na estação de preparação. */
     private static final int ROT_TICKS = 1200;

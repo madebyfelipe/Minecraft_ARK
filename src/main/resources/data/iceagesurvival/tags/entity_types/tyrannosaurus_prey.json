@@ -5,6 +5,7 @@
     "iceagesurvival:brontosaurus",
     "iceagesurvival:mammoth",
     "iceagesurvival:elasmotherium",
+    "iceagesurvival:quetzalcoatlus",
     {
       "id": "tfc:moose",
       "required": false

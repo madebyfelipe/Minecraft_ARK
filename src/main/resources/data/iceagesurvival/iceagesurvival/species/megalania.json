@@ -1,0 +1,154 @@
+{
+  "stats": {
+    "health": {
+      "base": 120,
+      "per_point": 0.08
+    },
+    "attack": {
+      "base": 14,
+      "per_point": 0.04
+    },
+    "speed": {
+      "base": 0.3
+    },
+    "torpor": {
+      "base": 200,
+      "per_point": 0.06
+    },
+    "armor": {
+      "base": 4,
+      "per_point": 0.03
+    }
+  },
+  "body": {
+    "knockback_resistance": 0.6,
+    "step_height": 1.1
+  },
+  "taming": {
+    "torpor_decay_per_second": 1.5,
+    "required_food": 170,
+    "required_food_per_level": 0.015,
+    "feed_interval_seconds": 8,
+    "foods": [
+      {
+        "items": "#iceagesurvival:taming/raw_red_meat",
+        "value": 25
+      },
+      {
+        "items": [
+          "iceagesurvival:jerky"
+        ],
+        "value": 25,
+        "quality": 0.9
+      },
+      {
+        "items": "#iceagesurvival:taming/raw_small_meat",
+        "value": 15,
+        "quality": 0.7
+      },
+      {
+        "items": "#iceagesurvival:taming/cooked_meat",
+        "value": 15,
+        "quality": 0.4
+      },
+      {
+        "items": "minecraft:rotten_flesh",
+        "value": 10,
+        "quality": 0.4
+      }
+    ]
+  },
+  "behavior": {
+    "aggressive": true,
+    "aggro_radius": 14,
+    "territory_radius": 48,
+    "flee_health_fraction": 0.2,
+    "herd_radius": 0,
+    "prey": "#iceagesurvival:megalania_prey",
+    "hunt_special": "venom",
+    "habits": {
+      "activity": "diurnal"
+    },
+    "wariness": {
+      "threats": "#iceagesurvival:predators",
+      "players": false,
+      "alert_radius": 24,
+      "charge_radius": 4,
+      "retreat_chance": 0.15,
+      "charge_chance": 0.1,
+      "charge_speed": 1.5,
+      "flee_speed": 1.5
+    },
+    "ecology": {
+      "hunt_radius": 40,
+      "hunger_seconds": 480,
+      "chase_seconds": 60,
+      "rival_radius": 40,
+      "nervousness": 0.8
+    },
+    "diet": [
+      {
+        "prey": [
+          "minecraft:sheep",
+          "minecraft:pig",
+          "minecraft:goat",
+          "iceagesurvival:dodo"
+        ],
+        "preference": 3
+      },
+      {
+        "prey": [
+          "minecraft:cow",
+          "minecraft:horse",
+          "minecraft:donkey",
+          "minecraft:llama",
+          "minecraft:rabbit",
+          "minecraft:chicken",
+          "iceagesurvival:gallimimus"
+        ],
+        "preference": 2
+      },
+      {
+        "prey": [
+          "minecraft:villager",
+          "minecraft:wandering_trader",
+          "minecraft:player",
+          "iceagesurvival:velociraptor",
+          "iceagesurvival:ornitholestes"
+        ],
+        "preference": 1
+      },
+      {
+        "prey": [
+          "iceagesurvival:elasmotherium"
+        ],
+        "preference": 0
+      }
+    ]
+  },
+  "spawn": {
+    "biomes": "#iceagesurvival:spawns_megalania",
+    "weight": 2,
+    "favored": {
+      "biomes": "#iceagesurvival:ideal_megalania",
+      "weight": 6
+    },
+    "group_min": 1,
+    "group_max": 1,
+    "max_nearby": 1,
+    "min_distance": 300
+  },
+  "sounds": {
+    "ambient": "fossil:megalania_ambient",
+    "hurt": "fossil:megalania_hurt",
+    "death": "fossil:megalania_death",
+    "attack": "minecraft:entity.ravager.attack",
+    "volume": 1.1
+  },
+  "breeding": {
+    "offspring": "egg",
+    "incubation_seconds": 420,
+    "maturation_seconds": 1800,
+    "cooldown_seconds": 900
+  }
+}
