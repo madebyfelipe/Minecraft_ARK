@@ -1,6 +1,5 @@
 package dev.madebyfelipe.iceagesurvival.entity;
 
-import dev.madebyfelipe.iceagesurvival.IceAgeSurvival;
 import dev.madebyfelipe.iceagesurvival.core.ecology.Swallow;
 import dev.madebyfelipe.iceagesurvival.entity.ai.HuntGoal;
 import dev.madebyfelipe.iceagesurvival.species.BehaviorProfile;
@@ -12,8 +11,6 @@ import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 
 /**
  * Engole inteira ({@code hunt_special: swallow}), o golpe do Quetzalcoatlus: caçador a pé como a cegonha e o
@@ -29,7 +26,6 @@ import net.minecraftforge.fml.common.Mod;
  * <p>O engolir troca o golpe inteiro, antes do dano: se a bicada viesse primeiro, ela já mataria a presa pequena e
  * derrubaria o que ela carrega. Por isso o golpe é interceptado no {@link LivingAttackEvent}, que o cancela.
  */
-@Mod.EventBusSubscriber(modid = IceAgeSurvival.MODID)
 public final class SwallowStrike {
     private SwallowStrike() {
     }
@@ -71,7 +67,6 @@ public final class SwallowStrike {
     }
 
     /** O golpe corpo a corpo do caçador numa presa que cabe no bico vira o engolir: sem dano e sem queda de itens. */
-    @SubscribeEvent
     public static void onAttack(LivingAttackEvent event) {
         LivingEntity target = event.getEntity();
         DamageSource source = event.getSource();

@@ -118,6 +118,14 @@ tasks.matching { it.name == 'runGameTestServer' }.configureEach {
             from('src/main/resources/gameteststructures')
             into('run/gameteststructures')
         }
+        // O servidor de GameTest gera run/world pelo server.properties. Num checkout novo, o mundo normal de semente
+        // aleatória põe as cenas embaixo da terra ou num rio; o plano sem estruturas (sem aldeias) é o que os testes
+        // esperam. Um server.properties que já existe fica como está.
+        def properties = file('run/server.properties')
+        if (!properties.exists()) {
+            properties.parentFile.mkdirs()
+            properties.text = 'level-type=minecraft\\:flat\ngenerate-structures=false\n'
+        }
     }
 }
 

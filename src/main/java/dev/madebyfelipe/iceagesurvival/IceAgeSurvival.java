@@ -74,6 +74,7 @@ public class IceAgeSurvival {
         MinecraftForge.EVENT_BUS.addListener(GroupSpacing::onLevelLoad);
         MinecraftForge.EVENT_BUS.addListener(GroupSpacing::onLevelUnload);
         MinecraftForge.EVENT_BUS.addListener(StarterApexKeeper::onDeath);
+        MinecraftForge.EVENT_BUS.addListener(dev.madebyfelipe.iceagesurvival.entity.SwallowStrike::onAttack);
         MinecraftForge.EVENT_BUS.addListener(DebugCommands::register);
 
         ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, ServerConfig.SPEC);
