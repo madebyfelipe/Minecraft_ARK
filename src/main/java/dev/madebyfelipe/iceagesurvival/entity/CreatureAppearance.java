@@ -1,5 +1,6 @@
 package dev.madebyfelipe.iceagesurvival.entity;
 
+import dev.madebyfelipe.iceagesurvival.IceAgeSurvival;
 import java.util.Map;
 import java.util.Optional;
 import net.minecraft.resources.ResourceLocation;
@@ -33,6 +34,12 @@ public record CreatureAppearance(
 
     /** Modelos do Revival cujas animações não têm o prefixo {@code animation.<modelo>.}. */
     private static final java.util.Set<String> UNPREFIXED_ANIMATIONS = java.util.Set.of("quetzalcoatlus");
+
+    /**
+     * Modelos que não são arquivos do Revival: o geo e a pele são derivados dele em runtime e as animações são nossas
+     * ({@code assets/iceagesurvival/animations/entity/}). É o caso do Titanovenator.
+     */
+    private static final java.util.Set<String> LOCAL_MODELS = java.util.Set.of("titanovenator");
 
     private static final Map<String, CreatureAppearance> REVIVAL = Map.ofEntries(Map.entry("dodo",
                     new CreatureAppearance("dodo", "dodo/dodo_male.png", "idle", "walk", "attack_1", "sleep_1",
@@ -69,6 +76,9 @@ public record CreatureAppearance(
                     "quetzalcoatlus/quetzalcoatlus_male.png", "idle", "walk", "attack", "sleep", "fly", "run", "dive")),
             Map.entry("megalania", new CreatureAppearance("megalania", "megalania/megalania_male.png",
                     "idle", "walk", "attack_1", "sleep", "walk", "run")),
+            // O boss: modelo e pele derivados do Rex em runtime, animações autorais (com versões por fase).
+            Map.entry("titanovenator", new CreatureAppearance("titanovenator", "titanovenator.png",
+                    "idle", "walk", "attack", "unconscious", "walk", "run")),
             // O golpe é a cauda: a clavada para trás (TailClubStrike).
             Map.entry("ankylosaurus", new CreatureAppearance("ankylosaurus", "ankylosaurus/ankylosaurus_male.png",
                     "idle", "walk", "attack_back_right", "sleep", "walk", "run"))
@@ -78,16 +88,21 @@ public record CreatureAppearance(
         return Optional.ofNullable(REVIVAL.get(entityId.getPath()));
     }
 
+    /** Se o modelo é nosso (derivado do Revival em runtime, animações próprias), não um arquivo do Revival. */
+    public boolean isLocal() {
+        return LOCAL_MODELS.contains(model);
+    }
+
     public ResourceLocation modelResource() {
-        return revivalResource("geo/entity/" + model + ".geo.json");
+        return resource("geo/entity/" + model + ".geo.json");
     }
 
     public ResourceLocation textureResource() {
-        return revivalResource("textures/entity/" + texture);
+        return resource("textures/entity/" + texture);
     }
 
     public ResourceLocation animationResource() {
-        return revivalResource("animations/entity/" + model + ".animation.json");
+        return resource("animations/entity/" + model + ".animation.json");
     }
 
     /**
@@ -98,7 +113,7 @@ public record CreatureAppearance(
         return UNPREFIXED_ANIMATIONS.contains(model) ? "" : "animation." + model + ".";
     }
 
-    private static ResourceLocation revivalResource(String path) {
-        return ResourceLocation.fromNamespaceAndPath("fossil", path);
+    private ResourceLocation resource(String path) {
+        return ResourceLocation.fromNamespaceAndPath(isLocal() ? IceAgeSurvival.MODID : "fossil", path);
     }
 }

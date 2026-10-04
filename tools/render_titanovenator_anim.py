@@ -15,7 +15,7 @@ from PIL import Image, ImageDraw
 import render_titanovenator as r
 
 ROOT = r.ROOT
-ANIM = ROOT / 'art/titanovenator/animations/titanovenator.animation.json'
+ANIM = ROOT / 'src/main/resources/assets/iceagesurvival/animations/entity/titanovenator.animation.json'
 OUT = r.OUT / 'anim'
 PREFIX = 'animation.titanovenator.'
 

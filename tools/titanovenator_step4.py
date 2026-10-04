@@ -3,6 +3,7 @@
 
 Parte do passo 3 local (geo + atlas já com os olhos restaurados) e acrescenta, sem mexer
 nos volumes existentes:
+  - pernas: afastadas do tronco (1,0 para fora de cada lado) para o corpo parecer mais largo;
   - cerdas: cubos finos e escuros em fileira no meio do pescoço, do dorso e da base da
     cauda (dossiê §17: nuca, região dorsal e base da cauda). Ficam nos ossos que já existem,
     então acompanham respiração e animação;
@@ -114,6 +115,22 @@ def paint_scars(atlas):
     return rects
 
 
+def widen_stance(bones, amount=1.0):
+    """Afasta as pernas do tronco (mesma regra do Java: coxa, canela e pé saem 1,0 para fora, com os pivôs)."""
+    for side in ('left', 'right'):
+        for part in ('Thigh', 'Leg', 'Foot'):
+            bone = bones.get(side + part)
+            if not bone or not bone.get('cubes'):
+                continue
+            first = bone['cubes'][0]
+            center = first['origin'][0] + first['size'][0] / 2
+            shift = amount if center > 0 else -amount
+            for cube in bone['cubes']:
+                cube['origin'][0] = round(cube['origin'][0] + shift, 5)
+            if 'pivot' in bone:
+                bone['pivot'][0] = round(bone['pivot'][0] + shift, 5)
+
+
 def add_bristles(bones):
     dark = uv_rect(DARK[0], DARK[1], DARK[2] - DARK[0], DARK[3] - DARK[1])
     count = 0
@@ -159,6 +176,7 @@ def main():
     atlas = Image.open(OUT / 'passo-3.png').convert('RGBA')
     rects = paint_scars(atlas)
     bones = bone_map(geometry)
+    widen_stance(bones)
     n = add_bristles(bones)
     add_scars(bones, rects)
     buffer = io.BytesIO()

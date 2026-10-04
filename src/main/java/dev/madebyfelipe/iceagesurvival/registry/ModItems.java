@@ -105,6 +105,10 @@ public final class ModItems {
     public static final RegistryObject<ForgeSpawnEggItem> ANKYLOSAURUS_SPAWN_EGG = ITEMS.register(
             "ankylosaurus_spawn_egg",
             () -> new ForgeSpawnEggItem(ModEntities.ANKYLOSAURUS, 0x6B5B45, 0x3E3226, new Item.Properties()));
+    /** Carvão e ocre dourado: a pele do Titanovenator. */
+    public static final RegistryObject<ForgeSpawnEggItem> TITANOVENATOR_SPAWN_EGG = ITEMS.register(
+            "titanovenator_spawn_egg",
+            () -> new ForgeSpawnEggItem(ModEntities.TITANOVENATOR, 0x2E2E32, 0xC48A32, new Item.Properties()));
     public static final RegistryObject<ForgeSpawnEggItem> GIGANOTOSAURUS_SPAWN_EGG = ITEMS.register(
             "giganotosaurus_spawn_egg",
             () -> new ForgeSpawnEggItem(ModEntities.GIGANOTOSAURUS, 0x6B5A48, 0x9E3B2C, new Item.Properties()));
@@ -255,6 +259,7 @@ public final class ModItems {
             event.accept(MEGALANIA_SPAWN_EGG);
             event.accept(ANKYLOSAURUS_SPAWN_EGG);
             event.accept(GIGANOTOSAURUS_SPAWN_EGG);
+            event.accept(TITANOVENATOR_SPAWN_EGG);
         } else if (event.getTabKey() == CreativeModeTabs.COMBAT) {
             event.accept(TRANQ_ARROW);
             event.accept(TRANQ_DART);

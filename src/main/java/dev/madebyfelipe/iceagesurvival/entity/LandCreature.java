@@ -66,7 +66,12 @@ public class LandCreature extends PrehistoricCreature implements GeoEntity, Geck
      * Gestos de uma vez pedidos pelo servidor ({@link #gesture}), pelo nome da animação do modelo: comer, a língua
      * da Megalania e a segunda mordida. Espécie sem a animação simplesmente não a toca.
      */
-    private static final java.util.List<String> GESTURES = java.util.List.of("eat", "tongueflick", "attack_2", "speak");
+    private static final java.util.List<String> GESTURES = java.util.List.of("eat", "tongueflick", "attack_2", "speak",
+            "roar_phase");
+    /** Gestos que o Titanovenator tem em três versões, uma por fase ({@link #animationSuffix()}). */
+    private static final java.util.List<String> PHASED_GESTURES = java.util.List.of("attack_2", "speak");
+    private static final java.util.List<String> NO_PHASES = java.util.List.of("");
+    private static final java.util.List<String> THREE_PHASES = java.util.List.of("", "_f2", "_f3");
     /** Amplitude da passada acima da qual a criatura está correndo, não andando. */
     private static final float RUN_LIMB_SWING = 0.75F;
 
@@ -274,10 +279,23 @@ public class LandCreature extends PrehistoricCreature implements GeoEntity, Geck
         triggerAnim(ATTACK_CONTROLLER, ATTACK_TRIGGER);
     }
 
+    /**
+     * Sufixo das animações da fase em que a criatura está: vazio para toda espécie comum; o boss devolve {@code _f2} e
+     * {@code _f3} nas fases 2 e 3. Só vale se {@link #hasPhaseAnimations()}.
+     */
+    protected String animationSuffix() {
+        return "";
+    }
+
+    /** Se o modelo tem versões das animações por fase (idle, walk, run, attack, attack_2 e speak). */
+    protected boolean hasPhaseAnimations() {
+        return false;
+    }
+
     @Override
     public void gesture(String name) {
         if (GESTURES.contains(name)) {
-            triggerAnim(ATTACK_CONTROLLER, name);
+            triggerAnim(ATTACK_CONTROLLER, PHASED_GESTURES.contains(name) ? name + animationSuffix() : name);
         }
     }
 
@@ -289,7 +307,7 @@ public class LandCreature extends PrehistoricCreature implements GeoEntity, Geck
     @Override
     protected void swingAttack() {
         super.swingAttack();
-        triggerAnim(ATTACK_CONTROLLER, ATTACK_TRIGGER);
+        triggerAnim(ATTACK_CONTROLLER, ATTACK_TRIGGER + animationSuffix());
     }
 
     @Override
@@ -306,15 +324,18 @@ public class LandCreature extends PrehistoricCreature implements GeoEntity, Geck
         String flyName = appearance == null ? walkName : appearance.fly();
         String runName = appearance == null ? walkName : appearance.run();
         String diveName = appearance == null ? flyName : appearance.dive();
-        RawAnimation idle = RawAnimation.begin().thenLoop(prefix + idleName);
-        RawAnimation walk = RawAnimation.begin().thenLoop(prefix + walkName);
+        java.util.List<String> phases = hasPhaseAnimations() ? THREE_PHASES : NO_PHASES;
+        RawAnimation[] idle = new RawAnimation[phases.size()];
+        RawAnimation[] walk = new RawAnimation[phases.size()];
+        RawAnimation[] run = new RawAnimation[phases.size()];
+        for (int i = 0; i < phases.size(); i++) {
+            idle[i] = RawAnimation.begin().thenLoop(prefix + idleName + phases.get(i));
+            walk[i] = RawAnimation.begin().thenLoop(prefix + walkName + phases.get(i));
+            run[i] = RawAnimation.begin().thenLoop(prefix + runName + phases.get(i));
+        }
         RawAnimation unconscious = RawAnimation.begin().thenLoop(prefix + unconsciousName);
         RawAnimation fly = RawAnimation.begin().thenLoop(prefix + flyName);
-        RawAnimation run = RawAnimation.begin().thenLoop(prefix + runName);
         RawAnimation dive = RawAnimation.begin().thenLoop(prefix + diveName);
-        // PLAY_ONCE explícito: o thenPlay usa o "loop" do arquivo, e o ataque do T-Rex e do Elasmotério
-        // no Revival vem marcado como loop — o golpe ficava repetindo para sempre.
-        RawAnimation attack = RawAnimation.begin().then(prefix + attackName, Animation.LoopType.PLAY_ONCE);
 
         controllers.add(new AnimationController<>(this, "movement", 5, state -> {
             if (isUnconscious() || isResting()) {
@@ -324,17 +345,26 @@ public class LandCreature extends PrehistoricCreature implements GeoEntity, Geck
                 // A inclinação da trajetória vem na rotação, que chega a todos os clientes.
                 return state.setAndContinue(getXRot() >= FlightModel.DIVE_PITCH ? dive : fly);
             }
+            int phase = Math.max(0, phases.indexOf(animationSuffix()));
             if (!state.isMoving()) {
-                return state.setAndContinue(idle);
+                return state.setAndContinue(idle[phase]);
             }
             // Passada larga (investida, fuga): a animação de corrida, se a espécie tiver uma.
-            return state.setAndContinue(state.getLimbSwingAmount() > RUN_LIMB_SWING ? run : walk);
+            return state.setAndContinue(state.getLimbSwingAmount() > RUN_LIMB_SWING ? run[phase] : walk[phase]);
         }));
         AnimationController<LandCreature> gestures = new AnimationController<>(this, ATTACK_CONTROLLER, 0, state -> PlayState.STOP)
-                .triggerableAnim(ATTACK_TRIGGER, attack)
                 .triggerableAnim(CALL_TRIGGER, RawAnimation.begin().then(prefix + CALL_TRIGGER, Animation.LoopType.PLAY_ONCE));
+        for (String phase : phases) {
+            // PLAY_ONCE explícito: o thenPlay usa o "loop" do arquivo, e o ataque do T-Rex e do Elasmotério
+            // no Revival vem marcado como loop — o golpe ficava repetindo para sempre.
+            gestures.triggerableAnim(ATTACK_TRIGGER + phase,
+                    RawAnimation.begin().then(prefix + attackName + phase, Animation.LoopType.PLAY_ONCE));
+        }
         for (String gesture : GESTURES) {
-            gestures.triggerableAnim(gesture, RawAnimation.begin().then(prefix + gesture, Animation.LoopType.PLAY_ONCE));
+            for (String phase : PHASED_GESTURES.contains(gesture) ? phases : NO_PHASES) {
+                gestures.triggerableAnim(gesture + phase,
+                        RawAnimation.begin().then(prefix + gesture + phase, Animation.LoopType.PLAY_ONCE));
+            }
         }
         controllers.add(gestures);
     }

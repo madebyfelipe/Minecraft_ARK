@@ -285,6 +285,8 @@
   "iceagesurvival.mount.no_open_sky": "%s precisa de céu aberto para decolar",
   "entity.iceagesurvival.giganotosaurus": "Giganotossauro",
   "item.iceagesurvival.giganotosaurus_spawn_egg": "Ovo Gerador de Giganotossauro",
+  "entity.iceagesurvival.titanovenator": "Titanovenator",
+  "item.iceagesurvival.titanovenator_spawn_egg": "Ovo Gerador de Titanovenator",
   "item.iceagesurvival.analyzer": "Analisador",
   "item.iceagesurvival.analyzer.tooltip.scan": "Mire num animal e segure: analisa",
   "item.iceagesurvival.analyzer.tooltip.open": "Clique no ar: abre o arquivo de campo",

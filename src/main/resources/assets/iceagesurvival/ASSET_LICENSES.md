@@ -5,7 +5,9 @@ alterações graduais. `tools/study_titanovenator.py` lê o mod instalado separa
 os derivados somente em `art/titanovenator/local/`, ignorado pelo Git e fora dos recursos do jar.
 Esses derivados não são arte inteiramente original e não devem ser versionados ou distribuídos.
 O script/visualizador versionados não contêm modelos, texturas ou animações do Revival.
-As animações do Titanovenator (`art/titanovenator/animations/`) são autorais, escritas por
+O Titanovenator em jogo (boss, D52) não leva arte do Revival no jar: o cliente deriva em memória, a cada recarga de
+recursos, o modelo e a pele a partir do Rex do Revival instalado (`core/titan`, `client/titan`); nada é gravado em disco.
+As animações do Titanovenator (`assets/iceagesurvival/animations/entity/titanovenator.animation.json`) são autorais, escritas por
 `tools/titanovenator_anim.py`; só reutilizam os nomes dos ossos do rig de base.
 
 Este mod usa modelos, texturas, animações e sons fornecidos em runtime pelo mod

@@ -21,7 +21,7 @@ import math
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-OUT = ROOT / 'art/titanovenator/animations/titanovenator.animation.json'
+OUT = ROOT / 'src/main/resources/assets/iceagesurvival/animations/entity/titanovenator.animation.json'
 PREFIX = 'animation.titanovenator.'
 TAU = 2 * math.pi
 

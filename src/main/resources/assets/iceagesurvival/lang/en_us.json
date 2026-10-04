@@ -285,6 +285,8 @@
   "iceagesurvival.mount.no_open_sky": "%s needs open sky to take off",
   "entity.iceagesurvival.giganotosaurus": "Giganotosaurus",
   "item.iceagesurvival.giganotosaurus_spawn_egg": "Giganotosaurus Spawn Egg",
+  "entity.iceagesurvival.titanovenator": "Titanovenator",
+  "item.iceagesurvival.titanovenator_spawn_egg": "Titanovenator Spawn Egg",
   "item.iceagesurvival.analyzer": "Analyzer",
   "item.iceagesurvival.analyzer.tooltip.scan": "Aim at an animal and hold: analyze",
   "item.iceagesurvival.analyzer.tooltip.open": "Click the air: open the field file",

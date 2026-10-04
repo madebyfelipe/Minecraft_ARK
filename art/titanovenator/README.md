@@ -1,6 +1,6 @@
 # Titanovenator — estudo incremental sobre o Rex
 
-Estado: **Passo 4 (cerdas, cicatrizes) e animações, aguardando revisão do Felipe**. O primeiro modelo gerado
+Estado: **boss no jogo (D52); passo 4 e animações aguardando revisão do Felipe em jogo**. O primeiro modelo gerado
 do zero foi rejeitado e descartado. A direção atual parte do Tyrannosaurus do
 Fossils and Archeology: Revival instalado localmente, por pedido explícito do Felipe.
 
@@ -38,12 +38,26 @@ O arquivo de animações original fica separado em `local/rex-original.animation
 geradas dos mesmos arquivos pelo comando `python3 tools/render_titanovenator.py`
 (requer NumPy e Pillow): `local/passo-2-cabeca.png` e `local/passo-2-mandibula.png`.
 
+## No jogo (D52)
+
+O Titanovenator é o boss do endgame (`entity/TitanovenatorBoss`, 1,6× o Rex). O jar **não leva nada do Revival**:
+o cliente lê o `tyrannosaurus.geo.json` e a textura do Revival instalado e os deriva em memória
+(`core/titan/TitanGeometry`, a mesma transformação dos passos 1, 2 e 4 abaixo, portada para Java e conferida contra
+a saída do Python; `core/titan/TitanTexture`, que recolore a pele em carvão e ocre e pinta as cicatrizes). Se a
+derivação falhar, desenha o Rex puro e registra o erro.
+
+**Diferença para o estudo:** a pele do jogo é uma **aproximação programática** da pintura ImageGen aprovada no passo 3
+(a pintura é um arquivo local, não pode ir no jar): mesma paleta e o mesmo ventre ocre, mas sem as manchas irregulares.
+Os scripts em `tools/` continuam servindo para prévia e comparação.
+
 ## Passo 4 — cerdas e cicatrizes
 
 Feito sobre o passo 3, sem tocar nos volumes existentes nem nos dentes (decisão do Felipe).
 `tools/titanovenator_step4.py` guarda `passo-3.geo.json`/`passo-3.png` na primeira execução e
 sempre reconstrói a partir deles.
 
+- **Pernas afastadas:** coxa, canela e pé de cada lado saem 1,0 para fora do tronco (pivôs junto), para o corpo
+  parecer mais largo. Só o x muda; as passadas e a hierarquia ficam como estão.
 - **Cerdas (dossiê §17):** 23 cubos finos e escuros em fileira no pescoço, no dorso e na base
   da cauda, presos aos ossos que já existem (acompanham respiração e animação). Curtas, com
   altura e inclinação variando: estrutura filamentosa localizada, não uma crista de espetos.
@@ -53,7 +67,7 @@ sempre reconstrói a partir deles.
 
 ## Animações (autorais)
 
-`tools/titanovenator_anim.py` escreve `animations/titanovenator.animation.json`, **versionado**:
+`tools/titanovenator_anim.py` escreve `src/main/resources/assets/iceagesurvival/animations/entity/titanovenator.animation.json`, **versionado e dentro do jar**:
 nenhum quadro vem do Revival; o arquivo só nomeia os ossos do rig e soma ângulos ao repouso.
 Prefixo `animation.titanovenator.`; o gerador confere os nomes dos ossos contra o geo local.
 
