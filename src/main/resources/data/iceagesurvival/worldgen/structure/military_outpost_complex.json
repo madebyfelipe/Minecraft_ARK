@@ -4,5 +4,5 @@
   "spawn_overrides": {},
   "step": "surface_structures",
   "terrain_adaptation": "beard_box",
-  "template": "iceagesurvival:military_outpost"
+  "template": "iceagesurvival:military_outpost_complex"
 }

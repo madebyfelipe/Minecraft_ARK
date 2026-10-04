@@ -21,6 +21,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.PacketFlow;
@@ -130,12 +131,12 @@ public class OutpostTests {
     }
 
     @GameTest(template = EMPTY)
-    public static void outpostTemplateHasTheTowerTerminalChestWallAndGate(GameTestHelper helper) {
+    public static void towerTemplateHasTheTerminalChestWallAndGate(GameTestHelper helper) {
         ServerLevel level = helper.getLevel();
-        StructureTemplate template = level.getStructureManager().get(OutpostPiece.TEMPLATE).orElse(null);
-        helper.assertTrue(template != null, "falta o template do posto: " + OutpostPiece.TEMPLATE);
-        helper.assertTrue(template.getSize().getX() == OutpostPiece.SIZE && template.getSize().getZ() == OutpostPiece.SIZE,
-                "o posto devia ter " + OutpostPiece.SIZE + " de lado: " + template.getSize());
+        StructureTemplate template = level.getStructureManager().get(OutpostPiece.TOWER).orElse(null);
+        helper.assertTrue(template != null, "falta o template do posto: " + OutpostPiece.TOWER);
+        helper.assertTrue(template.getSize().getX() == OutpostPiece.TOWER_SIZE && template.getSize().getZ() == OutpostPiece.TOWER_SIZE,
+                "o posto devia ter " + OutpostPiece.TOWER_SIZE + " de lado: " + template.getSize());
         StructurePlaceSettings plain = new StructurePlaceSettings();
         List<StructureTemplate.StructureBlockInfo> terminals = template.filterBlocks(BlockPos.ZERO, plain,
                 Outposts.MILITARY_TERMINAL.get());
@@ -153,34 +154,72 @@ public class OutpostTests {
         for (StructureTemplate.StructureBlockInfo wall : walls) {
             int x = wall.pos().getX();
             int z = wall.pos().getZ();
-            int last = OutpostPiece.SIZE - 1;
+            int last = OutpostPiece.TOWER_SIZE - 1;
             helper.assertTrue(x == 0 || z == 0 || x == last || z == last, "muro fora do perímetro em " + wall.pos());
         }
         helper.succeed();
     }
 
     @GameTest(template = EMPTY)
-    public static void outpostTerminalFacesTheGateInEveryRotation(GameTestHelper helper) {
+    public static void towerTerminalFacesTheGateInEveryRotation(GameTestHelper helper) {
         ServerLevel level = helper.getLevel();
         StructureTemplateManager templates = level.getStructureManager();
         BlockPos origin = helper.absolutePos(BlockPos.ZERO);
         for (Rotation rotation : Rotation.values()) {
-            OutpostPiece piece = new OutpostPiece(templates, origin, rotation);
-            StructureTemplate template = templates.getOrCreate(OutpostPiece.TEMPLATE);
+            OutpostPiece piece = new OutpostPiece(templates, OutpostPiece.TOWER, origin, rotation);
+            StructureTemplate template = templates.getOrCreate(OutpostPiece.TOWER);
             StructurePlaceSettings settings = new StructurePlaceSettings().setRotation(rotation)
-                    .setRotationPivot(new BlockPos(OutpostPiece.SIZE / 2, 0, OutpostPiece.SIZE / 2));
+                    .setRotationPivot(new BlockPos(OutpostPiece.TOWER_SIZE / 2, 0, OutpostPiece.TOWER_SIZE / 2));
             StructureTemplate.StructureBlockInfo terminal = template.filterBlocks(origin, settings,
                     Outposts.MILITARY_TERMINAL.get()).get(0);
-            helper.assertTrue(terminal.pos().equals(piece.terminalPos()),
-                    rotation + ": o terminal está em " + terminal.pos() + ", a peça diz " + piece.terminalPos());
+            BlockPos expected = piece.worldPos(new BlockPos(9, 1, 10));
+            helper.assertTrue(terminal.pos().equals(expected),
+                    rotation + ": o terminal está em " + terminal.pos() + ", a peça diz " + expected);
             Direction facing = terminal.state().getValue(HorizontalDirectionalBlock.FACING);
-            BlockPos gate = piece.gatePos();
+            BlockPos gate = piece.worldPos(new BlockPos(7, 1, 0));
             int along = (gate.getX() - terminal.pos().getX()) * facing.getStepX()
                     + (gate.getZ() - terminal.pos().getZ()) * facing.getStepZ();
             helper.assertTrue(along > 0, rotation + ": a tela do terminal aponta para " + facing
                     + ", de costas para o portão em " + gate);
             helper.assertTrue(piece.getBoundingBox().isInside(gate) && piece.getBoundingBox().isInside(terminal.pos()),
                     rotation + ": terminal ou portão fora da caixa da peça " + piece.getBoundingBox());
+        }
+        helper.succeed();
+    }
+
+    @GameTest(template = EMPTY)
+    public static void complexTemplateHasATerminalLootChestsAndOnlyOurBlocks(GameTestHelper helper) {
+        StructureTemplate template = helper.getLevel().getStructureManager().get(OutpostPiece.COMPLEX).orElse(null);
+        helper.assertTrue(template != null, "falta o template do complexo: " + OutpostPiece.COMPLEX);
+        StructurePlaceSettings plain = new StructurePlaceSettings();
+        int terminals = template.filterBlocks(BlockPos.ZERO, plain, Outposts.MILITARY_TERMINAL.get()).size();
+        helper.assertTrue(terminals == 1, "o complexo devia ter 1 terminal, tem " + terminals);
+        List<StructureTemplate.StructureBlockInfo> chests = template.filterBlocks(BlockPos.ZERO, plain, Blocks.CHEST);
+        helper.assertFalse(chests.isEmpty(), "o complexo não tem baú");
+        for (StructureTemplate.StructureBlockInfo chest : chests) {
+            helper.assertTrue(chest.nbt() != null && LOOT.toString().equals(chest.nbt().getString("LootTable")),
+                    "baú do complexo sem o saque dos postos em " + chest.pos() + ": " + chest.nbt());
+        }
+        CompoundTag saved = template.save(new CompoundTag());
+        for (Tag entry : saved.getList("palette", Tag.TAG_COMPOUND)) {
+            String name = ((CompoundTag) entry).getString("Name");
+            helper.assertTrue(name.startsWith("minecraft:") || name.startsWith(IceAgeSurvival.MODID + ":"),
+                    "bloco de outro mod no complexo: " + name);
+        }
+        String text = saved.toString();
+        helper.assertFalse(text.contains("UNSC") || text.contains("Hive") || text.contains("lootr"),
+                "sobrou texto ou dado da build original no complexo");
+        helper.succeed();
+    }
+
+    @GameTest(template = EMPTY)
+    public static void bothOutpostVariantsAreInTheWorldgenSet(GameTestHelper helper) {
+        StructureSet set = helper.getLevel().registryAccess().registryOrThrow(Registries.STRUCTURE_SET)
+                .get(IceAgeSurvival.id("military_outposts"));
+        helper.assertTrue(set != null, "falta o structure_set military_outposts");
+        for (var key : List.of(Outposts.OUTPOST_STRUCTURE, Outposts.OUTPOST_COMPLEX_STRUCTURE)) {
+            helper.assertTrue(set.structures().stream().anyMatch(entry -> entry.structure().is(key)),
+                    "o conjunto não espalha " + key.location());
         }
         helper.succeed();
     }

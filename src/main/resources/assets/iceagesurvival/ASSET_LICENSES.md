@@ -73,4 +73,6 @@ O **Terminal Militar** (`textures/block/military_terminal_*.png`, blockstate e m
 `tools/gen_military_terminal.py`. O template do **posto militar** (`data/iceagesurvival/structures/military_outpost.nbt`)
 é gerado por `tools/gen_military_outpost.py` a partir da torre de vigia passada pelo Felipe no BuildPaste
 (`/paste 2erEqlek38JmdkBn5xLG`, dados em `tools/outpost/torre_buildpaste.json`), só com blocos do vanilla e do mod;
-o mod BuildPaste não é dependência nem vai no jar.
+o mod BuildPaste não é dependência nem vai no jar. A variante `military_outpost_complex.nbt` vem do mesmo jeito do complexo passado
+pelo Felipe (`/paste gIS6gHHBNG7BFojwO3Yo`, `tools/outpost/complexo_buildpaste.json`); os blocos de outros mods e os
+textos das placas foram trocados pelo gerador. A autoria das builds no BuildPaste é a informada pelo Felipe.

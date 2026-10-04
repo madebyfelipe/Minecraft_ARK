@@ -50,9 +50,11 @@ public final class Outposts {
     public static final RegistryObject<StructurePieceType> OUTPOST_PIECE = PIECE_TYPES.register("military_outpost",
             () -> (StructurePieceType.StructureTemplateType) OutpostPiece::new);
 
-    /** A estrutura em JSON ({@code data/iceagesurvival/worldgen/structure/military_outpost.json}). */
+    /** As variantes em JSON ({@code data/iceagesurvival/worldgen/structure/}): a torre e o complexo. */
     public static final ResourceKey<Structure> OUTPOST_STRUCTURE =
             ResourceKey.create(Registries.STRUCTURE, IceAgeSurvival.id("military_outpost"));
+    public static final ResourceKey<Structure> OUTPOST_COMPLEX_STRUCTURE =
+            ResourceKey.create(Registries.STRUCTURE, IceAgeSurvival.id("military_outpost_complex"));
 
     private Outposts() {
     }
