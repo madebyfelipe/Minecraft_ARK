@@ -1,0 +1,78 @@
+# Processo — Ice Age Survival
+
+## REGRA Nº 1 — prioridade máxima, acima de todas as outras
+
+**Caso algo não fique claro, não hesite em perguntar e questionar o Felipe. Não faça as coisas de
+maneira ambígua.** Diante de um pedido com mais de uma leitura possível, de uma decisão de design
+que ele não tomou ou de um número que ele não deu, pergunte antes de implementar — não escolha uma
+interpretação em silêncio. Isso vale também para "rodar sozinho" (roadmap autônomo): a autonomia é
+para executar o que está claro, não para decidir o que está ambíguo.
+
+Mod Forge 1.20.1 de criaturas pré-históricas (domesticação, torpor, frio, montaria). O
+projeto e a documentação são em **português**; o roadmap e as decisões técnicas ficam em
+[CLOUD.md](../CLOUD.md). Leia sua entrada curta antes de cada etapa; consulte somente as seções pertinentes, via `tools/project_context.py`.
+
+## Responsáveis e modelos (decisão do Felipe, 2026-10-04)
+
+Codex coordena e integra, com o modelo configurado no Codex. Claude de trabalho
+(`redektm.co@gmail.com`) executa, com `claude-opus-5-5`. Não usar a conta pessoal
+neste teste. Subagentes usam o modelo da ferramenta que os executa.
+
+## Trabalhar com subagentes, cada um com uma função
+
+Etapas grandes devem ser divididas: o agente principal **coordena e integra**, e subagentes
+fazem partes independentes em paralelo, cada um com **uma função só**. Isso mantém o contexto
+do principal limpo e acelera etapas com muitos arquivos.
+
+Funções típicas (ajuste ao que a etapa pede):
+
+- **Assets** — `tools/gen_<especie>.py`, geometria, textura e animações autorais.
+- **Dados** — JSON de espécie, biome modifier, tag de biomas, traduções.
+- **Núcleo/Java** — registros, código novo em `core/` e `entity/`, só quando a receita não basta.
+- **Testes** — JUnit de lógica pura e GameTest; escreve os testes a partir da especificação,
+  sem copiar a implementação.
+- **Revisão** — lê o diff pronto e procura bugs, sem editar (`/code-review`).
+- **Pesquisa** — varre código ou mods de referência e devolve só as conclusões.
+
+Regras:
+
+1. Dê a cada subagente um prompt **autocontido**: objetivo, arquivos que ele pode tocar, o que
+   não pode, e como provar que terminou. Ele não herda a conversa.
+2. **Sem sobreposição de arquivos** entre subagentes em paralelo. Se duas funções precisam do
+   mesmo arquivo (ex.: `ModEntities.java`, `lang/*.json`), só uma delas edita.
+3. Só delegue o que é independente. Tarefa pequena (uma espécie simples, um ajuste de config)
+   é mais rápida direto, sem subagente.
+4. O principal **confere o resultado**: roda `./gradlew build` e `./gradlew runGameTestServer`
+   depois de integrar; o relatório do subagente não basta.
+5. Decisões de arquitetura (formato de dados, autoridade de rede) ficam com o principal.
+
+## Fluxo de trabalho
+
+- **Não criar worktree** a menos que o Felipe peça. Trabalhar no próprio checkout, numa branch
+  nova a partir da `main` (`git switch -c <nome>`). Se o ambiente da sessão obrigar a isolar
+  (job em segundo plano, que não pode escrever no checkout compartilhado), dizer no relatório
+  em que worktree e em que branch o trabalho ficou.
+
+  **Por quê:** worktrees paralelos espalham o trabalho em branches que não se enxergam. Duas
+  sessões acabam com metades que não conversam, o `tools/deploy-prism.sh` instala um jar com
+  só uma delas, e a integração vira um merge a mais. Uma branch por vez no mesmo checkout
+  mantém visível o que já existe.
+- Commit na branch e push. **Merge na `main` é permitido** — não ficar esperando PR nem pedir
+  autorização a cada vez. A única condição é o verde: `./gradlew build` e
+  `./gradlew runGameTestServer` passando antes de integrar. Preferir fast-forward quando der.
+- Continua proibido **reescrever histórico já enviado**: nada de force-push, rebase de commit
+  que já está no origin, ou `git push --delete` de branch alheia. Isso não é burocracia de
+  integração, é o que outra sessão perderia trabalho com.
+- Antes de começar, `git fetch` e olhar as branches remotas: outra sessão pode já ter feito
+  parte do trabalho. Não afirmar que algo não existe sem ter buscado o remoto.
+- Verificar antes de dizer que terminou: `./gradlew build` (JUnit) e
+  `./gradlew runGameTestServer` (servidor real). `runClient` e multiplayer são manuais.
+- Testar no jogo: `tools/deploy-prism.sh` copia o jar para a instância `IceAgeSurvival` do
+  Prism (usa cópia, não atalho). A instância de teste precisa ter o Fossils and Archaeology:
+  Revival instalado separadamente; os modelos, texturas, animações e sons dele são carregados
+  em runtime e nunca copiados para este projeto ou para o jar.
+- **Assets/licença:** não extrair nem versionar assets do Revival. O jar do Ice Age Survival não
+  inclui a arte nem o binário do Revival; mantenha a dependência externa documentada em
+  `src/main/resources/assets/iceagesurvival/ASSET_LICENSES.md`.
+- Ao fechar uma etapa ou decisão estrutural: atualizar o roadmap (§23) e o registro de
+  mudanças (§24) do CLOUD.md.

@@ -1,0 +1,92 @@
+[
+  {
+    "id": "MC-01",
+    "title": "Definir o novo endgame",
+    "status": "decisao",
+    "mode": "manual",
+    "context": "D51 substitui arena e caverna por base militar, postos escaneáveis e apex secreto. Design e números em aberto. Não implementar por inferência.",
+    "acceptance": "Felipe registra as decisões de escopo, depois Codex divide a execução.",
+    "refs": [
+      "docs/design/section-20.md",
+      "docs/design/section-04.md#d51"
+    ],
+    "files": []
+  },
+  {
+    "id": "MC-02",
+    "title": "Conferir fauna e ecologia em jogo",
+    "status": "revisao",
+    "mode": "manual",
+    "context": "Etapa 5 implementada, validação manual pendente.",
+    "acceptance": "Felipe registra comportamento observado e problemas reproduzíveis.",
+    "refs": [
+      "docs/design/section-23.md"
+    ],
+    "files": []
+  },
+  {
+    "id": "MC-03",
+    "title": "Conferir montaria e voo em jogo",
+    "status": "revisao",
+    "mode": "manual",
+    "context": "Etapa 7: conferir controles e hitboxes. Multiplayer exige dois clientes reais.",
+    "acceptance": "Registro manual de controles, colisões e multiplayer, sem substituir por teste automático.",
+    "refs": [
+      "docs/design/section-21.md",
+      "docs/design/section-23.md"
+    ],
+    "files": []
+  },
+  {
+    "id": "MC-04",
+    "title": "Conferir frio e worldgen na primeira hora",
+    "status": "revisao",
+    "mode": "manual",
+    "context": "Etapas 6 e 9 têm testes automáticos; exploração e balanceamento em jogo pendentes.",
+    "acceptance": "Felipe registra experiência em mundo novo antes de decidir valores.",
+    "refs": [
+      "docs/design/section-15.md",
+      "docs/design/section-23.md"
+    ],
+    "files": []
+  },
+  {
+    "id": "MC-05",
+    "title": "Conferir reprodução e genética em jogo",
+    "status": "revisao",
+    "mode": "manual",
+    "context": "Etapa 8 coberta em testes automáticos, mas ainda requer validação manual.",
+    "acceptance": "Felipe registra ciclo de reprodução e resultados em jogo.",
+    "refs": [
+      "docs/design/section-16.md",
+      "docs/design/section-17.md"
+    ],
+    "files": []
+  },
+  {
+    "id": "MC-06",
+    "title": "Preparar medição de desempenho da fauna",
+    "status": "pesquisa",
+    "mode": "read",
+    "context": "O risco de fauna densa ainda não foi medido (§25). Falta definir cenário e critério junto ao Felipe; sem otimizações especulativas.",
+    "acceptance": "Proposta curta de cenário e medidas para decisão de Felipe.",
+    "refs": [
+      "docs/design/section-22.md",
+      "docs/design/section-25.md"
+    ],
+    "files": []
+  },
+  {
+    "id": "MC-07",
+    "title": "Revisão visual do Titanovenator na branch de estudo",
+    "status": "revisao",
+    "mode": "manual",
+    "context": "Estudo preservado na branch codex/titanovenator-modelo, separado da main. Não trocar de branch enquanto outra tarefa estiver ativa. Último registro: textura carvão/ocre com olhos verdes, sem integração ao jogo.",
+    "acceptance": "Felipe aprova ou pede ajustes no estudo; integração é tarefa separada.",
+    "refs": [
+      "branch:codex/titanovenator-modelo",
+      "art/titanovenator/README.md (somente na branch de estudo)"
+    ],
+    "files": []
+  }
+]

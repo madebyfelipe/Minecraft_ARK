@@ -40,3 +40,9 @@ repo/
 !**/src/**/repo/
 __pycache__/
 *.pyc
+
+# Estado entre sessões no mesmo checkout; nunca incluir credenciais ou logs no Git.
+/.coordination/
+
+# Preservar estudos locais derivados ao alternar a branch do Titanovenator.
+/art/titanovenator/local/
