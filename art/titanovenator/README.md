@@ -9,6 +9,7 @@ Fossils and Archeology: Revival instalado localmente, por pedido explícito do F
 ```bash
 python3 tools/study_titanovenator.py
 python3 tools/apply_titanovenator_texture.py art/titanovenator/local/passo-3-atlas.png
+python3 tools/restore_titanovenator_eyes.py  # requer Pillow
 python3 tools/titanovenator_preview.py
 ```
 
@@ -37,7 +38,9 @@ geradas dos mesmos arquivos pelo comando `python3 tools/render_titanovenator.py`
 ## Passo 3 — textura conforme referência
 
 A fotografia enviada pelo Felipe substitui a paleta anterior: dorso carvão, ventre
-ocre dourado e manchas escuras na transição. Olhos âmbar, boca vinho e garras claras.
+ocre dourado e manchas escuras na transição. Olhos verdes originais restaurados a pedido do Felipe, boca vinho e garras claras.
+Os pixels da íris e da pupila, com posição e tamanho do passo 2, são copiados
+da textura anterior por `tools/restore_titanovenator_eyes.py`.
 A geometria do passo 2 permanece idêntica; apenas os UVs foram remapeados para regiões
 opacas do atlas produzido pelo ImageGen integrado. O atlas gerado não preservou as
 ilhas originais com precisão, por isso foi necessário esse remapeamento.
@@ -124,3 +127,9 @@ Não usar `git add -f` nessa pasta. A política de recursos externos em runtime 
   `stegosaurusDrivesOffSatedVelociraptor` (afastamento insuficiente). Nenhum arquivo
   de gameplay foi alterado. Sem merge na main ou implantação no Prism.
 - Fetch remoto indisponível pela configuração ausente do helper de autenticação.
+
+## Ajuste dos olhos
+
+Olhos originais restaurados após a revisão do Felipe. Conferência visual e comparação
+confirmam geometria idêntica e pixels do atlas preservados fora dos recortes reservados
+à cabeça. Na verificação deste ajuste, os 388 GameTests passaram.

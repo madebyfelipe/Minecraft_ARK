@@ -742,6 +742,9 @@ textura em revisão, cerdas discretas e animações pendentes.
 
 Ver a tabela em [4](#4-decisões). Registro de mudanças estruturais:
 
+- 2026-10-03 — Titanovenator: a pedido do Felipe, restaurados os olhos verdes originais
+  (pixels da íris/pupila e posição do passo 2), mantendo a pintura carvão/ocre do corpo.
+
 - 2026-10-03 — Titanovenator, passo 3: pintura carvão/ocre dourado conforme fotografia
   enviada pelo Felipe. Atlas via ImageGen integrado, UVs remapeados sem mudanças geométricas;
   preservada comparação com a cabeça do passo 2. Derivados somente locais, sem inclusão no jar.
