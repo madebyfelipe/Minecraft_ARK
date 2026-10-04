@@ -102,6 +102,8 @@ minecraft {
 
         gameTestServer {
             property 'forge.enabledGameTestNamespaces', mod_id
+            // ./gradlew runGameTestServer -Ptests=Base,Outpost roda só essas classes (gametest/GameTestFilter).
+            property 'iceagesurvival.gametests', project.findProperty('tests') ?: ''
         }
 
         data {

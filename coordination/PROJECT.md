@@ -29,5 +29,7 @@ Código/configuração atuais prevalecem sobre exemplos técnicos históricos di
 ## Entrega
 
 Build: `./gradlew build`; servidor real: `./gradlew runGameTestServer`.
+Para iterar: `./gradlew runGameTestServer -Ptests=Base,Outpost` (só essas classes);
+a suíte inteira continua obrigatória antes de integrar.
 Cliente e multiplayer são manuais. Assets externos não entram no jar nem no Git.
 Não criar worktree, não force-push e não integrar sem os dois checks verdes.
