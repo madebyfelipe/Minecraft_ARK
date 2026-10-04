@@ -53,6 +53,11 @@ public class HuntTests {
                 mob -> true)) {
             stray.discard();
         }
+        // Carne largada por testes vizinhos (o saque de um boss, por exemplo) atrai os carniceiros daqui.
+        for (var item : helper.getLevel().getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class,
+                new net.minecraft.world.phys.AABB(center, center).inflate(STRAY_RADIUS, 64, STRAY_RADIUS))) {
+            item.discard();
+        }
     }
 
     private static LandCreature hungry(GameTestHelper helper, EntityType<LandCreature> type, int x, int z) {
