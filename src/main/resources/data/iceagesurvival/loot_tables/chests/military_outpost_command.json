@@ -53,12 +53,6 @@
     },
     {
       "rolls": 1,
-      "conditions": [
-        {
-          "condition": "minecraft:random_chance",
-          "chance": 0.3
-        }
-      ],
       "entries": [
         {
           "type": "minecraft:item",
@@ -121,5 +115,5 @@
       ]
     }
   ],
-  "random_sequence": "iceagesurvival:chests/military_outpost"
+  "random_sequence": "iceagesurvival:chests/military_outpost_command"
 }

@@ -197,8 +197,10 @@ public class OutpostTests {
         helper.assertTrue(terminals == 1, "o complexo devia ter 1 terminal, tem " + terminals);
         List<StructureTemplate.StructureBlockInfo> chests = template.filterBlocks(BlockPos.ZERO, plain, Blocks.CHEST);
         helper.assertFalse(chests.isEmpty(), "o complexo não tem baú");
+        // O baú do térreo, junto do terminal, é o de comando: o saque dos postos com o Receptor de Sinal garantido.
         for (StructureTemplate.StructureBlockInfo chest : chests) {
-            helper.assertTrue(chest.nbt() != null && LOOT.toString().equals(chest.nbt().getString("LootTable")),
+            String table = chest.nbt() == null ? "" : chest.nbt().getString("LootTable");
+            helper.assertTrue(LOOT.toString().equals(table) || "iceagesurvival:chests/military_outpost_command".equals(table),
                     "baú do complexo sem o saque dos postos em " + chest.pos() + ": " + chest.nbt());
         }
         CompoundTag saved = template.save(new CompoundTag());

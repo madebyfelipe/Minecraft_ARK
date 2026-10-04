@@ -32,6 +32,10 @@ public class IceAgeSurvivalClient {
         modEventBus.addListener(CommandInput::registerKeys);
         MinecraftForge.EVENT_BUS.addListener(CommandInput::onClientTick);
         MinecraftForge.EVENT_BUS.addListener(CommandInput::onAttackClick);
+        modEventBus.addListener(AnalyzerSlotClient::registerKeys);
+        MinecraftForge.EVENT_BUS.addListener(AnalyzerSlotClient::onClientTick);
+        MinecraftForge.EVENT_BUS.addListener(AnalyzerSlotClient::onScreenRender);
+        MinecraftForge.EVENT_BUS.addListener(AnalyzerSlotClient::onMouseClick);
         MinecraftForge.EVENT_BUS.addListener(FrozenHearts::onGuiOverlay);
         CreatureStatusPayload.setClientHandler(CreatureStatusScreen::receive);
         CreatureLocationsPayload.setClientHandler(CreatureTracker::receive);
@@ -45,6 +49,9 @@ public class IceAgeSurvivalClient {
         dev.madebyfelipe.iceagesurvival.network.TerminalReadPayload.setClientHandler(
                 dev.madebyfelipe.iceagesurvival.client.dex.DinoFileClient::receiveTerminal);
         MinecraftForge.EVENT_BUS.addListener(dev.madebyfelipe.iceagesurvival.client.dex.DinoFileClient::onLoggingOut);
+        dev.madebyfelipe.iceagesurvival.network.BaseSignalPayload.setClientHandler(BaseSignalHud::receive);
+        MinecraftForge.EVENT_BUS.addListener(BaseSignalHud::onLoggingOut);
+        dev.madebyfelipe.iceagesurvival.item.SignalReceiverItem.setSignalCheck(BaseSignalHud::hasSignal);
         dev.madebyfelipe.iceagesurvival.item.AnalyzerItem.setTerminalOpener(
                 dev.madebyfelipe.iceagesurvival.client.dex.AnalyzerScreen::open);
         dev.madebyfelipe.iceagesurvival.item.AnalyzerItem.setScanningCheck(
@@ -101,6 +108,7 @@ public class IceAgeSurvivalClient {
         event.registerAboveAll("creature_hud", CreatureHud::render);
         event.registerAbove(VanillaGuiOverlay.HOTBAR.id(), "thermometer", Thermometer::render);
         event.registerAbove(VanillaGuiOverlay.HOTBAR.id(), "creature_tracker", CreatureTracker::render);
+        event.registerAbove(VanillaGuiOverlay.HOTBAR.id(), "base_signal", BaseSignalHud::render);
         event.registerAbove(VanillaGuiOverlay.CROSSHAIR.id(), "analyzer_scan",
                 dev.madebyfelipe.iceagesurvival.client.dex.ScanOverlay::render);
         event.registerAbove(VanillaGuiOverlay.HOTBAR.id(), "flight_stamina", CreatureHud::renderFlightStamina);

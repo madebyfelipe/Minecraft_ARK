@@ -325,7 +325,7 @@
   "item.iceagesurvival.dung": "Dung",
   "effect.iceagesurvival.broken_leg": "Broken Leg",
   "block.iceagesurvival.military_terminal": "Military Terminal",
-  "block.iceagesurvival.military_terminal.hint": "Aim the Analyzer at the terminal and hold to read it",
+  "block.iceagesurvival.military_terminal.hint": "Hold the Analyzer key, aim at the terminal and hold click to read",
   "iceagesurvival.analyzer.tab.records": "Records",
   "iceagesurvival.analyzer.recovered": "RECOVERED %s/%s",
   "iceagesurvival.analyzer.new_record": "NEW RECORD",
@@ -338,5 +338,12 @@
   "block.iceagesurvival.containment_core.released": "The stasis field is down. It is awake.",
   "block.iceagesurvival.containment_core.collapsing": "The stasis field is collapsing. Get out of the chamber!",
   "block.iceagesurvival.containment_console": "Containment Console",
-  "block.iceagesurvival.containment_console.no_core": "No signal: no containment core in range."
+  "block.iceagesurvival.containment_console.no_core": "No signal: no containment core in range.",
+  "item.iceagesurvival.signal_receiver": "Signal Receiver",
+  "item.iceagesurvival.signal_receiver.tooltip": "Held in hand, picks up the military base's emergency signal and points to it.",
+  "iceagesurvival.signal_receiver.title": "Base signal",
+  "iceagesurvival.signal_receiver.none": "No signal",
+  "key.iceagesurvival.analyzer": "Use the Analyzer (hold)",
+  "iceagesurvival.analyzer.slot.hold": "Hold %s to use",
+  "iceagesurvival.analyzer.slot.open": "Click: opens the field file"
 }

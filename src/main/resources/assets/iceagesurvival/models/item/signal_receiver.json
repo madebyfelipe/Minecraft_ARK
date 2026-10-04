@@ -1,0 +1,106 @@
+{
+  "loader": "forge:separate_transforms",
+  "gui_light": "front",
+  "textures": {
+    "particle": "iceagesurvival:item/signal_receiver"
+  },
+  "base": {
+    "parent": "builtin/entity",
+    "display": {
+      "thirdperson_righthand": {
+        "rotation": [
+          90.0,
+          180.0,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          1.5,
+          -2.0
+        ],
+        "scale": [
+          0.42,
+          0.42,
+          0.42
+        ]
+      },
+      "firstperson_righthand": {
+        "rotation": [
+          -24.0,
+          -20.0,
+          -8.0
+        ],
+        "translation": [
+          -3.0,
+          2.5,
+          -1.0
+        ],
+        "scale": [
+          0.5,
+          0.5,
+          0.5
+        ]
+      },
+      "ground": {
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          -5.0,
+          0.05
+        ],
+        "scale": [
+          0.4,
+          0.4,
+          0.4
+        ]
+      },
+      "fixed": {
+        "rotation": [
+          0.0,
+          180.0,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          -9.1,
+          -0.05
+        ],
+        "scale": [
+          0.85,
+          0.85,
+          0.85
+        ]
+      },
+      "head": {
+        "rotation": [
+          0.0,
+          180.0,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          5.45,
+          -0.05
+        ],
+        "scale": [
+          0.8,
+          0.8,
+          0.8
+        ]
+      }
+    }
+  },
+  "perspectives": {
+    "gui": {
+      "loader": "forge:item_layers",
+      "textures": {
+        "layer0": "iceagesurvival:item/signal_receiver",
+        "particle": "iceagesurvival:item/signal_receiver"
+      }
+    }
+  }
+}

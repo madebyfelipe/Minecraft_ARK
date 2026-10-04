@@ -2,6 +2,10 @@
 
 Ver a tabela em [4](section-04.md). Registro de mudanças estruturais:
 
+- 2026-10-04 — Receptor de Sinal (D55): localizador da base militar achado nos postos (30% por baú; garantido no baú de
+  comando do complexo), radar do canto até o centro do hangar e modelo 3D autoral de rádio de campo. Filtro de
+  GameTests por classe (`-Ptests=`) para iterar sem a suíte inteira.
+
 - 2026-10-04 — Processo compartilhado para o teste do Minecraft, a pedido do Felipe:
   Codex coordena/integra (modelo configurado), Claude trabalho executa (`claude-opus-5-5`);
   estado local em SQLite com reservas atômicas, sem roubo por expiração; painel local
@@ -229,4 +233,5 @@ Ver a tabela em [4](section-04.md). Registro de mudanças estruturais:
   dano de queda e cavaleiro sem sufocar na copa; texto do Analisador reescrito com a lore (fonte em `tools/wiki_lore/`,
   não mais `docs/*.html`); Analisador com modelo 3D animado do GeckoLib.
 - 2026-10-03 — Nova lore do portal e fim do boss (D51), a pedido do Felipe: antimatéria no permafrost, base militar, apex secreto ainda sem nome (texto ambíguo de propósito), postos com computadores que o Analisador escaneia (só decidido). Giganotosaurus vira fauna comum (vida 180, ataque 22, mordida que sangra, `hunt_special: bleed`); caverna, arena, altar, rastreador, cabeça-troféu do boss, `CreatureAction.INJURED` e `leg_break_immune` removidos; `BossPhase` e seus testes saíram, o empilhamento do sangramento foi para `HuntSpecials`. Diário, ecologia, sobrevivência e fichas do manual reescritos (`tools/wiki_lore/`); Etapa 10 reaberta.
-- 2026-10-04 — D55, a pedido do Felipe: o Titanovenator ganha couro blindado (−50 por golpe, passa ¼, regenera 4/s, sem pausa de invulnerabilidade) calibrado para exigir ~15 mutações de ataque; o campo cai pelo console (terminal com login e `campo desligar`; senha no caderno da ala médica), emissores indestrutíveis e cilindro de êxtase desenhado no cliente; holograma Rex × Titanovenator no dossiê; recompensa nova (soro e projetor de êxtase) e a espada serrilhada removida; 15 notas de patrulha novas nos postos.
+- 2026-10-04 — D56 (MC-11): o Analisador vira permanente, num slot próprio no inventário, e vem para a mão segurando a tecla do analisador (padrão R); nunca cai nem sai do inventário. Mais lore nas NOTAS: 4 seções no Diário e 5 notas novas (doutor Otto Brandt, a separação, a estrada cortada), com Dino Crisis como referência. A lore foi para a `main` antes do código, a pedido do Felipe.
+- 2026-10-04 — D57, a pedido do Felipe: o Titanovenator ganha couro blindado (−50 por golpe, passa ¼, regenera 4/s, sem pausa de invulnerabilidade) calibrado para exigir ~15 mutações de ataque; o campo cai pelo console (terminal com login e `campo desligar`; senha no caderno da ala médica), emissores indestrutíveis e cilindro de êxtase desenhado no cliente; holograma Rex × Titanovenator no dossiê; recompensa nova (soro e projetor de êxtase) e a espada serrilhada removida; 15 notas de patrulha novas nos postos.

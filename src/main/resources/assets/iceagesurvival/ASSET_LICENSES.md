@@ -72,6 +72,8 @@ SOFTWARE.
 
 `textures/item/analyzer.png` (Analisador, o ícone da GUI) é autoral, desenhada pixel a pixel por `tools/gen_analyzer.py`. O modelo 3D animado do Analisador (`geo/item/analyzer.geo.json`, `animations/item/analyzer.animation.json`, `textures/item/analyzer_3d.png`, `textures/item/analyzer_3d_glowmask.png` e `models/item/analyzer.json`) também é autoral, gerado pelo mesmo script; nada vem de outro mod ou jogo.
 
+`textures/item/signal_receiver.png` (Receptor de Sinal, o ícone da GUI) e o modelo 3D animado dele (`geo/item/signal_receiver.geo.json`, `animations/item/signal_receiver.animation.json`, `textures/item/signal_receiver_3d.png`, `textures/item/signal_receiver_3d_glowmask.png` e `models/item/signal_receiver.json`) são autorais, desenhados por `tools/gen_signal_receiver.py`; nada vem de outro mod ou jogo.
+
 O **Anquilossauro** usa o modelo, a textura, as animações e os sons do Revival (`fossil:ankylosaurus`),
 carregados em runtime; nenhum desses arquivos é copiado para este repositório ou para o jar. As
 caixas de acerto em `data/iceagesurvival/hitboxes/ankylosaurus.json` são do projeto, medidas a

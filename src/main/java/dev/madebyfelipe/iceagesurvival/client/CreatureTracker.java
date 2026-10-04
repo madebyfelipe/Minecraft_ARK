@@ -120,7 +120,8 @@ public final class CreatureTracker {
     /** O radar no canto. */
     public static void render(ForgeGui gui, GuiGraphics graphics, float partialTick, int screenWidth, int screenHeight) {
         CreatureLocator.Entry entry = tracked == null ? null : trackedEntry();
-        if (entry == null || !RadarHud.visible()) {
+        // Com o Receptor de Sinal na mão, o radar do canto é dele.
+        if (entry == null || BaseSignalHud.active() || !RadarHud.visible()) {
             return;
         }
         RadarHud.Reading reading = read(entry);
