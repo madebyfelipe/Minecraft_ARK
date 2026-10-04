@@ -29,7 +29,7 @@ public record StatusRequestPayload(int creatureId) {
                     || !(player.level().getEntity(message.creatureId()) instanceof PrehistoricCreature creature)) {
                 return;
             }
-            if (!creature.isOwner(player)
+            if (!creature.canCommand(player)
                     || creature.distanceToSqr(player)
                     > CreatureCommands.COMMAND_RANGE * CreatureCommands.COMMAND_RANGE) {
                 player.displayClientMessage(Component.translatable("iceagesurvival.status.not_yours"), true);

@@ -36,12 +36,12 @@ public record LocateRequestPayload(Optional<UUID> highlight) {
             }
             message.highlight().ifPresent(id -> {
                 PrehistoricCreature creature = CreatureLocator.findLoaded(player.server, id);
-                if (creature != null && creature.isOwner(player)) {
+                if (creature != null && creature.canCommand(player)) {
                     creature.addEffect(new MobEffectInstance(MobEffects.GLOWING, HIGHLIGHT_TICKS, 0, false, false));
                 }
             });
             ModPayloads.sendToPlayer(player,
-                    new CreatureLocationsPayload(CreatureLocator.ownedBy(player.server, player.getUUID())));
+                    new CreatureLocationsPayload(CreatureLocator.visibleTo(player.server, player)));
         });
         context.setPacketHandled(true);
     }

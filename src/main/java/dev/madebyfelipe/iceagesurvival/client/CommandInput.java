@@ -108,7 +108,7 @@ public final class CommandInput {
         }
         for (Map.Entry<Whistle, KeyMapping> entry : WHISTLES.entrySet()) {
             while (entry.getValue().consumeClick()) {
-                int aimedId = aimed instanceof PrehistoricCreature creature && creature.isOwner(minecraft.player)
+                int aimedId = aimed instanceof PrehistoricCreature creature && creature.canCommand(minecraft.player)
                         ? creature.getId() : WhistlePayload.NO_TARGET;
                 ModPayloads.sendToServer(new WhistlePayload(entry.getKey(), aimedId));
             }

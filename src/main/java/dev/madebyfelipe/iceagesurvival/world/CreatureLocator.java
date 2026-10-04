@@ -88,20 +88,35 @@ public final class CreatureLocator extends SavedData {
      * gravação.
      */
     public static List<Entry> ownedBy(MinecraftServer server, UUID owner) {
+        return visible(server, owner, null);
+    }
+
+    /**
+     * As criaturas do jogador e as dos donos que estão no mesmo time vanilla que ele agora ({@code /team}). A posse
+     * não muda: a entrada continua com o dono de verdade.
+     */
+    public static List<Entry> visibleTo(MinecraftServer server, net.minecraft.world.entity.player.Player player) {
+        return visible(server, player.getUUID(), player);
+    }
+
+    private static List<Entry> visible(MinecraftServer server, UUID owner,
+                                       @Nullable net.minecraft.world.entity.player.Player teammate) {
         CreatureLocator locator = get(server);
         List<Entry> result = new ArrayList<>();
         if (locator == null) {
             return result;
         }
+        Map<UUID, Boolean> allied = new HashMap<>();
         for (Entry entry : locator.entries.values()) {
-            if (!entry.owner().equals(owner)) {
+            if (!entry.owner().equals(owner) && (teammate == null || !allied.computeIfAbsent(entry.owner(),
+                    id -> dev.madebyfelipe.iceagesurvival.entity.CreatureTeams.sameTeam(server, id, "", teammate)))) {
                 continue;
             }
             ServerLevel level = server.getLevel(entry.dimension());
             if (level != null && level.getEntity(entry.creature()) instanceof PrehistoricCreature live && live.isAlive()) {
                 update(live);
                 entry = locator.entries.getOrDefault(entry.creature(), entry);
-                if (!entry.owner().equals(owner)) {
+                if (!entry.owner().equals(owner) && (teammate == null || !live.canCommand(teammate))) {
                     continue;
                 }
             }

@@ -48,7 +48,7 @@ public final class CreatureHud {
             return;
         }
         Font font = minecraft.font;
-        boolean own = creature.isOwner(minecraft.player);
+        boolean own = creature.canCommand(minecraft.player);
         boolean showTorpor = creature.torporFraction() > 0;
         boolean showTaming = creature.isUnconscious() && !creature.isTame();
 

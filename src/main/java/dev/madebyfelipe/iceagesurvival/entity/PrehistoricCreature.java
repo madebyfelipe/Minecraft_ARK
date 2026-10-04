@@ -168,6 +168,11 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     /** Fração do crescimento (1 = adulto): o cliente desenha o tamanho e a pele de filhote por ela. */
     private static final EntityDataAccessor<Float> DATA_GROWTH =
             SynchedEntityData.defineId(PrehistoricCreature.class, EntityDataSerializers.FLOAT);
+    /** Time vanilla atual do dono ("" sem time), para o cliente saber quem do time comanda. */
+    private static final EntityDataAccessor<String> DATA_OWNER_TEAM =
+            SynchedEntityData.defineId(PrehistoricCreature.class, EntityDataSerializers.STRING);
+    private static final String TAG_OWNER_NAME = "OwnerName";
+    private static final String TAG_LEADER = "Leader";
     private static final String TAG_STRESS = "Stress";
     private static final String TAG_TICKS_SINCE_MEAL = "TicksSinceMeal";
     /** Intervalo da atualização do estresse (volta ao repouso). */
@@ -702,6 +707,7 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         entityData.define(DATA_RESTING, false);
         entityData.define(DATA_ACTION, (byte) CreatureAction.NONE.ordinal());
         entityData.define(DATA_GROWTH, 1.0F);
+        entityData.define(DATA_OWNER_TEAM, "");
     }
 
     /** Gesto em curso; {@link CreatureAction#NONE} quando nenhum. Vale no cliente e no servidor. */
@@ -2335,6 +2341,9 @@ public abstract class PrehistoricCreature extends TamableAnimal {
             if (isResting() && !restsNow()) {
                 setResting(false); // domesticada ou amanheceu a hora dela: o sono não fica preso
             }
+            if (tickCount % 20 == 0) {
+                tickTeamAccess();
+            }
             if (isTame() && habits().sentinelRadius() > 0 && tickCount % 20 == 0) {
                 tickSentinel();
             }
@@ -2644,7 +2653,8 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         if (!left.isEmpty()) {
             spawnAtLocation(left);
         }
-        if (getOwner() instanceof Player owner) {
+        Player owner = getOwnerUUID() == null ? null : level().getPlayerByUUID(getOwnerUUID());
+        if (owner != null) {
             owner.sendSystemMessage(Component.translatable("iceagesurvival.corpse.fallen", getDisplayName(),
                     source.getLocalizedDeathMessage(this)));
         }
@@ -3360,7 +3370,7 @@ public abstract class PrehistoricCreature extends TamableAnimal {
             return false;
         }
         if (isTame()) {
-            return isOwner(player);
+            return canCommand(player);
         }
         return isUnconscious() && (tamerUUID == null || tamerUUID.equals(player.getUUID()));
     }
@@ -3405,6 +3415,71 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     /** Se o jogador é o dono. Compara pelo UUID, então vale mesmo com o dono fora do mundo. */
     public boolean isOwner(Player player) {
         return isTame() && player.getUUID().equals(getOwnerUUID());
+    }
+
+    /** Último nome visto do dono, para achar o time dele com ele fora do servidor. */
+    private String ownerName = "";
+    /** Quem mandou seguir por último (o dono ou alguém do time); nulo segue o dono. */
+    @Nullable
+    private UUID leaderUUID;
+
+    /**
+     * Se o jogador comanda esta criatura: o dono ou alguém do time vanilla atual do dono. Vale para assobios,
+     * montaria, inventário, sela, a tela de status e o localizador. No servidor confere o time na hora; no cliente,
+     * pelo time sincronizado.
+     */
+    public boolean canCommand(Player player) {
+        if (isOwner(player)) {
+            return true;
+        }
+        if (!isTame() || getOwnerUUID() == null) {
+            return false;
+        }
+        if (level().isClientSide) {
+            String team = entityData.get(DATA_OWNER_TEAM);
+            return !team.isEmpty() && player.getTeam() != null && team.equals(player.getTeam().getName());
+        }
+        return level().getServer() != null
+                && CreatureTeams.sameTeam(level().getServer(), getOwnerUUID(), ownerName, player);
+    }
+
+    /** Quem deu a ordem de seguir: a criatura passa a seguir esse jogador. */
+    public void setLeader(Player player) {
+        leaderUUID = isOwner(player) ? null : player.getUUID();
+    }
+
+    /**
+     * Para seguir e defender: quem mandou seguir, se ainda comanda e está no mesmo mundo; senão o dono. O nome e o
+     * dono de verdade não mudam.
+     */
+    @Nullable
+    @Override
+    public LivingEntity getOwner() {
+        if (leaderUUID != null && !level().isClientSide) {
+            Player leader = level().getPlayerByUUID(leaderUUID);
+            if (leader != null && canCommand(leader)) {
+                return leader;
+            }
+        }
+        return super.getOwner();
+    }
+
+    /** Uma vez por segundo: guarda o nome do dono, sincroniza o time dele e tira de cima quem perdeu o acesso. */
+    private void tickTeamAccess() {
+        if (!isTame() || getOwnerUUID() == null || level().getServer() == null) {
+            return;
+        }
+        ownerName = CreatureTeams.playerName(level().getServer(), getOwnerUUID(), ownerName);
+        var team = CreatureTeams.teamOf(level().getServer(), getOwnerUUID(), ownerName);
+        String teamName = team == null ? "" : team.getName();
+        if (!teamName.equals(entityData.get(DATA_OWNER_TEAM))) {
+            entityData.set(DATA_OWNER_TEAM, teamName);
+        }
+        for (net.minecraft.world.entity.Entity passenger : getPassengers()) {
+            if (passenger instanceof Player rider && !canCommand(rider)) {
+                rider.stopRiding();
+            }
+        }
     }
 
     /** Seguir ou ficar; disponível também no cliente. Só tem efeito em criaturas domesticadas. */
@@ -3496,7 +3571,7 @@ public abstract class PrehistoricCreature extends TamableAnimal {
                 && isRideReady()
                 && isAlive()
                 && !isUnconscious()
-                && isOwner(player)
+                && canCommand(player)
                 && affinity >= mount.get().minAffinity();
     }
 
@@ -3592,7 +3667,7 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     @Nullable
     @Override
     public LivingEntity getControllingPassenger() {
-        if (isRideReady() && !isUnconscious() && getFirstPassenger() instanceof Player player && isOwner(player)) {
+        if (isRideReady() && !isUnconscious() && getFirstPassenger() instanceof Player player && canCommand(player)) {
             return player;
         }
         return super.getControllingPassenger();
@@ -3970,7 +4045,7 @@ public abstract class PrehistoricCreature extends TamableAnimal {
             }
             return InteractionResult.sidedSuccess(level().isClientSide);
         }
-        if (!isUnconscious() && isOwner(player)) {
+        if (!isUnconscious() && canCommand(player)) {
             if (player.isSecondaryUseActive()) {
                 if (!level().isClientSide) {
                     openInventory(player);
@@ -4262,6 +4337,12 @@ public abstract class PrehistoricCreature extends TamableAnimal {
             compound.putUUID(TAG_TAMER, tamerUUID);
         }
         compound.putBoolean(TAG_SADDLED, isSaddled());
+        if (!ownerName.isEmpty()) {
+            compound.putString(TAG_OWNER_NAME, ownerName);
+        }
+        if (leaderUUID != null) {
+            compound.putUUID(TAG_LEADER, leaderUUID);
+        }
         CompoundTag mutationTag = new CompoundTag();
         for (Stat stat : Stat.values()) {
             if (mutations[stat.ordinal()] > 0) {
@@ -4360,6 +4441,8 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         inventory.fromTag(compound.getList(TAG_INVENTORY, Tag.TAG_COMPOUND));
         tamerUUID = compound.hasUUID(TAG_TAMER) ? compound.getUUID(TAG_TAMER) : null;
         entityData.set(DATA_SADDLED, compound.getBoolean(TAG_SADDLED));
+        ownerName = compound.getString(TAG_OWNER_NAME);
+        leaderUUID = compound.hasUUID(TAG_LEADER) ? compound.getUUID(TAG_LEADER) : null;
         Movement movement = Movement.byId(compound.getString(TAG_MOVEMENT), DEFAULT_MOVEMENT);
         Stance stance = Stance.byId(compound.getString(TAG_STANCE), DEFAULT_STANCE);
         if (!compound.contains(TAG_STANCE) && compound.contains(TAG_LEGACY_ORDER)) {

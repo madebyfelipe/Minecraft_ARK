@@ -27,7 +27,7 @@ public record FlightInputPayload(int mountId, boolean flying) {
             if (player != null && player.getVehicle() instanceof PrehistoricCreature mount
                     && mount.getId() == message.mountId()
                     && mount.getControllingPassenger() == player
-                    && mount.isOwner(player)
+                    && mount.canCommand(player)
                     && mount.isRideReady()
                     && mount.isFlightMount()) {
                 mount.setFlying(message.flying());

@@ -29,7 +29,7 @@ public record SpendBonusPointPayload(int creatureId, Stat stat) {
             ServerPlayer player = context.getSender();
             if (player != null
                     && player.level().getEntity(message.creatureId()) instanceof PrehistoricCreature creature
-                    && creature.isOwner(player)
+                    && creature.canCommand(player)
                     && creature.distanceToSqr(player) <= CreatureCommands.COMMAND_RANGE * CreatureCommands.COMMAND_RANGE
                     && creature.spendBonusPoint(message.stat())) {
                 ModPayloads.sendToPlayer(player, CreatureStatusPayload.of(creature));

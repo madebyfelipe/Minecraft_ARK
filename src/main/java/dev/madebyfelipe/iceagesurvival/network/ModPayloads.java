@@ -9,7 +9,7 @@ import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.simple.SimpleChannel;
 
 public final class ModPayloads {
-    private static final String PROTOCOL_VERSION = "14";
+    private static final String PROTOCOL_VERSION = "15";
     private static int nextMessageId;
 
     public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(

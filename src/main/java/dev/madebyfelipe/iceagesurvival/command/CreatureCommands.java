@@ -42,6 +42,9 @@ public final class CreatureCommands {
         for (PrehistoricCreature creature : hearing) {
             if (creature.rollObedience()) {
                 apply(creature, whistle);
+                if (whistle.movement().filter(movement -> movement == dev.madebyfelipe.iceagesurvival.core.command.Movement.FOLLOW).isPresent()) {
+                    creature.setLeader(player); // segue quem mandou, dono ou alguém do time
+                }
                 obeyed++;
             }
         }
@@ -94,7 +97,7 @@ public final class CreatureCommands {
 
     private static boolean canCommand(Player player, PrehistoricCreature creature) {
         return creature.isAlive()
-                && creature.isOwner(player)
+                && creature.canCommand(player)
                 && !creature.isUnconscious()
                 && creature.distanceToSqr(player) <= COMMAND_RANGE * COMMAND_RANGE;
     }
@@ -103,7 +106,8 @@ public final class CreatureCommands {
         if (target == player || !target.isAlive() || target.distanceToSqr(player) > TARGET_RANGE * TARGET_RANGE) {
             return false;
         }
-        if (target instanceof OwnableEntity ownable && player.getUUID().equals(ownable.getOwnerUUID())) {
+        if (target instanceof OwnableEntity ownable && player.getUUID().equals(ownable.getOwnerUUID())
+                || target instanceof PrehistoricCreature creature && creature.canCommand(player)) {
             return false;
         }
         return !(target instanceof Player other) || player.canHarmPlayer(other);

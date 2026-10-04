@@ -23,7 +23,7 @@ public record ToggleMatingPayload(int creatureId) {
             var player = context.getSender();
             if (player != null
                     && player.level().getEntity(message.creatureId()) instanceof PrehistoricCreature creature
-                    && creature.isOwner(player) && !creature.isBaby() && creature.breedingProfile().isPresent()
+                    && creature.canCommand(player) && !creature.isBaby() && creature.breedingProfile().isPresent()
                     && creature.distanceToSqr(player) <= CreatureCommands.COMMAND_RANGE * CreatureCommands.COMMAND_RANGE) {
                 creature.setMatingEnabled(!creature.isMatingEnabled());
             }
