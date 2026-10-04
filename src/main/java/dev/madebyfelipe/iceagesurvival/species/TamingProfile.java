@@ -4,8 +4,6 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.List;
 import java.util.Optional;
-import net.minecraft.core.HolderSet;
-import net.minecraft.core.RegistryCodecs;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -33,9 +31,9 @@ public record TamingProfile(
      * @param value   quanto cada unidade avança a domesticação
      * @param quality de 0 a 1; abaixo de 1 reduz a eficiência final
      */
-    public record Food(HolderSet<Item> items, double value, double quality) {
+    public record Food(LazyHolderSet<Item> items, double value, double quality) {
         public static final Codec<Food> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                RegistryCodecs.homogeneousList(Registries.ITEM).fieldOf("items").forGetter(Food::items),
+                LazyHolderSet.codec(Registries.ITEM).fieldOf("items").forGetter(Food::items),
                 Codec.doubleRange(Double.MIN_VALUE, Double.MAX_VALUE).fieldOf("value").forGetter(Food::value),
                 Codec.doubleRange(0, 1).optionalFieldOf("quality", 1.0).forGetter(Food::quality)
         ).apply(instance, Food::new));
