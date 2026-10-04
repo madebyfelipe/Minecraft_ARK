@@ -318,7 +318,7 @@
   "item.iceagesurvival.dung": "Esterco",
   "effect.iceagesurvival.broken_leg": "Perna quebrada",
   "block.iceagesurvival.military_terminal": "Terminal Militar",
-  "block.iceagesurvival.military_terminal.hint": "Mire o Analisador no terminal e segure para ler",
+  "block.iceagesurvival.military_terminal.hint": "Segure a tecla do Analisador, mire no terminal e segure o clique para ler",
   "iceagesurvival.analyzer.tab.records": "Registros",
   "iceagesurvival.analyzer.recovered": "RECUPERADOS %s/%s",
   "iceagesurvival.analyzer.new_record": "NOVO REGISTRO",
@@ -332,5 +332,8 @@
   "item.iceagesurvival.signal_receiver": "Receptor de Sinal",
   "item.iceagesurvival.signal_receiver.tooltip": "Na mão, capta o sinal de emergência da base militar e aponta para ela.",
   "iceagesurvival.signal_receiver.title": "Sinal da base",
-  "iceagesurvival.signal_receiver.none": "Sem sinal"
+  "iceagesurvival.signal_receiver.none": "Sem sinal",
+  "key.iceagesurvival.analyzer": "Usar o Analisador (segurar)",
+  "iceagesurvival.analyzer.slot.hold": "Segure %s para usar",
+  "iceagesurvival.analyzer.slot.open": "Clique: abre o arquivo de campo"
 }

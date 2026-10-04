@@ -5,6 +5,7 @@ import dev.madebyfelipe.iceagesurvival.IceAgeSurvival;
 import dev.madebyfelipe.iceagesurvival.entity.LandCreature;
 import dev.madebyfelipe.iceagesurvival.entity.PrehistoricCreature;
 import dev.madebyfelipe.iceagesurvival.item.AnalyzerItem;
+import dev.madebyfelipe.iceagesurvival.item.AnalyzerSlot;
 import dev.madebyfelipe.iceagesurvival.network.DinoFilePayload;
 import dev.madebyfelipe.iceagesurvival.network.ScanResultPayload;
 import dev.madebyfelipe.iceagesurvival.registry.ModEntities;
@@ -33,6 +34,8 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
@@ -42,7 +45,7 @@ import net.minecraftforge.gametest.GameTestHolder;
 import net.minecraftforge.gametest.PrefixGameTestTemplate;
 
 /**
- * O Analisador e a DINO FILE: a mira, o registro por jogador, o analisador do primeiro login, o clique que não abre
+ * O Analisador e a DINO FILE: a mira, o registro por jogador, o slot do analisador, o clique que não abre
  * nada da criatura, a leitura do indivíduo e os pacotes. Escritos a partir da especificação, com jogadores de servidor
  * de verdade (entram pela lista de jogadores, como num login) que saem da lista no fim de cada teste.
  */
@@ -124,32 +127,140 @@ public class AnalyzerTests {
         helper.succeed();
     }
 
-    // ---- Analisador do primeiro login ----
+    // ---- Slot do analisador ----
 
     @GameTest(template = EMPTY)
-    public static void firstLoginGivesOneAnalyzerOnlyOnce(GameTestHelper helper) {
-        // Entrar pela lista de jogadores dispara o login de verdade: é o primeiro deste jogador.
+    public static void loginGivesNoAnalyzerItem(GameTestHelper helper) {
+        // O aparelho mora no slot próprio: entrar no mundo não põe nenhum no inventário.
         ServerPlayer player = serverPlayer(helper, "novato");
         try {
-            helper.assertTrue(analyzersOf(player) == 1,
-                    "o primeiro login devia dar exatamente 1 analisador, deu " + analyzersOf(player));
-            CompoundTag kept = player.getPersistentData().getCompound(Player.PERSISTED_NBT_TAG);
-            helper.assertTrue(kept.getBoolean(AnalyzerItem.GIVEN_TAG),
-                    "a marca de analisador entregue devia ficar nos dados persistentes do jogador");
-
-            AnalyzerItem.onLoggedIn(new PlayerEvent.PlayerLoggedInEvent(player));
-            AnalyzerItem.onLoggedIn(new PlayerEvent.PlayerLoggedInEvent(player));
-            helper.assertTrue(analyzersOf(player) == 1,
-                    "os logins seguintes deram outro analisador: " + analyzersOf(player));
-
-            player.getInventory().clearContent();
-            AnalyzerItem.onLoggedIn(new PlayerEvent.PlayerLoggedInEvent(player));
             helper.assertTrue(analyzersOf(player) == 0,
-                    "com o inventário vazio, um login seguinte deu outro analisador: " + analyzersOf(player));
+                    "entrar no mundo não devia dar analisador como item, deu " + analyzersOf(player));
+        } finally {
+            logOut(helper, player);
+        }
+        helper.succeed();
+    }
+
+    @GameTest(template = EMPTY)
+    public static void holdingTheKeyPutsTheAnalyzerInHandAndReleasingGivesTheItemBack(GameTestHelper helper) {
+        ServerPlayer player = serverPlayer(helper, "segurador");
+        try {
+            player.getInventory().selected = 2;
+            player.getInventory().items.set(2, new ItemStack(Items.TORCH, 5));
+            AnalyzerSlot.draw(player);
+            helper.assertTrue(player.getMainHandItem().is(ModItems.ANALYZER.get()),
+                    "segurar a tecla devia pôr o analisador na mão, está " + player.getMainHandItem());
+            helper.assertTrue(player.getInventory().countItem(Items.TORCH) == 0,
+                    "a tocha devia ficar guardada fora do inventário enquanto o analisador está na mão");
+            AnalyzerSlot.draw(player);
+            helper.assertTrue(analyzersOf(player) == 1, "apertar de novo duplicou o analisador: " + analyzersOf(player));
+
+            AnalyzerSlot.stow(player);
+            ItemStack back = player.getInventory().items.get(2);
+            helper.assertTrue(back.is(Items.TORCH) && back.getCount() == 5,
+                    "soltar a tecla devia devolver as 5 tochas ao slot, voltou " + back);
+            helper.assertTrue(analyzersOf(player) == 0, "soltar deixou analisador no inventário: " + analyzersOf(player));
+            helper.assertFalse(AnalyzerSlot.isHolding(player), "soltar não limpou a marca de uso");
+        } finally {
+            logOut(helper, player);
+        }
+        helper.succeed();
+    }
+
+    @GameTest(template = EMPTY)
+    public static void changingTheHotbarSlotPutsTheAnalyzerAway(GameTestHelper helper) {
+        ServerPlayer player = serverPlayer(helper, "inquieto");
+        try {
+            player.getInventory().selected = 0;
+            player.getInventory().items.set(0, new ItemStack(Items.BREAD, 3));
+            AnalyzerSlot.draw(player);
+            player.getInventory().selected = 1;
+            AnalyzerSlot.check(player);
+            helper.assertFalse(AnalyzerSlot.isHolding(player), "trocar o slot da barra devia guardar o analisador");
+            ItemStack back = player.getInventory().items.get(0);
+            helper.assertTrue(back.is(Items.BREAD) && back.getCount() == 3, "o pão não voltou ao slot 0: " + back);
+            helper.assertTrue(analyzersOf(player) == 0, "sobrou analisador no inventário: " + analyzersOf(player));
+        } finally {
+            logOut(helper, player);
+        }
+        helper.succeed();
+    }
+
+    @GameTest(template = EMPTY)
+    public static void tossingTheAnalyzerOnlyPutsItAway(GameTestHelper helper) {
+        ServerPlayer player = serverPlayer(helper, "arremessador");
+        try {
+            player.getInventory().selected = 0;
+            player.getInventory().items.set(0, new ItemStack(Items.APPLE, 2));
+            AnalyzerSlot.draw(player);
+            player.drop(true);
+            helper.assertTrue(droppedAnalyzers(player).isEmpty(), "jogar fora deixou um analisador no chão");
+            ItemStack back = player.getInventory().items.get(0);
+            helper.assertTrue(back.is(Items.APPLE) && back.getCount() == 2, "as maçãs não voltaram à mão: " + back);
+            helper.assertFalse(AnalyzerSlot.isHolding(player), "jogar fora devia encerrar o uso");
         } finally {
             droppedAnalyzers(player).forEach(Entity::discard);
             logOut(helper, player);
         }
+        helper.succeed();
+    }
+
+    @GameTest(template = EMPTY)
+    public static void dyingWithTheAnalyzerInHandDropsTheItemButNotTheAnalyzer(GameTestHelper helper) {
+        ServerPlayer player = serverPlayer(helper, "azarado");
+        helper.getLevel().getGameRules().getRule(GameRules.RULE_KEEPINVENTORY).set(false, helper.getLevel().getServer());
+        try {
+            player.getInventory().selected = 0;
+            player.getInventory().items.set(0, new ItemStack(Items.EMERALD, 4));
+            AnalyzerSlot.draw(player);
+            player.die(player.damageSources().generic());
+            helper.assertTrue(droppedAnalyzers(player).isEmpty(), "morrer deixou cair um analisador");
+            List<ItemEntity> emeralds = player.level().getEntitiesOfClass(ItemEntity.class,
+                    player.getBoundingBox().inflate(6.0), item -> item.isAlive() && item.getItem().is(Items.EMERALD));
+            int count = emeralds.stream().mapToInt(item -> item.getItem().getCount()).sum();
+            helper.assertTrue(count == 4, "as 4 esmeraldas guardadas deviam cair na morte, caíram " + count);
+            emeralds.forEach(Entity::discard);
+        } finally {
+            droppedAnalyzers(player).forEach(Entity::discard);
+            logOut(helper, player);
+        }
+        helper.succeed();
+    }
+
+    @GameTest(template = EMPTY)
+    public static void strayAnalyzersDisappearFromTheInventory(GameTestHelper helper) {
+        // Mundos antigos têm o analisador como item: fora do uso, ele some (o aparelho mora no slot).
+        ServerPlayer player = serverPlayer(helper, "veterano");
+        try {
+            player.getInventory().items.set(7, new ItemStack(ModItems.ANALYZER.get()));
+            player.getInventory().offhand.set(0, new ItemStack(ModItems.ANALYZER.get()));
+            AnalyzerSlot.check(player);
+            helper.assertTrue(analyzersOf(player) == 0, "analisadores soltos ficaram no inventário: " + analyzersOf(player));
+
+            player.getInventory().selected = 0;
+            AnalyzerSlot.draw(player);
+            player.getInventory().items.set(8, new ItemStack(ModItems.ANALYZER.get()));
+            AnalyzerSlot.check(player);
+            helper.assertTrue(analyzersOf(player) == 1 && player.getMainHandItem().is(ModItems.ANALYZER.get()),
+                    "em uso, só o analisador da mão devia sobrar: " + analyzersOf(player));
+        } finally {
+            AnalyzerSlot.stow(player);
+            logOut(helper, player);
+        }
+        helper.succeed();
+    }
+
+    @GameTest(template = EMPTY)
+    public static void loggingOutWithTheAnalyzerInHandGivesTheItemBack(GameTestHelper helper) {
+        ServerPlayer player = serverPlayer(helper, "apressado");
+        player.getInventory().selected = 4;
+        player.getInventory().items.set(4, new ItemStack(Items.COAL, 9));
+        AnalyzerSlot.draw(player);
+        logOut(helper, player);
+        ItemStack back = player.getInventory().items.get(4);
+        helper.assertTrue(back.is(Items.COAL) && back.getCount() == 9, "sair do jogo devia devolver o carvão: " + back);
+        helper.assertFalse(AnalyzerSlot.isHolding(player), "sair do jogo devia encerrar o uso");
         helper.succeed();
     }
 

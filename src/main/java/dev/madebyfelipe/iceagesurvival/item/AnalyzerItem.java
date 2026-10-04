@@ -53,7 +53,8 @@ import software.bernie.geckolib.core.animation.RawAnimation;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
 /**
- * Analisador: o aparelho de campo que todo jogador recebe ao entrar no mundo pela primeira vez. Mirando numa criatura
+ * Analisador: o aparelho de campo que todo jogador tem, no slot próprio ({@link AnalyzerSlot}); segurando a tecla do
+ * analisador, ele vem para a mão. Mirando numa criatura
  * do mod a até {@link #RANGE} blocos e segurando o clique por {@link #SCAN_TICKS} ticks, escaneia: registra a
  * espécie na DINO FILE do jogador ({@link DinoFileData}) e manda a leitura do indivíduo ao cliente
  * ({@link ScanResultPayload}). Mirando num terminal militar dos postos, a mesma leitura destrava o próximo registro
@@ -67,8 +68,6 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 public class AnalyzerItem extends Item implements GeoItem {
     public static final double RANGE = 24.0;
     public static final int SCAN_TICKS = 30;
-    /** Marca, nos dados persistentes do jogador, de que ele já recebeu o analisador inicial. */
-    public static final String GIVEN_TAG = "iceagesurvival.analyzer_given";
 
     /** O cliente registra aqui a abertura do terminal (o item não pode tocar em classes de cliente). */
     private static Runnable terminalOpener = () -> { };
@@ -281,22 +280,11 @@ public class AnalyzerItem extends Item implements GeoItem {
         return fresh;
     }
 
-    /** Primeiro login: um analisador no inventário (uma vez por jogador, mesmo morrendo). E a DINO FILE ao cliente. */
+    /** Ao entrar, a DINO FILE vai ao cliente. O aparelho não é entregue: ele mora no slot do analisador. */
     public static void onLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
-        if (!(event.getEntity() instanceof ServerPlayer player)) {
-            return;
+        if (event.getEntity() instanceof ServerPlayer player) {
+            DinoFileData.sync(player);
         }
-        CompoundTag persistent = player.getPersistentData();
-        CompoundTag kept = persistent.getCompound(Player.PERSISTED_NBT_TAG);
-        if (!kept.getBoolean(GIVEN_TAG)) {
-            ItemStack analyzer = new ItemStack(ModItems.ANALYZER.get());
-            if (!player.getInventory().add(analyzer)) {
-                player.drop(analyzer, false);
-            }
-            kept.putBoolean(GIVEN_TAG, true);
-            persistent.put(Player.PERSISTED_NBT_TAG, kept);
-        }
-        DinoFileData.sync(player);
     }
 
     public static void onLoggedOut(PlayerEvent.PlayerLoggedOutEvent event) {

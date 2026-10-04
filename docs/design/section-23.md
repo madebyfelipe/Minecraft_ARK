@@ -16,6 +16,8 @@
 
 Revisão editorial do Analisador (2026-10-03): manual e fichas de `tools/wiki_lore/` revisados para uma leitura mais natural, preservando a voz do sobrevivente e o conteúdo da lore.
 
+**Analisador permanente** (D56, 2026-10-04): slot próprio no inventário, tecla que traz o aparelho à mão, e mais lore nas NOTAS; falta sentir a tecla em jogo.
+
 MVP = Etapas 1–4 + versão mínima de 6, 7 e 9 (mundo frio, temperatura básica, montar o Smilodon).
 
 **Titanovenator** (estudo visual e boss, D54): o estudo local sobre o Rex do Revival (`art/titanovenator/README.md`)

@@ -296,7 +296,6 @@ public final class ModItems {
             event.accept(REVIVE_TABLE);
             event.accept(TYRANNOSAURUS_HEAD);
             event.accept(SPINOSAURUS_HEAD);
-            event.accept(ANALYZER);
             event.accept(SIGNAL_RECEIVER);
             event.accept(SERRATED_TOOTH);
             event.accept(SERRATED_SWORD);

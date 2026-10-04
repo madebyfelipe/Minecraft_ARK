@@ -69,6 +69,14 @@ public class IceAgeSurvival {
         MinecraftForge.EVENT_BUS.addListener(ColdExposure::onPlayerTick);
         MinecraftForge.EVENT_BUS.addListener(dev.madebyfelipe.iceagesurvival.item.AnalyzerItem::onLoggedIn);
         MinecraftForge.EVENT_BUS.addListener(dev.madebyfelipe.iceagesurvival.item.AnalyzerItem::onLoggedOut);
+        MinecraftForge.EVENT_BUS.addListener(dev.madebyfelipe.iceagesurvival.item.AnalyzerSlot::onPlayerTick);
+        MinecraftForge.EVENT_BUS.addListener(dev.madebyfelipe.iceagesurvival.item.AnalyzerSlot::onDeath);
+        MinecraftForge.EVENT_BUS.addListener(dev.madebyfelipe.iceagesurvival.item.AnalyzerSlot::onDrops);
+        MinecraftForge.EVENT_BUS.addListener(dev.madebyfelipe.iceagesurvival.item.AnalyzerSlot::onToss);
+        MinecraftForge.EVENT_BUS.addListener(dev.madebyfelipe.iceagesurvival.item.AnalyzerSlot::onContainerOpen);
+        MinecraftForge.EVENT_BUS.addListener(dev.madebyfelipe.iceagesurvival.item.AnalyzerSlot::onEntityInteract);
+        MinecraftForge.EVENT_BUS.addListener(dev.madebyfelipe.iceagesurvival.item.AnalyzerSlot::onLoggedIn);
+        MinecraftForge.EVENT_BUS.addListener(dev.madebyfelipe.iceagesurvival.item.AnalyzerSlot::onLoggedOut);
         MinecraftForge.EVENT_BUS.addListener(dev.madebyfelipe.iceagesurvival.item.SignalReceiverItem::onPlayerTick);
         MinecraftForge.EVENT_BUS.addListener(dev.madebyfelipe.iceagesurvival.item.SignalReceiverItem::onLoggedOut);
         MinecraftForge.EVENT_BUS.addListener(WildSpawner::onServerTick);
