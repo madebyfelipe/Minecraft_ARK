@@ -733,13 +733,20 @@ O mundo do GameTest é plano e de bioma temperado, então o frio não chega a su
 MVP = Etapas 1–4 + versão mínima de 6, 7 e 9 (mundo frio, temperatura básica, montar o Smilodon).
 
 **Estudo visual em revisão:** Titanovenator, sobre o Rex do Revival instalado, conforme pedido do
-Felipe. Primeiro passo de proporções em `art/titanovenator/README.md`; derivados locais ignorados
+Felipe. Passo 2 da cabeça em `art/titanovenator/README.md`, mantendo o corpo do passo 1 aprovado;
+derivados locais ignorados
 pelo Git, sem integração ao jogo. Paleta marrom-oliva/ventre ocre e cerdas discretas escolhidas;
-textura, tecidos moles e animações ficam para as próximas passagens após revisar a base.
+textura e animações ficam para as próximas passagens após revisar a cabeça.
 
 ## 24. Decisões técnicas
 
 Ver a tabela em [4](#4-decisões). Registro de mudanças estruturais:
+
+- 2026-10-03 — Titanovenator, passo 2 autorizado pelo Felipe: focinho/mandíbula mais largos,
+  bochechas discretas, cristas reduzidas e peças labiais articuladas nos ossos originais.
+  Corpo do passo 1 preservado, 32 ossos/30 cubos, textura original intacta. Comparador com
+  original/passo 1/passo 2 e renderizações locais da cabeça; revisão visual antes de cores e animações.
+  Validação: build e os 388 GameTests passaram; sem integração ao jogo nesta etapa.
 
 - 2026-10-03 — Estudo do Titanovenator: Felipe descartou o primeiro modelo autoral e pediu
   alterações graduais sobre o Rex do Fossils and Archeology: Revival. `tools/study_titanovenator.py`

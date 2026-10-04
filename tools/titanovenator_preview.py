@@ -10,6 +10,7 @@ def main():
     folder = root / 'art/titanovenator/local'
     sources = {
         '__GEOMETRY_ORIGINAL__': folder / 'rex-original.geo.json',
+        '__GEOMETRY_PREVIOUS__': folder / 'passo-1.geo.json',
         '__GEOMETRY_MODIFIED__': folder / 'titanovenator.geo.json',
     }
     texture = base64.b64encode((folder / 'titanovenator.png').read_bytes()).decode()

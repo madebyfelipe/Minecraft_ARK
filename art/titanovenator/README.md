@@ -1,6 +1,6 @@
 # Titanovenator — estudo incremental sobre o Rex
 
-Estado: **Passo 1, aguardando revisão visual do Felipe**. O primeiro modelo gerado
+Estado: **Passo 2 (cabeça), aguardando revisão visual do Felipe**. O primeiro modelo gerado
 do zero foi rejeitado e descartado. A direção atual parte do Tyrannosaurus do
 Fossils and Archeology: Revival instalado localmente, por pedido explícito do Felipe.
 
@@ -17,15 +17,31 @@ Não baixa mods, não altera o jar de origem e não escreve em `src/main/resourc
 
 Abra `local/preview.html` em um navegador com WebGL. É autocontido e funciona
 sem rede. Alterne **Rex original / Passo 1 · volume**: câmera, zoom e enquadramento
-ficam iguais para comparar as proporções. Há vistas lateral, frontal e de cabeça,
+ficam iguais para comparar as proporções. O comparador também inclui **Passo 1 · corpo**
+e **Passo 2 · cabeça**, permitindo revisar só a diferença da cabeça. Há vistas lateral, frontal e de cabeça,
 modo argila e controle manual de abertura da mandíbula.
 
-`local/titanovenator.bbmodel` é o projeto editável do passo 1, com a textura
+`local/titanovenator.bbmodel` é o projeto editável do passo 2, com a textura
 embutida. `local/rex-original.bbmodel` é a referência sem ajustes de volume.
 O arquivo de animações original fica separado em `local/rex-original.animation.json`;
 **a prévia não reproduz animações e o bbmodel ainda não as importa**.
 
-## O que mudou nesta passagem
+`local/passo-1.bbmodel` preserva o estágio aprovado. As imagens comparativas são
+geradas dos mesmos arquivos pelo comando `python3 tools/render_titanovenator.py`
+(requer NumPy e Pillow): `local/passo-2-cabeca.png` e `local/passo-2-mandibula.png`.
+
+## Passo 2 — cabeça e lábios
+
+O corpo do passo 1 permanece idêntico. A cabeça ganhou focinho mais largo, mandíbula
+mais larga/profunda, dois pequenos volumes nas bochechas e seis peças labiais.
+As cristas foram reduzidas a relevos baixos sobre o crânio. São 32 ossos e 30 cubos;
+todos os pivôs, nomes, rotações de repouso e parentescos originais foram mantidos.
+
+As peças novas usam trechos opacos da pele na textura existente. O PNG original não
+foi pintado ou substituído. Olhos verdes e região azul do pescoço ainda pertencem à
+textura de referência e serão tratados na passagem de cor já planejada.
+
+## Passo 1 — corpo preservado
 
 Só dimensões dos volumes existentes. Nenhum cubo, osso, pivô, rotação de repouso
 ou parentesco foi acrescentado/removido. Foram preservados 32 ossos e 22 cubos.
@@ -51,7 +67,7 @@ e [Cube/updateUV](https://github.com/JannisX11/blockbench/blob/v4.12.6/js/outlin
 
 ## Próximas passagens, depois da revisão da base
 
-- Ajustar tecidos moles da cabeça, lábios e ornamentações discretas conforme o briefing.
+- Revisar os ajustes de cabeça, lábios e ornamentações do passo 2.
 - Aplicar marrom-oliva, dorso escuro e ventre ocre discreto; olhos escuros.
 - Incluir poucas cerdas na nuca/dorso.
 - Conferir as animações originais sobre as novas proporções e adaptar os movimentos.
@@ -68,11 +84,11 @@ Não usar `git add -f` nessa pasta. A política de recursos externos em runtime 
 
 ## Verificação desta sessão
 
-- Prévia WebGL conferida com a textura original, comparação na mesma câmera e mandíbula.
+- Passo 2 conferido em renderizações locais da geometria com boca fechada e aberta;
+  comparação na mesma câmera. JavaScript da prévia validado sintaticamente; a inspeção
+  automatizada do WebGL desta passagem ficou indisponível por bloqueio de URLs locais.
 - Export do Blockbench preserva hierarquia, pivôs/rotações e textura embutida.
 - `./gradlew build`: passou.
-- `./gradlew runGameTestServer`: executou 388 testes e falhou em
-  `tyrannosaurusHuntsThroughTheForest` (não feriu o jogador no prazo). A intermitência
-  deste teste já está registrada no CLOUD.md; nenhum arquivo de gameplay mudou nesta etapa.
+- `./gradlew runGameTestServer`: os 388 testes passaram nesta passagem.
 - Não houve integração à `main` nem implantação no Prism. Consulta/push remoto
   indisponíveis nesta sessão por autenticação do GitHub não configurada no ambiente.

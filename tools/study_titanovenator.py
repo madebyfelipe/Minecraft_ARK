@@ -94,6 +94,68 @@ def change_volumes(original):
     return result
 
 
+def change_head(previous):
+    """Passo 2: cabeça derivada, sem refazer corpo, rig ou textura.
+
+    A mandíbula se alarga para acompanhar o focinho. Novas paredes labiais
+    usam somente um trecho opaco da pele do focinho, nunca a faixa de dentes.
+    """
+    result=deepcopy(previous)
+    bones={b['name']:b for b in result['minecraft:geometry'][0]['bones']}
+    adjustments={
+        'head': ([1.10,1.025,1],.5),
+        'upperJaw': ([1.16,1.02,1],1),
+        'lowerJaw': ([1.46,1.27,1],1),
+        'bigkeratincrestL': ([.9,.45,.9],0),
+        'bigkeratincrestR': ([.9,.45,.9],0),
+    }
+    for name,(scale,y_anchor) in adjustments.items():
+        for c in bones[name].get('cubes',[]):
+            old=c['size'][:]
+            c['size']=[round(old[i]*scale[i],5) for i in range(3)]
+            for axis in range(3):
+                anchor=y_anchor if axis==1 else .5
+                c['origin'][axis]=round(c['origin'][axis]+(old[axis]-c['size'][axis])*anchor,5)
+            if name.startswith('bigkeratincrest'):
+                # Após reduzir a crista, mantém apenas um baixo relevo na superfície,
+                # em vez de afundá-la no crânio e deixar uma quina isolada sobre o olho.
+                c['origin'][1]=22.0
+                c['size'][1]=.65
+
+    def skin_cube(name,origin,size,uv=(109,32),uv_size=(2,2),rotation=None):
+        # UV por face; cada peça tem identificador próprio no arquivo editável.
+        entry={'name':name,'origin':origin,'size':size,'uv':{
+            face:{'uv':list(uv),'uv_size':list(uv_size)}
+            for face in ('north','south','east','west','up','down')}}
+        if rotation:
+            entry['rotation']=rotation
+            entry['pivot']=[origin[i]+size[i]/2 for i in range(3)]
+        return entry
+
+    # Bochechas baixas: preservam os olhos originais e arredondam a transição
+    # do crânio para o músculo mandibular com apenas dois volumes discretos.
+    head=bones['head']['cubes'][0]
+    half=head['size'][0]/2
+    for side in (-1,1):
+        bones['head']['cubes'].append(skin_cube(
+            'cheek_left' if side<0 else 'cheek_right',
+            [round(side*(half-.15)-.48,5),14.3,-24.5], [.96,3.5,3.6],
+            uv=(0,8),uv_size=(2,3),rotation=[0,0,-side*8]))
+
+    # Lábio superior e borda da mandíbula articulam com os ossos existentes.
+    # O eixo e a abertura da boca continuam sendo os do Rex original.
+    for bone_name,thickness,height in [('upperJaw',.30,.60),('lowerJaw',.24,.38)]:
+        b=bones[bone_name]; c=b['cubes'][0]; x,y,z=c['origin']; w,h,d=c['size']
+        yy=y-.18 if bone_name=='upperJaw' else y+h-.12
+        for side in (-1,1):
+            xx=x-.08 if side<0 else x+w-thickness+.08
+            b['cubes'].append(skin_cube(f'{bone_name}_lip_{side}',
+                [round(xx,5),round(yy,5),z+.10], [thickness,height,d-.2]))
+        b['cubes'].append(skin_cube(f'{bone_name}_lip_front',
+            [x+.08,round(yy,5),z-.06],[w-.16,height,.24]))
+    return result
+
+
 def to_bbmodel(geometry,texture):
     """Mesmo bind pose/UVs do geo; projeto editável sem plugin obrigatório."""
     geo=geometry['minecraft:geometry'][0]; desc=geo['description']
@@ -111,7 +173,7 @@ def to_bbmodel(geometry,texture):
                 u,v=f['uv']; w,h=f['uv_size']; uv=[u,v,u+w,v+h]
                 if key in ('up','down'): uv=uv[2:]+uv[:2]
                 faces[key]={'uv':uv,'texture':0}
-            element={'name':b['name']+f'_{i}','uuid':uid('cube/'+b['name']+f'/{i}'),
+            element={'name':c.get('name',b['name']+f'_{i}'),'uuid':uid('cube/'+b['name']+f'/{i}'),
                 'type':'cube','from':fr,'to':[fr[a]+s[a] for a in range(3)],
                 'origin':[-cp[0],cp[1],cp[2]],'rotation':[-cr[0],-cr[1],cr[2]],
                 'box_uv':False,'autouv':0,'faces':faces,'export':True,'visibility':True}
@@ -144,22 +206,25 @@ def main():
         original=to_face_uv(json.loads(raw))
         texture=z.read(f'assets/fossil/textures/entity/tyrannosaurus/tyrannosaurus_{args.skin}.png')
         animation=z.read(SOURCE_ANIMATION)
-    modified=change_volumes(original)
+    previous=change_volumes(original)
+    modified=change_head(previous)
     # Limite de visibilidade serve só à inspeção; nenhuma escala do jogo é aplicada.
     for filename,data in [('rex-original.geo.json',original),('titanovenator.geo.json',modified),
+                          ('passo-1.geo.json',previous),('passo-1.bbmodel',to_bbmodel(previous,texture)),
                           ('titanovenator.bbmodel',to_bbmodel(modified,texture)),
                           ('rex-original.bbmodel',to_bbmodel(original,texture))]:
         (OUT/filename).write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n')
     (OUT/'titanovenator.png').write_bytes(texture)
     (OUT/'rex-original.animation.json').write_bytes(animation)
-    manifest={'status':'Passo 1 — volumes para revisão; não integrado ao jogo',
+    manifest={'status':'Passo 2 — cabeça para revisão; corpo do passo 1 preservado',
         'base':'Fossils and Archeology: Revival 1.20.1-9.3.4.0',
         'source_geometry':SOURCE_GEO,'source_geometry_sha256':hashlib.sha256(raw).hexdigest(),
         'texture':f'original {args.skin}, sem alterações',
         'bones':len(original['minecraft:geometry'][0]['bones']),
-        'cubes':sum(len(b.get('cubes',[])) for b in original['minecraft:geometry'][0]['bones']),
+        'cubes':sum(len(b.get('cubes',[])) for b in modified['minecraft:geometry'][0]['bones']),
         'pass_1':PASS_1,'animations':'arquivo original preservado; não importado no bbmodel nem tocado na prévia',
-        'pending':['lábios/tecidos moles e cristas','paleta marrom-oliva/ventre ocre','cerdas discretas','animações e escala final'],
+        'pass_2':['focinho mais largo','mandíbula mais profunda e larga','bochechas discretas','cristas reduzidas','paredes labiais'],
+        'pending':['revisão da cabeça','paleta marrom-oliva/ventre ocre','cerdas discretas','animações e escala final'],
         'distribution':'Estudo local derivado. Não versionar, redistribuir ou incluir no jar.'}
     (OUT/'manifest.json').write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n')
     print(json.dumps({k:manifest[k] for k in ('status','bones','cubes','texture')},ensure_ascii=False))
