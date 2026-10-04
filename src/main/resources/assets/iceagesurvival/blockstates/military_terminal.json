@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "iceagesurvival:block/military_terminal"
+    },
+    "facing=east": {
+      "model": "iceagesurvival:block/military_terminal",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "iceagesurvival:block/military_terminal",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "iceagesurvival:block/military_terminal",
+      "y": 270
+    }
+  }
+}

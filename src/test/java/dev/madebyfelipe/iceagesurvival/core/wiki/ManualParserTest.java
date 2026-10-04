@@ -182,6 +182,45 @@ class ManualParserTest {
         assertTrue(manual.chapters().isEmpty(), "capítulos sem a chave chapters");
         assertTrue(manual.sheets().isEmpty(), "fichas sem a chave species");
         assertTrue(manual.dexEntries().isEmpty(), "DINO FILE sem a chave species");
+        assertTrue(manual.series().isEmpty(), "séries sem a chave series");
+        assertTrue(manual.records(Manual.POSTS).isEmpty(), "série que não existe devia vir vazia");
+    }
+
+    @Test
+    void realManualHasTheThreeRecordSeriesWithUniqueIdsAndText() {
+        Manual manual = realManual();
+        assertEquals(List.of(Manual.POSTS, Manual.BASE, Manual.DOSSIER),
+                manual.series().stream().map(Manual.Series::id).toList(), "as séries deviam vir nesta ordem");
+        Set<String> ids = new java.util.HashSet<>();
+        for (Manual.Series series : manual.series()) {
+            assertFalse(series.title().isBlank(), "série sem título: " + series.id());
+            assertFalse(series.records().isEmpty(), "série sem registros: " + series.id());
+            for (Manual.Record record : series.records()) {
+                assertTrue(ids.add(record.id()), "id de registro repetido: " + record.id());
+                assertFalse(record.title().isBlank(), "registro sem título: " + record.id());
+                assertFalse(record.source().isBlank(), "registro sem origem: " + record.id());
+                assertFalse(record.blocks().isEmpty(), "registro sem texto: " + record.id());
+            }
+        }
+        assertEquals(1, manual.records(Manual.DOSSIER).size(), "o dossiê devia ter um registro só");
+    }
+
+    @Test
+    void seriesAreReadInFileOrderWithMissingFieldsEmpty() {
+        Manual manual = ManualParser.parse(new StringReader("""
+                {"series": [
+                  {"id": "postos", "title": "Postos", "records": [
+                    {"id": "b", "title": "Segundo", "source": "Posto norte", "blocks": [{"type": "paragraph", "text": "x"}]},
+                    {"id": "a"}
+                  ]},
+                  {"id": "vazia"}
+                ]}
+                """));
+        assertEquals(List.of(
+                new Manual.Record("b", "Segundo", "Posto norte", List.of(new Manual.Paragraph("x"))),
+                new Manual.Record("a", "", "", List.of())), manual.records("postos"),
+                "os registros deviam vir na ordem do arquivo, com campo faltando vazio");
+        assertEquals(List.of(), manual.records("vazia"), "série sem registros devia vir vazia");
     }
 
     private static Manual realManual() {

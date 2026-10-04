@@ -2,7 +2,7 @@ id: quetzalcoatlus
 nome: Quetzalcoatlus
 selos: Carnívoro, Montável
 
-O maior animal voador que já existiu: asas de dez, onze metros de ponta a ponta, e de pé fica da altura de uma girafa. Viveu no fim do Cretáceo, no que hoje é o Texas, e os fósseis sugeriam que caçava andando pelo chão, como uma cegonha gigante. Aqui, confirmei.
+O maior animal voador que já existiu: asas de dez, onze metros de ponta a ponta. De pé, fica da altura de uma girafa. Viveu no fim do Cretáceo, no que hoje é o Texas, e os fósseis sugeriam que caçava andando pelo chão, como uma cegonha gigante. Aqui, confirmei.
 
 Parece se alimentar sobretudo de peixes. Pousa na margem de águas sem gelo e pesca. Em terra, caminha atrás de coelhos, sapos, galinhas e dodôs, e engole inteiro o que cabe no bico. O que não cabe leva só uma bicada. Raptores pequenos também entram na dieta.
 
@@ -10,4 +10,4 @@ Vive em grupos de dois a quatro, que se defendem juntos. É ativo de dia: ao ent
 
 Prefere planícies, savanas e beiras de rio, longe de onde chegamos. Só o tiranossauro ousa caçá-lo.
 
-> Consegui acalmar um com dardos sedativos e, enquanto dormia, deixei peixe cru na bolsa dele. Charque e carne de galinha ou coelho também servem; peixe cozido, mal. Montado, aguenta voos longos e carrega muita carga. Parado perto da água, pesca sozinho e guarda o peixe.
+> Consegui acalmar um com dardos sedativos e, enquanto dormia, deixei peixe cru na bolsa dele. Charque e carne de galinha ou coelho também servem; peixe cozido ele mal aceita. Montado, aguenta voos longos e carrega muito peso. Parado perto da água, pesca sozinho e guarda o peixe.

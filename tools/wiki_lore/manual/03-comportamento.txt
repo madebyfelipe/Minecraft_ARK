@@ -8,7 +8,7 @@ subtitulo: Ler os sinais de cada espécie
 - Investida curta que para no meio do caminho: é blefe. A próxima pode não ser.
 - Predador imóvel, em silêncio, perto de uma manada: está espreitando. O rugido vem junto com o bote.
 - Rugido seguido de correria: a caçada começou. Saia do caminho da manada.
-- Bicho dormindo encolhido num canto em plena luz do dia, ou em plena noite: está fora do seu horário. Só acorda se for ferido.
+- Animal dormindo encolhido num canto, de dia ou de noite: está no seu período de descanso. Só acorda se for ferido.
 - Carniceiro rondando um corpo: há um predador maior por perto, ou haverá.
 - Animal que ataca e recua em seguida, sem pressa de terminar: veneno. Ele vai seguir o seu rastro.
 
@@ -16,13 +16,13 @@ subtitulo: Ler os sinais de cada espécie
 
 Cada caçador tem uma fraqueza. O smilodon detesta água e não entra nela nem para terminar uma caçada. O utahraptor não atravessa copas fechadas, e uma mata densa o despista. A bicada do kelenken, se encontrar um escudo erguido, trava o bico dele por um instante.
 
-Contra os grandes, distância é tudo: na perseguição, quem se afasta o bastante é deixado para trás. Contra os que caçam em bando, nunca fique sozinho.
+Contra os grandes, distância é tudo: se você conseguir abrir uma boa vantagem, eles desistem da perseguição. Contra os que caçam em bando, nunca fique sozinho.
 
-> Um animal amansado ao seu lado muda a conta do predador. Raramente ele acha que vale a pena.
+> Um animal amansado ao seu lado faz o predador pensar duas vezes antes de atacar.
 
 == Registro de espécies
 
-Resumo do que já registrei, com a época de onde cada animal deveria ter vindo. Os detalhes estão na ficha de cada espécie.
+Resumo do que já registrei, com a época de origem de cada animal. Os detalhes estão na ficha de cada espécie.
 
 | Espécie | Época de origem | Temperamento |
 |---|---|---|
@@ -47,4 +47,4 @@ Resumo do que já registrei, com a época de onde cada animal deveria ter vindo.
 | Alossauro | Jurássico Superior, América do Norte | Caça em bando |
 | Espinossauro | Cretáceo Superior, norte da África | Soberano |
 | Tiranossauro Rex | Fim do Cretáceo, América do Norte | Soberano |
-| Giganotossauro | Cretáceo Superior, Patagônia | Caçador, mordida que sangra |
+| Giganotossauro | Cretáceo Superior, Patagônia | Caçador, mordida que causa sangramento |

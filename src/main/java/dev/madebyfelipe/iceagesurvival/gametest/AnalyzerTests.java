@@ -303,8 +303,9 @@ public class AnalyzerTests {
         try {
             List<Object> messages = new ArrayList<>();
             messages.add(new DinoFilePayload(
-                    List.of(DODO, SMILODON, ResourceLocation.fromNamespaceAndPath("minecraft", "wolf"))));
-            messages.add(new DinoFilePayload(List.of()));
+                    List.of(DODO, SMILODON, ResourceLocation.fromNamespaceAndPath("minecraft", "wolf")),
+                    java.util.Map.of("postos", 3, "base", 1)));
+            messages.add(new DinoFilePayload(List.of(), java.util.Map.of()));
             messages.add(ScanResultPayload.of(player, smilodon, true));
             messages.add(new ScanResultPayload(1234, MAMMOTH, false, "Mamute-Lanoso", 60, true, 87.5F, 120.0F, 0.25F,
                     14.5F, 6.0F, ScanResultPayload.State.OTHERS, "outro-dono", "uneasy", 0));
@@ -379,7 +380,8 @@ public class AnalyzerTests {
         helper.succeed();
     }
 
-    @GameTest(template = ARENA)
+    // Batch próprio: no lote padrão, um dodô de um teste vizinho às vezes ficava dentro do alcance medido.
+    @GameTest(template = ARENA, batch = "analyzer_aim_range")
     public static void aimReachesOnly24Blocks(GameTestHelper helper) {
         ServerPlayer player = serverPlayer(helper, "analista");
         player.moveTo(helper.absoluteVec(new Vec3(3.5, 0, 3.5)));

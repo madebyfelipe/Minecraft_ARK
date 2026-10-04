@@ -6,7 +6,7 @@ subtitulo: Como esses animais convivem
 
 Cada animal daqui pertence a um grupo, e o grupo é uma família de verdade. Quem nasceu junto anda junto, segue o mesmo líder e dá o alarme para os seus. Dois bandos da mesma espécie não se misturam, mesmo quando pastam lado a lado.
 
-Quando um bando encontra outro da mesma espécie dentro do seu espaço, a briga é séria: lutam até um dos lados fugir ou cair. Entre bandos diferentes, os machos adultos também se enfrentam pela área, mas desistem quando estão feridos demais.
+Quando um bando encontra outro da mesma espécie dentro do seu território, a briga é séria: lutam até um dos lados fugir ou cair. Entre bandos diferentes, os machos adultos também se enfrentam pela área, mas desistem quando estão feridos demais.
 
 A fome é coletiva. Basta um caçador do bando comer para o grupo inteiro se acalmar por um tempo. Uma presa pequena repartida entre vários predadores, porém, mal sacia alguém.
 
@@ -18,7 +18,7 @@ Os predadores não matam por esporte. Um caçador de barriga cheia passa por uma
 
 Conforme a fome cresce, ele se torna oportunista: aproveita um filhote, um animal ferido ou um desgarrado que esteja perto. Faminto de verdade, sai rondando longe do próprio território, com o bando atrás, e fareja presas a distâncias que me assustaram.
 
-Cada espécie tem as suas preferidas e aceita outras só por necessidade. Pesam na escolha o tamanho da presa, a distância, se ela está sozinha e quantos a defendem. Um caçador solitário não ataca uma manada que se defende unida; espera alguém ficar para trás. Em bando, os caçadores encaram presas bem maiores do que eles.
+Cada espécie tem suas presas preferidas e aceita outras só por necessidade. Pesam na escolha o tamanho da presa, a distância, se ela está sozinha e quantos a defendem. Um caçador solitário não ataca uma manada que se defende unida; espera alguém ficar para trás. Em bando, os caçadores encaram presas bem maiores do que eles.
 
 Uma coisa me impressionou: o caçador sempre fareja a presa de mais longe do que a presa consegue notá-lo. Quando a manada percebe, quase sempre já é tarde.
 
@@ -28,7 +28,7 @@ Nenhum carnívoro daqui corre direto para a presa. Primeiro ele acompanha a mana
 
 O bote vem no primeiro sinal favorável: um animal que se afasta do grupo, uma presa que chega perto demais, a manada que finalmente o percebe, ou simplesmente a paciência que acaba. Aí ele ruge, a manada entende tudo de uma vez e o bando de caçadores dispara junto.
 
-A perseguição tem fôlego curto. Se a presa abre distância suficiente, o predador desiste, frustrado, e leva um tempo até tentar outra vez.
+O fôlego do caçador limita a perseguição. Se a presa abre distância suficiente, o predador desiste, frustrado, e leva um tempo até tentar outra vez.
 
 > Um predador parado perto de uma manada, sem fazer barulho, não está descansando. Está escolhendo.
 
@@ -36,9 +36,9 @@ Contra nós, a espreita é ainda mais simples: o caçador chega pelas costas e s
 
 == Lutar ou fugir
 
-As presas também pensam. Comparam o próprio porte e o tamanho do grupo com o de quem se aproxima. Diante de algo grande demais, fogem, até as espécies que costumam enfrentar. Diante de algo menor, encaram, blefam com investidas curtas ou atacam de fato.
+As presas também pensam. Comparam seu porte e o tamanho do próprio grupo com o porte e o número dos animais que se aproximam. Diante de algo grande demais, fogem, até as espécies que costumam enfrentar o perigo. Diante de algo menor, encaram, blefam com investidas curtas ou atacam de fato.
 
-Uma mãe com filhote por perto percebe tudo de mais longe e defende com mais vontade. Um animal surpreendido muito de perto ataca sem aviso. Um animal muito ferido foge de quem o feriu.
+Uma mãe com filhote por perto percebe ameaças de mais longe e defende a cria com mais vigor. Um animal surpreendido muito de perto ataca sem aviso. Um animal muito ferido foge de quem o feriu.
 
 O blefe funciona. Já vi um caçador faminto desistir de uma manada só porque ela se virou para ele e investiu: quando o outro lado é muito mais forte, o predador cede.
 
@@ -46,9 +46,9 @@ Alguns animais se escondem bem. Entre folhas, mato fechado ou neve funda, um bic
 
 == O equilíbrio do vale
 
-Nada aqui estava no lugar quando o portal fechou, e mesmo assim cada coisa acabou achando o seu. Os herbívoros cuidam das plantas, os caçadores cuidam dos herbívoros, e as carcaças alimentam o resto. Nenhuma espécie manda no vale: cada predador toma o que a sua área aguenta, e quando um cai, outro ocupa o lugar.
+Quando o portal fechou, nenhum desses animais estava onde deveria. Mesmo assim, cada espécie acabou encontrando seu lugar. Os herbívoros se alimentam das plantas, os caçadores mantêm os rebanhos sob controle, e as carcaças alimentam o resto. Nenhuma espécie manda no vale: cada predador vive do que seu território oferece, e quando um cai, outro ocupa o lugar.
 
-O que ameaça esse arranjo é o excesso. Um caçador que come mais depressa do que a presa se refaz esvazia o vale de um lado e empurra a fome para o outro. Um animal grande demais para ser enfrentado por qualquer rival não tem quem o contenha.
+O que ameaça esse arranjo é o excesso. Um caçador que mata mais depressa do que as presas conseguem se reproduzir esvazia o vale de um lado e empurra a fome para o outro. Um animal grande demais para ser enfrentado por qualquer rival não tem quem o contenha.
 
 > Se alguma vez o vale ficar vazio de caça, não foi o frio. Foi alguém comendo demais.
 
@@ -56,7 +56,7 @@ O que ameaça esse arranjo é o excesso. Um caçador que come mais depressa do q
 
 Todo bando, inclusive os de herbívoros, defende um espaço em volta de si. Uma espécie mais fraca que entra ali é ameaçada e expulsa; quando sai, a briga acaba. Os mais fracos aprendem a contornar o território dos mais fortes.
 
-Os predadores famintos são a exceção: quando estão caçando, o que decide é a caça, não a cerca invisível de ninguém.
+Os predadores famintos são a exceção: quando estão caçando, seguem a presa mesmo que precisem cruzar o território de outro bando.
 
 Nós ficamos fora dessa disputa de território. O que cada espécie pensa de nós depende do temperamento dela, não da área.
 
@@ -64,7 +64,7 @@ Nós ficamos fora dessa disputa de território. O que cada espécie pensa de nó
 
 Aqui, gente é presa. Não para todos: alguns predadores nem nos consideram comida, outros só nos procuram quando a fome aperta, e há os que nos preferem a qualquer gado.
 
-Sozinho, um sobrevivente é um desgarrado, a presa mais fácil que existe. Ao lado de outras pessoas ou dos nossos animais amansados, ficamos caros demais para a maioria dos caçadores. Andar junto de um tricerátopo manso me salvou mais de uma vez.
+Sozinho, um sobrevivente é um desgarrado, a presa mais fácil que existe. Ao lado de outras pessoas ou dos nossos animais amansados, somos um risco grande demais para a maioria dos caçadores. Andar junto de um tricerátopo manso me salvou mais de uma vez.
 
 Um predador que acabou de comer não ataca sem motivo. Mas quem o fere vira alvo: ele revida, e isso é defesa, não caça.
 
@@ -76,20 +76,20 @@ Quando um animal grande morre na natureza, longe de nós, o corpo fica onde caiu
 
 Quem é mais forte come primeiro. Os mais fracos esperam a vez a uma distância respeitosa, e quem está comendo não sai para caçar.
 
-Com machado ou espada, dá para aproveitar o que sobrou. Quanto mais carne ainda houver, mais se tira dela.
+Com machado ou espada, dá para retirar a carne que sobrou. Quanto menos os predadores tiverem comido, mais conseguimos aproveitar.
 
 > Uma carcaça fresca é um ímã de predadores. Carneie depressa ou deixe para lá.
 
 == Dia e noite
 
-Nem todos vivem no mesmo horário. Algumas espécies são diurnas e, ao escurecer, procuram um esconderijo e dormem; outras fazem o contrário.
+Nem todos são ativos no mesmo horário. Algumas espécies são diurnas e, ao escurecer, procuram um esconderijo e dormem; outras fazem o contrário.
 
-Fora de hora, esses animais dormem pesado. Não reagem a nada, nem a um vizinho do bando dando o alarme. Só acordam se forem feridos.
+Durante o descanso, esses animais dormem profundamente. Não reagem a nada, nem a um vizinho do bando dando o alarme. Só acordam se forem feridos.
 
 == Muros e abrigos
 
 Os animais grandes não respeitam paredes de madeira quando há algo do outro lado que eles querem. Golpeiam até abrir caminho. Os gigantes derrubam até troncos de árvore só de passar.
 
-Pedra eu nunca vi um animal selvagem quebrar. Se for construir abrigo em terra de gigantes, construa de pedra.
+Nunca vi um animal selvagem quebrar pedra. Se for construir abrigo em terra de gigantes, construa de pedra.
 
 Os animais pequenos e os voadores não quebram nada. Alguns de porte médio abrem caminho apenas pelas folhagens e plantas.

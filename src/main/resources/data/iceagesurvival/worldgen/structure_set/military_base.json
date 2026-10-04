@@ -1,0 +1,16 @@
+{
+  "structures": [
+    {
+      "structure": "iceagesurvival:military_base",
+      "weight": 1
+    }
+  ],
+  "placement": {
+    "type": "minecraft:concentric_rings",
+    "salt": 51051704,
+    "distance": 16,
+    "spread": 1,
+    "count": 1,
+    "preferred_biomes": "#iceagesurvival:has_military_outpost"
+  }
+}

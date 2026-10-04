@@ -12,7 +12,9 @@
 | 7 | Montaria | 🟡 armazenamento por espécie, voo no estilo do Cobblemon, pulo sem barra de carga, montaria sem sela e More Hitboxes implementados; build e GameTests passam, falta conferir controles e hitboxes em jogo; slot de sela no inventário, fôlego de voo por nível e bico que segue o voo (D31); custos de voo por espécie, decolagem por salto e térmicas (D42); voo −40%, mergulho só íngreme e montaria voadora sem dano de queda nem sufocação (D50) |
 | 8 | Reprodução e genética | ✅ 2026-09-30 em testes automáticos (genética em JUnit; acasalamento, gestação, ovo, incubadora, mesa química e estimulante em gametests); falta conferir em jogo |
 | 9 | Worldgen | ✅ 2026-09-30 em teste automático (os biomas possíveis do preset são todos frios); falta criar um mundo e andar por ele |
-| 10 | Endgame: base militar, postos com notas, apex secreto | 🔴 reaberta em 2026-10-03 (D51): a caverna e o boss da D47 saíram; falta desenhar o apex, os postos e o bloco-computador |
+| 10 | Endgame: base militar, postos com notas, apex secreto | 🟡 2026-10-04: postos (torre e complexo), base com a contenção, séries de registros e dossiê (D52, D53); falta o Titanovenator como criatura e a luta em jogo |
+
+Revisão editorial do Analisador (2026-10-03): manual e fichas de `tools/wiki_lore/` revisados para uma leitura mais natural, preservando a voz do sobrevivente e o conteúdo da lore.
 
 MVP = Etapas 1–4 + versão mínima de 6, 7 e 9 (mundo frio, temperatura básica, montar o Smilodon).
 

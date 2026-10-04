@@ -1,0 +1,11 @@
+id: o-campo
+titulo: Caderno da ala inferior, o campo
+origem: Laboratório da ala médica, caderno da responsável
+
+As chapas não seguram mais. A solução dos técnicos foi levar uma ponta do campo do quinto nível até a câmara. Dentro dele o tempo quase para: ele fica de pé, de olhos abertos, e leva uma hora para piscar.
+
+Protestei. Dentro do campo nada o fere, nem nós, e nenhum exame funciona. Se um dia for preciso acabar com ele, alguém vai ter que derrubar os geradores primeiro, e aí ele acorda. Responderam que isso nunca vai ser necessário.
+
+Agora entendo a pressa do comando com o teste grande. Viram o que passou no teste zero e querem ver o que mais vem, com o campo aberto por mais tempo e todo o material reunido.
+
+> Os geradores da câmara e os do teste são os mesmos. Se o teste falhar, a câmara fica sem nada.

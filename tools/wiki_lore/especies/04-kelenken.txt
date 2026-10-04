@@ -2,10 +2,10 @@ id: kelenken
 nome: Kelenken
 selos: Carnívoro, Montável, Agressivo
 
-Uma ave-do-terror da Patagônia, de uns quinze milhões de anos atrás. Tem o maior crânio que se conhece de qualquer ave, um bico em forma de machado, e corre mais que um cavalo. Não voa. Não precisa.
+Uma ave-do-terror da Patagônia, de uns quinze milhões de anos atrás. Tem o maior crânio conhecido entre as aves e um bico em forma de machado. Corre mais que um cavalo. Não voa. Não precisa.
 
 Caça sozinha ou em par nas savanas, planícies e terras áridas. Prefere dodôs, cabras, coelhos, ovelhas e porcos; ataca também galimimos e raptores pequenos. Gente, quando sente fome.
 
-A bicada atravessa armadura. Ela golpeia e recua um passo, e golpeia de novo. Tem fôlego para uma perseguição longa: fugir a pé raramente funciona.
+A bicada atravessa armadura. Ela golpeia, recua um passo e golpeia de novo. Tem fôlego para uma perseguição longa: fugir a pé raramente funciona.
 
 > Um escudo erguido é a melhor defesa: a bicada que acerta o escudo trava o bico dela por um instante. Amansei uma com carne vermelha crua ou charque. Montada, corre e salta muito bem.

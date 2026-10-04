@@ -2,6 +2,6 @@ id: dire_wolf
 nome: Lobo-Terrível
 selos: Carnívoro, Desligado, Agressivo
 
-O lobo-terrível caçou nas Américas durante a última era do gelo, maior e de mordida mais forte que qualquer lobo de hoje.
+O lobo-terrível caçou nas Américas durante a última era do gelo. Era maior e tinha a mordida mais forte que qualquer lobo de hoje.
 
 Encontrei uma pegada que só pode ser dele, e mais nada. Se o portal trouxe algum, ainda não o vi vivo.

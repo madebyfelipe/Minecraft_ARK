@@ -6,12 +6,16 @@ em tools/wiki_lore/, como as notas de campo de um cientista da base que sobreviv
 
     tools/wiki_lore/manual/NN-<capitulo>.txt   um capítulo da aba MANUAL (a ordem é a do prefixo NN)
     tools/wiki_lore/especies/NN-<id>.txt       a ficha de uma espécie na DINO FILE (a ordem da lista é a do NN)
+    tools/wiki_lore/registros/NN-<id>.txt      série "postos": registros destravados nos terminais dos postos (ordem do NN)
+    tools/wiki_lore/base/NN-<id>.txt           série "base": registros dos terminais da base militar
+    tools/wiki_lore/dossie/NN-<id>.txt         série "dossie": destravada quando a criatura da contenção morre
 
 Cada arquivo começa com um cabeçalho de linhas "chave: valor" e uma linha em branco:
 
     capítulo:  id, titulo, subtitulo          (o id é o do capítulo no manual.json)
     espécie:   id, nome, selos                (id da entidade sem o namespace; selos separados por vírgula;
                                               o selo "Desligado" tira a espécie da DINO FILE)
+    registro:  id, titulo, origem             (o id é o do nome do arquivo depois do NN-; sem páginas "==")
 
 No capítulo, cada "== Título" abre uma página (id = <capitulo>/<título sem acento>). O corpo é feito de blocos
 separados por linha em branco:
@@ -44,6 +48,8 @@ IGNORED_SPECIES = {'test_creature'}
 
 CHAPTER_KEYS = {'id', 'titulo', 'subtitulo'}
 SPECIES_KEYS = {'id', 'nome', 'selos'}
+RECORD_KEYS = {'id', 'titulo', 'origem'}
+SERIES = [('postos', 'Postos', 'registros'), ('base', 'Base militar', 'base'), ('dossie', 'Dossiê', 'dossie')]
 
 # Termos de design que não cabem na voz do cientista (o texto é observação de campo, não regra de jogo).
 FORBIDDEN = [
@@ -170,6 +176,16 @@ def load_sheet(path):
     return NAMESPACE + header['id'], sheet
 
 
+def load_record(path):
+    header, body = read_header(path, RECORD_KEYS)
+    if path.stem.split('-', 1)[1] != header['id']:
+        raise LoreError(f'{path.name}: o id "{header["id"]}" não bate com o nome do arquivo')
+    if any(line.startswith('== ') for line in body):
+        raise LoreError(f'{path.name}: registro não tem páginas ("== ")')
+    return {'id': header['id'], 'title': header['titulo'], 'source': header['origem'],
+            'blocks': parse_blocks(body, path.name)}
+
+
 def ordered_files(folder):
     files = sorted(folder.glob('*.txt'))
     for f in files:
@@ -208,6 +224,11 @@ def check(manual):
 
     owners = [(f"página {p['id']}", p['blocks']) for c in manual['chapters'] for p in c['pages']]
     owners += [(f'ficha {sid}', s['blocks']) for sid, s in manual['species'].items()]
+    all_records = [r for s in manual['series'] for r in s['records']]
+    owners += [(f"registro {r['id']}", r['blocks']) for r in all_records]
+    record_ids = Counter(r['id'] for r in all_records)
+    errors += [f"série sem registros: {s['id']}" for s in manual['series'] if not s['records']]
+    errors += [f'id de registro repetido: {rid}' for rid, n in record_ids.items() if n > 1]
     for owner, blocks in owners:
         if not blocks:
             errors.append(f'{owner}: sem blocos')
@@ -244,9 +265,12 @@ def main():
             if sid in fichas:
                 raise LoreError(f'{f.name}: ficha repetida para {sid}')
             fichas[sid] = sheet
+        series = [{'id': sid, 'title': title, 'records': [load_record(f) for f in ordered_files(LORE / folder)]}
+                  for sid, title, folder in SERIES]
+        records = [r for s in series for r in s['records']]
     except LoreError as e:
         sys.exit(f'gen_wiki: {e}')
-    manual = {'chapters': chapters, 'species': fichas}
+    manual = {'chapters': chapters, 'species': fichas, 'series': series}
 
     errors = check(manual)
     if errors:
@@ -256,9 +280,10 @@ def main():
     OUT.write_text(json.dumps(manual, ensure_ascii=False, indent=1) + '\n', encoding='utf-8')
 
     blocks = Counter()
-    for owner in [p for c in chapters for p in c['pages']] + list(fichas.values()):
+    for owner in [p for c in chapters for p in c['pages']] + list(fichas.values()) + records:
         blocks.update(b['type'] for b in owner['blocks'])
-    print(f'{OUT.relative_to(ROOT)}: {len(chapters)} capítulos, {len(fichas)} espécies')
+    print(f'{OUT.relative_to(ROOT)}: {len(chapters)} capítulos, {len(fichas)} espécies, '
+          + ', '.join(f"{len(s['records'])} registros ({s['id']})" for s in series))
     for chapter in chapters:
         print(f"  {chapter['id']}: {len(chapter['pages'])} páginas")
     print('  blocos: ' + ', '.join(f'{t} {blocks[t]}' for t in ('heading', 'paragraph', 'list', 'table', 'note'))

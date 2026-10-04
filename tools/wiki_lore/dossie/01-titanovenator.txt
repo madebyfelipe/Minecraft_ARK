@@ -1,0 +1,37 @@
+id: titanovenator
+titulo: Dossiê da espécie: Titanovenator
+origem: Cofre da câmara do quarto nível, documento do chefe da equipe de biologia
+
+Classificação interna. Preparado pelo chefe da equipe civil de biologia, com acesso à ala inferior autorizado pelo comando. Fontes: as gravações do teste zero, os cadernos da responsável pela ala médica e duas amostras de sangue tiradas sob sedação.
+
+### Nome
+
+Chamo a espécie de Titanovenator, o caçador de titãs. A responsável pela ala médica se recusou a dar um nome, e eu entendo por quê. O comando ia escolher um de qualquer jeito, e prefiro que o nome diga o que ele caça.
+
+### Linhagem
+
+As gravações do teste zero mostram que a fenda abriu para outra linha do tempo. O sangue dele tem a base dos tiranossaurídeos que conhecemos pelos fósseis, com diferenças que pediriam dezenas de milhões de anos a mais de evolução. Do lado de lá, a família dos tiranos sobreviveu ao fim do Cretáceo e continuou mudando, e as presas cresceram junto com ela.
+
+A frase dos dois por cento que a responsável repete nos relatórios continua certa. Ele só fica fora dela, porque nenhuma rocha deste mundo teve como guardar os ossos dele.
+
+### Comparação com o tiranossauro
+
+| Traço | Tiranossauro | Titanovenator |
+|---|---|---|
+| Corpo | o maior caçador terrestre que os fósseis mostram | peito, coxas e base da cauda mais largos e mais pesados |
+| Cabeça | crânio alto, focinho mais estreito | focinho e mandíbula mais largos, bochechas musculosas, cristas baixas |
+| Dentes | conhecidos só pelo crânio | cobertos por lábios, aparecem quando ele abre a boca para morder |
+| Pele | desconhecida | dorso cor de carvão, ventre ocre dourado, manchas escuras entre os dois, cerdas na nuca |
+| Sedação | não se aplica | o metabolismo queima o sedativo em minutos |
+
+### Comportamento
+
+Ele escolhe presas maiores do que ele. Ataca as pernas primeiro, recua e espera a presa cansar. Aprende horários e rotinas depressa e se lembra de quem o feriu. Caça sozinho e isola o oponente mais forte, mas contra um grupo que ataca de lados diferentes ele hesita e perde tempo virando a cabeça.
+
+No mundo dele as presas eram do tamanho dele. Neste vale quase tudo é pequeno, e ele precisaria comer muito mais animais para se manter. Se sair, o equilíbrio do vale não dura uma estação.
+
+### Acréscimo, depois do clarão
+
+Escrevo à mão porque os terminais apagaram. O campo do quinto nível ainda segura a câmara, no mínimo. As medições do material dizem que a fenda gastou tudo o que havia para gastar. Ninguém volta por ela: nem nós para o nosso tempo, nem ele para o dele.
+
+Quem sobrou da biologia saiu para o norte, atrás dos militares. Não mandaram notícia, e a frequência de emergência está em silêncio desde a semana passada.

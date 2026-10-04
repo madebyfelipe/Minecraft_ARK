@@ -1,0 +1,17 @@
+id: projeto-limiar
+titulo: Projeto Limiar, resumo técnico
+origem: Terminal técnico da base, cópia parcial
+
+Classificação máxima. Não imprimir.
+
+O material retirado do permafrost foi confirmado como antimatéria em estado estável, aprisionada no gelo de forma que ainda não compreendemos. Estável apenas enquanto o gelo em volta permanece intacto. Fora dele, a contenção depende de campos magnéticos ininterruptos.
+
+| Nível | Função |
+| --- | --- |
+| Terceiro | Armazenamento das amostras |
+| Quarto | Câmara de contenção |
+| Quinto | Geradores e campo principal |
+
+Os geradores do quinto nível consomem hoje a energia de uma cidade inteira. Qualquer queda acima de dois segundos libera o material.
+
+O comando quer um teste de extração em larga escala antes do fim da estação. A equipe técnica registra, por escrito, que não sabe o que acontece se o campo falhar com essa quantidade reunida num só lugar.

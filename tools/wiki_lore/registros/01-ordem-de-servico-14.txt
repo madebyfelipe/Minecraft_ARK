@@ -1,0 +1,14 @@
+id: ordem-de-servico-14
+titulo: Ordem de serviço nº 14
+origem: Arquivos da base, cópia no terminal do posto
+
+A partir desta data, o pessoal recém-chegado fica distribuído conforme abaixo. A equipe civil de biologia ocupa os alojamentos da superfície e o laboratório de campo. O acesso aos níveis inferiores é restrito ao pessoal técnico com credencial vermelha.
+
+- Rondas a cada quatro horas pelo perímetro da base.
+- Rádio aberto às seis, às doze, às dezoito e à meia-noite.
+- Nenhum civil desce abaixo do segundo nível, nem acompanhado.
+- Amostras de gelo seguem para o laboratório de campo, nunca para os níveis de baixo.
+
+Os civis foram informados de que esta é uma instalação de pesquisa sobre a fauna preservada no permafrost. Essa é a versão oficial e deve ser mantida em qualquer conversa.
+
+> Perguntas sobre o consumo de energia da base devem ser encaminhadas ao comando. Não respondam.

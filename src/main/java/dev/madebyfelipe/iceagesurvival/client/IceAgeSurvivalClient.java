@@ -42,6 +42,8 @@ public class IceAgeSurvivalClient {
                 dev.madebyfelipe.iceagesurvival.client.dex.DinoFileClient::receive);
         dev.madebyfelipe.iceagesurvival.network.ScanResultPayload.setClientHandler(
                 dev.madebyfelipe.iceagesurvival.client.dex.DinoFileClient::receiveScan);
+        dev.madebyfelipe.iceagesurvival.network.TerminalReadPayload.setClientHandler(
+                dev.madebyfelipe.iceagesurvival.client.dex.DinoFileClient::receiveTerminal);
         MinecraftForge.EVENT_BUS.addListener(dev.madebyfelipe.iceagesurvival.client.dex.DinoFileClient::onLoggingOut);
         dev.madebyfelipe.iceagesurvival.item.AnalyzerItem.setTerminalOpener(
                 dev.madebyfelipe.iceagesurvival.client.dex.AnalyzerScreen::open);

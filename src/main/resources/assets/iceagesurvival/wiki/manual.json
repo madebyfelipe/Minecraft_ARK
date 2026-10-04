@@ -11,7 +11,7 @@
      "blocks": [
       {
        "type": "paragraph",
-       "text": "Escrevo isto para quem vier depois. Eu era biólogo de apoio da base, contratado para estudar o permafrost em volta das instalações. Tinham encontrado ali, congeladas no gelo, espécies inteiras, em um estado de conservação que ninguém acreditava ser possível. Era o pretexto. Ninguém me contou o que o Projeto Limiar fazia nos níveis de baixo, só que consumia energia de uma cidade inteira."
+       "text": "Escrevo isto para quem vier depois. Eu era biólogo de apoio da base, contratado para estudar o permafrost em volta das instalações. Tinham encontrado ali exemplares de várias espécies preservados no gelo, em um estado de conservação que ninguém acreditava ser possível. Era o pretexto. Ninguém me contou o que o Projeto Limiar fazia nos níveis de baixo, só que consumia tanta energia quanto uma cidade inteira."
       },
       {
        "type": "paragraph",
@@ -19,7 +19,7 @@
       },
       {
        "type": "paragraph",
-       "text": "O que quer que tenham aberto lá embaixo, abriu para muitos tempos ao mesmo tempo. Vi um mamute-lanoso, que pertence às últimas eras do gelo, pastando a poucos passos de um tricerátopo, que viveu dezenas de milhões de anos antes dele. Épocas que nunca se tocaram agora dividem o mesmo vale."
+       "text": "O que quer que tenham aberto lá embaixo deu passagem a muitas épocas ao mesmo tempo. Vi um mamute-lanoso, que pertence às últimas eras do gelo, pastando a poucos passos de um tricerátopo, que viveu dezenas de milhões de anos antes dele. Animais separados por milhões de anos agora dividem o mesmo vale."
       },
       {
        "type": "note",
@@ -33,11 +33,11 @@
      "blocks": [
       {
        "type": "paragraph",
-       "text": "Eu estudava os bichos congelados. Os militares procuravam outra coisa. Pelos registros que fui achando nos postos em volta da base, o permafrost guardava um material que eles queriam a qualquer custo: antimatéria, presa no gelo, instável, que não devia existir fora de um laboratório."
+       "text": "Eu estudava os bichos congelados. Os militares procuravam outra coisa. Pelos registros que fui encontrando nos postos espalhados pelo vale, o permafrost guardava um material que eles queriam a qualquer custo: antimatéria, presa no gelo, instável, que não devia existir fora de um laboratório."
       },
       {
        "type": "paragraph",
-       "text": "O clarão foi ela. Quando o material cedeu, o espaço e o tempo daquele vale colapsaram juntos, e o que estava espalhado por eras diferentes foi parar no mesmo lugar. Não foi uma porta que abriram. Foi uma ferida, e ela fechou sozinha."
+       "text": "Foi ela que causou o clarão. Quando o material se desestabilizou, o espaço e o tempo daquele vale colapsaram juntos, e o que estava espalhado por eras diferentes foi parar no mesmo lugar. Não foi uma porta que abriram. Foi uma ferida, e ela fechou sozinha."
       },
       {
        "type": "paragraph",
@@ -51,7 +51,7 @@
      "blocks": [
       {
        "type": "paragraph",
-       "text": "O mais estranho é que funciona. Passada a confusão dos primeiros dias, o vale se arrumou: herbívoros de épocas diferentes pastam juntos, os caçadores acharam presas, cada espécie tomou o seu canto. Um ecossistema que nunca existiu e que se sustenta sozinho."
+       "text": "O mais estranho é que funciona. Passada a confusão dos primeiros dias, a vida no vale se reorganizou: herbívoros de épocas diferentes pastam juntos, os caçadores acharam presas, cada espécie encontrou seu espaço. Um ecossistema que nunca existiu e que se sustenta sozinho."
       },
       {
        "type": "paragraph",
@@ -65,11 +65,15 @@
      "blocks": [
       {
        "type": "paragraph",
-       "text": "Em volta da base ficam os postos militares, pequenos, de concreto, com o gelo já entrando pelas frestas. Muitos ainda têm terminais de pé. Alguns guardam registros: ordens, relatórios, conversas entre quem ficou. Aponto o analisador para um terminal e deixo ler; cada leitura me devolve uma nota que eu não tinha."
+       "text": "Os postos não existiam antes do clarão. Pelo que os registros contam, os militares que sobraram saíram para reconhecer o vale nos primeiros dias, e nem todos voltaram. Depois das primeiras mortes, pararam de andar desprotegidos e passaram a erguer postos de controle com o que tinham à mão: a pedra do próprio vale, o ferro e a madeira tirados dos escombros. São torres de vigia com um mirante gradeado no alto, cercadas por um muro de pedra com um portão largo. Estão espalhados pelo vale, longe uns dos outros."
       },
       {
        "type": "paragraph",
-       "text": "A base em si continua de pé, selada. Pelo que os registros contam, ainda há algo lá dentro, algo que eles mantiveram fechado antes do incidente. Os relatórios cortam sempre no mesmo ponto. Não sei o que é."
+       "text": "Dentro de cada um quase sempre há um terminal funcionando, com cópias dos arquivos da base e o que escreveu quem ficou: ordens, relatórios, conversas. Às vezes há também um baú esquecido, com dardos sedativos e algum rifle. Aponto o analisador para um terminal e espero a leitura terminar."
+      },
+      {
+       "type": "paragraph",
+       "text": "A base em si continua de pé, selada. Pelo que os registros contam, ainda há algo lá dentro, algo que eles mantiveram fechado antes do incidente. Os relatórios são interrompidos sempre no mesmo ponto. Não sei o que é."
       },
       {
        "type": "note",
@@ -83,11 +87,11 @@
      "blocks": [
       {
        "type": "paragraph",
-       "text": "Salvei dos escombros o analisador de campo do laboratório de biologia. É com ele que registro cada espécie: aponto para um animal, mantenho a mira firme até o aparelho terminar a leitura, e a ficha da espécie se abre no arquivo, ao lado de uma análise daquele indivíduo em particular, com força, ferimentos, sono e humor."
+       "text": "Salvei dos escombros o analisador de campo do laboratório de biologia. É com ele que registro cada espécie: aponto para um animal, mantenho a mira firme até o aparelho terminar a leitura, e a ficha da espécie aparece no arquivo. Junto dela vem uma análise daquele indivíduo: sua força, seus ferimentos, seu sono e seu humor."
       },
       {
        "type": "paragraph",
-       "text": "O aparelho também avisa o que esperar de cada exemplar: seguro, quando o animal é manso ou já confia em nós; cuidado, quando é selvagem mas só se defende; perigo, quando é dos que caçam ou atacam sem provocação."
+       "text": "O aparelho também avisa o que esperar de cada exemplar: seguro, quando o animal é manso ou já confia em nós; cuidado, quando é selvagem mas só se defende; perigo, quando pertence a uma espécie que caça ou ataca sem provocação."
       },
       {
        "type": "paragraph",
@@ -116,7 +120,7 @@
       },
       {
        "type": "paragraph",
-       "text": "Quando um bando encontra outro da mesma espécie dentro do seu espaço, a briga é séria: lutam até um dos lados fugir ou cair. Entre bandos diferentes, os machos adultos também se enfrentam pela área, mas desistem quando estão feridos demais."
+       "text": "Quando um bando encontra outro da mesma espécie dentro do seu território, a briga é séria: lutam até um dos lados fugir ou cair. Entre bandos diferentes, os machos adultos também se enfrentam pela área, mas desistem quando estão feridos demais."
       },
       {
        "type": "paragraph",
@@ -142,7 +146,7 @@
       },
       {
        "type": "paragraph",
-       "text": "Cada espécie tem as suas preferidas e aceita outras só por necessidade. Pesam na escolha o tamanho da presa, a distância, se ela está sozinha e quantos a defendem. Um caçador solitário não ataca uma manada que se defende unida; espera alguém ficar para trás. Em bando, os caçadores encaram presas bem maiores do que eles."
+       "text": "Cada espécie tem suas presas preferidas e aceita outras só por necessidade. Pesam na escolha o tamanho da presa, a distância, se ela está sozinha e quantos a defendem. Um caçador solitário não ataca uma manada que se defende unida; espera alguém ficar para trás. Em bando, os caçadores encaram presas bem maiores do que eles."
       },
       {
        "type": "paragraph",
@@ -164,7 +168,7 @@
       },
       {
        "type": "paragraph",
-       "text": "A perseguição tem fôlego curto. Se a presa abre distância suficiente, o predador desiste, frustrado, e leva um tempo até tentar outra vez."
+       "text": "O fôlego do caçador limita a perseguição. Se a presa abre distância suficiente, o predador desiste, frustrado, e leva um tempo até tentar outra vez."
       },
       {
        "type": "note",
@@ -182,11 +186,11 @@
      "blocks": [
       {
        "type": "paragraph",
-       "text": "As presas também pensam. Comparam o próprio porte e o tamanho do grupo com o de quem se aproxima. Diante de algo grande demais, fogem, até as espécies que costumam enfrentar. Diante de algo menor, encaram, blefam com investidas curtas ou atacam de fato."
+       "text": "As presas também pensam. Comparam seu porte e o tamanho do próprio grupo com o porte e o número dos animais que se aproximam. Diante de algo grande demais, fogem, até as espécies que costumam enfrentar o perigo. Diante de algo menor, encaram, blefam com investidas curtas ou atacam de fato."
       },
       {
        "type": "paragraph",
-       "text": "Uma mãe com filhote por perto percebe tudo de mais longe e defende com mais vontade. Um animal surpreendido muito de perto ataca sem aviso. Um animal muito ferido foge de quem o feriu."
+       "text": "Uma mãe com filhote por perto percebe ameaças de mais longe e defende a cria com mais vigor. Um animal surpreendido muito de perto ataca sem aviso. Um animal muito ferido foge de quem o feriu."
       },
       {
        "type": "paragraph",
@@ -204,11 +208,11 @@
      "blocks": [
       {
        "type": "paragraph",
-       "text": "Nada aqui estava no lugar quando o portal fechou, e mesmo assim cada coisa acabou achando o seu. Os herbívoros cuidam das plantas, os caçadores cuidam dos herbívoros, e as carcaças alimentam o resto. Nenhuma espécie manda no vale: cada predador toma o que a sua área aguenta, e quando um cai, outro ocupa o lugar."
+       "text": "Quando o portal fechou, nenhum desses animais estava onde deveria. Mesmo assim, cada espécie acabou encontrando seu lugar. Os herbívoros se alimentam das plantas, os caçadores mantêm os rebanhos sob controle, e as carcaças alimentam o resto. Nenhuma espécie manda no vale: cada predador vive do que seu território oferece, e quando um cai, outro ocupa o lugar."
       },
       {
        "type": "paragraph",
-       "text": "O que ameaça esse arranjo é o excesso. Um caçador que come mais depressa do que a presa se refaz esvazia o vale de um lado e empurra a fome para o outro. Um animal grande demais para ser enfrentado por qualquer rival não tem quem o contenha."
+       "text": "O que ameaça esse arranjo é o excesso. Um caçador que mata mais depressa do que as presas conseguem se reproduzir esvazia o vale de um lado e empurra a fome para o outro. Um animal grande demais para ser enfrentado por qualquer rival não tem quem o contenha."
       },
       {
        "type": "note",
@@ -226,7 +230,7 @@
       },
       {
        "type": "paragraph",
-       "text": "Os predadores famintos são a exceção: quando estão caçando, o que decide é a caça, não a cerca invisível de ninguém."
+       "text": "Os predadores famintos são a exceção: quando estão caçando, seguem a presa mesmo que precisem cruzar o território de outro bando."
       },
       {
        "type": "paragraph",
@@ -244,7 +248,7 @@
       },
       {
        "type": "paragraph",
-       "text": "Sozinho, um sobrevivente é um desgarrado, a presa mais fácil que existe. Ao lado de outras pessoas ou dos nossos animais amansados, ficamos caros demais para a maioria dos caçadores. Andar junto de um tricerátopo manso me salvou mais de uma vez."
+       "text": "Sozinho, um sobrevivente é um desgarrado, a presa mais fácil que existe. Ao lado de outras pessoas ou dos nossos animais amansados, somos um risco grande demais para a maioria dos caçadores. Andar junto de um tricerátopo manso me salvou mais de uma vez."
       },
       {
        "type": "paragraph",
@@ -270,7 +274,7 @@
       },
       {
        "type": "paragraph",
-       "text": "Com machado ou espada, dá para aproveitar o que sobrou. Quanto mais carne ainda houver, mais se tira dela."
+       "text": "Com machado ou espada, dá para retirar a carne que sobrou. Quanto menos os predadores tiverem comido, mais conseguimos aproveitar."
       },
       {
        "type": "note",
@@ -284,11 +288,11 @@
      "blocks": [
       {
        "type": "paragraph",
-       "text": "Nem todos vivem no mesmo horário. Algumas espécies são diurnas e, ao escurecer, procuram um esconderijo e dormem; outras fazem o contrário."
+       "text": "Nem todos são ativos no mesmo horário. Algumas espécies são diurnas e, ao escurecer, procuram um esconderijo e dormem; outras fazem o contrário."
       },
       {
        "type": "paragraph",
-       "text": "Fora de hora, esses animais dormem pesado. Não reagem a nada, nem a um vizinho do bando dando o alarme. Só acordam se forem feridos."
+       "text": "Durante o descanso, esses animais dormem profundamente. Não reagem a nada, nem a um vizinho do bando dando o alarme. Só acordam se forem feridos."
       }
      ]
     },
@@ -302,7 +306,7 @@
       },
       {
        "type": "paragraph",
-       "text": "Pedra eu nunca vi um animal selvagem quebrar. Se for construir abrigo em terra de gigantes, construa de pedra."
+       "text": "Nunca vi um animal selvagem quebrar pedra. Se for construir abrigo em terra de gigantes, construa de pedra."
       },
       {
        "type": "paragraph",
@@ -329,7 +333,7 @@
         "Investida curta que para no meio do caminho: é blefe. A próxima pode não ser.",
         "Predador imóvel, em silêncio, perto de uma manada: está espreitando. O rugido vem junto com o bote.",
         "Rugido seguido de correria: a caçada começou. Saia do caminho da manada.",
-        "Bicho dormindo encolhido num canto em plena luz do dia, ou em plena noite: está fora do seu horário. Só acorda se for ferido.",
+        "Animal dormindo encolhido num canto, de dia ou de noite: está no seu período de descanso. Só acorda se for ferido.",
         "Carniceiro rondando um corpo: há um predador maior por perto, ou haverá.",
         "Animal que ataca e recua em seguida, sem pressa de terminar: veneno. Ele vai seguir o seu rastro."
        ]
@@ -346,11 +350,11 @@
       },
       {
        "type": "paragraph",
-       "text": "Contra os grandes, distância é tudo: na perseguição, quem se afasta o bastante é deixado para trás. Contra os que caçam em bando, nunca fique sozinho."
+       "text": "Contra os grandes, distância é tudo: se você conseguir abrir uma boa vantagem, eles desistem da perseguição. Contra os que caçam em bando, nunca fique sozinho."
       },
       {
        "type": "note",
-       "text": "Um animal amansado ao seu lado muda a conta do predador. Raramente ele acha que vale a pena."
+       "text": "Um animal amansado ao seu lado faz o predador pensar duas vezes antes de atacar."
       }
      ]
     },
@@ -360,7 +364,7 @@
      "blocks": [
       {
        "type": "paragraph",
-       "text": "Resumo do que já registrei, com a época de onde cada animal deveria ter vindo. Os detalhes estão na ficha de cada espécie."
+       "text": "Resumo do que já registrei, com a época de origem de cada animal. Os detalhes estão na ficha de cada espécie."
       },
       {
        "type": "table",
@@ -478,7 +482,7 @@
         [
          "Giganotossauro",
          "Cretáceo Superior, Patagônia",
-         "Caçador, mordida que sangra"
+         "Caçador, mordida que causa sangramento"
         ]
        ]
       }
@@ -505,11 +509,11 @@
       },
       {
        "type": "paragraph",
-       "text": "Com narcótico na ponta, uma flecha comum vira flecha tranquilizante. Cada flecha deixa o animal mais sonolento, até que ele desaba. O arco bem puxado rende mais; um arco encantado com Força, muito mais. Depois aprendi a fazer dardos sedativos, uma besta de dardos e, por fim, um rifle tranquilizante, todos na bancada de armeiro."
+       "text": "Com narcótico na ponta, uma flecha comum vira flecha tranquilizante. Cada flecha deixa o animal mais sonolento, até que ele desaba. Puxar bem a corda do arco aumenta o efeito; um encantamento de Força aumenta ainda mais. Depois aprendi a fazer dardos sedativos, uma besta de dardos e, por fim, um rifle tranquilizante, todos na bancada de armeiro."
       },
       {
        "type": "note",
-       "text": "Atirar num predador é chamar atenção. Ele vem. Atire de longe, de um lugar alto, ou com alguém cobrindo você."
+       "text": "Atirar num predador é chamar a atenção dele. Ele vem. Atire de longe, de um lugar alto, ou com alguém cobrindo você."
       }
      ]
     },
@@ -519,15 +523,15 @@
      "blocks": [
       {
        "type": "paragraph",
-       "text": "Com o animal caído, abra a bolsa dele e deixe ali a comida da espécie. Ele come sozinho, um bocado de cada vez, sempre o melhor alimento que encontrar. Entre um bocado e outro há uma pausa, e é nesse tempo que ele fica indefeso: proteja-o."
+       "text": "Com o animal caído, abra a bolsa dele e deixe ali a comida adequada à espécie. Ele come sozinho, um bocado de cada vez, sempre o melhor alimento que encontrar. Entre um bocado e outro há uma pausa, e é nesse tempo que ele fica indefeso: proteja-o."
       },
       {
        "type": "paragraph",
-       "text": "O sono passa aos poucos. Se o animal acordar antes de terminar, foge, e tudo o que comeu se perde. Mais flechas o mantêm dormindo, mas cada uma machuca; o narcótico dado na boca do animal desacordado faz o mesmo sem ferir."
+       "text": "O sono passa aos poucos. Se o animal acordar antes de terminar, foge, e todo o esforço de amansá-lo se perde. Mais flechas o mantêm dormindo, mas cada uma machuca; o narcótico dado na boca do animal desacordado faz o mesmo sem ferir."
       },
       {
        "type": "paragraph",
-       "text": "Quanto melhor a comida e menos ferido ele estiver ao acordar, mais forte e mais confiante sai o animal. Exemplares mais fortes comem muito mais até aceitarem alguém. O animal se apega a quem o derrubou."
+       "text": "Quanto melhor a comida e menos ferido ele estiver ao acordar, mais forte e confiante ele fica. Exemplares mais fortes comem muito mais até aceitarem alguém. O animal se apega a quem o derrubou."
       },
       {
        "type": "paragraph",
@@ -541,11 +545,11 @@
      "blocks": [
       {
        "type": "paragraph",
-       "text": "Um animal amansado nos segue, para quando mandamos e luta ou se afasta conforme a postura que ensinamos, tudo por assobios. Se mirarmos num alvo, os nossos animais por perto vão para cima dele."
+       "text": "Um animal amansado nos segue, para quando mandamos e luta ou se afasta conforme a postura que lhe ensinamos. Damos essas ordens por assobios. Se mirarmos num alvo, os nossos animais por perto vão para cima dele."
       },
       {
        "type": "paragraph",
-       "text": "Ele obedece na medida em que confia. A confiança cresce quando lhe oferecemos a comida de que gosta, de tempos em tempos, e essa comida também cura as feridas. Ninguém precisa alimentá-los para que sobrevivam; é só para criar laço."
+       "text": "Ele obedece na medida em que confia. A confiança cresce quando lhe oferecemos a comida de que gosta, de tempos em tempos, e essa comida também cura as feridas. Ninguém precisa alimentá-los para que sobrevivam; a comida ajuda a criar esse vínculo."
       },
       {
        "type": "paragraph",
@@ -553,7 +557,7 @@
       },
       {
        "type": "paragraph",
-       "text": "Se um dos nossos morrer, o corpo não desaparece logo. Ele guarda um implante com tudo o que aquele animal era. Na mesa de reviver, o implante e um diamante o trazem de volta. Um estimulante, por sua vez, acorda um animal nosso que tenha sido derrubado."
+       "text": "Se um dos nossos morrer, o corpo não desaparece logo. Ele guarda um implante com tudo o que aquele animal era. Com o implante e um diamante na mesa de reviver, podemos trazê-lo de volta. Um estimulante, por sua vez, acorda um animal nosso que tenha sido derrubado."
       }
      ]
     },
@@ -563,7 +567,7 @@
      "blocks": [
       {
        "type": "paragraph",
-       "text": "Um macho e uma fêmea adultos, ambos nossos e da mesma espécie, cruzam quando os deixamos à vontade e próximos. Os mamíferos dão à luz. Dinossauros, aves e répteis põem um ovo que só choca na incubadora, e só enquanto estiver aquecido, por fogo por perto ou por combustível."
+       "text": "Um macho e uma fêmea adultos, ambos nossos e da mesma espécie, cruzam quando os deixamos à vontade e próximos. Os mamíferos dão à luz. Dinossauros, aves e répteis põem um ovo que só choca na incubadora, e só enquanto ela estiver aquecida, seja por uma fonte de fogo próxima ou por combustível."
       },
       {
        "type": "paragraph",
@@ -581,7 +585,7 @@
       },
       {
        "type": "paragraph",
-       "text": "As primeiras roupas que me salvaram foram de pena de dodô: seguram o dia nas planícies nevadas, mas não a noite. A pele de mamute ou de smilodon faz roupas que seguram as duas. Fogo por perto e um teto sobre a cabeça ajudam muito. Cavernas guardam o calor da terra: descer é se abrigar."
+       "text": "As primeiras roupas que me salvaram foram de pena de dodô: protegem do frio durante o dia nas planícies nevadas, mas não bastam à noite. As roupas de pele de mamute ou de smilodon protegem tanto de dia quanto de noite. Fogo por perto e um teto sobre a cabeça ajudam muito. Cavernas guardam o calor da terra: descer é se abrigar."
       },
       {
        "type": "paragraph",
@@ -595,15 +599,15 @@
      "blocks": [
       {
        "type": "paragraph",
-       "text": "O tiranossauro e o espinossauro não se rendem a sedativo. Mas notei que respeitam força. Quem carrega a cabeça de outro da mesma espécie, tirada de um que caiu em combate, é tratado como rival digno: o animal não o caça, apenas encara e ruge."
+       "text": "O tiranossauro e o espinossauro não se rendem aos sedativos. Mas notei que respeitam a força. Quem carrega a cabeça de outro da mesma espécie, tirada de um que caiu em combate, é tratado como rival digno: o animal não o caça, apenas encara e ruge."
       },
       {
        "type": "paragraph",
-       "text": "Oferecer essa cabeça a ele é um desafio. O soberano ruge, depois avança contra os animais de quem o desafiou. Só valem o desafiante e até três animais dele; se um quarto entrar na luta, ou outra pessoa interferir, o duelo acaba. Vencido, o soberano não morre: desaba, e aceita ser amansado com carne por quem o venceu."
+       "text": "Oferecer essa cabeça a ele é um desafio. O soberano ruge, depois avança contra os animais de quem o desafiou. Só podem participar o desafiante e até três animais dele; se um quarto entrar na luta, ou outra pessoa interferir, o duelo acaba. Vencido, o soberano não morre: desaba, e aceita ser amansado com carne por quem o venceu."
       },
       {
        "type": "note",
-       "text": "Vencido, o soberano não morre; aceita a mão de quem o venceu. Mas o que ele aceita de um, não aceita de outro: o duelo é com quem o desafiou."
+       "text": "A vitória não torna o soberano dócil com qualquer pessoa. Ele só aceita ser amansado por quem o desafiou."
       }
      ]
     }
@@ -621,11 +625,11 @@
    "blocks": [
     {
      "type": "paragraph",
-     "text": "O alossauro dominava o fim do Jurássico, uns cento e cinquenta milhões de anos atrás, na América do Norte. Nos fósseis, já se encontrou vértebra de alossauro perfurada por um espinho de cauda de estegossauro. Aqui, vi a mesma briga ao vivo."
+     "text": "O alossauro dominava o fim do Jurássico, uns cento e cinquenta milhões de anos atrás, na América do Norte. Já encontraram uma vértebra fossilizada de alossauro perfurada por um espinho da cauda de um estegossauro. Aqui, vi a mesma briga ao vivo."
     },
     {
      "type": "paragraph",
-     "text": "Caça em grupos de dois ou três, e juntos ficam mais rápidos e mais violentos. Preferem estegossauros e galimimos; com fome, encaram brontossauros, elasmotérios e qualquer gado. Gente também entra no cardápio quando a barriga aperta."
+     "text": "Caçam em grupos de dois ou três e, juntos, ficam mais rápidos e mais violentos. Preferem estegossauros e galimimos; com fome, encaram brontossauros, elasmotérios e todo tipo de gado. Gente também entra no cardápio quando a barriga aperta."
     },
     {
      "type": "paragraph",
@@ -659,7 +663,7 @@
     },
     {
      "type": "paragraph",
-     "text": "A garra é um gancho: o primeiro golpe depois do bote fisga a presa e a puxa para perto. Na água, prende qualquer coisa; em terra, o que for do tamanho dele para baixo."
+     "text": "A garra é um gancho: o primeiro golpe depois do bote fisga a presa e a puxa para perto. Na água, prende qualquer coisa; em terra, só o que for do tamanho dele ou menor."
     },
     {
      "type": "paragraph",
@@ -686,7 +690,7 @@
     },
     {
      "type": "paragraph",
-     "text": "Vive sozinho na beira dos rios, pântanos e mangues. Curiosamente, prefere presas pequenas, como dodôs e galimimos, e gado. Os grandes herbívoros e as pessoas, ele só ataca quando não tem alternativa. Ainda assim, não teme ninguém."
+     "text": "Vive sozinho à beira de rios, pântanos e mangues. Curiosamente, prefere presas pequenas, como dodôs e galimimos, além de gado. Os grandes herbívoros e as pessoas, ele só ataca quando não tem alternativa. Ainda assim, não teme ninguém."
     },
     {
      "type": "paragraph",
@@ -712,7 +716,7 @@
    "blocks": [
     {
      "type": "paragraph",
-     "text": "Uma ave-do-terror da Patagônia, de uns quinze milhões de anos atrás. Tem o maior crânio que se conhece de qualquer ave, um bico em forma de machado, e corre mais que um cavalo. Não voa. Não precisa."
+     "text": "Uma ave-do-terror da Patagônia, de uns quinze milhões de anos atrás. Tem o maior crânio conhecido entre as aves e um bico em forma de machado. Corre mais que um cavalo. Não voa. Não precisa."
     },
     {
      "type": "paragraph",
@@ -720,7 +724,7 @@
     },
     {
      "type": "paragraph",
-     "text": "A bicada atravessa armadura. Ela golpeia e recua um passo, e golpeia de novo. Tem fôlego para uma perseguição longa: fugir a pé raramente funciona."
+     "text": "A bicada atravessa armadura. Ela golpeia, recua um passo e golpeia de novo. Tem fôlego para uma perseguição longa: fugir a pé raramente funciona."
     },
     {
      "type": "note",
@@ -738,7 +742,7 @@
    "blocks": [
     {
      "type": "paragraph",
-     "text": "O lobo-terrível caçou nas Américas durante a última era do gelo, maior e de mordida mais forte que qualquer lobo de hoje."
+     "text": "O lobo-terrível caçou nas Américas durante a última era do gelo. Era maior e tinha a mordida mais forte que qualquer lobo de hoje."
     },
     {
      "type": "paragraph",
@@ -759,15 +763,15 @@
     },
     {
      "type": "paragraph",
-     "text": "É diurna e solitária, de savanas e terras áridas. À noite se esconde e dorme pesado: só acorda se for ferida. Prefere dodôs, cabras, ovelhas e porcos, mas morde gado e gente também."
+     "text": "É diurna e solitária. Vive em savanas e terras áridas. À noite se esconde e dorme pesado: só acorda se for ferida. Prefere dodôs, cabras, ovelhas e porcos, mas morde gado e gente também."
     },
     {
      "type": "paragraph",
-     "text": "Ela não persegue: morde, recua e segue o rastro da vítima, provando o ar com a língua, até o veneno fazer efeito. Em nós, o veneno faz a ferida sangrar sem fechar. Nos outros animais pré-históricos, ele derruba num sono pesado, e ela vai lá terminar o serviço."
+     "text": "Ela não persegue: morde, recua e segue o rastro da vítima, provando o ar com a língua, até o veneno fazer efeito. Em nós, o veneno faz a ferida sangrar sem fechar. Nos outros animais pré-históricos, o veneno provoca um sono pesado, e ela vai lá terminar o serviço."
     },
     {
      "type": "note",
-     "text": "O antídoto se faz na mesa química, com carvão e um frasco. Amansei uma com carne vermelha ou charque; até carne podre ela aceita melhor que os outros. Mansa, a mordida dela derruba as presas em nosso nome, prontas para serem amansadas. Não aceita sela."
+     "text": "O antídoto se faz na mesa química, com carvão e um frasco. Amansei uma com carne vermelha ou charque; ela aceita até carne podre, com menos resistência que os outros carnívoros. Mansa, a mordida dela derruba as presas em nosso nome, prontas para serem amansadas. Não aceita sela."
     }
    ]
   },
@@ -779,7 +783,7 @@
    "blocks": [
     {
      "type": "paragraph",
-     "text": "Pequeno, do tamanho de um cachorro, de mãos longas com garras. Viveu no Jurássico Superior, na América do Norte, no meio do mato rasteiro, enquanto os gigantes passavam por cima. Os olhos enormes sugeriam um caçador noturno, e é o que ele é aqui."
+     "text": "É pequeno, do tamanho de um cachorro, com mãos longas e garras. Viveu no Jurássico Superior, na América do Norte, no meio do mato rasteiro, enquanto os gigantes passavam por cima. Os olhos enormes sugeriam um caçador noturno, e é o que ele é aqui."
     },
     {
      "type": "paragraph",
@@ -791,7 +795,7 @@
     },
     {
      "type": "note",
-     "text": "Amansei um com carne pequena crua, de galinha, coelho ou dodô; charque e carne vermelha também servem. É pequeno demais para montar, mas é a melhor sentinela que tenho: avisa quando um predador selvagem se aproxima, e de que lado."
+     "text": "Amansei um com carne crua de animais pequenos, como galinha, coelho ou dodô; charque e carne vermelha também servem. É pequeno demais para montar, mas é a melhor sentinela que tenho: avisa quando um predador selvagem se aproxima e de que lado ele vem."
     }
    ]
   },
@@ -804,7 +808,7 @@
    "blocks": [
     {
      "type": "paragraph",
-     "text": "O maior animal voador que já existiu: asas de dez, onze metros de ponta a ponta, e de pé fica da altura de uma girafa. Viveu no fim do Cretáceo, no que hoje é o Texas, e os fósseis sugeriam que caçava andando pelo chão, como uma cegonha gigante. Aqui, confirmei."
+     "text": "O maior animal voador que já existiu: asas de dez, onze metros de ponta a ponta. De pé, fica da altura de uma girafa. Viveu no fim do Cretáceo, no que hoje é o Texas, e os fósseis sugeriam que caçava andando pelo chão, como uma cegonha gigante. Aqui, confirmei."
     },
     {
      "type": "paragraph",
@@ -820,7 +824,7 @@
     },
     {
      "type": "note",
-     "text": "Consegui acalmar um com dardos sedativos e, enquanto dormia, deixei peixe cru na bolsa dele. Charque e carne de galinha ou coelho também servem; peixe cozido, mal. Montado, aguenta voos longos e carrega muita carga. Parado perto da água, pesca sozinho e guarda o peixe."
+     "text": "Consegui acalmar um com dardos sedativos e, enquanto dormia, deixei peixe cru na bolsa dele. Charque e carne de galinha ou coelho também servem; peixe cozido ele mal aceita. Montado, aguenta voos longos e carrega muito peso. Parado perto da água, pesca sozinho e guarda o peixe."
     }
    ]
   },
@@ -834,7 +838,7 @@
    "blocks": [
     {
      "type": "paragraph",
-     "text": "O tigre-dentes-de-sabre das Américas, da última era do gelo. Não é o mais pesado dos felinos, mas tem as patas dianteiras mais fortes que qualquer felino vivo: agarra, derruba e só então usa os caninos."
+     "text": "O tigre-dentes-de-sabre das Américas, da última era do gelo. Não é o mais pesado dos felinos, mas tem as patas dianteiras mais fortes que as de qualquer felino vivo: agarra, derruba e só então usa os caninos."
     },
     {
      "type": "paragraph",
@@ -895,7 +899,7 @@
     },
     {
      "type": "paragraph",
-     "text": "Vive sozinho nas taigas e florestas e anda muito, com território grande. Prefere cabras, ovelhas, porcos e vacas, mas ataca dodôs, galimimos e gente quando tem fome. Os grandes herbívoros, só em desespero."
+     "text": "Vive sozinho nas taigas e florestas. Anda muito e ocupa um território grande. Prefere cabras, ovelhas, porcos e vacas, mas ataca dodôs, galimimos e gente quando tem fome. Os grandes herbívoros, só em desespero."
     },
     {
      "type": "paragraph",
@@ -917,11 +921,11 @@
    "blocks": [
     {
      "type": "paragraph",
-     "text": "O maior dos raptores, de seis ou sete metros, do começo do Cretáceo, no que hoje é Utah. Encontraram vários deles presos juntos na mesma armadilha de areia, o que já sugeria caça em grupo. Aqui, é certeza."
+     "text": "O maior dos raptores, com seis ou sete metros de comprimento. Viveu no começo do Cretáceo, no que hoje é Utah. Encontraram vários deles presos juntos na mesma armadilha de areia, o que já sugeria caça em grupo. Aqui, é certeza."
     },
     {
      "type": "paragraph",
-     "text": "Caça em bandos de dois ou três, e juntos ficam muito mais rápidos e fortes do que separados. No bote, salta sobre a presa de longe. Prefere galimimos, e infelizmente prefere gente a gado."
+     "text": "Caça em bandos de dois ou três. Juntos, esses raptores ficam muito mais rápidos e fortes do que separados. No bote, salta sobre a presa de longe. Prefere galimimos e, infelizmente para nós, escolhe gente antes de gado."
     },
     {
      "type": "paragraph",
@@ -953,7 +957,7 @@
     },
     {
      "type": "note",
-     "text": "Amansei um com carne pequena crua, de galinha, coelho ou dodô; charque e carne vermelha também servem. É pequeno demais para montar."
+     "text": "Amansei um com carne crua de animais pequenos, como galinha, coelho ou dodô; charque e carne vermelha também servem. É pequeno demais para montar."
     }
    ]
   },
@@ -966,19 +970,19 @@
    "blocks": [
     {
      "type": "paragraph",
-     "text": "Um tanque vivo do fim do Cretáceo, na América do Norte: placas de osso no corpo inteiro, até nas pálpebras, e uma clava maciça na ponta da cauda. Há fósseis de parentes dele com os flancos quebrados e cicatrizados, marcas de duelos de clavadas entre machos."
+     "text": "Um tanque vivo do fim do Cretáceo, na América do Norte: placas de osso no corpo inteiro, até nas pálpebras, e uma clava maciça na ponta da cauda. Há fósseis de parentes dele com os flancos quebrados e cicatrizados, marcas de duelos em que os machos trocavam clavadas."
     },
     {
      "type": "paragraph",
-     "text": "Vive sozinho nas planícies e taigas, pastando rente ao chão. Não foge e não investe. Diante de uma ameaça, qualquer ameaça, até um tiranossauro, ele para e vira a cauda para ela."
+     "text": "Vive sozinho nas planícies e taigas, pastando rente ao chão. Não foge e não investe. Diante de qualquer ameaça, até de um tiranossauro, ele para e vira a cauda para o adversário."
     },
     {
      "type": "paragraph",
-     "text": "Quem entra no arco atrás dele leva a clavada, mesmo que ele não o tenha visto chegar. O golpe quebra a perna: a vítima fica lenta e sem conseguir pular por um tempo. Pela frente, porém, ele não tem golpe nenhum. Desconfia de nós; andar agachado ajuda."
+     "text": "Quem entra no arco atrás dele leva a clavada, mesmo que ele não o tenha visto chegar. O golpe quebra a perna: a vítima fica lenta e sem conseguir pular por um tempo. Pela frente, porém, ele não consegue golpear. Desconfia de nós; andar agachado ajuda."
     },
     {
      "type": "paragraph",
-     "text": "Deixa esterco por onde passa, que aduba a terra como farinha de osso."
+     "text": "Deixa esterco por onde passa. Esse esterco aduba a terra como farinha de osso."
     },
     {
      "type": "note",
@@ -999,7 +1003,7 @@
     },
     {
      "type": "paragraph",
-     "text": "Anda em manadas de dois a quatro que migram e se defendem juntas. É pacífico, mas desconfia de nós, e as investidas dele são quase sempre blefe. Quase sempre. Alossauros e tiranossauros o caçam, sempre o que se afasta do grupo."
+     "text": "Anda em manadas de dois a quatro, que migram e se defendem juntas. É pacífico, mas desconfia de nós, e as investidas dele são quase sempre blefe. Quase sempre. Alossauros e tiranossauros o caçam, sempre escolhendo o que se afasta do grupo."
     },
     {
      "type": "paragraph",
@@ -1007,7 +1011,7 @@
     },
     {
      "type": "note",
-     "text": "Amansá-lo exige muita comida: fardo de feno de preferência, trigo ou folhas. Montado, é lento, mas carrega uma quantidade absurda de carga, e a mordida dele colhe troncos e folhagem."
+     "text": "Amansá-lo exige muita comida: de preferência fardos de feno, mas trigo ou folhas também servem. Montado, é lento, mas carrega um peso absurdo, e a mordida dele colhe troncos e folhagem."
     }
    ]
   },
@@ -1019,7 +1023,7 @@
    "blocks": [
     {
      "type": "paragraph",
-     "text": "De todos, o mais recente: o dodô viveu na ilha Maurício e foi extinto por gente como nós há poucos séculos. Ver um bando dele correndo na neve, ao lado de dinossauros, me fez rir pela primeira vez desde o incidente."
+     "text": "De todos, o mais recente: o dodô viveu na ilha Maurício e foi extinto por gente como nós há poucos séculos. Ver um bando deles correndo na neve, ao lado de dinossauros, me fez rir pela primeira vez desde o incidente."
     },
     {
      "type": "paragraph",
@@ -1056,7 +1060,7 @@
     },
     {
      "type": "note",
-     "text": "O corpo dele é tão quente que aquece quem está por perto, e mais ainda quem vai montado: atravessei noites geladas assim. Amansa depressa, com fardo de feno, trigo, frutas silvestres ou raízes. Aceita ser montado sem sela e sem precisar de muita confiança."
+     "text": "O corpo dele é tão quente que aquece quem está por perto, e mais ainda quem vai montado: atravessei noites geladas assim. Pode ser amansado depressa com fardo de feno, trigo, frutas silvestres ou raízes. Aceita ser montado sem sela e sem precisar de muita confiança."
     }
    ]
   },
@@ -1068,7 +1072,7 @@
    "blocks": [
     {
      "type": "paragraph",
-     "text": "Placas nas costas e quatro espinhos na cauda, do Jurássico Superior da América do Norte. Um alossauro fóssil tem uma vértebra perfurada por um desses espinhos; aqui os dois continuam se enfrentando, e o estegossauro continua sendo o prato favorito do alossauro."
+     "text": "Tem placas nas costas e quatro espinhos na cauda. Viveu no Jurássico Superior, na América do Norte. Um fóssil de alossauro tem uma vértebra perfurada por um desses espinhos; aqui os dois continuam se enfrentando, e o estegossauro continua sendo o prato favorito do alossauro."
     },
     {
      "type": "paragraph",
@@ -1080,7 +1084,7 @@
     },
     {
      "type": "note",
-     "text": "Amansei um com fardo de feno; trigo e folhas também servem. As costas cheias de placas não deixam montar, mas ele carrega uma bolsa grande e me segue como animal de carga."
+     "text": "Amansei um com fardo de feno; trigo e folhas também servem. As placas nas costas impedem que alguém o monte, mas ele carrega uma bolsa grande e me segue como animal de carga."
     }
    ]
   },
@@ -1097,7 +1101,7 @@
     },
     {
      "type": "paragraph",
-     "text": "Anda em manadas de três a cinco, sempre nervosa. Nunca investe; ao menor sinal de perigo, ou ao primeiro arranhão, dispara. Desconfia de nós. É a presa preferida do alossauro e do utahraptor, e quase todo caçador a persegue."
+     "text": "Anda em manadas de três a cinco e está sempre nervoso. Nunca investe; ao menor sinal de perigo, ou ao primeiro arranhão, dispara. Desconfia de nós. É a presa preferida do alossauro e do utahraptor, e quase todo caçador o persegue."
     },
     {
      "type": "paragraph",
@@ -1105,7 +1109,7 @@
     },
     {
      "type": "note",
-     "text": "Amansei um com frutas silvestres; trigo, raízes, sementes e até carne pequena também servem. Montado, é das montarias mais rápidas que encontrei, e salta bem."
+     "text": "Amansei um com frutas silvestres; trigo, raízes, sementes e até carne de animais pequenos também servem. É uma das montarias mais rápidas que encontrei e salta bem."
     }
    ]
   },
@@ -1118,7 +1122,7 @@
    "blocks": [
     {
      "type": "paragraph",
-     "text": "Do meio do Cretáceo, na Patagônia: quase tão grande quanto o tiranossauro, mas mais comprido e mais leve, com dentes finos e serrilhados como lâminas. Não esmagava ossos; cortava e deixava a presa sangrar. Caçava os maiores herbívoros que já existiram."
+     "text": "Viveu no meio do Cretáceo, na Patagônia. É quase tão grande quanto o tiranossauro, mas mais comprido e mais leve, com dentes finos e serrilhados como lâminas. Não esmagava ossos; cortava e deixava a presa sangrar. Caçava os maiores herbívoros que já existiram."
     },
     {
      "type": "paragraph",
@@ -1126,7 +1130,7 @@
     },
     {
      "type": "paragraph",
-     "text": "As mordidas abrem feridas que sangram e se acumulam: cada golpe novo piora a anterior. Quem sobrevive ao primeiro precisa fugir, ou não chega longe."
+     "text": "As mordidas abrem feridas que sangram e se acumulam: cada novo golpe agrava o sangramento. Quem sobrevive ao primeiro precisa fugir, ou não chega longe."
     },
     {
      "type": "paragraph",
@@ -1134,7 +1138,7 @@
     },
     {
      "type": "note",
-     "text": "Pode ser amansado como qualquer caçador: faz-se dormir, e depois se alimenta com carne crua. Os dentes que deixa, quando cai, viram uma espada que faz sangrar."
+     "text": "Pode ser amansado como qualquer caçador: primeiro é preciso fazê-lo dormir, depois alimentá-lo com carne crua. Os dentes que deixa, quando cai, viram uma espada que faz sangrar."
     }
    ]
   },
@@ -1159,7 +1163,7 @@
     },
     {
      "type": "note",
-     "text": "Amansei um com fardo de feno; trigo e folhas também servem. Montado, a tromba colhe troncos e folhagem. A pele dele faz as roupas mais quentes que conheço."
+     "text": "Amansei um com fardo de feno; trigo e folhas também servem. Quando vou montado, ele colhe troncos e folhagem com a tromba. A pele dele faz as roupas mais quentes que conheço."
     }
    ]
   },
@@ -1180,7 +1184,7 @@
     },
     {
      "type": "note",
-     "text": "Amansei um com peixe cru; charque, carne pequena e peixe cozido também servem. É uma montaria voadora ágil, mas cansa depressa: bom para saltos curtos, não para viagens longas. Parado perto da água, pesca sozinho e guarda o peixe."
+     "text": "Amansei um com peixe cru; charque, carne de animais pequenos e peixe cozido também servem. É uma montaria voadora ágil, mas cansa depressa: é bom para trajetos curtos, não para viagens longas. Parado perto da água, pesca sozinho e guarda o peixe."
     }
    ]
   },
@@ -1193,7 +1197,7 @@
    "blocks": [
     {
      "type": "paragraph",
-     "text": "Três chifres e um escudo de osso, do fim do Cretáceo na América do Norte. Há ossos dele com marcas de dentes de tiranossauro, e alguns com marcas cicatrizadas: ele sobrevivia aos ataques."
+     "text": "Tem três chifres e um escudo de osso. Viveu no fim do Cretáceo, na América do Norte. Há ossos dele com marcas de dentes de tiranossauro, e alguns com marcas cicatrizadas: ele sobrevivia aos ataques."
     },
     {
      "type": "paragraph",
@@ -1205,9 +1209,663 @@
     },
     {
      "type": "note",
-     "text": "Amansei um com fardo de feno; frutas silvestres, trigo e folhas também servem. Com um tricerátopo manso ao lado, poucos predadores se arriscam. Montado, a mordida colhe troncos e folhagem."
+     "text": "Amansei um com fardo de feno; frutas silvestres, trigo e folhas também servem. Com um tricerátopo manso ao lado, poucos predadores se arriscam. Quando vou montado, ele colhe troncos e folhagem com a mordida."
     }
    ]
   }
- }
+ },
+ "series": [
+  {
+   "id": "postos",
+   "title": "Postos",
+   "records": [
+    {
+     "id": "ordem-de-servico-14",
+     "title": "Ordem de serviço nº 14",
+     "source": "Arquivos da base, cópia no terminal do posto",
+     "blocks": [
+      {
+       "type": "paragraph",
+       "text": "A partir desta data, o pessoal recém-chegado fica distribuído conforme abaixo. A equipe civil de biologia ocupa os alojamentos da superfície e o laboratório de campo. O acesso aos níveis inferiores é restrito ao pessoal técnico com credencial vermelha."
+      },
+      {
+       "type": "list",
+       "ordered": false,
+       "items": [
+        "Rondas a cada quatro horas pelo perímetro da base.",
+        "Rádio aberto às seis, às doze, às dezoito e à meia-noite.",
+        "Nenhum civil desce abaixo do segundo nível, nem acompanhado.",
+        "Amostras de gelo seguem para o laboratório de campo, nunca para os níveis de baixo."
+       ]
+      },
+      {
+       "type": "paragraph",
+       "text": "Os civis foram informados de que esta é uma instalação de pesquisa sobre a fauna preservada no permafrost. Essa é a versão oficial e deve ser mantida em qualquer conversa."
+      },
+      {
+       "type": "note",
+       "text": "Perguntas sobre o consumo de energia da base devem ser encaminhadas ao comando. Não respondam."
+      }
+     ]
+    },
+    {
+     "id": "furo-sete",
+     "title": "Relatório de amostragem, furo sete",
+     "source": "Laboratório de campo da base, cópia arquivada",
+     "blocks": [
+      {
+       "type": "paragraph",
+       "text": "Testemunho retirado a quarenta metros. Gelo limpo nos primeiros trinta; abaixo disso, faixas escuras, finas como fio de cabelo, que não correspondem a nenhum sedimento conhecido."
+      },
+      {
+       "type": "heading",
+       "text": "Observações"
+      },
+      {
+       "type": "list",
+       "ordered": false,
+       "items": [
+        "A temperatura no centro do testemunho é mais baixa do que a do gelo em volta. Não deveria ser possível.",
+        "O contador de radiação reage às faixas escuras e se cala quando elas são isoladas em vácuo.",
+        "Duas amostras perderam massa durante a noite sem derreter. Não houve evaporação registrada."
+       ]
+      },
+      {
+       "type": "paragraph",
+       "text": "O técnico de plantão pediu que o testemunho fosse lacrado e levado para baixo. Recusei, porque os animais conservados no mesmo furo são o motivo de estarmos aqui. Fui informado de que a decisão não era minha."
+      },
+      {
+       "type": "note",
+       "text": "Furo sete interditado por ordem do comando. Amostras recolhidas às três da manhã."
+      }
+     ]
+    },
+    {
+     "id": "memorando-equipe-civil",
+     "title": "Memorando sobre a equipe civil",
+     "source": "Arquivo administrativo da base, cópia",
+     "blocks": [
+      {
+       "type": "paragraph",
+       "text": "Para: chefia de segurança. Assunto: manutenção da cobertura."
+      },
+      {
+       "type": "paragraph",
+       "text": "A equipe de biologia cumpre a função para a qual foi contratada. Os exemplares preservados no gelo justificam as escavações, os furos profundos e a presença de equipamento pesado no vale. Enquanto os biólogos estiverem ocupados com mamutes e ossos, ninguém fará perguntas sobre o que sai dos furos."
+      },
+      {
+       "type": "paragraph",
+       "text": "O biólogo de apoio, porém, tem pedido acesso aos testemunhos do furo sete e começou a anotar horários de entrega nos níveis de baixo. Recomendo transferi-lo para as coletas da superfície e entregar a ele mais animais congelados do que consegue estudar."
+      },
+      {
+       "type": "note",
+       "text": "Ele é só curioso. Mantenham a curiosidade dele longe dos níveis de baixo."
+      }
+     ]
+    },
+    {
+     "id": "projeto-limiar",
+     "title": "Projeto Limiar, resumo técnico",
+     "source": "Terminal técnico da base, cópia parcial",
+     "blocks": [
+      {
+       "type": "paragraph",
+       "text": "Classificação máxima. Não imprimir."
+      },
+      {
+       "type": "paragraph",
+       "text": "O material retirado do permafrost foi confirmado como antimatéria em estado estável, aprisionada no gelo de forma que ainda não compreendemos. Estável apenas enquanto o gelo em volta permanece intacto. Fora dele, a contenção depende de campos magnéticos ininterruptos."
+      },
+      {
+       "type": "table",
+       "columns": [
+        "Nível",
+        "Função"
+       ],
+       "rows": [
+        [
+         "Terceiro",
+         "Armazenamento das amostras"
+        ],
+        [
+         "Quarto",
+         "Câmara de contenção"
+        ],
+        [
+         "Quinto",
+         "Geradores e campo principal"
+        ]
+       ]
+      },
+      {
+       "type": "paragraph",
+       "text": "Os geradores do quinto nível consomem hoje a energia de uma cidade inteira. Qualquer queda acima de dois segundos libera o material."
+      },
+      {
+       "type": "paragraph",
+       "text": "O comando quer um teste de extração em larga escala antes do fim da estação. A equipe técnica registra, por escrito, que não sabe o que acontece se o campo falhar com essa quantidade reunida num só lugar."
+      }
+     ]
+    },
+    {
+     "id": "inventario-ala-inferior",
+     "title": "Inventário de suprimentos",
+     "source": "Doca de carga da base, cópia arquivada",
+     "blocks": [
+      {
+       "type": "paragraph",
+       "text": "Entrega semanal, conferida na doca de carga."
+      },
+      {
+       "type": "table",
+       "columns": [
+        "Item",
+        "Quantidade",
+        "Destino"
+       ],
+       "rows": [
+        [
+         "Rações da equipe",
+         "quarenta caixas",
+         "Refeitório"
+        ],
+        [
+         "Combustível dos geradores",
+         "doze tanques",
+         "Quinto nível"
+        ],
+        [
+         "Carne fresca em carcaça",
+         "duas toneladas",
+         "Ala inferior"
+        ],
+        [
+         "Chapas de aço reforçado",
+         "trinta e seis",
+         "Ala inferior"
+        ],
+        [
+         "Correntes de amarração",
+         "oito rolos",
+         "Ala inferior"
+        ]
+       ]
+      },
+      {
+       "type": "paragraph",
+       "text": "As chapas da semana passada foram devolvidas tortas para reciclagem. Ninguém da doca tem autorização para descer com a carne; o elevador volta vazio, e às vezes volta arranhado por dentro."
+      },
+      {
+       "type": "paragraph",
+       "text": "Quanto ao conteúdo da ala inferior,"
+      },
+      {
+       "type": "note",
+       "text": "[registro interrompido]"
+      }
+     ]
+    },
+    {
+     "id": "relatorio-de-avaliacao",
+     "title": "Relatório de avaliação do espécime",
+     "source": "Ala médica da base, cópia arquivada",
+     "blocks": [
+      {
+       "type": "paragraph",
+       "text": "O espécime não pertence a nenhuma das linhagens catalogadas pela equipe civil. Não foi encontrado congelado como os outros. Também não está claro de onde veio."
+      },
+      {
+       "type": "paragraph",
+       "text": "Os responsáveis pela ala inferior insistem que se trata de algo conhecido. Discordo. Menos de dois por cento das espécies que já existiram foram descobertas. Das outras não temos nome nem ossos, e o maior risco desta base é supor que sabemos com o que estamos lidando."
+      },
+      {
+       "type": "paragraph",
+       "text": "A contenção foi reforçada três vezes neste mês. Os sedativos de uso veterinário não produziram efeito mensurável. O espécime come o que lhe é entregue e continua com fome."
+      },
+      {
+       "type": "paragraph",
+       "text": "Quanto ao conteúdo da ala inferior,"
+      },
+      {
+       "type": "note",
+       "text": "[registro interrompido]"
+      }
+     ]
+    },
+    {
+     "id": "diario-de-sentinela",
+     "title": "Diário de sentinela",
+     "source": "Guarita norte da base, caderno transcrito",
+     "blocks": [
+      {
+       "type": "paragraph",
+       "text": "Vinte e uma horas. Os geradores começaram o ciclo do teste. Dá para sentir no chão daqui, um zumbido que entra pelos dentes."
+      },
+      {
+       "type": "paragraph",
+       "text": "Vinte e duas e dez. As luzes da base piscaram duas vezes. O rádio só devolve chiado. Lá de baixo vem um som que não é de máquina: grave, longo, e depois de novo, mais perto da superfície."
+      },
+      {
+       "type": "paragraph",
+       "text": "Vinte e duas e catorze. A neve em volta da guarita parou de cair. Parou no ar."
+      },
+      {
+       "type": "paragraph",
+       "text": "Vinte e duas e quinze. Um clarão branco saiu do chão da base e atravessou tudo, as paredes, a guarita, as minhas mãos. Não fez barulho nenhum."
+      },
+      {
+       "type": "paragraph",
+       "text": "Não sei quanto tempo passou. Quando voltei a enxergar, o céu estava de outra cor e havia árvores onde antes só havia gelo. Alguma coisa maior do que um caminhão atravessou o vale lá embaixo, devagar, como se sempre tivesse estado ali."
+      }
+     ]
+    },
+    {
+     "id": "radio-depois-do-clarao",
+     "title": "Transcrição de rádio, frequência de emergência",
+     "source": "Rádio de campo, gravação copiada",
+     "blocks": [
+      {
+       "type": "paragraph",
+       "text": "— Equipe do furo sul chamando qualquer um. Alguém na escuta?"
+      },
+      {
+       "type": "paragraph",
+       "text": "— Aqui é a guarita norte. Somos dois. A guarita ficou de pé."
+      },
+      {
+       "type": "paragraph",
+       "text": "— O laboratório caiu. O comando não responde desde o clarão."
+      },
+      {
+       "type": "paragraph",
+       "text": "— Vimos um rebanho de mamutes passando ao lado de bichos com chifre na cara. Juntos. Comendo do mesmo pasto."
+      },
+      {
+       "type": "paragraph",
+       "text": "— A leitura do campo da base caiu a zero e ficou lá. O que quer que tenha rasgado lá embaixo fechou."
+      },
+      {
+       "type": "paragraph",
+       "text": "— E os animais?"
+      },
+      {
+       "type": "paragraph",
+       "text": "— Ficaram. Não parecem perdidos. Os caçadores já aprenderam onde estão as presas. Está tudo... se acertando."
+      },
+      {
+       "type": "paragraph",
+       "text": "— E a ala inferior?"
+      },
+      {
+       "type": "paragraph",
+       "text": "— Os sensores de lá ainda mandam sinal. Batimento lento. Regular."
+      },
+      {
+       "type": "paragraph",
+       "text": "— Entendido. Ninguém se aproxima da base até segunda ordem."
+      }
+     ]
+    },
+    {
+     "id": "ordem-de-selamento",
+     "title": "Ordem de selamento e de fortificação",
+     "source": "Gravação automática, copiada para os terminais dos postos",
+     "blocks": [
+      {
+       "type": "paragraph",
+       "text": "Ordem do oficial mais graduado ainda em atividade."
+      },
+      {
+       "type": "paragraph",
+       "text": "As equipes de reconhecimento voltaram com menos gente do que saíram. Perdemos homens para animais que nenhum de nós sabia nomear, em pleno dia, a poucos passos do fuzil. O vale não é lugar para andar desprotegido."
+      },
+      {
+       "type": "list",
+       "ordered": false,
+       "items": [
+        "A base fica selada, travada por dentro e por fora. Nenhuma equipe de resgate entra. Os geradores do quinto nível seguem no mínimo para manter a contenção da ala inferior.",
+        "Cada grupo ergue um posto de controle onde estiver, com o que houver: pedra do vale, ferro e madeira dos escombros. Uma torre com mirante gradeado, um muro em volta, um portão só.",
+        "Os arquivos da base são copiados para o terminal de cada posto, para que não se percam.",
+        "Dardos sedativos são racionados. Um baú por posto, e só para o que passar do muro."
+       ]
+      },
+      {
+       "type": "note",
+       "text": "O vale encontrou um equilíbrio sozinho. A única coisa capaz de quebrá-lo está lá embaixo. Que fique lá."
+      }
+     ]
+    },
+    {
+     "id": "ultima-transmissao",
+     "title": "Última transmissão",
+     "source": "Mirante do posto norte",
+     "blocks": [
+      {
+       "type": "paragraph",
+       "text": "Aqui é a sentinela do posto norte. Sou o último que ainda responde no rádio. Não sei se alguém escuta."
+      },
+      {
+       "type": "paragraph",
+       "text": "Faz semanas que a base está selada. O muro aguentou todas as noites até agora. Fecho o portão ao pôr do sol e passo a madrugada no mirante, com os últimos dardos do baú ao alcance da mão. Os animais do vale já não fogem quando passo."
+      },
+      {
+       "type": "paragraph",
+       "text": "Nas últimas noites, porém, os sensores da ala inferior mudaram. O batimento ficou mais rápido. Apareceram rachaduras novas no concreto da entrada leste, todas de dentro para fora. Ontem ouvi o mesmo som grave e longo da noite do teste. Vinha de dentro da base, e mesmo assim a terra tremeu aqui no mirante."
+      },
+      {
+       "type": "paragraph",
+       "text": "Vou deixar este registro em todos os terminais que ainda funcionam. Se você chegou até aqui, preste atenção ao que vou dizer."
+      },
+      {
+       "type": "paragraph",
+       "text": "Quanto ao conteúdo da ala inferior,"
+      },
+      {
+       "type": "note",
+       "text": "[registro interrompido]"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "base",
+   "title": "Base militar",
+   "records": [
+    {
+     "id": "teste-zero",
+     "title": "Caderno da ala inferior, primeira entrada",
+     "source": "Laboratório da ala médica, caderno da responsável",
+     "blocks": [
+      {
+       "type": "paragraph",
+       "text": "Ninguém na superfície sabe do teste zero. Foi uma extração pequena, meses antes do teste grande, com uma fração do material. O campo oscilou por menos de um segundo. Na câmara do quarto nível, as câmeras gravaram um clarão curto e, depois dele, um animal deitado no chão, molhado, respirando rápido."
+      },
+      {
+       "type": "paragraph",
+       "text": "Ele não estava ali antes e não estava congelado. Tinha o tamanho de um cavalo e estava vivo."
+      },
+      {
+       "type": "paragraph",
+       "text": "O comando chamou de acidente. Para mim foi a prova de que o material abre caminho para outro tempo e de que alguma coisa atravessa por ele. Fui transferida para a ala inferior na mesma noite, com ordens de manter o animal vivo e de não escrever nada."
+      },
+      {
+       "type": "note",
+       "text": "Estou escrevendo assim mesmo. Alguém precisa saber de onde ele veio."
+      }
+     ]
+    },
+    {
+     "id": "crescimento",
+     "title": "Caderno da ala inferior, crescimento",
+     "source": "Laboratório da ala médica, caderno da responsável",
+     "blocks": [
+      {
+       "type": "paragraph",
+       "text": "Ele cresce mais rápido do que qualquer animal que estudei. Como não consigo medi-lo de perto, meço o que ele deixa."
+      },
+      {
+       "type": "list",
+       "ordered": false,
+       "items": [
+        "As pegadas no piso da câmara dobraram de comprimento em dois meses.",
+        "A porta de serviço foi alargada duas vezes. Na segunda, ele passou a cabeça antes de terminarem a obra.",
+        "A ração de carne passou de um quarto de carcaça por dia para duas toneladas por semana, e não sobra osso."
+       ]
+      },
+      {
+       "type": "paragraph",
+       "text": "Ninguém aqui sabe dizer o tamanho de um adulto, nem eu. Comparo cada medida com os ossos que conheço, e a comparação piora a cada semana. Pelo ritmo, ele está longe de parar de crescer."
+      },
+      {
+       "type": "note",
+       "text": "Pedi chapas mais grossas para a câmara. Vieram trinta e seis, e não vão bastar por muito tempo."
+      }
+     ]
+    },
+    {
+     "id": "sedativos",
+     "title": "Caderno da ala inferior, sedativos",
+     "source": "Laboratório da ala médica, caderno da responsável",
+     "blocks": [
+      {
+       "type": "paragraph",
+       "text": "Terceira tentativa de sedação, com a dose calculada para um elefante adulto. Ele dormiu onze minutos. Quando acordou, foi direto até a parede onde estava o atirador e ficou parado ali, olhando, até a troca de turno."
+      },
+      {
+       "type": "paragraph",
+       "text": "Ele aprende. Já sabe a hora em que a carne desce e espera junto ao elevador, e sabe em que ordem as portas abrem. Nas trocas de turno ele testa as chapas, sempre no mesmo ponto e com o mesmo intervalo, como quem conta."
+      },
+      {
+       "type": "paragraph",
+       "text": "Os animais congelados que a equipe civil estuda lá em cima não fazem isso. Talvez os grandes caçadores que conhecemos dos ossos fizessem, e nunca soubemos."
+      },
+      {
+       "type": "note",
+       "text": "O metabolismo dele queima o sedativo antes que o efeito chegue ao cérebro. Ele come para isso também."
+      }
+     ]
+    },
+    {
+     "id": "classificacao",
+     "title": "Caderno da ala inferior, classificação",
+     "source": "Laboratório da ala médica, caderno da responsável",
+     "blocks": [
+      {
+       "type": "paragraph",
+       "text": "O comando quer um nome para os relatórios. Não vou dar."
+      },
+      {
+       "type": "paragraph",
+       "text": "É um caçador de duas patas, da família dos grandes tiranos, isso qualquer um vê. Mas nada nele bate com os esqueletos que conhecemos: o crânio, as proporções, o jeito de virar a cabeça antes do corpo. Sempre que comparo uma medida com um fóssil, a dele é maior."
+      },
+      {
+       "type": "paragraph",
+       "text": "Menos de dois por cento das espécies que já existiram foram descobertas. Escrevo isso em todo relatório, e ninguém lê. A família dele teve milhões de anos para produzir algo assim, e a pedra só guardou uma parte. Acho que ele é uma das que ficaram de fora."
+      },
+      {
+       "type": "note",
+       "text": "Se eu der um nome, eles vão achar que sabem o que é. Prefiro que continuem com medo."
+      }
+     ]
+    },
+    {
+     "id": "o-campo",
+     "title": "Caderno da ala inferior, o campo",
+     "source": "Laboratório da ala médica, caderno da responsável",
+     "blocks": [
+      {
+       "type": "paragraph",
+       "text": "As chapas não seguram mais. A solução dos técnicos foi levar uma ponta do campo do quinto nível até a câmara. Dentro dele o tempo quase para: ele fica de pé, de olhos abertos, e leva uma hora para piscar."
+      },
+      {
+       "type": "paragraph",
+       "text": "Protestei. Dentro do campo nada o fere, nem nós, e nenhum exame funciona. Se um dia for preciso acabar com ele, alguém vai ter que derrubar os geradores primeiro, e aí ele acorda. Responderam que isso nunca vai ser necessário."
+      },
+      {
+       "type": "paragraph",
+       "text": "Agora entendo a pressa do comando com o teste grande. Viram o que passou no teste zero e querem ver o que mais vem, com o campo aberto por mais tempo e todo o material reunido."
+      },
+      {
+       "type": "note",
+       "text": "Os geradores da câmara e os do teste são os mesmos. Se o teste falhar, a câmara fica sem nada."
+      }
+     ]
+    },
+    {
+     "id": "a-noite-do-teste",
+     "title": "Caderno da ala inferior, a noite do teste",
+     "source": "Laboratório da ala médica, última entrada da responsável",
+     "blocks": [
+      {
+       "type": "paragraph",
+       "text": "Vinte e duas e dez. O campo principal falhou. O clarão atravessou o laboratório sem fazer barulho, e metade das luzes não voltou."
+      },
+      {
+       "type": "paragraph",
+       "text": "O campo da câmara piscou junto. Por um instante ele se mexeu: virou a cabeça para o vidro, para mim. Depois os geradores de reserva entraram, no mínimo, e ele parou de novo no meio do movimento."
+      },
+      {
+       "type": "paragraph",
+       "text": "A superfície não responde. Pelo rádio de emergência ouvi que vão selar a base por dentro e por fora. Eu fico. Alguém tem que manter os geradores da câmara funcionando, e ninguém conhece este animal melhor do que eu."
+      },
+      {
+       "type": "paragraph",
+       "text": "Deixo os cadernos no armário do laboratório."
+      },
+      {
+       "type": "note",
+       "text": "Os geradores de reserva não foram feitos para durar anos. Quando caírem, ele acorda com a fome que tinha naquela noite."
+      }
+     ]
+    },
+    {
+     "id": "entrada-leste",
+     "title": "Notas de campo, a entrada leste",
+     "source": "Analisador de campo, anotação do biólogo",
+     "blocks": [
+      {
+       "type": "paragraph",
+       "text": "Entrei pela entrada leste. O concreto está rachado como diziam as transmissões dos postos, e as rachaduras se abrem para fora, todas com o mesmo intervalo entre elas. Cada vez que o campo da câmara oscila, alguma coisa empurra a base de dentro para fora."
+      },
+      {
+       "type": "paragraph",
+       "text": "Os corredores estão escuros, mas os geradores ainda zumbem em algum lugar lá embaixo. No laboratório da ala médica achei o armário e os cadernos, com a letra firme até a última página. Dela não achei mais nada."
+      },
+      {
+       "type": "paragraph",
+       "text": "Eu a conhecia de vista, do refeitório. Nunca soube o que ela fazia aqui embaixo, e ela sabia o que eu fazia lá em cima: estudava os animais errados, como pediram."
+      },
+      {
+       "type": "note",
+       "text": "As marcas de garra nos corredores são antigas, do tempo em que ele ainda andava. Paro de medir a altura delas no terceiro lance de escada."
+      }
+     ]
+    },
+    {
+     "id": "a-camara",
+     "title": "Notas de campo, a câmara",
+     "source": "Analisador de campo, anotação do biólogo",
+     "blocks": [
+      {
+       "type": "paragraph",
+       "text": "Desci até o quarto nível. Ele está na câmara, de pé, parado no meio de um passo, com a cabeça virada para o vidro. O ar em volta dele treme como sobre asfalto quente. Fiquei uma hora olhando, e ele piscou uma vez."
+      },
+      {
+       "type": "paragraph",
+       "text": "Os geradores da câmara ficam na sala ao lado. Metade está apagada. Os que funcionam engasgam a cada poucos minutos, e a cada engasgo o campo afrouxa e ele avança um pouco. O sensor de batimento marca três por minuto. O caderno dela anotava um."
+      },
+      {
+       "type": "paragraph",
+       "text": "Dentro do campo nada o atinge. Para acabar com ele seria preciso derrubar os geradores e enfrentá-lo acordado, e eu sozinho não faço isso. Os animais que treinei no vale talvez façam, se atacarem juntos e de lados diferentes."
+      },
+      {
+       "type": "note",
+       "text": "Os geradores vão parar de qualquer jeito. Prefiro escolher o dia."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "dossie",
+   "title": "Dossiê",
+   "records": [
+    {
+     "id": "titanovenator",
+     "title": "Dossiê da espécie: Titanovenator",
+     "source": "Cofre da câmara do quarto nível, documento do chefe da equipe de biologia",
+     "blocks": [
+      {
+       "type": "paragraph",
+       "text": "Classificação interna. Preparado pelo chefe da equipe civil de biologia, com acesso à ala inferior autorizado pelo comando. Fontes: as gravações do teste zero, os cadernos da responsável pela ala médica e duas amostras de sangue tiradas sob sedação."
+      },
+      {
+       "type": "heading",
+       "text": "Nome"
+      },
+      {
+       "type": "paragraph",
+       "text": "Chamo a espécie de Titanovenator, o caçador de titãs. A responsável pela ala médica se recusou a dar um nome, e eu entendo por quê. O comando ia escolher um de qualquer jeito, e prefiro que o nome diga o que ele caça."
+      },
+      {
+       "type": "heading",
+       "text": "Linhagem"
+      },
+      {
+       "type": "paragraph",
+       "text": "As gravações do teste zero mostram que a fenda abriu para outra linha do tempo. O sangue dele tem a base dos tiranossaurídeos que conhecemos pelos fósseis, com diferenças que pediriam dezenas de milhões de anos a mais de evolução. Do lado de lá, a família dos tiranos sobreviveu ao fim do Cretáceo e continuou mudando, e as presas cresceram junto com ela."
+      },
+      {
+       "type": "paragraph",
+       "text": "A frase dos dois por cento que a responsável repete nos relatórios continua certa. Ele só fica fora dela, porque nenhuma rocha deste mundo teve como guardar os ossos dele."
+      },
+      {
+       "type": "heading",
+       "text": "Comparação com o tiranossauro"
+      },
+      {
+       "type": "table",
+       "columns": [
+        "Traço",
+        "Tiranossauro",
+        "Titanovenator"
+       ],
+       "rows": [
+        [
+         "Corpo",
+         "o maior caçador terrestre que os fósseis mostram",
+         "peito, coxas e base da cauda mais largos e mais pesados"
+        ],
+        [
+         "Cabeça",
+         "crânio alto, focinho mais estreito",
+         "focinho e mandíbula mais largos, bochechas musculosas, cristas baixas"
+        ],
+        [
+         "Dentes",
+         "conhecidos só pelo crânio",
+         "cobertos por lábios, aparecem quando ele abre a boca para morder"
+        ],
+        [
+         "Pele",
+         "desconhecida",
+         "dorso cor de carvão, ventre ocre dourado, manchas escuras entre os dois, cerdas na nuca"
+        ],
+        [
+         "Sedação",
+         "não se aplica",
+         "o metabolismo queima o sedativo em minutos"
+        ]
+       ]
+      },
+      {
+       "type": "heading",
+       "text": "Comportamento"
+      },
+      {
+       "type": "paragraph",
+       "text": "Ele escolhe presas maiores do que ele. Ataca as pernas primeiro, recua e espera a presa cansar. Aprende horários e rotinas depressa e se lembra de quem o feriu. Caça sozinho e isola o oponente mais forte, mas contra um grupo que ataca de lados diferentes ele hesita e perde tempo virando a cabeça."
+      },
+      {
+       "type": "paragraph",
+       "text": "No mundo dele as presas eram do tamanho dele. Neste vale quase tudo é pequeno, e ele precisaria comer muito mais animais para se manter. Se sair, o equilíbrio do vale não dura uma estação."
+      },
+      {
+       "type": "heading",
+       "text": "Acréscimo, depois do clarão"
+      },
+      {
+       "type": "paragraph",
+       "text": "Escrevo à mão porque os terminais apagaram. O campo do quinto nível ainda segura a câmara, no mínimo. As medições do material dizem que a fenda gastou tudo o que havia para gastar. Ninguém volta por ela: nem nós para o nosso tempo, nem ele para o dele."
+      },
+      {
+       "type": "paragraph",
+       "text": "Quem sobrou da biologia saiu para o norte, atrás dos militares. Não mandaram notícia, e a frequência de emergência está em silêncio desde a semana passada."
+      }
+     ]
+    }
+   ]
+  }
+ ]
 }

@@ -14,9 +14,9 @@ import net.minecraft.util.Mth;
 import net.minecraftforge.client.gui.overlay.ForgeGui;
 
 /**
- * A mira do Analisador enquanto o jogador segura o clique numa criatura: colchetes âmbar que se fecham em volta da
+ * A mira do Analisador enquanto o jogador segura o clique numa criatura ou num terminal militar: colchetes âmbar que se fecham em volta da
  * mira conforme o scan avança, "ANALISANDO" piscando, o nome da espécie (ou "???" se ainda não registrada), a
- * distância e uma barra segmentada.
+ * distância (ou "TERMINAL MILITAR") e uma barra segmentada.
  */
 public final class ScanOverlay {
     private ScanOverlay() {
@@ -65,6 +65,9 @@ public final class ScanOverlay {
             String distance = String.format(Locale.ROOT, "%.0f m", target.distanceTo(minecraft.player));
             graphics.drawCenteredString(font, "▶ " + name.toUpperCase(Locale.ROOT) + "  " + distance, centerX, textY,
                     TechStyle.BRIGHT);
+        } else if (AnalyzerItem.aimedTerminal(minecraft.player) != null) {
+            graphics.drawCenteredString(font, "▶ " + Component.translatable("iceagesurvival.analyzer.terminal")
+                    .getString().toUpperCase(Locale.ROOT), centerX, textY, TechStyle.BRIGHT);
         }
         int barWidth = 80;
         TechStyle.bar(graphics, centerX - barWidth / 2, textY + 12, barWidth, 5, progress, TechStyle.ACCENT);

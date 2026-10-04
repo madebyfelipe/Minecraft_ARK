@@ -1,0 +1,8 @@
+{
+  "type": "iceagesurvival:military_outpost",
+  "biomes": "#iceagesurvival:has_military_outpost",
+  "spawn_overrides": {},
+  "step": "surface_structures",
+  "terrain_adaptation": "beard_box",
+  "template": "iceagesurvival:military_outpost_complex"
+}

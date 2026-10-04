@@ -10,7 +10,8 @@ O servidor decide. Rede atual: Forge `SimpleChannel` (`network/ModPayloads.java`
 Etapas 2–9 têm implementações e testes documentados; várias ainda aguardam
 validação manual. Não chamar isso de validação manual concluída.
 D51 removeu caverna/arena/boss antigo; Giganotosaurus é fauna comum.
-Novo endgame: base militar, postos escaneáveis e apex secreto; design pendente do Felipe.
+Endgame: postos com registros (D52) e base única com a contenção do apex (D53)
+implementados; falta o Titanovenator como criatura e a luta em jogo.
 O estudo do Titanovenator está em `codex/titanovenator-modelo`, sem integração ao jogo.
 Não integrar essa branch como parte de uma tarefa de processo.
 

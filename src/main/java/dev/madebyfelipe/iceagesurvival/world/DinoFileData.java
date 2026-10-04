@@ -20,13 +20,16 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.saveddata.SavedData;
 
 /**
- * A DINO FILE de cada jogador: as espécies que ele já escaneou com o Analisador, na ordem do registro. Fica nos
- * dados do Overworld (vale para o servidor todo) e não se perde ao morrer.
+ * A DINO FILE de cada jogador: as espécies que ele já escaneou com o Analisador, na ordem do registro, e quantos
+ * registros já recuperou em cada série (postos, base, dossiê; cada série se destrava sempre na mesma ordem, então basta
+ * a contagem; o texto fica no manual do cliente). Fica nos dados do Overworld (vale para o servidor todo) e não se perde
+ * ao morrer.
  */
 public final class DinoFileData extends SavedData {
     private static final String NAME = "iceagesurvival_dino_file";
 
     private final Map<UUID, Set<ResourceLocation>> registered = new HashMap<>();
+    private final Map<UUID, Map<String, Integer>> records = new HashMap<>();
 
     @Nullable
     private static DinoFileData get(@Nullable MinecraftServer server) {
@@ -55,8 +58,30 @@ public final class DinoFileData extends SavedData {
         return data == null ? List.of() : List.copyOf(data.registered.getOrDefault(player.getUUID(), Set.of()));
     }
 
+    /** Destrava o próximo registro da série; devolve quantos o jogador tem agora nela. Manda a DINO FILE ao cliente. */
+    public static int unlockRecord(ServerPlayer player, String series) {
+        DinoFileData data = get(player.getServer());
+        if (data == null) {
+            return 0;
+        }
+        int count = data.records.computeIfAbsent(player.getUUID(), id -> new HashMap<>()).merge(series, 1, Integer::sum);
+        data.setDirty();
+        sync(player);
+        return count;
+    }
+
+    /** Quantos registros da série o jogador já recuperou. */
+    public static int records(ServerPlayer player, String series) {
+        return recordsOf(player).getOrDefault(series, 0);
+    }
+
+    private static Map<String, Integer> recordsOf(ServerPlayer player) {
+        DinoFileData data = get(player.getServer());
+        return data == null ? Map.of() : Map.copyOf(data.records.getOrDefault(player.getUUID(), Map.of()));
+    }
+
     public static void sync(ServerPlayer player) {
-        ModPayloads.sendToPlayer(player, new DinoFilePayload(registered(player)));
+        ModPayloads.sendToPlayer(player, new DinoFilePayload(registered(player), recordsOf(player)));
     }
 
     private static DinoFileData load(CompoundTag tag) {
@@ -74,6 +99,17 @@ public final class DinoFileData extends SavedData {
                 }
             }
             data.registered.put(entry.getUUID("Id"), species);
+            Map<String, Integer> counts = new HashMap<>();
+            CompoundTag series = entry.getCompound("Series");
+            for (String key : series.getAllKeys()) {
+                counts.put(key, series.getInt(key));
+            }
+            if (entry.getInt("Records") > 0) { // gravado antes das séries: eram só os postos
+                counts.putIfAbsent(dev.madebyfelipe.iceagesurvival.core.wiki.Manual.POSTS, entry.getInt("Records"));
+            }
+            if (!counts.isEmpty()) {
+                data.records.put(entry.getUUID("Id"), counts);
+            }
         }
         return data;
     }
@@ -81,14 +117,19 @@ public final class DinoFileData extends SavedData {
     @Override
     public CompoundTag save(CompoundTag tag) {
         ListTag players = new ListTag();
-        registered.forEach((id, species) -> {
+        Set<UUID> ids = new LinkedHashSet<>(registered.keySet());
+        ids.addAll(records.keySet());
+        for (UUID id : ids) {
             CompoundTag entry = new CompoundTag();
             entry.putUUID("Id", id);
             ListTag list = new ListTag();
-            species.forEach(location -> list.add(StringTag.valueOf(location.toString())));
+            registered.getOrDefault(id, Set.of()).forEach(location -> list.add(StringTag.valueOf(location.toString())));
             entry.put("Species", list);
+            CompoundTag series = new CompoundTag();
+            records.getOrDefault(id, Map.of()).forEach(series::putInt);
+            entry.put("Series", series);
             players.add(entry);
-        });
+        }
         tag.put("Players", players);
         return tag;
     }

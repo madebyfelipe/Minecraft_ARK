@@ -4,6 +4,9 @@ import dev.madebyfelipe.iceagesurvival.client.item.AnalyzerRenderer;
 import dev.madebyfelipe.iceagesurvival.entity.PrehistoricCreature;
 import dev.madebyfelipe.iceagesurvival.network.ModPayloads;
 import dev.madebyfelipe.iceagesurvival.network.ScanResultPayload;
+import dev.madebyfelipe.iceagesurvival.network.TerminalReadPayload;
+import dev.madebyfelipe.iceagesurvival.outpost.MilitaryTerminalBlockEntity;
+import dev.madebyfelipe.iceagesurvival.outpost.Outposts;
 import dev.madebyfelipe.iceagesurvival.registry.ModItems;
 import dev.madebyfelipe.iceagesurvival.world.DinoFileData;
 import java.util.HashMap;
@@ -14,6 +17,7 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -34,6 +38,7 @@ import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
@@ -51,7 +56,9 @@ import software.bernie.geckolib.util.GeckoLibUtil;
  * Analisador: o aparelho de campo que todo jogador recebe ao entrar no mundo pela primeira vez. Mirando numa criatura
  * do mod a até {@link #RANGE} blocos e segurando o clique por {@link #SCAN_TICKS} ticks, escaneia: registra a
  * espécie na DINO FILE do jogador ({@link DinoFileData}) e manda a leitura do indivíduo ao cliente
- * ({@link ScanResultPayload}). Perder a mira no meio cancela. Clicando no ar, abre o terminal (DINO FILE e MANUAL).
+ * ({@link ScanResultPayload}). Mirando num terminal militar dos postos, a mesma leitura destrava o próximo registro
+ * militar de quem leu, uma vez por terminal ({@link TerminalReadPayload}). Perder a mira no meio cancela. Clicando no
+ * ar, abre o terminal do aparelho (DINO FILE, NOTAS e REGISTROS).
  *
  * <p>Na mão, no chão e na moldura é um modelo 3D do GeckoLib ({@link AnalyzerRenderer}); na GUI, o ícone plano. A
  * animação {@code idle} (LED piscando devagar, varredura calma na tela) vira {@code scan} enquanto alguém segura o
@@ -65,14 +72,25 @@ public class AnalyzerItem extends Item implements GeoItem {
 
     /** O cliente registra aqui a abertura do terminal (o item não pode tocar em classes de cliente). */
     private static Runnable terminalOpener = () -> { };
-    /** Quem está escaneando o quê (id da entidade), no servidor. */
-    private static final Map<UUID, Integer> SCANNING = new HashMap<>();
+    /** Quem está escaneando o quê, no servidor. */
+    private static final Map<UUID, Target> SCANNING = new HashMap<>();
     private static final RawAnimation IDLE = RawAnimation.begin().thenLoop("animation.analyzer.idle");
     private static final RawAnimation SCAN = RawAnimation.begin().thenLoop("animation.analyzer.scan");
     /** O cliente registra aqui quem diz se um aparelho está escaneando agora (o uso de quem o segura). */
     private static Predicate<ItemStack> scanningCheck = stack -> false;
 
     private final AnimatableInstanceCache animationCache = GeckoLibUtil.createInstanceCache(this);
+
+    /** O alvo de um scan: uma criatura (pelo id da entidade) ou um terminal militar (pela posição). */
+    private record Target(int entity, @Nullable BlockPos terminal) {
+        static Target of(PrehistoricCreature creature) {
+            return new Target(creature.getId(), null);
+        }
+
+        static Target of(BlockPos terminal) {
+            return new Target(-1, terminal.immutable());
+        }
+    }
 
     public AnalyzerItem(Properties properties) {
         super(properties);
@@ -141,10 +159,33 @@ public class AnalyzerItem extends Item implements GeoItem {
         return hit != null && hit.getEntity() instanceof PrehistoricCreature creature ? creature : null;
     }
 
+    /** O terminal militar na mira do jogador, o primeiro bloco a até {@link #RANGE} blocos; {@code null} se não é um. */
+    @Nullable
+    public static BlockPos aimedTerminal(Player player) {
+        Vec3 eye = player.getEyePosition();
+        Vec3 end = eye.add(player.getViewVector(1.0F).scale(RANGE));
+        BlockHitResult hit = player.level().clip(new ClipContext(eye, end, ClipContext.Block.OUTLINE,
+                ClipContext.Fluid.NONE, player));
+        return hit.getType() == HitResult.Type.BLOCK
+                && player.level().getBlockState(hit.getBlockPos()).is(Outposts.MILITARY_TERMINAL.get())
+                ? hit.getBlockPos() : null;
+    }
+
+    /** O que está na mira agora: a criatura tem preferência; senão, um terminal. */
+    @Nullable
+    private static Target aimedTarget(Player player) {
+        PrehistoricCreature creature = aimed(player);
+        if (creature != null) {
+            return Target.of(creature);
+        }
+        BlockPos terminal = aimedTerminal(player);
+        return terminal == null ? null : Target.of(terminal);
+    }
+
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
-        PrehistoricCreature target = aimed(player);
+        Target target = aimedTarget(player);
         if (target == null) {
             if (level.isClientSide) {
                 terminalOpener.run();
@@ -152,7 +193,7 @@ public class AnalyzerItem extends Item implements GeoItem {
             return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
         }
         if (!level.isClientSide) {
-            SCANNING.put(player.getUUID(), target.getId());
+            SCANNING.put(player.getUUID(), target);
             level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.BEACON_ACTIVATE,
                     SoundSource.PLAYERS, 0.4F, 1.8F);
         }
@@ -176,9 +217,8 @@ public class AnalyzerItem extends Item implements GeoItem {
         if (level.isClientSide || !(entity instanceof ServerPlayer player)) {
             return;
         }
-        Integer target = SCANNING.get(player.getUUID());
-        PrehistoricCreature aimed = aimed(player);
-        if (target == null || aimed == null || aimed.getId() != target) {
+        Target target = SCANNING.get(player.getUUID());
+        if (target == null || !target.equals(aimedTarget(player))) {
             SCANNING.remove(player.getUUID());
             player.stopUsingItem();
             level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.NOTE_BLOCK_BASS.value(),
@@ -195,8 +235,11 @@ public class AnalyzerItem extends Item implements GeoItem {
     @Override
     public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity entity) {
         if (!level.isClientSide && entity instanceof ServerPlayer player) {
-            Integer target = SCANNING.remove(player.getUUID());
-            if (target != null && level.getEntity(target) instanceof PrehistoricCreature creature && creature.isAlive()) {
+            Target target = SCANNING.remove(player.getUUID());
+            if (target != null && target.terminal() != null) {
+                completeTerminal(player, target.terminal());
+            } else if (target != null && level.getEntity(target.entity()) instanceof PrehistoricCreature creature
+                    && creature.isAlive()) {
                 complete(player, creature);
             }
         }
@@ -217,6 +260,25 @@ public class AnalyzerItem extends Item implements GeoItem {
         player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
                 newEntry ? SoundEvents.PLAYER_LEVELUP : SoundEvents.NOTE_BLOCK_CHIME.value(), SoundSource.PLAYERS,
                 newEntry ? 0.5F : 0.6F, newEntry ? 1.6F : 1.4F);
+    }
+
+    /**
+     * Leu um terminal: na primeira leitura desta pessoa neste terminal, destrava o próximo registro militar dela.
+     *
+     * @return {@code true} se destravou um registro
+     */
+    public static boolean completeTerminal(ServerPlayer player, BlockPos pos) {
+        if (!(player.level().getBlockEntity(pos) instanceof MilitaryTerminalBlockEntity terminal)) {
+            return false;
+        }
+        boolean fresh = terminal.markRead(player.getUUID());
+        String series = terminal.series();
+        int records = fresh ? DinoFileData.unlockRecord(player, series) : DinoFileData.records(player, series);
+        ModPayloads.sendToPlayer(player, new TerminalReadPayload(series, records, fresh));
+        player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
+                fresh ? SoundEvents.PLAYER_LEVELUP : SoundEvents.NOTE_BLOCK_BASS.value(), SoundSource.PLAYERS,
+                0.5F, fresh ? 1.2F : 0.7F);
+        return fresh;
     }
 
     /** Primeiro login: um analisador no inventário (uma vez por jogador, mesmo morrendo). E a DINO FILE ao cliente. */

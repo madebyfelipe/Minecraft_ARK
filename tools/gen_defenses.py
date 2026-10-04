@@ -339,6 +339,32 @@ def gate_model(texture, edge_texture):
     }
 
 
+def gate_open_model(texture, edge_texture, side):
+    """A folha aberta, dobrada 90° e encostada na face oeste (side="left") ou leste ("right") do bloco, para o
+    portão virado para o norte; o blockstate gira para as outras direções."""
+    x0, x1 = (0, 4) if side == "left" else (12, 16)
+    return {
+        "parent": "minecraft:block/block",
+        "textures": {"particle": tex(texture), "panel": tex(texture), "edge": tex(edge_texture)},
+        "elements": [{
+            "from": [x0, 0, 0], "to": [x1, 16, 16],
+            "faces": {
+                "west": face("#panel", [0, 0, 16, 16], "west" if side == "left" else None),
+                "east": face("#panel", [16, 0, 0, 16], "east" if side == "right" else None),
+                "north": face("#edge", [6, 0, 10, 16], "north"),
+                "south": face("#edge", [6, 0, 10, 16], "south"),
+                "up": face("#edge", [x0, 0, x1, 16], "up"),
+                "down": face("#edge", [x0, 0, x1, 16], "down"),
+            },
+        }],
+    }
+
+
+def gate_hidden_model(texture):
+    """As colunas do meio do portão grande aberto: sem nada para desenhar (só a partícula)."""
+    return {"textures": {"particle": tex(texture)}, "elements": []}
+
+
 def spike_trap_model():
     planes = []
     for angle in (45, -45):
@@ -449,6 +475,12 @@ def main():
         "stone_gate": gate_model("stone_gate", "stone_gate_edge"),
         "large_wood_gate": gate_model("large_wood_gate", "wood_gate_edge"),
         "large_stone_gate": gate_model("large_stone_gate", "stone_gate_edge"),
+        **{f"{gate}_open_{side}": gate_open_model(gate, edge_tex, side)
+           for gate, edge_tex in (("wood_gate", "wood_gate_edge"), ("stone_gate", "stone_gate_edge"),
+                                  ("large_wood_gate", "wood_gate_edge"), ("large_stone_gate", "stone_gate_edge"))
+           for side in (("left", "right") if gate.startswith("large_") else ("left",))},
+        "large_wood_gate_open_hidden": gate_hidden_model("large_wood_gate"),
+        "large_stone_gate_open_hidden": gate_hidden_model("large_stone_gate"),
         "spike_trap": spike_trap_model(),
         "thorn_palisade": {"parent": "minecraft:block/cube_bottom_top", "render_type": "minecraft:cutout",
                            "textures": {"top": tex("thorn_palisade_top"), "bottom": tex("thorn_palisade_top"),
@@ -464,15 +496,27 @@ def main():
     gates = ["wood_gate", "stone_gate", "large_wood_gate", "large_stone_gate"]
     blockstates = {name: {"variants": {"": {"model": block_model(name)}}} for name in single}
     rotation = {"north": 0, "east": 90, "south": 180, "west": 270}
+    # Fechado, a folha atravessada no meio, igual em todas as colunas. Aberto, abre como porta dupla: a coluna 0
+    # encosta a folha na face da esquerda e a última (4, no grande) na da direita; as do meio somem. O comum tem uma
+    # coluna só, com a folha na esquerda (as colunas 1 a 4 não existem nele, mas o blockstate cobre a propriedade toda).
     for gate in gates:
+        large = gate.startswith("large_")
         variants = {}
         for facing, y in rotation.items():
             for open_ in (False, True):
-                variant = {"model": block_model(gate)}
-                angle = (y + (90 if open_ else 0)) % 360
-                if angle:
-                    variant["y"] = angle
-                variants[f"facing={facing},open={str(open_).lower()}"] = variant
+                for column in range(5):
+                    if not open_:
+                        model = gate
+                    elif column == 0 or not large:
+                        model = f"{gate}_open_left"
+                    elif column == 4:
+                        model = f"{gate}_open_right"
+                    else:
+                        model = f"{gate}_open_hidden"
+                    variant = {"model": block_model(model)}
+                    if y:
+                        variant["y"] = y
+                    variants[f"facing={facing},open={str(open_).lower()},column={column}"] = variant
         blockstates[gate] = {"variants": variants}
     blockstates["bear_trap"] = {"variants": {
         "stage=armed": {"model": block_model("bear_trap")},

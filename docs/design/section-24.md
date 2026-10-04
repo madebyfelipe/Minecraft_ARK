@@ -14,6 +14,16 @@ Ver a tabela em [4](section-04.md). Registro de mudanças estruturais:
   seletiva, reserva, heartbeat e handoff. Leitura inicial de 155.206 para 5.251 bytes
   (96,6% menos texto, não uma medição de tokens).
 
+- 2026-10-04 — Base militar e contenção (D53): hangar do Felipe como base única por mundo, Núcleo da Contenção e Geradores do Campo, séries de registros (postos, base, dossiê) no manual e no Analisador, dossiê destravado pela morte do espécime.
+
+- 2026-10-04 — Variante complexo dos postos (D52) e série da base reescrita com o Titanovenator contido no campo de êxtase (`tools/wiki_lore/base/`), mais o dossiê da espécie (`tools/wiki_lore/dossie/`). Notas e dossiê ainda fora do manual.
+
+- 2026-10-04 — Postos refeitos (D52): torre de vigia do Felipe (BuildPaste) como template, muro de pedra com o portão grande, baú com rifle e dardos; lore dos postos como postos de controle erguidos depois das mortes. Portões abertos com as folhas encostadas nas pontas.
+
+- 2026-10-03 — Postos militares (D52): estrutura espalhada pelo mundo com o Terminal Militar, que o Analisador lê para destravar o próximo dos 10 registros (aba REGISTROS); uma leitura por pessoa e por terminal. Protocolo de rede 10.
+
+- 2026-10-03 — Revisão editorial de `tools/wiki_lore/`: frases mais claras, correções de concordância e menos repetições no manual e nas fichas, preservando a voz de diário de campo. Conteúdo do Analisador regenerado por `tools/gen_wiki.py`.
+
 - 2026-10-01 — Worldgen restaurado ao v1 da Etapa 9: o preset Era do Gelo volta ao relevo
   `minecraft:overworld` e ao mapeamento original de biomas frios, removendo a reformulação de
   tundra aberta e relevo `amplified`. TerraBlender continua somente como dependência transitiva do
