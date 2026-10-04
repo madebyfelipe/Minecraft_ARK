@@ -32,6 +32,8 @@ public class IceAgeSurvivalClient {
         modEventBus.addListener(CommandInput::registerKeys);
         MinecraftForge.EVENT_BUS.addListener(CommandInput::onClientTick);
         MinecraftForge.EVENT_BUS.addListener(CommandInput::onAttackClick);
+        MinecraftForge.EVENT_BUS.addListener(MountCamera::onClientTick);
+        MinecraftForge.EVENT_BUS.addListener(MountCamera::onLoggingOut);
         modEventBus.addListener(AnalyzerSlotClient::registerKeys);
         MinecraftForge.EVENT_BUS.addListener(AnalyzerSlotClient::onClientTick);
         MinecraftForge.EVENT_BUS.addListener(AnalyzerSlotClient::onScreenRender);
