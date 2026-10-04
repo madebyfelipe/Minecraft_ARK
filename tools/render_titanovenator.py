@@ -8,6 +8,7 @@ import base64
 import io
 import json
 import math
+import sys
 from pathlib import Path
 
 import numpy as np
@@ -58,7 +59,10 @@ def scene(path,jaw=0):
                 points=np.asarray(pts)@transform[:3,:3].T+transform[:3,3]
                 if is_head:head.extend(points)
                 normal=transform[:3,:3]@normals[name]
-                faces.append((points,normal,c['faces'][name]['uv']))
+                uv=c['faces'][name]['uv']
+                sx=texture.shape[1]/model['resolution']['width']
+                sy=texture.shape[0]/model['resolution']['height']
+                faces.append((points,normal,[uv[0]*sx,uv[1]*sy,uv[2]*sx,uv[3]*sy]))
     walk(model['outliner'],np.eye(4))
     return faces,texture,np.array(head)
 
@@ -127,4 +131,16 @@ def main():
     print(OUT/'passo-2-cabeca.png')
 
 
-if __name__=='__main__':main()
+def render_texture():
+    data=scene(OUT/'titanovenator.bbmodel')
+    points=np.concatenate([face[0] for face in data[0]])
+    render(data,points,1600,900).save(OUT/'passo-3-corpo.png')
+    opened=scene(OUT/'titanovenator.bbmodel',30)
+    reference=np.concatenate([data[2],opened[2]])
+    render(data,reference).save(OUT/'passo-3-cabeca.png')
+    render(opened,reference).save(OUT/'passo-3-mandibula.png')
+
+
+if __name__=='__main__':
+    if '--texture' in sys.argv: render_texture()
+    else: main()

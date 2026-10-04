@@ -733,14 +733,19 @@ O mundo do GameTest é plano e de bioma temperado, então o frio não chega a su
 MVP = Etapas 1–4 + versão mínima de 6, 7 e 9 (mundo frio, temperatura básica, montar o Smilodon).
 
 **Estudo visual em revisão:** Titanovenator, sobre o Rex do Revival instalado, conforme pedido do
-Felipe. Passo 2 da cabeça em `art/titanovenator/README.md`, mantendo o corpo do passo 1 aprovado;
+Felipe. Passo 3 da textura em `art/titanovenator/README.md`, mantendo o corpo do passo 1 aprovado;
 derivados locais ignorados
-pelo Git, sem integração ao jogo. Paleta marrom-oliva/ventre ocre e cerdas discretas escolhidas;
-textura e animações ficam para as próximas passagens após revisar a cabeça.
+pelo Git, sem integração ao jogo. Referência nova: carvão e ocre dourado com manchas;
+textura em revisão, cerdas discretas e animações pendentes.
 
 ## 24. Decisões técnicas
 
 Ver a tabela em [4](#4-decisões). Registro de mudanças estruturais:
+
+- 2026-10-03 — Titanovenator, passo 3: pintura carvão/ocre dourado conforme fotografia
+  enviada pelo Felipe. Atlas via ImageGen integrado, UVs remapeados sem mudanças geométricas;
+  preservada comparação com a cabeça do passo 2. Derivados somente locais, sem inclusão no jar.
+  Suíte de 388 GameTests: uma falha em `stegosaurusDrivesOffSatedVelociraptor`; sem merge.
 
 - 2026-10-03 — Titanovenator, passo 2 autorizado pelo Felipe: focinho/mandíbula mais largos,
   bochechas discretas, cristas reduzidas e peças labiais articuladas nos ossos originais.
