@@ -101,6 +101,17 @@ public record CreatureAppearance(
         return resource("textures/entity/" + texture);
     }
 
+    /**
+     * A pele de filhote do Revival, ao lado da adulta ({@code <modelo>/<modelo>_baby.png}); nossos modelos locais
+     * não têm uma e ficam com a adulta.
+     */
+    public ResourceLocation babyTextureResource() {
+        if (isLocal()) {
+            return textureResource();
+        }
+        return resource("textures/entity/" + texture.substring(0, texture.lastIndexOf('/') + 1) + model + "_baby.png");
+    }
+
     public ResourceLocation animationResource() {
         return resource("animations/entity/" + model + ".animation.json");
     }

@@ -11,7 +11,7 @@ Bloco `breeding` no JSON da espécie; sem ele, a espécie não se reproduz:
 | `maturation_seconds` | de filhote a adulto |
 | `cooldown_seconds` | espera da fêmea entre crias |
 
-**Filhote:** nasce domesticado pelo dono, seguindo e passivo, com 40% do tamanho, sem sela nem acasalamento até crescer. Adultos não exigem alimentação de manutenção.
+**Filhote:** nasce domesticado pelo dono, seguindo e passivo, com 40% do tamanho, sem sela nem acasalamento até crescer. Modelo e caixa de colisão crescem sem degraus de 40% a 100% ao longo de `maturation_seconds` (`Growth`, fração sincronizada ao cliente a cada 0,5%). Como no Revival, a mesma geometria do adulto, com a pele `<modelo>_baby.png` na primeira metade do crescimento; os modelos do Jurassic Reborn só mudam de escala. Adultos não exigem alimentação de manutenção.
 
 **Ovo** (`creature_egg`): um item só para todas as espécies, com espécie, genoma e dono no `CustomData` e as cores do ovo gerador da espécie. Só choca na **incubadora**.
 

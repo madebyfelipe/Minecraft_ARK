@@ -203,6 +203,30 @@ public class CreatureStatusScreen extends Screen {
         InventoryScreen.renderEntityInInventoryFollowsMouse(graphics, centerX, feetY, scale,
                 mouseX - centerX, mouseY - (feetY - visualHeight * scale * 0.5F), creature);
         graphics.disableScissor();
+        renderProgress(graphics, x1 + 4, y1 + 4, x2 - 4);
+    }
+
+    /**
+     * Gestação da fêmea ou crescimento do filhote, no alto do quadro da prévia: na coluna das estatísticas a linha
+     * encostava nos botões quando a criatura voa e tem dono.
+     */
+    private void renderProgress(GuiGraphics graphics, int x, int y, int right) {
+        String key;
+        float progress;
+        int color;
+        if (status.gestation() >= 0) {
+            key = "iceagesurvival.status.gestation";
+            progress = status.gestation();
+            color = 0xFFE07BB5;
+        } else if (status.maturation() < 1.0F) {
+            key = "iceagesurvival.status.maturation";
+            progress = status.maturation();
+            color = TechStyle.ACCENT;
+        } else {
+            return;
+        }
+        infoRow(graphics, x, right, y, key, Component.literal((int) (progress * 100) + "%"));
+        TechStyle.bar(graphics, x, y + 9, right - x, 2, progress, color);
     }
 
     private void renderStats(GuiGraphics graphics, int x, int y) {
@@ -257,16 +281,6 @@ public class CreatureStatusScreen extends Screen {
         infoRow(graphics, x, right, y, "iceagesurvival.status.mutations", Component.translatable(
                 status.healthGene() ? "iceagesurvival.status.mutations_gene" : "iceagesurvival.status.mutations_count",
                 status.mutations()));
-        y += ROW_HEIGHT;
-        if (status.gestation() >= 0) {
-            infoRow(graphics, x, right, y, "iceagesurvival.status.gestation",
-                    Component.literal(Math.round(status.gestation() * 100) + "%"));
-            TechStyle.bar(graphics, x, y + 9, right - x, 2, status.gestation(), 0xFFE07BB5);
-        } else if (status.maturation() < 1.0F) {
-            infoRow(graphics, x, right, y, "iceagesurvival.status.maturation",
-                    Component.literal(Math.round(status.maturation() * 100) + "%"));
-            TechStyle.bar(graphics, x, y + 9, right - x, 2, status.maturation(), TechStyle.ACCENT);
-        }
     }
 
     private void statRow(GuiGraphics graphics, int x, int right, int y, Stat stat, String value) {

@@ -54,7 +54,7 @@ public class TabulaCreatureRenderer extends MobRenderer<LandCreature, TabulaCrea
         super.render(entity, entityYaw, partialTick, poseStack, buffers, packedLight);
     }
 
-    /** Escala do modelo: a da espécie vezes a de filhote (40%, a mesma da caixa de colisão). */
+    /** Escala do modelo: a da espécie vezes a de filhote (de 40% a 100%, a mesma da caixa de colisão). */
     private float renderScale(LandCreature entity) {
         return CreatureModelSettings.INSTANCE.scale(typeId) * entity.getAgeScale();
     }
