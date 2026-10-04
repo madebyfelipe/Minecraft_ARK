@@ -28,6 +28,78 @@
      ]
     },
     {
+     "id": "diario/os-primeiros-dias",
+     "title": "Os primeiros dias",
+     "blocks": [
+      {
+       "type": "paragraph",
+       "text": "Nos primeiros dias não fiz nada de útil. Dormia no que restou do laboratório de campo, entre as caixas de amostras, e comia as rações que achava no refeitório. O aquecimento tinha morrido junto com os geradores da superfície. Queimei as cadeiras, depois as prateleiras, depois os relatórios que eu mesmo tinha escrito sobre mamutes congelados."
+      },
+      {
+       "type": "paragraph",
+       "text": "Na terceira manhã desci ao riacho atrás dos alojamentos para buscar água. Um felino do tamanho de um leão, com dois dentes que passavam do queixo, veio pela margem sem pressa, sempre à mesma distância de mim. Eu conhecia aquele crânio dos livros e mesmo assim demorei a entender que estava sendo caçado. Escapei porque escorreguei barranco abaixo e caí na água. Ele parou na beira e não entrou."
+      },
+      {
+       "type": "paragraph",
+       "text": "Desde aquela manhã não saio sem antes olhar em volta, e não ando longe da água."
+      },
+      {
+       "type": "note",
+       "text": "No quarto dia uma manada de mamutes passou ao lado da base. Passei anos estudando os mortos. Os vivos cheiram a lã molhada e a estrume."
+      }
+     ]
+    },
+    {
+     "id": "diario/os-outros-da-equipe-civil",
+     "title": "Os outros da equipe civil",
+     "blocks": [
+      {
+       "type": "paragraph",
+       "text": "Éramos nove na equipe de biologia. Dois estavam no laboratório de campo quando o teto desceu, e fui eu que os enterrei. Os outros seis saíram da base dias depois, rumo ao sul, atrás da estrada por onde os caminhões de suprimento chegavam. Eu fiquei."
+      },
+      {
+       "type": "paragraph",
+       "text": "Não sei o que aconteceu com eles. O que levou cada um a ir ou a ficar está na nota sobre a separação."
+      }
+     ]
+    },
+    {
+     "id": "diario/o-laboratorio-revirado",
+     "title": "O laboratório revirado",
+     "blocks": [
+      {
+       "type": "paragraph",
+       "text": "Semanas depois voltei aos escombros do laboratório de campo para buscar o que tinha ficado: frascos, cadernos, um fogareiro. Alguém tinha passado ali antes de mim, depois do clarão. Os armários estavam abertos, e os cadernos do furo sete, que eu nunca tive permissão de ler, tinham sumido."
+      },
+      {
+       "type": "paragraph",
+       "text": "Na mesa do doutor Brandt, o chefe da nossa equipe, a gaveta trancada tinha sido aberta com a chave, sem arrombamento. Só ele tinha aquela chave. Entre os mortos que enterrei não estava ele, e o crachá dele também não apareceu."
+      },
+      {
+       "type": "note",
+       "text": "Animal nenhum abre gaveta com chave. Não sei se isso me tranquiliza."
+      }
+     ]
+    },
+    {
+     "id": "diario/o-ceu",
+     "title": "O céu",
+     "blocks": [
+      {
+       "type": "paragraph",
+       "text": "Na primeira noite limpa depois do clarão, subi no que sobrou da caixa d'água para olhar o vale. Antes, dava para ver a luz vermelha da torre de rádio na serra e, nas noites sem nuvem, o brilho fraco da cidade mais próxima, a dois dias de caminhão. Agora o horizonte inteiro está escuro."
+      },
+      {
+       "type": "paragraph",
+       "text": "Sei achar o norte pelas estrelas, e achei. Mas as constelações me parecem um pouco tortas, como um desenho copiado de memória. Pode ser cansaço. Anotei a posição de três estrelas contra a serra e repito a medição toda noite limpa."
+      },
+      {
+       "type": "note",
+       "text": "Se o céu mudou, o que mudou não foi o vale, foi a época em que ele está. Ainda não tenho como provar isso."
+      }
+     ]
+    },
+    {
      "id": "diario/o-que-o-gelo-escondia",
      "title": "O que o gelo escondia",
      "blocks": [
@@ -608,6 +680,365 @@
       {
        "type": "note",
        "text": "A vitória não torna o soberano dócil com qualquer pessoa. Ele só aceita ser amansado por quem o desafiou."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "antes-do-clarao",
+   "title": "Antes do clarão",
+   "subtitle": "A base vista da superfície",
+   "pages": [
+    {
+     "id": "antes-do-clarao/o-contrato",
+     "title": "O contrato",
+     "blocks": [
+      {
+       "type": "paragraph",
+       "text": "Me chamaram por causa de um artigo antigo sobre fauna preservada no permafrost. O pagamento era três vezes o de uma universidade, e a única condição era nunca falar onde ficava a base. Assinei sem ler o anexo de sigilo até o fim."
+      },
+      {
+       "type": "paragraph",
+       "text": "Cheguei no caminhão de suprimentos, junto com quarenta caixas de ração e uns tanques de combustível que desceram direto para o subsolo, sem passar pela doca. Pensei que fosse diesel para o aquecimento."
+      }
+     ]
+    },
+    {
+     "id": "antes-do-clarao/o-doutor-brandt",
+     "title": "O doutor Brandt",
+     "blocks": [
+      {
+       "type": "paragraph",
+       "text": "O chefe da equipe civil era o doutor Otto Brandt. Alto, educado, sempre de luvas, até dentro do laboratório. Falava pouco conosco e muito com o comando. Era o único civil com credencial vermelha, e nunca explicou por quê."
+      },
+      {
+       "type": "paragraph",
+       "text": "Revisava os meus relatórios com cuidado, sublinhando as medidas. Uma vez me perguntou, sem tirar os olhos do papel, qual era o maior caçador que eu achava que tinha existido. Respondi o tiranossauro. Ele disse que era uma resposta honesta para quem só conhecia os ossos."
+      },
+      {
+       "type": "note",
+       "text": "Na época achei que era uma frase de professor. Hoje não tenho tanta certeza."
+      }
+     ]
+    },
+    {
+     "id": "antes-do-clarao/a-rotina",
+     "title": "A rotina",
+     "blocks": [
+      {
+       "type": "paragraph",
+       "text": "Ronda a cada quatro horas pelo perímetro, rádio às seis, às doze, às dezoito e à meia-noite. Os civis ficavam na superfície. O elevador para os níveis de baixo tinha um soldado na porta dia e noite."
+      },
+      {
+       "type": "paragraph",
+       "text": "No refeitório os militares sentavam de um lado e nós do outro. Havia uma mulher da ala médica que comia sozinha, perto da janela, sempre com pressa. Nunca soube o nome dela. Vi as mãos dela uma vez, cheias de arranhões finos e paralelos, e pensei em gato."
+      }
+     ]
+    },
+    {
+     "id": "antes-do-clarao/o-que-eu-anotava",
+     "title": "O que eu anotava",
+     "blocks": [
+      {
+       "type": "paragraph",
+       "text": "Comecei a anotar por tédio. O horário em que as luzes piscavam, os dias em que o elevador descia com carne e voltava vazio, o zumbido no chão que aumentava toda madrugada. Pedi para ver os testemunhos do furo sete e ouvi que não era da minha conta."
+      },
+      {
+       "type": "paragraph",
+       "text": "Na semana seguinte chegaram onze carcaças congeladas para mim, de uma vez. O doutor Brandt disse que era uma boa notícia para a minha pesquisa. Passei um mês sem tempo para mais nada."
+      },
+      {
+       "type": "note",
+       "text": "Achei que estavam me dando trabalho. Estavam me dando o que fazer."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "separacao",
+   "title": "A separação",
+   "subtitle": "Quem foi e quem ficou",
+   "pages": [
+    {
+     "id": "separacao/o-patio",
+     "title": "O pátio",
+     "blocks": [
+      {
+       "type": "paragraph",
+       "text": "Na manhã seguinte ao clarão, quem ainda andava se juntou no pátio da base. Éramos talvez trinta, entre soldados, técnicos, gente da ala médica e o que sobrou da nossa equipe. Ninguém sabia o que tinha acontecido. Os soldados sabiam menos que nós e disfarçavam melhor."
+      },
+      {
+       "type": "paragraph",
+       "text": "O oficial mais graduado subiu num caixote com uma prancheta e leu uma lista."
+      }
+     ]
+    },
+    {
+     "id": "separacao/a-lista",
+     "title": "A lista",
+     "blocks": [
+      {
+       "type": "paragraph",
+       "text": "Médicos, enfermeiros, técnicos de gerador e de rádio iam nos caminhões, com os soldados. Os nomes eram lidos um por um, e cada pessoa chamada subia sem discutir."
+      },
+      {
+       "type": "paragraph",
+       "text": "Os biólogos foram chamados por último, todos juntos, por função. Deviam esperar ali. Os caminhões voltariam para nos buscar quando o caminho estivesse seguro. O oficial não olhou para nós enquanto lia essa parte."
+      },
+      {
+       "type": "paragraph",
+       "text": "Reparei em dois nomes que não foram chamados nem para ir nem para ficar: a mulher da ala médica que comia sozinha e o doutor Brandt. Nenhum dos dois estava no pátio."
+      }
+     ]
+    },
+    {
+     "id": "separacao/os-que-ficaram",
+     "title": "Os que ficaram",
+     "blocks": [
+      {
+       "type": "paragraph",
+       "text": "Esperamos três dias, e os caminhões não voltaram. Na quarta manhã, os outros seis da equipe decidiram andar para o sul, atrás da estrada de suprimentos. Me chamaram. Eu disse que alguém precisava ficar caso os caminhões voltassem, e era verdade. Também era verdade que eu já tinha subido na caixa d'água e visto o horizonte escuro."
+      },
+      {
+       "type": "paragraph",
+       "text": "Eles levaram metade das rações e o rádio portátil. Combinamos uma chamada ao meio-dia. No primeiro dia ouvi a voz deles. No segundo, só chiado."
+      }
+     ]
+    },
+    {
+     "id": "separacao/o-que-entendi-depois",
+     "title": "O que entendi depois",
+     "blocks": [
+      {
+       "type": "paragraph",
+       "text": "Pelos registros dos postos entendi o que foi aquela lista. Os militares levaram quem servia para segurar um muro de pé, tratar um ferido ou manter um gerador ligado. Um biólogo não servia para nada disso."
+      },
+      {
+       "type": "paragraph",
+       "text": "Depois soube também que a mulher da ala médica não foi esquecida. Ela ficou lá embaixo porque quis."
+      },
+      {
+       "type": "note",
+       "text": "No papel do oficial, o meu nome vinha depois da palavra aguardar. Estou aguardando até hoje."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "analisador",
+   "title": "O analisador",
+   "subtitle": "Como aprendi a viver sozinho",
+   "pages": [
+    {
+     "id": "analisador/o-aparelho",
+     "title": "O aparelho",
+     "blocks": [
+      {
+       "type": "paragraph",
+       "text": "Achei o analisador debaixo de uma bancada do laboratório de biologia, ainda dentro do estojo acolchoado. Era o protótipo que a base usava para catalogar os animais congelados sem precisar descongelá-los. Eu tinha usado duas vezes, sempre com um técnico do lado."
+      },
+      {
+       "type": "paragraph",
+       "text": "A bateria estava cheia. Liguei, apontei para um dodô que ciscava nos escombros e segurei firme até o aparelho apitar. A ficha apareceu na tela, com o peso do bicho, a temperatura do corpo e o humor. Fiquei rindo sozinho no meio das ruínas, olhando para um dodô vivo."
+      },
+      {
+       "type": "note",
+       "text": "Foi a primeira vez depois do clarão que alguma coisa funcionou como devia."
+      }
+     ]
+    },
+    {
+     "id": "analisador/o-abrigo",
+     "title": "O abrigo",
+     "blocks": [
+      {
+       "type": "paragraph",
+       "text": "A primeira parede que levantei foi de tábuas tiradas dos alojamentos. Durou duas noites. Na terceira, algo grande encostou nela por fora e foi empurrando até as tábuas cederem. Passei o resto da madrugada em cima do telhado, ouvindo o bicho fuçar as minhas rações."
+      },
+      {
+       "type": "paragraph",
+       "text": "Refiz tudo em pedra. Leva mais tempo, cansa mais, e ainda não vi nenhum animal do vale atravessar uma parede de pedra."
+      }
+     ]
+    },
+    {
+     "id": "analisador/o-primeiro-inverno",
+     "title": "O primeiro inverno",
+     "blocks": [
+      {
+       "type": "paragraph",
+       "text": "O frio chegou antes que eu tivesse roupa para ele. Queimava o que achava e mesmo assim acordava com os dedos roxos. Foi nessa época que descobri a fruta-negra e o que ela faz quando misturada com carne podre."
+      },
+      {
+       "type": "paragraph",
+       "text": "Testei a primeira flecha num elasmotério que vivia investindo contra a minha cerca. Precisei de muitas. Quando ele caiu, sentei ao lado dele para esperar e senti o calor que saía do corpo, como de um fogão aceso. Passei aquela noite encostado nele, alimentando-o com o que tinha, com medo de que acordasse antes da hora."
+      },
+      {
+       "type": "paragraph",
+       "text": "Ele acordou manso. Desde então atravessamos juntos todas as noites ruins, eu montado nas costas dele, ele bufando vapor no escuro."
+      },
+      {
+       "type": "note",
+       "text": "Eu amansei o elasmotério para não morrer de frio. Hoje cuido dele porque não sei mais andar por aí sem ele."
+      }
+     ]
+    },
+    {
+     "id": "analisador/por-que-continuo",
+     "title": "Por que continuo",
+     "blocks": [
+      {
+       "type": "paragraph",
+       "text": "Ninguém me pediu para registrar as espécies do vale. Faço isso porque é a única coisa que sei fazer e porque cada ficha nova me ensina como não morrer no dia seguinte."
+      },
+      {
+       "type": "paragraph",
+       "text": "Se este aparelho estiver nas suas mãos, é porque eu não estou mais aqui para usá-lo. Continue de onde eu parei."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "chefe",
+   "title": "O chefe",
+   "subtitle": "O que sei, e não sei, do doutor Brandt",
+   "pages": [
+    {
+     "id": "chefe/o-que-eu-sabia",
+     "title": "O que eu sabia",
+     "blocks": [
+      {
+       "type": "paragraph",
+       "text": "Do doutor Otto Brandt eu sabia pouco antes do clarão: o cargo, as luvas, a credencial vermelha, as conversas fechadas com o comando. Depois do clarão passei a saber menos ainda. Ele não estava no pátio, não estava na lista e não estava entre os mortos que enterrei. A gaveta dele foi aberta com a chave dele."
+      },
+      {
+       "type": "paragraph",
+       "text": "Desde então anoto tudo que possa ter a ver com ele. Não sei se estou atrás de um homem vivo ou de uma desculpa para não pensar em outras coisas."
+      }
+     ]
+    },
+    {
+     "id": "chefe/a-luz-na-base",
+     "title": "A luz na base",
+     "blocks": [
+      {
+       "type": "paragraph",
+       "text": "A base está selada desde as primeiras semanas, travada por dentro e por fora. Mesmo assim, em algumas noites, uma janela do segundo andar acende por poucos minutos e apaga. Nunca na mesma hora, e nunca duas noites seguidas."
+      },
+      {
+       "type": "paragraph",
+       "text": "Pode ser um gerador de reserva ligando sozinho. Pode ser alguém lá dentro. Só sei que quem fica lá dentro precisa de luz."
+      }
+     ]
+    },
+    {
+     "id": "chefe/as-pegadas-no-posto",
+     "title": "As pegadas no posto",
+     "blocks": [
+      {
+       "type": "paragraph",
+       "text": "Encontrei um posto vazio no lado norte do vale, com o portão encostado e o muro inteiro. No barro da entrada havia pegadas recentes, de sola lisa. Os soldados usavam coturno com cravos, e aquelas eram de sapato civil."
+      },
+      {
+       "type": "paragraph",
+       "text": "O terminal do posto já estava ligado, aberto no último registro, como se alguém tivesse acabado de ler. O baú estava vazio, mas os dardos não tinham sido levados: estavam arrumados em cima dele, contados."
+      },
+      {
+       "type": "note",
+       "text": "Quem esteve ali não precisava de dardos. Precisava de saber o que os terminais contam."
+      }
+     ]
+    },
+    {
+     "id": "chefe/a-luva",
+     "title": "A luva",
+     "blocks": [
+      {
+       "type": "paragraph",
+       "text": "Perto da entrada leste da base, presa no gelo junto ao concreto rachado, achei uma luva de couro fino, das que ele usava. Estava congelada fazia tempo, mas não tanto."
+      },
+      {
+       "type": "paragraph",
+       "text": "Muita gente na base podia ter uma luva igual. Guardei assim mesmo."
+      }
+     ]
+    },
+    {
+     "id": "chefe/o-que-nao-sei",
+     "title": "O que não sei",
+     "blocks": [
+      {
+       "type": "paragraph",
+       "text": "Não sei se o doutor Brandt está vivo. Não sei se a luz na base, as pegadas e a luva são dele ou de três pessoas diferentes. Não sei o que ele levou do laboratório, nem para quê."
+      },
+      {
+       "type": "paragraph",
+       "text": "Se ele estiver vivo, conhece o vale melhor do que eu e sabe o que ficou lá embaixo. E nunca me procurou."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "la-fora",
+   "title": "O lá fora",
+   "subtitle": "O que existe além do vale",
+   "pages": [
+    {
+     "id": "la-fora/o-radio",
+     "title": "O rádio",
+     "blocks": [
+      {
+       "type": "paragraph",
+       "text": "Todo dia, ao meio-dia, ligo o rádio do laboratório na frequência que combinei com os seis que foram para o sul. Depois passo pela frequência de emergência e pelas da cidade. Só ouço chiado."
+      },
+      {
+       "type": "paragraph",
+       "text": "Às vezes o chiado muda de tom, como se alguma coisa estivesse transmitindo muito longe. Gravei uma dessas mudanças e ouvi a gravação a noite inteira. Não era voz. Pode ter sido o vento na antena."
+      }
+     ]
+    },
+    {
+     "id": "la-fora/a-estrada",
+     "title": "A estrada",
+     "blocks": [
+      {
+       "type": "paragraph",
+       "text": "No fim do primeiro inverno, montado no elasmotério, segui a estrada de suprimentos para o sul, o mesmo caminho dos seis. Andamos dois dias."
+      },
+      {
+       "type": "paragraph",
+       "text": "No segundo dia a estrada acabou. Não estava quebrada nem coberta de neve. O asfalto terminava numa linha reta, cortado liso como se fosse queijo, e do outro lado só havia mato antigo e árvores que eu não sei nomear, sem nenhum sinal de que algum dia tivesse passado uma estrada ali."
+      },
+      {
+       "type": "paragraph",
+       "text": "As pegadas dos seis chegavam até a beira do asfalto. Do outro lado, procurei a tarde inteira e não achei nenhuma."
+      },
+      {
+       "type": "note",
+       "text": "O elasmotério não quis pisar no mato. Não insisti."
+      }
+     ]
+    },
+    {
+     "id": "la-fora/o-que-isso-pode-ser",
+     "title": "O que isso pode ser",
+     "blocks": [
+      {
+       "type": "paragraph",
+       "text": "Penso em duas respostas e não gosto de nenhuma. Se as estrelas estão mesmo tortas, o vale foi parar numa época que não é a nossa, e o resto do mundo ficou para trás. Se não estão, o mundo continua lá fora, do outro lado de alguma coisa que eu não consigo ver nem atravessar."
+      },
+      {
+       "type": "paragraph",
+       "text": "Nas duas, os seis chegaram até a linha. Não sei o que encontraram depois dela."
+      },
+      {
+       "type": "note",
+       "text": "Repito a medição das estrelas toda noite limpa. Quando ela me der uma resposta, escrevo aqui."
       }
      ]
     }
