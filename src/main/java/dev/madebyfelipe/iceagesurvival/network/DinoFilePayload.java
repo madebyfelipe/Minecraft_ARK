@@ -7,8 +7,11 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.network.NetworkEvent;
 
-/** Servidor → cliente, ao entrar no mundo e a cada registro novo: as espécies que o jogador já escaneou. */
-public record DinoFilePayload(List<ResourceLocation> registered) {
+/**
+ * Servidor → cliente, ao entrar no mundo e a cada registro novo: as espécies que o jogador já escaneou e quantos
+ * registros militares ele já recuperou.
+ */
+public record DinoFilePayload(List<ResourceLocation> registered, int records) {
     private static Consumer<DinoFilePayload> clientHandler = payload -> { };
 
     public static void setClientHandler(Consumer<DinoFilePayload> handler) {
@@ -17,10 +20,11 @@ public record DinoFilePayload(List<ResourceLocation> registered) {
 
     public static void encode(DinoFilePayload message, FriendlyByteBuf buf) {
         buf.writeCollection(message.registered, FriendlyByteBuf::writeResourceLocation);
+        buf.writeVarInt(message.records);
     }
 
     public static DinoFilePayload decode(FriendlyByteBuf buf) {
-        return new DinoFilePayload(buf.readList(FriendlyByteBuf::readResourceLocation));
+        return new DinoFilePayload(buf.readList(FriendlyByteBuf::readResourceLocation), buf.readVarInt());
     }
 
     public static void handle(DinoFilePayload message, Supplier<NetworkEvent.Context> supplier) {

@@ -1,0 +1,19 @@
+id: inventario-ala-inferior
+titulo: Inventário de suprimentos
+origem: Depósito do posto de suprimentos oeste
+
+Entrega semanal, conferida na doca de carga.
+
+| Item | Quantidade | Destino |
+| --- | --- | --- |
+| Rações da equipe | quarenta caixas | Refeitório |
+| Combustível dos geradores | doze tanques | Quinto nível |
+| Carne fresca em carcaça | duas toneladas | Ala inferior |
+| Chapas de aço reforçado | trinta e seis | Ala inferior |
+| Correntes de amarração | oito rolos | Ala inferior |
+
+As chapas da semana passada foram devolvidas tortas para reciclagem. Ninguém da doca tem autorização para descer com a carne; o elevador volta vazio, e às vezes volta arranhado por dentro.
+
+Quanto ao conteúdo da ala inferior,
+
+> [registro interrompido]

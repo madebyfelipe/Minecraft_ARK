@@ -1,0 +1,14 @@
+{
+  "structures": [
+    {
+      "structure": "iceagesurvival:military_outpost",
+      "weight": 1
+    }
+  ],
+  "placement": {
+    "type": "minecraft:random_spread",
+    "salt": 51051703,
+    "spacing": 40,
+    "separation": 20
+  }
+}

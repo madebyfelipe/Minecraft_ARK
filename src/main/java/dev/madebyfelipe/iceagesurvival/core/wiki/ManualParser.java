@@ -43,7 +43,13 @@ public final class ManualParser {
                         blocks(sheet)));
             }
         }
-        return new Manual(List.copyOf(chapters), List.copyOf(sheets));
+        List<Manual.Record> records = new ArrayList<>();
+        for (JsonElement element : array(root, "records")) {
+            JsonObject record = element.getAsJsonObject();
+            records.add(new Manual.Record(string(record, "id"), string(record, "title"), string(record, "source"),
+                    blocks(record)));
+        }
+        return new Manual(List.copyOf(chapters), List.copyOf(sheets), List.copyOf(records));
     }
 
     private static List<Manual.Block> blocks(JsonObject owner) {

@@ -286,7 +286,7 @@
   "entity.iceagesurvival.giganotosaurus": "Giganotosaurus",
   "item.iceagesurvival.giganotosaurus_spawn_egg": "Giganotosaurus Spawn Egg",
   "item.iceagesurvival.analyzer": "Analyzer",
-  "item.iceagesurvival.analyzer.tooltip.scan": "Aim at an animal and hold: analyze",
+  "item.iceagesurvival.analyzer.tooltip.scan": "Aim at an animal or terminal and hold: analyze",
   "item.iceagesurvival.analyzer.tooltip.open": "Click the air: open the field file",
   "iceagesurvival.analyzer.title": "Field Analyzer",
   "iceagesurvival.analyzer.tab.dex": "Dino File",
@@ -314,5 +314,14 @@
   "entity.iceagesurvival.ankylosaurus": "Ankylosaurus",
   "item.iceagesurvival.ankylosaurus_spawn_egg": "Ankylosaurus Spawn Egg",
   "item.iceagesurvival.dung": "Dung",
-  "effect.iceagesurvival.broken_leg": "Broken Leg"
+  "effect.iceagesurvival.broken_leg": "Broken Leg",
+  "block.iceagesurvival.military_terminal": "Military Terminal",
+  "block.iceagesurvival.military_terminal.hint": "Aim the Analyzer at the terminal and hold to read it",
+  "iceagesurvival.analyzer.tab.records": "Records",
+  "iceagesurvival.analyzer.recovered": "RECOVERED %s/%s",
+  "iceagesurvival.analyzer.new_record": "NEW RECORD",
+  "iceagesurvival.analyzer.record_locked": "NO DATA. Record not recovered yet. Find the military outposts and read their terminals with the analyzer: each terminal holds one record.",
+  "iceagesurvival.analyzer.terminal": "Military terminal",
+  "iceagesurvival.analyzer.terminal.empty": "No new records on this terminal",
+  "iceagesurvival.analyzer.terminal.already_read": "You already read this terminal"
 }

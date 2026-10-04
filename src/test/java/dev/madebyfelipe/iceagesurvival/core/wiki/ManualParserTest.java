@@ -182,6 +182,34 @@ class ManualParserTest {
         assertTrue(manual.chapters().isEmpty(), "capítulos sem a chave chapters");
         assertTrue(manual.sheets().isEmpty(), "fichas sem a chave species");
         assertTrue(manual.dexEntries().isEmpty(), "DINO FILE sem a chave species");
+        assertTrue(manual.records().isEmpty(), "registros sem a chave records");
+    }
+
+    @Test
+    void realManualHasMilitaryRecordsWithUniqueIdsAndText() {
+        Manual manual = realManual();
+        assertFalse(manual.records().isEmpty(), "o manual devia ter os registros militares dos postos");
+        Set<String> ids = new java.util.HashSet<>();
+        for (Manual.Record record : manual.records()) {
+            assertTrue(ids.add(record.id()), "id de registro repetido: " + record.id());
+            assertFalse(record.title().isBlank(), "registro sem título: " + record.id());
+            assertFalse(record.source().isBlank(), "registro sem origem: " + record.id());
+            assertFalse(record.blocks().isEmpty(), "registro sem texto: " + record.id());
+        }
+    }
+
+    @Test
+    void recordsAreReadInFileOrderWithMissingFieldsEmpty() {
+        Manual manual = ManualParser.parse(new StringReader("""
+                {"records": [
+                  {"id": "b", "title": "Segundo", "source": "Posto norte", "blocks": [{"type": "paragraph", "text": "x"}]},
+                  {"id": "a"}
+                ]}
+                """));
+        assertEquals(List.of(
+                new Manual.Record("b", "Segundo", "Posto norte", List.of(new Manual.Paragraph("x"))),
+                new Manual.Record("a", "", "", List.of())), manual.records(),
+                "os registros deviam vir na ordem do arquivo, com campo faltando vazio");
     }
 
     private static Manual realManual() {

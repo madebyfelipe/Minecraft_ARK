@@ -20,13 +20,16 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.saveddata.SavedData;
 
 /**
- * A DINO FILE de cada jogador: as espécies que ele já escaneou com o Analisador, na ordem do registro. Fica nos
- * dados do Overworld (vale para o servidor todo) e não se perde ao morrer.
+ * A DINO FILE de cada jogador: as espécies que ele já escaneou com o Analisador, na ordem do registro, e quantos
+ * registros militares já recuperou nos terminais dos postos (eles se destravam sempre na mesma ordem, então basta a
+ * contagem; o texto fica no manual do cliente). Fica nos dados do Overworld (vale para o servidor todo) e não se perde
+ * ao morrer.
  */
 public final class DinoFileData extends SavedData {
     private static final String NAME = "iceagesurvival_dino_file";
 
     private final Map<UUID, Set<ResourceLocation>> registered = new HashMap<>();
+    private final Map<UUID, Integer> records = new HashMap<>();
 
     @Nullable
     private static DinoFileData get(@Nullable MinecraftServer server) {
@@ -55,8 +58,26 @@ public final class DinoFileData extends SavedData {
         return data == null ? List.of() : List.copyOf(data.registered.getOrDefault(player.getUUID(), Set.of()));
     }
 
+    /** Destrava o próximo registro militar do jogador; devolve quantos ele tem agora. Manda a DINO FILE ao cliente. */
+    public static int unlockRecord(ServerPlayer player) {
+        DinoFileData data = get(player.getServer());
+        if (data == null) {
+            return 0;
+        }
+        int count = data.records.merge(player.getUUID(), 1, Integer::sum);
+        data.setDirty();
+        sync(player);
+        return count;
+    }
+
+    /** Quantos registros militares o jogador já recuperou. */
+    public static int records(ServerPlayer player) {
+        DinoFileData data = get(player.getServer());
+        return data == null ? 0 : data.records.getOrDefault(player.getUUID(), 0);
+    }
+
     public static void sync(ServerPlayer player) {
-        ModPayloads.sendToPlayer(player, new DinoFilePayload(registered(player)));
+        ModPayloads.sendToPlayer(player, new DinoFilePayload(registered(player), records(player)));
     }
 
     private static DinoFileData load(CompoundTag tag) {
@@ -74,6 +95,9 @@ public final class DinoFileData extends SavedData {
                 }
             }
             data.registered.put(entry.getUUID("Id"), species);
+            if (entry.getInt("Records") > 0) {
+                data.records.put(entry.getUUID("Id"), entry.getInt("Records"));
+            }
         }
         return data;
     }
@@ -81,14 +105,17 @@ public final class DinoFileData extends SavedData {
     @Override
     public CompoundTag save(CompoundTag tag) {
         ListTag players = new ListTag();
-        registered.forEach((id, species) -> {
+        Set<UUID> ids = new LinkedHashSet<>(registered.keySet());
+        ids.addAll(records.keySet());
+        for (UUID id : ids) {
             CompoundTag entry = new CompoundTag();
             entry.putUUID("Id", id);
             ListTag list = new ListTag();
-            species.forEach(location -> list.add(StringTag.valueOf(location.toString())));
+            registered.getOrDefault(id, Set.of()).forEach(location -> list.add(StringTag.valueOf(location.toString())));
             entry.put("Species", list);
+            entry.putInt("Records", records.getOrDefault(id, 0));
             players.add(entry);
-        });
+        }
         tag.put("Players", players);
         return tag;
     }

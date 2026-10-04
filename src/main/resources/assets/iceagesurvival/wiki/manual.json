@@ -1209,5 +1209,357 @@
     }
    ]
   }
- }
+ },
+ "records": [
+  {
+   "id": "ordem-de-servico-14",
+   "title": "Ordem de serviço nº 14",
+   "source": "Posto de comando leste",
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "A partir desta data, o pessoal recém-chegado fica distribuído conforme abaixo. A equipe civil de biologia ocupa os alojamentos da superfície e o laboratório de campo. O acesso aos níveis inferiores é restrito ao pessoal técnico com credencial vermelha."
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "Rondas a cada quatro horas entre os postos do perímetro.",
+      "Rádio aberto às seis, às doze, às dezoito e à meia-noite.",
+      "Nenhum civil desce abaixo do segundo nível, nem acompanhado.",
+      "Amostras de gelo seguem para o laboratório de campo, nunca para os níveis de baixo."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Os civis foram informados de que esta é uma instalação de pesquisa sobre a fauna preservada no permafrost. Essa é a versão oficial e deve ser mantida em qualquer conversa."
+    },
+    {
+     "type": "note",
+     "text": "Perguntas sobre o consumo de energia da base devem ser encaminhadas ao comando. Não respondam."
+    }
+   ]
+  },
+  {
+   "id": "furo-sete",
+   "title": "Relatório de amostragem, furo sete",
+   "source": "Laboratório de campo, posto sul",
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Testemunho retirado a quarenta metros. Gelo limpo nos primeiros trinta; abaixo disso, faixas escuras, finas como fio de cabelo, que não correspondem a nenhum sedimento conhecido."
+    },
+    {
+     "type": "heading",
+     "text": "Observações"
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "A temperatura no centro do testemunho é mais baixa do que a do gelo em volta. Não deveria ser possível.",
+      "O contador de radiação reage às faixas escuras e se cala quando elas são isoladas em vácuo.",
+      "Duas amostras perderam massa durante a noite sem derreter. Não houve evaporação registrada."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "O técnico de plantão pediu que o testemunho fosse lacrado e levado para baixo. Recusei, porque os animais conservados no mesmo furo são o motivo de estarmos aqui. Fui informado de que a decisão não era minha."
+    },
+    {
+     "type": "note",
+     "text": "Furo sete interditado por ordem do comando. Amostras recolhidas às três da manhã."
+    }
+   ]
+  },
+  {
+   "id": "memorando-equipe-civil",
+   "title": "Memorando sobre a equipe civil",
+   "source": "Arquivo administrativo, posto oeste",
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Para: chefia de segurança. Assunto: manutenção da cobertura."
+    },
+    {
+     "type": "paragraph",
+     "text": "A equipe de biologia cumpre a função para a qual foi contratada. Os exemplares preservados no gelo justificam as escavações, os furos profundos e a presença de equipamento pesado no vale. Enquanto os biólogos estiverem ocupados com mamutes e ossos, ninguém fará perguntas sobre o que sai dos furos."
+    },
+    {
+     "type": "paragraph",
+     "text": "O biólogo de apoio, porém, tem pedido acesso aos testemunhos do furo sete e começou a anotar horários de entrega nos níveis de baixo. Recomendo transferi-lo para as coletas da superfície e entregar a ele mais animais congelados do que consegue estudar."
+    },
+    {
+     "type": "note",
+     "text": "Ele não é uma ameaça. É só curioso. Mantenham-no curioso sobre a coisa errada."
+    }
+   ]
+  },
+  {
+   "id": "projeto-limiar",
+   "title": "Projeto Limiar, resumo técnico",
+   "source": "Terminal técnico, posto de energia",
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Classificação máxima. Não imprimir."
+    },
+    {
+     "type": "paragraph",
+     "text": "O material retirado do permafrost foi confirmado como antimatéria em estado estável, aprisionada no gelo de forma que ainda não compreendemos. Estável apenas enquanto o gelo em volta permanece intacto. Fora dele, a contenção depende de campos magnéticos ininterruptos."
+    },
+    {
+     "type": "table",
+     "columns": [
+      "Nível",
+      "Função"
+     ],
+     "rows": [
+      [
+       "Terceiro",
+       "Armazenamento das amostras"
+      ],
+      [
+       "Quarto",
+       "Câmara de contenção"
+      ],
+      [
+       "Quinto",
+       "Geradores e campo principal"
+      ]
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Os geradores do quinto nível consomem hoje a energia de uma cidade inteira. Qualquer queda acima de dois segundos libera o material."
+    },
+    {
+     "type": "paragraph",
+     "text": "O comando quer um teste de extração em larga escala antes do fim da estação. A equipe técnica registra, por escrito, que não sabe o que acontece se o campo falhar com essa quantidade reunida num só lugar."
+    }
+   ]
+  },
+  {
+   "id": "inventario-ala-inferior",
+   "title": "Inventário de suprimentos",
+   "source": "Depósito do posto de suprimentos oeste",
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Entrega semanal, conferida na doca de carga."
+    },
+    {
+     "type": "table",
+     "columns": [
+      "Item",
+      "Quantidade",
+      "Destino"
+     ],
+     "rows": [
+      [
+       "Rações da equipe",
+       "quarenta caixas",
+       "Refeitório"
+      ],
+      [
+       "Combustível dos geradores",
+       "doze tanques",
+       "Quinto nível"
+      ],
+      [
+       "Carne fresca em carcaça",
+       "duas toneladas",
+       "Ala inferior"
+      ],
+      [
+       "Chapas de aço reforçado",
+       "trinta e seis",
+       "Ala inferior"
+      ],
+      [
+       "Correntes de amarração",
+       "oito rolos",
+       "Ala inferior"
+      ]
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "As chapas da semana passada foram devolvidas tortas para reciclagem. Ninguém da doca tem autorização para descer com a carne; o elevador volta vazio, e às vezes volta arranhado por dentro."
+    },
+    {
+     "type": "paragraph",
+     "text": "Quanto ao conteúdo da ala inferior,"
+    },
+    {
+     "type": "note",
+     "text": "[registro interrompido]"
+    }
+   ]
+  },
+  {
+   "id": "relatorio-de-avaliacao",
+   "title": "Relatório de avaliação do espécime",
+   "source": "Terminal médico, posto norte",
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "O espécime não pertence a nenhuma das linhagens catalogadas pela equipe civil. Não foi encontrado congelado como os outros. Também não está claro de onde veio."
+    },
+    {
+     "type": "paragraph",
+     "text": "Os responsáveis pela ala inferior insistem que se trata de algo conhecido. Discordo. Menos de dois por cento das espécies que já existiram foram descobertas. Para todas as outras não temos nome, nem ossos, nem ideia do que eram capazes. Supor que sabemos com o que estamos lidando é o maior risco desta base."
+    },
+    {
+     "type": "paragraph",
+     "text": "A contenção foi reforçada três vezes neste mês. Os sedativos de uso veterinário não produziram efeito mensurável. O espécime come o que lhe é entregue e continua com fome."
+    },
+    {
+     "type": "paragraph",
+     "text": "Quanto ao conteúdo da ala inferior,"
+    },
+    {
+     "type": "note",
+     "text": "[registro interrompido]"
+    }
+   ]
+  },
+  {
+   "id": "diario-de-sentinela",
+   "title": "Diário de sentinela",
+   "source": "Torre de vigia, posto norte",
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Vinte e uma horas. Os geradores começaram o ciclo do teste. Dá para sentir no chão daqui, um zumbido que entra pelos dentes."
+    },
+    {
+     "type": "paragraph",
+     "text": "Vinte e duas e dez. As luzes da base piscaram duas vezes. O rádio só devolve chiado. Lá de baixo vem um som que não é de máquina: grave, longo, e depois de novo, mais perto da superfície."
+    },
+    {
+     "type": "paragraph",
+     "text": "Vinte e duas e catorze. A neve em volta da torre parou de cair. Parou no ar."
+    },
+    {
+     "type": "paragraph",
+     "text": "Vinte e duas e quinze. Um clarão branco saiu do chão da base e atravessou tudo, as paredes, a torre, as minhas mãos. Não fez barulho nenhum."
+    },
+    {
+     "type": "paragraph",
+     "text": "Não sei quanto tempo passou. Quando voltei a enxergar, o céu estava de outra cor e havia árvores onde antes só havia gelo. Alguma coisa maior do que um caminhão atravessou o vale lá embaixo, devagar, como se sempre tivesse estado ali."
+    }
+   ]
+  },
+  {
+   "id": "radio-depois-do-clarao",
+   "title": "Transcrição de rádio, frequência de emergência",
+   "source": "Posto de rádio sul",
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "— Posto sul chamando qualquer posto. Alguém na escuta?"
+    },
+    {
+     "type": "paragraph",
+     "text": "— Aqui é o norte. Somos dois. A torre ficou de pé."
+    },
+    {
+     "type": "paragraph",
+     "text": "— O leste não responde desde o clarão. O comando também não."
+    },
+    {
+     "type": "paragraph",
+     "text": "— Vimos um rebanho de mamutes passando ao lado de bichos com chifre na cara. Juntos. Comendo do mesmo pasto."
+    },
+    {
+     "type": "paragraph",
+     "text": "— A leitura do campo da base caiu a zero. Não está instável. Simplesmente não existe mais o que medir. O que quer que tenha rasgado lá embaixo, fechou."
+    },
+    {
+     "type": "paragraph",
+     "text": "— E os animais?"
+    },
+    {
+     "type": "paragraph",
+     "text": "— Ficaram. Não parecem perdidos. Os caçadores já aprenderam onde estão as presas. Está tudo... se acertando."
+    },
+    {
+     "type": "paragraph",
+     "text": "— E a ala inferior?"
+    },
+    {
+     "type": "paragraph",
+     "text": "— Os sensores de lá ainda mandam sinal. Batimento lento. Regular."
+    },
+    {
+     "type": "paragraph",
+     "text": "— Entendido. Ninguém se aproxima da base até segunda ordem."
+    }
+   ]
+  },
+  {
+   "id": "ordem-de-selamento",
+   "title": "Ordem de selamento",
+   "source": "Posto de comando leste, gravação automática",
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Ordem do oficial mais graduado ainda em atividade."
+    },
+    {
+     "type": "paragraph",
+     "text": "A base fica selada a partir desta hora. Todas as entradas da superfície serão travadas por dentro e por fora. Os geradores do quinto nível permanecem ligados no mínimo necessário para manter a contenção da ala inferior."
+    },
+    {
+     "type": "list",
+     "ordered": false,
+     "items": [
+      "Nenhuma equipe de resgate entra na base.",
+      "Os terminais dos postos continuam ativos para que os registros não se percam.",
+      "O pessoal restante se recolhe aos postos do perímetro e mantém a vigilância."
+     ]
+    },
+    {
+     "type": "paragraph",
+     "text": "Não vamos abrir aquelas portas para descobrir se a contenção resistiu ao clarão. Se resistiu, ela basta. Se não resistiu, nenhuma porta que a gente abra vai ajudar."
+    },
+    {
+     "type": "note",
+     "text": "O vale encontrou um equilíbrio sozinho. A única coisa capaz de quebrá-lo está lá embaixo. Que fique lá."
+    }
+   ]
+  },
+  {
+   "id": "ultima-transmissao",
+   "title": "Última transmissão",
+   "source": "Posto de rádio norte",
+   "blocks": [
+    {
+     "type": "paragraph",
+     "text": "Aqui é a sentinela do posto norte. Sou o último que ainda responde no rádio. Não sei se alguém escuta."
+    },
+    {
+     "type": "paragraph",
+     "text": "Faz semanas que a base está selada. Os animais do vale vivem bem. Já não fogem quando passo. O frio aperta, mas dá para viver."
+    },
+    {
+     "type": "paragraph",
+     "text": "Nas últimas noites, porém, os sensores da ala inferior mudaram. O batimento ficou mais rápido. Apareceram rachaduras novas no concreto da entrada leste, todas de dentro para fora. Ontem ouvi o mesmo som da noite do teste. Grave. Longo. Vinha de dentro da base, mas a terra tremeu aqui na torre."
+    },
+    {
+     "type": "paragraph",
+     "text": "Vou deixar este registro em todos os terminais que ainda funcionam. Se você chegou até aqui, preste atenção ao que vou dizer."
+    },
+    {
+     "type": "paragraph",
+     "text": "Quanto ao conteúdo da ala inferior,"
+    },
+    {
+     "type": "note",
+     "text": "[registro interrompido]"
+    }
+   ]
+  }
+ ]
 }

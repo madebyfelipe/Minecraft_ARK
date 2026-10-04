@@ -286,7 +286,7 @@
   "entity.iceagesurvival.giganotosaurus": "Giganotossauro",
   "item.iceagesurvival.giganotosaurus_spawn_egg": "Ovo Gerador de Giganotossauro",
   "item.iceagesurvival.analyzer": "Analisador",
-  "item.iceagesurvival.analyzer.tooltip.scan": "Mire num animal e segure: analisa",
+  "item.iceagesurvival.analyzer.tooltip.scan": "Mire num animal ou terminal e segure: analisa",
   "item.iceagesurvival.analyzer.tooltip.open": "Clique no ar: abre o arquivo de campo",
   "iceagesurvival.analyzer.title": "Analisador de Campo",
   "iceagesurvival.analyzer.tab.dex": "Dino File",
@@ -314,5 +314,14 @@
   "entity.iceagesurvival.ankylosaurus": "Anquilossauro",
   "item.iceagesurvival.ankylosaurus_spawn_egg": "Ovo Gerador de Anquilossauro",
   "item.iceagesurvival.dung": "Esterco",
-  "effect.iceagesurvival.broken_leg": "Perna quebrada"
+  "effect.iceagesurvival.broken_leg": "Perna quebrada",
+  "block.iceagesurvival.military_terminal": "Terminal Militar",
+  "block.iceagesurvival.military_terminal.hint": "Mire o Analisador no terminal e segure para ler",
+  "iceagesurvival.analyzer.tab.records": "Registros",
+  "iceagesurvival.analyzer.recovered": "RECUPERADOS %s/%s",
+  "iceagesurvival.analyzer.new_record": "NOVO REGISTRO",
+  "iceagesurvival.analyzer.record_locked": "SEM DADOS. Registro ainda não recuperado. Procure os postos militares e leia os terminais com o analisador: cada terminal guarda um registro.",
+  "iceagesurvival.analyzer.terminal": "Terminal militar",
+  "iceagesurvival.analyzer.terminal.empty": "Nenhum registro novo neste terminal",
+  "iceagesurvival.analyzer.terminal.already_read": "Você já leu este terminal"
 }

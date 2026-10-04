@@ -6,12 +6,12 @@ import java.util.Optional;
 /**
  * O manual do Analisador, lido de {@code assets/iceagesurvival/wiki/manual.json} (gerado por {@code tools/gen_wiki.py}
  * a partir do texto de lore em {@code tools/wiki_lore/}): capítulos com páginas para a aba MANUAL e uma ficha por
- * espécie para a DINO FILE.
+ * espécie para a DINO FILE, e os registros militares que os terminais dos postos destravam, na ordem de leitura.
  *
  * <p>Sem classes do Minecraft (D10): as espécies são o id da entidade em texto ({@code iceagesurvival:smilodon}).
  */
-public record Manual(List<Chapter> chapters, List<Sheet> sheets) {
-    public static final Manual EMPTY = new Manual(List.of(), List.of());
+public record Manual(List<Chapter> chapters, List<Sheet> sheets, List<Record> records) {
+    public static final Manual EMPTY = new Manual(List.of(), List.of(), List.of());
     /** O selo de espécie desligada (não nasce): fica fora da DINO FILE. */
     public static final String DISABLED_BADGE = "Desligado";
 
@@ -44,6 +44,10 @@ public record Manual(List<Chapter> chapters, List<Sheet> sheets) {
         public boolean disabled() {
             return badges.contains(DISABLED_BADGE);
         }
+    }
+
+    /** Um registro militar: uma nota recuperada de um terminal ({@code source} diz de onde ela veio). */
+    public record Record(String id, String title, String source, List<Block> blocks) {
     }
 
     /** As fichas que entram na DINO FILE (as das espécies que nascem), na ordem do manual. */

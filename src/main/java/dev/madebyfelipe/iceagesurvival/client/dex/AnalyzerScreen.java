@@ -29,17 +29,19 @@ import org.joml.Quaternionf;
 import org.lwjgl.glfw.GLFW;
 
 /**
- * O terminal do Analisador, no visual de Dino Crisis 2 do {@link TechStyle}. Duas abas:
+ * O terminal do Analisador, no visual de Dino Crisis 2 do {@link TechStyle}. Três abas:
  * <ul>
  *   <li><b>DINO FILE</b>: a lista numerada das espécies (as não registradas como "???"), o modelo da escolhida girando
  *   numa plataforma (silhueta enquanto não registrada), a ficha dela do manual e a ANÁLISE DO INDIVÍDUO do último
  *   exemplar escaneado;</li>
- *   <li><b>MANUAL</b>: os capítulos e páginas do manual gerado de {@code docs/*.html}.</li>
+ *   <li><b>MANUAL</b>: os capítulos e páginas do manual gerado de {@code tools/wiki_lore/};</li>
+ *   <li><b>REGISTROS</b>: os registros militares recuperados nos terminais dos postos, na ordem de leitura (os ainda
+ *   não recuperados como "???").</li>
  * </ul>
- * Aba, espécie e página ficam lembradas entre uma abertura e outra.
+ * Aba, espécie, página e registro ficam lembrados entre uma abertura e outra.
  */
 public class AnalyzerScreen extends Screen {
-    private enum Tab { DEX, MANUAL }
+    private enum Tab { DEX, MANUAL, RECORDS }
 
     private static final int MAX_WIDTH = 404;
     private static final int MAX_HEIGHT = 232;
@@ -63,6 +65,7 @@ public class AnalyzerScreen extends Screen {
     private static Tab lastTab = Tab.DEX;
     private static String lastSpecies = "";
     private static String lastPage = "";
+    private static int lastRecord;
     private static final Map<String, LivingEntity> MODELS = new HashMap<>();
     @Nullable
     private static ClientLevel modelsLevel;
@@ -84,6 +87,7 @@ public class AnalyzerScreen extends Screen {
     private String layoutKey = "";
     private TechButton dexButton;
     private TechButton manualButton;
+    private TechButton recordsButton;
 
     private AnalyzerScreen(Tab tab, boolean newEntry) {
         super(Component.translatable("iceagesurvival.analyzer.title"));
@@ -103,6 +107,13 @@ public class AnalyzerScreen extends Screen {
         Minecraft.getInstance().setScreen(new AnalyzerScreen(Tab.DEX, newEntry));
     }
 
+    /** Leu um terminal com registro novo: abre REGISTROS nele, com o aviso. */
+    static void openOnRecord(int index) {
+        lastTab = Tab.RECORDS;
+        lastRecord = index;
+        Minecraft.getInstance().setScreen(new AnalyzerScreen(Tab.RECORDS, true));
+    }
+
     // ---- Dados ----
 
     private static List<Manual.Sheet> entries() {
@@ -120,6 +131,14 @@ public class AnalyzerScreen extends Screen {
             chapter.pages().forEach(page -> rows.add(new IndexRow(chapter, page)));
         }
         return rows;
+    }
+
+    private static List<Manual.Record> records() {
+        return WikiManual.get().records();
+    }
+
+    private static boolean recordUnlocked(int index) {
+        return index < DinoFileClient.records();
     }
 
     private static int registeredCount() {
@@ -157,12 +176,15 @@ public class AnalyzerScreen extends Screen {
         bottom = top + panelHeight;
         contentTop = top + 26;
         contentBottom = bottom - 16;
-        dexButton = addRenderableWidget(new TechButton(right - 8 - TAB_WIDTH * 2 - 4, top + 5, TAB_WIDTH, 14,
+        dexButton = addRenderableWidget(new TechButton(right - 8 - TAB_WIDTH * 3 - 8, top + 5, TAB_WIDTH, 14,
                 Component.translatable("iceagesurvival.analyzer.tab.dex"), TechStyle.ACCENT, true,
                 button -> switchTab(Tab.DEX)));
-        manualButton = addRenderableWidget(new TechButton(right - 8 - TAB_WIDTH, top + 5, TAB_WIDTH, 14,
+        manualButton = addRenderableWidget(new TechButton(right - 8 - TAB_WIDTH * 2 - 4, top + 5, TAB_WIDTH, 14,
                 Component.translatable("iceagesurvival.analyzer.tab.manual"), TechStyle.ACCENT, true,
                 button -> switchTab(Tab.MANUAL)));
+        recordsButton = addRenderableWidget(new TechButton(right - 8 - TAB_WIDTH, top + 5, TAB_WIDTH, 14,
+                Component.translatable("iceagesurvival.analyzer.tab.records"), TechStyle.ACCENT, true,
+                button -> switchTab(Tab.RECORDS)));
         ensureSelection();
         updateTabs();
         layoutKey = "";
@@ -182,10 +204,11 @@ public class AnalyzerScreen extends Screen {
     private void updateTabs() {
         dexButton.active = tab != Tab.DEX;
         manualButton.active = tab != Tab.MANUAL;
+        recordsButton.active = tab != Tab.RECORDS;
     }
 
     private int listTop() {
-        return tab == Tab.DEX ? contentTop + 12 : contentTop;
+        return tab == Tab.MANUAL ? contentTop : contentTop + 12;
     }
 
     private int visibleRows() {
@@ -193,10 +216,17 @@ public class AnalyzerScreen extends Screen {
     }
 
     private int listSize() {
-        return tab == Tab.DEX ? entries().size() : index().size();
+        return switch (tab) {
+            case DEX -> entries().size();
+            case MANUAL -> index().size();
+            case RECORDS -> records().size();
+        };
     }
 
     private int selectedRow() {
+        if (tab == Tab.RECORDS) {
+            return Math.max(0, Math.min(lastRecord, records().size() - 1));
+        }
         if (tab == Tab.DEX) {
             List<Manual.Sheet> entries = entries();
             for (int row = 0; row < entries.size(); row++) {
@@ -227,7 +257,11 @@ public class AnalyzerScreen extends Screen {
     }
 
     private void select(int row) {
-        if (tab == Tab.DEX) {
+        if (tab == Tab.RECORDS) {
+            if (row >= 0 && row < records().size()) {
+                lastRecord = row;
+            }
+        } else if (tab == Tab.DEX) {
             List<Manual.Sheet> entries = entries();
             if (row >= 0 && row < entries.size()) {
                 lastSpecies = entries.get(row).species();
@@ -286,7 +320,7 @@ public class AnalyzerScreen extends Screen {
             return true;
         }
         if (keyCode == GLFW.GLFW_KEY_TAB) {
-            switchTab(tab == Tab.DEX ? Tab.MANUAL : Tab.DEX);
+            switchTab(Tab.values()[(tab.ordinal() + 1) % Tab.values().length]);
             return true;
         }
         return super.keyPressed(keyCode, scanCode, modifiers);
@@ -312,6 +346,9 @@ public class AnalyzerScreen extends Screen {
         } else if (tab == Tab.DEX) {
             renderDexList(graphics, mouseX, mouseY);
             renderDex(graphics);
+        } else if (tab == Tab.RECORDS) {
+            renderRecordList(graphics, mouseX, mouseY);
+            renderRecord(graphics);
         } else {
             renderIndex(graphics, mouseX, mouseY);
             renderPage(graphics);
@@ -325,8 +362,10 @@ public class AnalyzerScreen extends Screen {
         graphics.fill(left + 6, y - 3, right - 6, y - 2, HudShapes.fade(TechStyle.METAL, 0.8F));
         graphics.drawString(font, (TechStyle.blink() ? "▶ " : "  ") + Component.translatable(
                 "iceagesurvival.analyzer.footer").getString(), left + 8, y, TechStyle.ACCENT, false);
-        Component count = Component.translatable("iceagesurvival.analyzer.registered", registeredCount(),
-                entries().size());
+        Component count = tab == Tab.RECORDS
+                ? Component.translatable("iceagesurvival.analyzer.recovered",
+                        Math.min(DinoFileClient.records(), records().size()), records().size())
+                : Component.translatable("iceagesurvival.analyzer.registered", registeredCount(), entries().size());
         graphics.drawString(font, count, right - 8 - font.width(count), y, TechStyle.AMBER, false);
     }
 
@@ -644,6 +683,84 @@ public class AnalyzerScreen extends Screen {
         graphics.drawString(font, TechStyle.titleText(Component.literal(page.title())), pageLeft, y + 11, TechStyle.TEXT);
         graphics.fill(pageLeft, y + 22, pageRight, y + 23, HudShapes.fade(TechStyle.ACCENT, 0.5F));
         layout.draw(graphics, font, pageLeft, y + headerHeight, contentTop, contentBottom);
+        graphics.disableScissor();
+        renderContentScrollbar(graphics, pageRight + 4);
+    }
+
+    private void renderRecordList(GuiGraphics graphics, int mouseX, int mouseY) {
+        List<Manual.Record> records = records();
+        int x = left + 6;
+        graphics.drawString(font, Component.translatable("iceagesurvival.analyzer.tab.records").getString()
+                .toUpperCase(Locale.ROOT), x + 1, contentTop, TechStyle.ACCENT, false);
+        int listTop = listTop();
+        int rows = visibleRows();
+        renderListFrame(graphics, listTop, rows);
+        for (int index = 0; index < rows && listScroll + index < records.size(); index++) {
+            int row = listScroll + index;
+            int y = listTop + index * ROW;
+            boolean selected = row == selectedRow();
+            boolean hovered = mouseX >= x && mouseX < x + LIST_WIDTH && mouseY >= y && mouseY < y + ROW;
+            if (selected) {
+                graphics.fill(x, y, x + LIST_WIDTH - 4, y + ROW, SELECTED);
+                if (TechStyle.blink()) {
+                    graphics.drawString(font, "▶", x + 1, y + 2, TechStyle.AMBER, false);
+                }
+            } else if (hovered) {
+                graphics.fill(x, y, x + LIST_WIDTH - 4, y + ROW, TechStyle.HOVER);
+            }
+            boolean known = recordUnlocked(row);
+            graphics.drawString(font, String.format(Locale.ROOT, "%02d", row + 1), x + 9, y + 2,
+                    known ? TechStyle.AMBER : LOCKED, false);
+            String title = known ? records.get(row).title() : "???";
+            graphics.drawString(font, ellipsize(title, LIST_WIDTH - 30), x + 24, y + 2,
+                    known ? (selected ? TechStyle.TEXT : TechStyle.BRIGHT) : LOCKED, false);
+        }
+    }
+
+    /** O registro escolhido: número, título, de onde veio e o texto; trancado, só o aviso de como recuperá-lo. */
+    private void renderRecord(GuiGraphics graphics) {
+        List<Manual.Record> records = records();
+        if (records.isEmpty()) {
+            return;
+        }
+        int row = selectedRow();
+        Manual.Record record = records.get(row);
+        boolean known = recordUnlocked(row);
+        int pageLeft = left + 6 + LIST_WIDTH + 8;
+        int pageRight = right - 12;
+        int width = pageRight - pageLeft;
+        String key = "record:" + record.id() + ":" + known + ":" + width;
+        if (!key.equals(layoutKey)) {
+            layoutKey = key;
+            layout = known ? WikiLayout.of(font, record.blocks(), width) : null;
+        }
+        int headerHeight = 36;
+        contentHeight = headerHeight + (layout == null ? 40 : layout.height());
+        clampContentScroll();
+        graphics.enableScissor(pageLeft - 2, contentTop, pageRight + 2, contentBottom);
+        int y = contentTop - contentScroll;
+        String number = String.format(Locale.ROOT, "REG.%02d", row + 1);
+        graphics.drawString(font, number, pageRight - font.width(number), y, TechStyle.AMBER, false);
+        graphics.drawString(font, ellipsize((known ? record.source() : "???").toUpperCase(Locale.ROOT),
+                width - font.width(number) - 6), pageLeft, y, known ? TechStyle.SUBTLE : LOCKED, false);
+        graphics.drawString(font, TechStyle.titleText(Component.literal(known ? record.title() : "???")), pageLeft,
+                y + 12, known ? TechStyle.TEXT : LOCKED);
+        if (newEntry && row == lastRecord && Util.getMillis() - openedAt < NEW_ENTRY_MILLIS && TechStyle.blink()) {
+            Component banner = Component.translatable("iceagesurvival.analyzer.new_record");
+            int bannerWidth = font.width(banner) + 8;
+            graphics.fill(pageRight - bannerWidth, y + 10, pageRight, y + 22, HudShapes.fade(TechStyle.AMBER, 0.85F));
+            graphics.drawString(font, banner, pageRight - bannerWidth + 4, y + 12, 0xFF1A1206, false);
+        }
+        graphics.fill(pageLeft, y + 26, pageRight, y + 27, HudShapes.fade(TechStyle.ACCENT, 0.5F));
+        y += headerHeight;
+        if (layout != null) {
+            layout.draw(graphics, font, pageLeft, y, contentTop, contentBottom);
+        } else {
+            for (var line : font.split(Component.translatable("iceagesurvival.analyzer.record_locked"), width)) {
+                graphics.drawString(font, line, pageLeft, y, TechStyle.SUBTLE, false);
+                y += 10;
+            }
+        }
         graphics.disableScissor();
         renderContentScrollbar(graphics, pageRight + 4);
     }

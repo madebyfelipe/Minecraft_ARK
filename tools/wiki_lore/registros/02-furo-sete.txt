@@ -1,0 +1,15 @@
+id: furo-sete
+titulo: Relatório de amostragem, furo sete
+origem: Laboratório de campo, posto sul
+
+Testemunho retirado a quarenta metros. Gelo limpo nos primeiros trinta; abaixo disso, faixas escuras, finas como fio de cabelo, que não correspondem a nenhum sedimento conhecido.
+
+### Observações
+
+- A temperatura no centro do testemunho é mais baixa do que a do gelo em volta. Não deveria ser possível.
+- O contador de radiação reage às faixas escuras e se cala quando elas são isoladas em vácuo.
+- Duas amostras perderam massa durante a noite sem derreter. Não houve evaporação registrada.
+
+O técnico de plantão pediu que o testemunho fosse lacrado e levado para baixo. Recusei, porque os animais conservados no mesmo furo são o motivo de estarmos aqui. Fui informado de que a decisão não era minha.
+
+> Furo sete interditado por ordem do comando. Amostras recolhidas às três da manhã.

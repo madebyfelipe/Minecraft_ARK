@@ -303,8 +303,8 @@ public class AnalyzerTests {
         try {
             List<Object> messages = new ArrayList<>();
             messages.add(new DinoFilePayload(
-                    List.of(DODO, SMILODON, ResourceLocation.fromNamespaceAndPath("minecraft", "wolf"))));
-            messages.add(new DinoFilePayload(List.of()));
+                    List.of(DODO, SMILODON, ResourceLocation.fromNamespaceAndPath("minecraft", "wolf")), 3));
+            messages.add(new DinoFilePayload(List.of(), 0));
             messages.add(ScanResultPayload.of(player, smilodon, true));
             messages.add(new ScanResultPayload(1234, MAMMOTH, false, "Mamute-Lanoso", 60, true, 87.5F, 120.0F, 0.25F,
                     14.5F, 6.0F, ScanResultPayload.State.OTHERS, "outro-dono", "uneasy", 0));
