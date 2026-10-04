@@ -41,8 +41,6 @@ public class BleedingEffect extends MobEffect {
     public static final float PLAYER_DAMAGE_PER_LEVEL = 0.5F;
     /** Fração da vida máxima por segundo, por nível, nas criaturas do mod. */
     public static final double CREATURE_FRACTION_PER_LEVEL = 0.004;
-    /** O corte da espada serrilhada: 1 nível por 3 s, sem empilhar. */
-    public static final int SWORD_TICKS = 60;
 
     public BleedingEffect() {
         super(MobEffectCategory.HARMFUL, 0x8A0303);

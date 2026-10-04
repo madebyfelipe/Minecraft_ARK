@@ -655,7 +655,7 @@ public class AnalyzerScreen extends Screen {
 
     /** Um exemplar de mentira da espécie, para o modelo da ficha (um por espécie, refeito ao trocar de mundo). */
     @Nullable
-    private static LivingEntity model(String species) {
+    static LivingEntity model(String species) {
         Minecraft minecraft = Minecraft.getInstance();
         if (minecraft.level == null) {
             return null;

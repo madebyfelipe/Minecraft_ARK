@@ -1,0 +1,115 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "particle": "iceagesurvival:block/military_terminal_side",
+    "side": "iceagesurvival:block/military_terminal_side",
+    "top": "iceagesurvival:block/military_terminal_top",
+    "screen": "iceagesurvival:block/containment_console_screen",
+    "keys": "iceagesurvival:block/containment_console_keys",
+    "panel": "iceagesurvival:block/containment_console_panel"
+  },
+  "elements": [
+    {
+      "from": [
+        1,
+        0,
+        2
+      ],
+      "to": [
+        15,
+        9,
+        15
+      ],
+      "faces": {
+        "north": {
+          "texture": "#panel"
+        },
+        "south": {
+          "texture": "#side"
+        },
+        "east": {
+          "texture": "#side"
+        },
+        "west": {
+          "texture": "#side"
+        },
+        "down": {
+          "texture": "#side"
+        },
+        "up": {
+          "texture": "#top"
+        }
+      }
+    },
+    {
+      "from": [
+        2,
+        9,
+        8
+      ],
+      "to": [
+        14,
+        16,
+        14
+      ],
+      "faces": {
+        "north": {
+          "texture": "#screen",
+          "uv": [
+            2,
+            4,
+            14,
+            11
+          ]
+        },
+        "south": {
+          "texture": "#side"
+        },
+        "east": {
+          "texture": "#side"
+        },
+        "west": {
+          "texture": "#side"
+        },
+        "down": {
+          "texture": "#side"
+        },
+        "up": {
+          "texture": "#top"
+        }
+      }
+    },
+    {
+      "from": [
+        3,
+        9,
+        3
+      ],
+      "to": [
+        13,
+        10,
+        7
+      ],
+      "faces": {
+        "north": {
+          "texture": "#side"
+        },
+        "south": {
+          "texture": "#side"
+        },
+        "east": {
+          "texture": "#side"
+        },
+        "west": {
+          "texture": "#side"
+        },
+        "down": {
+          "texture": "#side"
+        },
+        "up": {
+          "texture": "#keys"
+        }
+      }
+    }
+  ]
+}

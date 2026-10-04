@@ -11,7 +11,7 @@ Etapas 2–9 têm implementações e testes documentados; várias ainda aguardam
 validação manual. Não chamar isso de validação manual concluída.
 D51 removeu caverna/arena/boss antigo; Giganotosaurus é fauna comum.
 Endgame: postos com registros (D52) e base única com a contenção do apex (D53)
-implementados; falta o Titanovenator como criatura e a luta em jogo.
+implementados; Titanovenator como boss com luta que exige mutação e console da contenção (D54, D55); falta sentir em jogo.
 O estudo do Titanovenator está em `codex/titanovenator-modelo`, sem integração ao jogo.
 Não integrar essa branch como parte de uma tarefa de processo.
 

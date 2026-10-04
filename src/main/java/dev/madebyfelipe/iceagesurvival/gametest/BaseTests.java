@@ -6,7 +6,9 @@ import net.minecraft.world.phys.AABB;
 import dev.madebyfelipe.iceagesurvival.entity.TitanovenatorBoss;
 import dev.madebyfelipe.iceagesurvival.core.wiki.Manual;
 import dev.madebyfelipe.iceagesurvival.entity.LandCreature;
+import dev.madebyfelipe.iceagesurvival.core.containment.ContainmentShell;
 import dev.madebyfelipe.iceagesurvival.outpost.ContainmentCoreBlockEntity;
+import dev.madebyfelipe.iceagesurvival.outpost.ContainmentTerminals;
 import dev.madebyfelipe.iceagesurvival.outpost.Outposts;
 import dev.madebyfelipe.iceagesurvival.registry.ModEntities;
 import dev.madebyfelipe.iceagesurvival.world.DinoFileData;
@@ -31,10 +33,10 @@ import net.minecraftforge.gametest.GameTestHolder;
 import net.minecraftforge.gametest.PrefixGameTestTemplate;
 
 /**
- * A base militar (D52): o template traz o núcleo, os quatro geradores, oito terminais da série da base e os baús com
- * o saque da base; a base é uma por mundo; o campo de êxtase segura uma criatura (sem IA, invulnerável, imune a
- * tranquilizante) enquanto há gerador de pé e solta quando cai o último; a morte do que foi preso destrava o dossiê
- * para quem está perto. Escritos a partir da especificação.
+ * A base militar (D52, D53): o template traz o núcleo, os quatro emissores, o console, oito terminais da série da base
+ * e os baús com o saque da base; a base é uma por mundo; o campo de êxtase segura uma criatura (sem IA,
+ * invulnerável, imune a tranquilizante) até o operador desligá-lo no console (ou sumirem todos os emissores); a morte
+ * do que foi preso destrava o dossiê para quem está perto. Escritos a partir da especificação.
  */
 @GameTestHolder(IceAgeSurvival.MODID)
 @PrefixGameTestTemplate(false)
@@ -52,6 +54,8 @@ public class BaseTests {
         helper.assertTrue(cores == 1, "a base devia ter 1 núcleo, tem " + cores);
         int generators = template.filterBlocks(BlockPos.ZERO, plain, Outposts.STASIS_GENERATOR.get()).size();
         helper.assertTrue(generators == 4, "a base devia ter 4 geradores, tem " + generators);
+        int consoles = template.filterBlocks(BlockPos.ZERO, plain, Outposts.CONTAINMENT_CONSOLE.get()).size();
+        helper.assertTrue(consoles == 1, "a base devia ter 1 console, tem " + consoles);
         List<StructureTemplate.StructureBlockInfo> terminals = template.filterBlocks(BlockPos.ZERO, plain,
                 Outposts.MILITARY_TERMINAL.get());
         helper.assertTrue(terminals.size() == 8, "a base devia ter 8 terminais, tem " + terminals.size());
@@ -127,6 +131,61 @@ public class BaseTests {
                         helper.assertFalse(boss.isNoAi() || boss.isInvulnerable(), "caído o campo, o boss devia acordar");
                         boss.discard();
                     });
+            helper.succeed();
+        });
+    }
+
+    /**
+     * O console desliga o campo: convidado não pode, senha errada não entra, o operador com a senha do caderno e a
+     * confirmação começa o colapso; no fim dele a criatura acorda. Longe do console, a linha não vale.
+     */
+    @GameTest(template = ARENA, batch = "base_console", timeoutTicks = 260)
+    public static void theOperatorShutsTheFieldDownFromTheConsole(GameTestHelper helper) {
+        BlockPos core = new BlockPos(12, 1, 12);
+        BlockPos emitter = new BlockPos(4, 1, 4);
+        BlockPos console = new BlockPos(12, 1, 21);
+        helper.setBlock(core, Outposts.CONTAINMENT_CORE.get());
+        helper.setBlock(emitter, Outposts.STASIS_GENERATOR.get());
+        helper.setBlock(console, Outposts.CONTAINMENT_CONSOLE.get());
+        LandCreature held = helper.spawn(ModEntities.SMILODON.get(), new Vec3(14.5, 1, 12.5));
+        ServerPlayer operator = serverPlayer(helper, "operador");
+        operator.moveTo(helper.absoluteVec(new Vec3(12.5, 1, 23.5)));
+        BlockPos at = helper.absolutePos(console);
+        helper.runAfterDelay(25, () -> {
+            helper.assertTrue(held.isNoAi() && held.isInvulnerable(), "o campo não segurou a criatura");
+            helper.assertTrue(helper.getLevel().getBlockState(helper.absolutePos(emitter))
+                    .getDestroySpeed(helper.getLevel(), helper.absolutePos(emitter)) < 0, "o emissor quebra");
+            helper.assertTrue(ContainmentTerminals.findCore(helper.getLevel(), at)
+                    .equals(helper.absolutePos(core)), "o console não achou o núcleo");
+            ContainmentTerminals.open(operator, at);
+            ContainmentShell.Reply denied = ContainmentTerminals.command(operator, at, "campo desligar");
+            helper.assertTrue(denied != null && denied.action() == ContainmentShell.Action.NONE,
+                    "convidado conseguiu desligar");
+            ContainmentTerminals.command(operator, at, "login operador");
+            ContainmentTerminals.command(operator, at, "senha-errada");
+            ContainmentShell.Reply stillGuest = ContainmentTerminals.command(operator, at, "whoami");
+            helper.assertTrue(stillGuest.lines().contains(ContainmentShell.GUEST), "senha errada entrou");
+            ContainmentTerminals.command(operator, at, "login operador");
+            ContainmentTerminals.command(operator, at, ContainmentShell.PASSWORD);
+            ContainmentTerminals.command(operator, at, "campo desligar");
+            ContainmentShell.Reply done = ContainmentTerminals.command(operator, at, "s");
+            helper.assertTrue(done != null && done.action() == ContainmentShell.Action.SHUTDOWN,
+                    "a confirmação não desligou: " + (done == null ? null : done.lines()));
+            ContainmentCoreBlockEntity entity = (ContainmentCoreBlockEntity) helper.getBlockEntity(core);
+            helper.assertTrue(entity.shuttingDown() && !entity.released(), "o colapso devia ter começado");
+            helper.assertTrue(held.isNoAi(), "no colapso o campo ainda segura");
+            operator.moveTo(helper.absoluteVec(new Vec3(12.5, 1, 40.5)));
+            helper.assertTrue(ContainmentTerminals.command(operator, at, "status") == null,
+                    "longe do console a linha valeu");
+        });
+        helper.runAfterDelay(25 + ContainmentCoreBlockEntity.COLLAPSE_TICKS + 25, () -> {
+            ContainmentCoreBlockEntity entity = (ContainmentCoreBlockEntity) helper.getBlockEntity(core);
+            helper.assertTrue(entity.released(), "acabado o colapso, o campo devia ter caído");
+            helper.assertFalse(held.isNoAi() || held.isInvulnerable(), "caído o campo, a criatura devia acordar");
+            held.discard();
+            helper.getLevel().getEntitiesOfClass(TitanovenatorBoss.class, new AABB(helper.absolutePos(core)).inflate(32))
+                    .forEach(TitanovenatorBoss::discard);
+            helper.getLevel().getServer().getPlayerList().remove(operator);
             helper.succeed();
         });
     }

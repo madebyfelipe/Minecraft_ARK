@@ -92,7 +92,10 @@ public class TitanovenatorTests {
         helper.succeed();
     }
 
-    /** 1024 de vida (o teto do vanilla); o golpe de 100 tira 100 na fase 1, 70 na 2 e 50 na 3. */
+    /**
+     * 1024 de vida (o teto do vanilla). O couro tira 50 de cada golpe e deixa passar um quarto do resto; depois a fase:
+     * o golpe de 100 tira 12,5 na fase 1, 8,75 na 2 e 6,25 na 3 (dano mágico, sem a armadura do vanilla).
+     */
     @GameTest(template = EMPTY, batch = "titan_phases")
     public static void phasesFollowHealthAndResistanceGrows(GameTestHelper helper) {
         TitanovenatorBoss boss = boss(helper, 3, 2, 3);
@@ -101,21 +104,41 @@ public class TitanovenatorTests {
         helper.assertTrue(boss.phase() == TitanPhase.ONE, "começa na fase 1");
 
         boss.hurt(damage, 100.0F);
-        helper.assertTrue(Math.abs(boss.getHealth() - 924.0F) < 0.01F, "fase 1 deveria tomar 100: " + boss.getHealth());
+        helper.assertTrue(Math.abs(boss.getHealth() - 1011.5F) < 0.01F, "fase 1 deveria tomar 12,5: " + boss.getHealth());
 
         boss.setHealth(600.0F);
         helper.assertTrue(boss.phase() == TitanPhase.TWO, "abaixo de 66% deveria estar na fase 2");
-        boss.invulnerableTime = 0;
         boss.hurt(damage, 100.0F);
-        helper.assertTrue(Math.abs(boss.getHealth() - 530.0F) < 0.01F, "fase 2 deveria tomar 70: " + boss.getHealth());
+        helper.assertTrue(Math.abs(boss.getHealth() - 591.25F) < 0.01F, "fase 2 deveria tomar 8,75: " + boss.getHealth());
 
         boss.setHealth(300.0F);
         helper.assertTrue(boss.phase() == TitanPhase.THREE, "abaixo de 33% deveria estar na fase 3");
-        boss.invulnerableTime = 0;
         boss.hurt(damage, 100.0F);
-        helper.assertTrue(Math.abs(boss.getHealth() - 250.0F) < 0.01F, "fase 3 deveria tomar 50: " + boss.getHealth());
+        helper.assertTrue(Math.abs(boss.getHealth() - 293.75F) < 0.01F, "fase 3 deveria tomar 6,25: " + boss.getHealth());
         boss.discard();
         helper.succeed();
+    }
+
+    /** Golpe fraco não passa do couro; golpes seguidos contam todos (sem a pausa do vanilla); e ele se regenera. */
+    @GameTest(template = EMPTY, batch = "titan_hide", timeoutTicks = 80)
+    public static void theHideStopsWeakHitsCountsEveryBiteAndRegenerates(GameTestHelper helper) {
+        TitanovenatorBoss boss = boss(helper, 3, 2, 3);
+        var damage = helper.getLevel().damageSources().magic();
+        boss.hurt(damage, TitanPhase.HIDE_PLATE);
+        helper.assertTrue(boss.getHealth() == boss.getMaxHealth(), "golpe do tamanho do couro feriu: " + boss.getHealth());
+        boss.hurt(damage, 90.0F);
+        boss.hurt(damage, 90.0F);
+        boss.hurt(damage, 90.0F);
+        float expected = boss.getMaxHealth() - 3 * 10.0F;
+        helper.assertTrue(Math.abs(boss.getHealth() - expected) < 0.01F,
+                "três mordidas seguidas deveriam tirar 10 cada: " + boss.getHealth());
+        float wounded = boss.getHealth();
+        helper.runAfterDelay(45, () -> {
+            helper.assertTrue(boss.getHealth() >= wounded + 2 * TitanPhase.REGEN_PER_SECOND - 0.01F,
+                    "não regenerou: " + wounded + " → " + boss.getHealth());
+            boss.discard();
+            helper.succeed();
+        });
     }
 
     /** Cada troca de fase ruge uma vez, parado, e a onda do peito empurra quem está perto sem ferir. */
@@ -197,7 +220,8 @@ public class TitanovenatorTests {
         dart.shoot(-1, 0, 0, 2.0F, 0);
         helper.getLevel().addFreshEntity(dart);
         helper.succeedWhen(() -> {
-            helper.assertTrue(boss.getHealth() < boss.getMaxHealth(), "o dardo ainda não acertou");
+            // O couro zera o dano do dardo: o acerto aparece como o último golpe sofrido, não na vida.
+            helper.assertTrue(boss.getLastDamageSource() != null || dart.isRemoved(), "o dardo ainda não acertou");
             helper.assertTrue(boss.torpor() == 0 && !boss.isUnconscious(), "o boss recebeu torpor: " + boss.torpor());
             boss.discard();
         });
@@ -277,9 +301,9 @@ public class TitanovenatorTests {
         });
     }
 
-    /** Vencido, deixa carne, ossos e dentes serrilhados. */
+    /** Vencido, deixa carne, ossos, o soro (1 ou 2) e um projetor de êxtase; dentes serrilhados não mais. */
     @GameTest(template = ARENA, batch = "titan_defeat", timeoutTicks = 80, setupTicks = HuntTests.CHUNK_SETUP_TICKS)
-    public static void aDefeatedBossDropsMeatBonesAndTeeth(GameTestHelper helper) {
+    public static void aDefeatedBossDropsSerumAndTheStasisProjector(GameTestHelper helper) {
         HuntTests.clearStrays(helper);
         TitanovenatorBoss boss = boss(helper, 8, 0, 8);
         ServerPlayer killer = PredatorTests.survivalPlayer(helper);
@@ -289,12 +313,20 @@ public class TitanovenatorTests {
             AABB around = boss.getBoundingBox().inflate(10);
             List<ItemStack> drops = new ArrayList<>();
             helper.getLevel().getEntitiesOfClass(ItemEntity.class, around).forEach(item -> drops.add(item.getItem()));
-            int teeth = drops.stream().filter(s -> s.is(ModItems.SERRATED_TOOTH.get())).mapToInt(ItemStack::getCount).sum();
-            int bones = drops.stream().filter(s -> s.is(net.minecraft.world.item.Items.BONE)).mapToInt(ItemStack::getCount).sum();
-            helper.assertTrue(teeth >= 4, "dentes serrilhados no chão: " + teeth);
+            int teeth = count(drops, ModItems.SERRATED_TOOTH.get());
+            int bones = count(drops, net.minecraft.world.item.Items.BONE);
+            int serum = count(drops, ModItems.TITAN_SERUM.get());
+            int projectors = count(drops, ModItems.STASIS_PROJECTOR.get());
+            helper.assertTrue(teeth == 0, "dentes serrilhados no chão (a espada saiu): " + teeth);
             helper.assertTrue(bones >= 4, "ossos no chão: " + bones);
+            helper.assertTrue(serum >= 1 && serum <= 3, "soros no chão: " + serum);
+            helper.assertTrue(projectors == 1, "projetores no chão: " + projectors);
             helper.succeed();
         });
+    }
+
+    private static int count(List<ItemStack> drops, net.minecraft.world.item.Item item) {
+        return drops.stream().filter(stack -> stack.is(item)).mapToInt(ItemStack::getCount).sum();
     }
 
     /** A barra de boss aparece para quem está perto do covil e some para quem está longe. */

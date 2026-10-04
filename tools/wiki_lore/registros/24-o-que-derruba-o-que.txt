@@ -1,0 +1,26 @@
+id: o-que-derruba-o-que
+titulo: Tabela de construção dos postos
+origem: Posto da encosta, terminal, anotação do engenheiro
+
+Anotações do engenheiro sobre o que os bichos do vale fazem com uma parede. Copiem para os outros postos antes de levantar mais algum muro de madeira.
+
+| Animal | O que já vimos derrubar |
+|---|---|
+| Tiranossauro, espinossauro, giganotossauro | Madeira em poucos golpes; tronco de árvore só de esbarrar |
+| Brontossauro, tricerátopo, mamute, estegossauro | O mesmo |
+| Alossauro, baryonyx, elasmotério | Cerca, porta e parede de madeira, a golpes |
+| Smilodon, urso-terrível, galimimo, kelenken, anquilossauro | Folhagem e plantas |
+| Raptores, ornitholestes, megalania, dodô, pterossauros | Nada |
+
+Pedra, nenhum deles quebrou até hoje. Por isso o comando mandou erguer os postos em pedra.
+
+### Outras observações
+
+- Bicho só bate na parede quando quer alguma coisa do outro lado. Sem alvo, passa rente a uma cerca de madeira e nem encosta.
+- Filhote não quebra madeira, nem dos grandes.
+- O muro alto segura até os gigantes. Nenhum sobe nem pula por cima, mesmo onde só há uma fiada de pedra.
+- O utahraptor não atravessa folhagem. Mata de copa fechada despista o bando inteiro. O smilodon, ao contrário, abre caminho pelas folhas.
+- A armadilha de dentes prende o bicho no lugar por alguns instantes. Os gigantes se soltam antes dos outros. Depois de disparar, precisa ser armada de novo à mão.
+- Fosso coberto de folhagem: nós e os nossos animais passamos por cima; qualquer outro bicho afunda e cai.
+
+> Do engenheiro: madeira, só do lado de dentro do muro de pedra.

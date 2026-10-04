@@ -287,6 +287,9 @@ public class TitanovenatorBoss extends LandCreature {
             chargeCooldown--;
         }
         tickSlam(phase);
+        if (tickCount % 20 == 0 && getHealth() < getMaxHealth()) {
+            heal(TitanPhase.REGEN_PER_SECOND);
+        }
         bossEvent.setProgress(getHealth() / getMaxHealth());
         if (tickCount % 10 == 0) {
             updateBossBarViewers();
@@ -428,13 +431,21 @@ public class TitanovenatorBoss extends LandCreature {
         }
     }
 
-    /** Resistência por fase: 0 / 30% / 50% do dano não passa. O {@code /kill} passa inteiro. */
+    /**
+     * O couro e a resistência da fase ({@link TitanPhase#absorb}); o {@code /kill} passa inteiro. Sem a pausa de
+     * invulnerabilidade do vanilla depois do golpe: numa tropa, a mordida de cada um conta, não só a primeira de cada
+     * meio segundo.
+     */
     @Override
     public boolean hurt(DamageSource source, float amount) {
         if (!source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)) {
-            amount = phase().reduce(amount);
+            amount = phase().absorb(amount);
         }
-        return super.hurt(source, amount);
+        boolean hurt = super.hurt(source, amount);
+        if (hurt) {
+            invulnerableTime = Math.min(invulnerableTime, 10);
+        }
+        return hurt;
     }
 
     /** O boss não sangra pelo próprio corte. */

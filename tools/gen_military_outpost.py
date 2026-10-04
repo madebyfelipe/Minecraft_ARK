@@ -456,6 +456,16 @@ def base():
     for pos in generators:
         blocks[pos] = ('iceagesurvival:stasis_generator', {}, None)
 
+    # O console de operação, fora do campo, com a tela virada para fora: quem digita olha para a contenção.
+    def console_ok(p):
+        return (blocks.get(p, ('minecraft:air',))[0] == 'minecraft:air'
+                and blocks.get((p[0], 2, p[2]), ('minecraft:air',))[0] == 'minecraft:air'
+                and blocks.get((p[0], 0, p[2]), ('minecraft:air',))[0] != 'minecraft:air'
+                and all(blocks.get((p[0] + dx, 1, p[2] + dz), ('minecraft:air',))[0] == 'minecraft:air'
+                        for dx, dz in SIDES.values()))
+    console = next((core[0], 1, core[2] + d) for d in range(10, 14) if console_ok((core[0], 1, core[2] + d)))
+    blocks[console] = ('iceagesurvival:containment_console', {'facing': 'south'}, None)
+
     # Oito terminais da série "base" no térreo, encostados em paredes, fora do campo e o mais espalhados possível.
     solid = lambda p: blocks.get(p, ('minecraft:air',))[0] != 'minecraft:air'
     candidates = []
@@ -481,7 +491,7 @@ def base():
         blocks[spot] = ('iceagesurvival:military_terminal', {'facing': facings[spot]},
                         {'id': 'iceagesurvival:military_terminal', 'Series': 'base'})
     assert len(terminals) == 8, f'só {len(terminals)} terminais couberam'
-    print(f'base: núcleo em {core}, geradores em {generators}, terminais em {terminals}')
+    print(f'base: núcleo em {core}, emissores em {generators}, console em {console}, terminais em {terminals}')
     save('military_base', (build.sx, height, build.sz), blocks)
 
 

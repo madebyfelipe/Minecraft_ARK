@@ -11,11 +11,25 @@ package dev.madebyfelipe.iceagesurvival.core.titan;
  *   <li><b>Fase 3</b> (abaixo de 33%): frenesi. Mais rápido, investidas mais seguidas, a mordida corta dois níveis de
  *   uma vez (até 5) e 50% do dano não passa.</li>
  * </ul>
+ *
+ * <p><b>Couro blindado</b> (pedido do Felipe em 2026-10-04: cinco Rex de nível 100 venciam fácil; a luta tem de exigir
+ * ~15 mutações de ataque): antes da resistência da fase, cada golpe perde {@link #HIDE_PLATE} e só
+ * {@link #HIDE_PASS} do resto chega à carne; e ele recupera {@link #REGEN_PER_SECOND} de vida por segundo. Ataque
+ * baixo quase não fere e não vence a regeneração. Calibrado em {@code tools/sim_titan_fight.py}: cinco Rex de nível
+ * 100 sem mutação perdem (dez também); com 12 mutações de ataque cada ainda perdem; com 15 vencem em ~50 s perdendo
+ * dois ou três.
  */
 public enum TitanPhase {
     ONE(1, 0.0, 0.0, 1, 3, 160, 0, ""),
     TWO(2, 0.30, 0.10, 1, 3, 160, 160, "_f2"),
     THREE(3, 0.50, 0.25, 2, 5, 200, 100, "_f3");
+
+    /** O couro: quanto de cada golpe ele segura antes de qualquer outra conta. */
+    public static final float HIDE_PLATE = 50.0F;
+    /** Do que passa do couro, a fração que chega à carne. */
+    public static final float HIDE_PASS = 0.25F;
+    /** Vida recuperada por segundo, sempre (o metabolismo do dossiê). */
+    public static final float REGEN_PER_SECOND = 4.0F;
 
     /** Abaixo desta fração da vida máxima começa a fase 2. */
     public static final double PHASE_TWO_BELOW = 0.66;
@@ -64,6 +78,14 @@ public enum TitanPhase {
     /** O dano que passa desta fase. */
     public float reduce(float amount) {
         return (float) (amount * (1.0 - damageReduction));
+    }
+
+    /**
+     * O dano de um golpe que chega à vida: o couro tira {@link #HIDE_PLATE}, deixa passar {@link #HIDE_PASS} do resto
+     * e a fase reduz ({@link #reduce}). A armadura do vanilla ainda conta depois.
+     */
+    public float absorb(float amount) {
+        return reduce(Math.max(0.0F, amount - HIDE_PLATE) * HIDE_PASS);
     }
 
     /** Bônus de velocidade sobre a da espécie (+10% na fase 2, +25% na 3). */

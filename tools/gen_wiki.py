@@ -24,6 +24,7 @@ separados por linha em branco:
     - item             list (não ordenada); "1. item" faz a lista ordenada
     > texto            note (destaque); linhas seguidas com ">" viram uma nota só
     | a | b |          table; uma linha "|---|---|" logo depois da primeira marca o cabeçalho
+    [holograma: a, b]  hologram: os modelos das espécies (ids sem o namespace) lado a lado, na mesma escala
     qualquer outro     paragraph; linhas seguidas se juntam com espaço
 
 Ao fim confere: toda espécie de species/*.json (menos test_creature) tem ficha e vice-versa; nenhum texto vazio;
@@ -114,7 +115,13 @@ def parse_blocks(lines, where):
     blocks = []
     for group in groups:
         first = group[0].lstrip()
-        if first.startswith('###'):
+        if first.startswith('[holograma:'):
+            match = re.fullmatch(r'\[holograma:([^\]]*)\]', first.strip())
+            species = [clean(s) for s in match.group(1).split(',')] if match and len(group) == 1 else []
+            if len(species) < 2 or not all(species):
+                raise LoreError(f'{where}: holograma mal formado (uma linha "[holograma: a, b]"): {first[:40]}')
+            blocks.append({'type': 'hologram', 'species': [NAMESPACE + s for s in species]})
+        elif first.startswith('###'):
             if len(group) > 1:
                 raise LoreError(f'{where}: título "{first}" precisa de linha em branco depois')
             blocks.append({'type': 'heading', 'text': clean(first.lstrip('#'))})
@@ -199,7 +206,7 @@ def all_strings(value):
         yield value
     elif isinstance(value, dict):
         for key, item in value.items():
-            if key not in ('type', 'ordered', 'id'):
+            if key not in ('type', 'ordered', 'id', 'species'):
                 yield from all_strings(item)
     elif isinstance(value, list):
         for item in value:
@@ -233,6 +240,9 @@ def check(manual):
         if not blocks:
             errors.append(f'{owner}: sem blocos')
         for block in blocks:
+            if block['type'] == 'hologram':
+                errors += [f'{owner}: holograma com espécie desconhecida: {s}' for s in block['species']
+                           if s not in expected]
             if block['type'] == 'list' and not block['items']:
                 errors.append(f'{owner}: lista vazia')
             if block['type'] == 'table':
@@ -286,7 +296,7 @@ def main():
           + ', '.join(f"{len(s['records'])} registros ({s['id']})" for s in series))
     for chapter in chapters:
         print(f"  {chapter['id']}: {len(chapter['pages'])} páginas")
-    print('  blocos: ' + ', '.join(f'{t} {blocks[t]}' for t in ('heading', 'paragraph', 'list', 'table', 'note'))
+    print('  blocos: ' + ', '.join(f'{t} {blocks[t]}' for t in ('heading', 'paragraph', 'list', 'table', 'note', 'hologram'))
           + f' (total {sum(blocks.values())})')
 
 

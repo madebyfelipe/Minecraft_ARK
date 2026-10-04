@@ -147,7 +147,8 @@ class ManualParserTest {
                   {"type": "table", "rows": [["x", "y"], ["z"]]},
                   {"type": "table", "columns": ["A", "B"]},
                   {"text": "bloco sem tipo"},
-                  {"type": "note", "text": "cuidado"}
+                  {"type": "note", "text": "cuidado"},
+                  {"type": "hologram", "species": ["iceagesurvival:a", "iceagesurvival:b"]}
                 ]}]}],
                  "species": {"iceagesurvival:sem_nada": {}}}
                 """));
@@ -166,7 +167,8 @@ class ManualParserTest {
                 new Manual.Bullets(false, List.of("a")),
                 new Manual.Table(List.of(), List.of(List.of("x", "y"), List.of("z"))),
                 new Manual.Table(List.of("A", "B"), List.of()),
-                new Manual.Note("cuidado")), page.blocks(),
+                new Manual.Note("cuidado"),
+                new Manual.Hologram(List.of("iceagesurvival:a", "iceagesurvival:b"))), page.blocks(),
                 "tipo desconhecido (ou sem tipo) devia ser pulado e o resto lido na ordem");
 
         Manual.Sheet sheet = manual.sheet("iceagesurvival:sem_nada").orElseThrow();
@@ -174,6 +176,29 @@ class ManualParserTest {
         assertEquals(List.of(), sheet.badges(), "selos faltando deviam virar lista vazia");
         assertEquals(List.of(), sheet.blocks(), "blocos faltando deviam virar lista vazia");
         assertEquals(List.of(sheet), manual.dexEntries(), "ficha sem selo nenhum não está desligada");
+    }
+
+    @Test
+    void dossierShowsTheHologramRightBeforeTheComparisonTable() {
+        Manual manual = realManual();
+        List<Manual.Block> blocks = manual.records(Manual.DOSSIER).get(0).blocks();
+        int at = -1;
+        for (int index = 0; index < blocks.size(); index++) {
+            if (blocks.get(index) instanceof Manual.Hologram) {
+                assertEquals(-1, at, "o dossiê devia ter um holograma só");
+                at = index;
+            }
+        }
+        assertTrue(at > 0, "o dossiê devia ter o holograma");
+        assertEquals(new Manual.Hologram(List.of("iceagesurvival:tyrannosaurus", "iceagesurvival:titanovenator")),
+                blocks.get(at), "o holograma compara o tiranossauro (primeiro) com o Titanovenator");
+        assertEquals(new Manual.Heading("Comparação com o tiranossauro"), blocks.get(at - 1),
+                "o holograma devia vir logo depois do título da comparação");
+        assertTrue(blocks.get(at + 1) instanceof Manual.Table, "a tabela da comparação devia vir abaixo do holograma");
+        for (String species : ((Manual.Hologram) blocks.get(at)).species()) {
+            assertTrue(manual.sheet(species).isPresent(), "espécie do holograma sem ficha (sem nome para o rótulo): "
+                    + species);
+        }
     }
 
     @Test

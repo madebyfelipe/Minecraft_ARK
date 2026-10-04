@@ -13,7 +13,8 @@ import net.minecraft.util.FormattedCharSequence;
 /**
  * Diagrama os blocos do manual numa largura: títulos com o losango âmbar, parágrafos quebrados em linhas, listas com
  * marcador ciano, avisos com a barra âmbar e tabelas com as colunas repartidas pelo conteúdo. As tabelas sem
- * cabeçalho (rótulo e valor, as das fichas) saem como ficha de dados: rótulo em ciano, valor em branco.
+ * cabeçalho (rótulo e valor, as das fichas) saem como ficha de dados: rótulo em ciano, valor em branco. O holograma
+ * desenha os modelos das espécies lado a lado ({@link ComparisonHologram}).
  */
 final class WikiLayout {
     static final int PARAGRAPH = 0xFFD3DEE4;
@@ -58,6 +59,8 @@ final class WikiLayout {
                 elements.add(spacer(GAP - 2));
             } else if (block instanceof Manual.Table table) {
                 elements.add(table(font, table, width));
+            } else if (block instanceof Manual.Hologram hologram) {
+                elements.add(hologram(hologram.species(), width));
             }
         }
         return new WikiLayout(List.copyOf(elements));
@@ -88,6 +91,21 @@ final class WikiLayout {
 
             @Override
             public void draw(GuiGraphics graphics, Font font, int x, int y) {
+            }
+        };
+    }
+
+    /** O holograma comparativo ({@link ComparisonHologram}), na largura toda. */
+    private static Element hologram(List<String> species, int width) {
+        return new Element() {
+            @Override
+            public int height() {
+                return ComparisonHologram.HEIGHT + GAP;
+            }
+
+            @Override
+            public void draw(GuiGraphics graphics, Font font, int x, int y) {
+                ComparisonHologram.draw(graphics, font, species, x, y, x + width, y + ComparisonHologram.HEIGHT);
             }
         };
     }

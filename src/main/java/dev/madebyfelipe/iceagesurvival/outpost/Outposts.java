@@ -15,6 +15,7 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.levelgen.structure.Structure;
@@ -54,12 +55,18 @@ public final class Outposts {
             BLOCK_ENTITIES.register("military_terminal", () -> BlockEntityType.Builder.of(
                     MilitaryTerminalBlockEntity::new, MILITARY_TERMINAL.get()).build(null));
 
-    /** O gerador do campo de êxtase: duro, sem drop, um pouco de luz. */
+    /** O emissor do campo de êxtase: indestrutível (só o console desliga o campo), sem drop, um pouco de luz. */
     public static final RegistryObject<StasisGeneratorBlock> STASIS_GENERATOR = BLOCKS.register("stasis_generator",
-            () -> new StasisGeneratorBlock(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK).strength(25.0F, 1200.0F)
+            () -> new StasisGeneratorBlock(BlockBehaviour.Properties.copy(Blocks.BEDROCK).sound(SoundType.METAL)
                     .noLootTable().lightLevel(state -> 10)));
     public static final RegistryObject<BlockItem> STASIS_GENERATOR_ITEM = ITEMS.register("stasis_generator",
             () -> new BlockItem(STASIS_GENERATOR.get(), new Item.Properties()));
+    /** O console de operação do campo: indestrutível, com o terminal que derruba o campo. */
+    public static final RegistryObject<ContainmentConsoleBlock> CONTAINMENT_CONSOLE = BLOCKS.register(
+            "containment_console", () -> new ContainmentConsoleBlock(BlockBehaviour.Properties.copy(Blocks.BEDROCK)
+                    .sound(SoundType.METAL).noLootTable().noOcclusion().lightLevel(state -> 7)));
+    public static final RegistryObject<BlockItem> CONTAINMENT_CONSOLE_ITEM = ITEMS.register("containment_console",
+            () -> new BlockItem(CONTAINMENT_CONSOLE.get(), new Item.Properties()));
     /** O núcleo da contenção: indestrutível como a rocha-mãe. */
     public static final RegistryObject<ContainmentCoreBlock> CONTAINMENT_CORE = BLOCKS.register("containment_core",
             () -> new ContainmentCoreBlock(BlockBehaviour.Properties.copy(Blocks.BEDROCK).noLootTable()
@@ -122,6 +129,7 @@ public final class Outposts {
             event.accept(MILITARY_TERMINAL_ITEM);
             event.accept(STASIS_GENERATOR_ITEM);
             event.accept(CONTAINMENT_CORE_ITEM);
+            event.accept(CONTAINMENT_CONSOLE_ITEM);
         }
     }
 }

@@ -117,13 +117,18 @@ public final class ModItems {
     public static final RegistryObject<dev.madebyfelipe.iceagesurvival.item.AnalyzerItem> ANALYZER =
             ITEMS.register("analyzer", () -> new dev.madebyfelipe.iceagesurvival.item.AnalyzerItem(
                     new Item.Properties().stacksTo(1).rarity(net.minecraft.world.item.Rarity.UNCOMMON)));
-    /** Dente serrilhado do Giganotosaurus: o que a carcaça dele deixa, para a espada serrilhada. */
+    /** Dente serrilhado do Giganotosaurus: o que a carcaça dele deixa (a espada saiu do jogo; o dente ficou). */
     public static final RegistryObject<Item> SERRATED_TOOTH = ITEMS.register("serrated_tooth",
             () -> new Item(new Item.Properties().rarity(net.minecraft.world.item.Rarity.EPIC)));
-    /** Espada serrilhada (D47): o corte faz sangrar, como a mordida do Giganotosaurus. */
-    public static final RegistryObject<net.minecraft.world.item.SwordItem> SERRATED_SWORD = ITEMS.register(
-            "serrated_sword", () -> new net.minecraft.world.item.SwordItem(net.minecraft.world.item.Tiers.DIAMOND, 3,
-                    -2.4F, new Item.Properties().rarity(net.minecraft.world.item.Rarity.EPIC)));
+
+    /** Soro do Titanovenator: dado a uma criatura sua, mais ataque, mais vida e a mordida que sangra. */
+    public static final RegistryObject<dev.madebyfelipe.iceagesurvival.item.TitanSerumItem> TITAN_SERUM =
+            ITEMS.register("titan_serum", () -> new dev.madebyfelipe.iceagesurvival.item.TitanSerumItem(
+                    new Item.Properties().stacksTo(16).rarity(net.minecraft.world.item.Rarity.EPIC)));
+    /** Projetor de êxtase: congela por alguns segundos a criatura sob a mira. */
+    public static final RegistryObject<dev.madebyfelipe.iceagesurvival.item.StasisProjectorItem> STASIS_PROJECTOR =
+            ITEMS.register("stasis_projector", () -> new dev.madebyfelipe.iceagesurvival.item.StasisProjectorItem(
+                    new Item.Properties().stacksTo(1).rarity(net.minecraft.world.item.Rarity.EPIC)));
 
     /** Antídoto contra a peçonha da Megalania (mesa química). */
     public static final RegistryObject<dev.madebyfelipe.iceagesurvival.item.AntidoteItem> ANTIDOTE = ITEMS.register(
@@ -294,7 +299,8 @@ public final class ModItems {
             event.accept(SPINOSAURUS_HEAD);
             event.accept(ANALYZER);
             event.accept(SERRATED_TOOTH);
-            event.accept(SERRATED_SWORD);
+            event.accept(TITAN_SERUM);
+            event.accept(STASIS_PROJECTOR);
         } else if (event.getTabKey() == CreativeModeTabs.NATURAL_BLOCKS) {
             event.accept(BLACK_FRUIT_LEAVES);
             event.accept(BLACK_FRUIT_SAPLING);

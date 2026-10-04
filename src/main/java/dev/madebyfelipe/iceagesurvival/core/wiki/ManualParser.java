@@ -65,6 +65,7 @@ public final class ManualParser {
                 case "heading" -> new Manual.Heading(string(block, "text"));
                 case "paragraph" -> new Manual.Paragraph(string(block, "text"));
                 case "note" -> new Manual.Note(string(block, "text"));
+                case "hologram" -> new Manual.Hologram(strings(array(block, "species")));
                 case "list" -> new Manual.Bullets(block.has("ordered") && block.get("ordered").getAsBoolean(),
                         strings(array(block, "items")));
                 case "table" -> {

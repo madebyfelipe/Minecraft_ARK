@@ -52,6 +52,7 @@ public class IceAgeSurvivalClient {
         PrimalStationsClient.init(modEventBus);
         DefensesClient.init(modEventBus);
         WeaponsClient.init(modEventBus);
+        dev.madebyfelipe.iceagesurvival.client.containment.ContainmentClient.init(modEventBus);
     }
 
     private static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {

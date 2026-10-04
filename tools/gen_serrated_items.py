@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Gera as texturas 16x16 do dente serrilhado e da espada serrilhada do Giganotosaurus (D47, mantidos na D51).
+"""Gera a textura 16x16 do dente serrilhado do Giganotosaurus (D47, mantido na D51; a espada saiu em 2026-10-04).
 
 Como os outros gen_*.py: rodar de novo SOBRESCREVE edições feitas à mão. Arte autoral, desenhada aqui pixel a pixel
 (nada do Jurassic Reborn nem do Revival).
@@ -17,9 +17,6 @@ OUTLINE = (40, 30, 26, 255)
 ENAMEL = [(214, 204, 178), (232, 224, 200), (246, 240, 224)]
 ROOT = (150, 128, 100)
 BLOOD = [(96, 10, 10), (138, 3, 3), (176, 24, 20)]
-DIAMOND = [(30, 120, 118), (52, 190, 182), (120, 232, 222), (210, 252, 246)]
-HILT = [(60, 38, 22), (88, 58, 34)]
-GUARD = (70, 70, 78)
 STONE = [(48, 46, 50), (60, 58, 62), (72, 70, 74), (84, 82, 86)]
 RUNE = [(120, 16, 14), (168, 30, 22)]
 GLOW = [(220, 80, 30), (255, 150, 60)]
@@ -54,43 +51,10 @@ def tooth():
     return img
 
 
-def sword():
-    """Espada na diagonal (cabo embaixo à esquerda), lâmina de diamante com o fio serrilhado de dente."""
-    img = Image.new("RGBA", (SIZE, SIZE), CLEAR)
-    # Lâmina: de (5,10) até (14,1).
-    for i in range(10):
-        x, y = 5 + i, 10 - i
-        img.putpixel((x, y), DIAMOND[2] + (255,))
-        img.putpixel((x - 1, y), DIAMOND[1] + (255,))
-        img.putpixel((x, y - 1), DIAMOND[3] + (255,))
-        # Fio serrilhado (de dente) num dos lados.
-        if i % 2 == 0:
-            img.putpixel((min(SIZE - 1, x + 1), y), ENAMEL[1] + (255,))
-        else:
-            img.putpixel((min(SIZE - 1, x + 1), y), OUTLINE)
-        if x - 2 >= 0:
-            img.putpixel((x - 2, y), OUTLINE)
-    img.putpixel((15, 0), OUTLINE)
-    img.putpixel((14, 0), DIAMOND[3] + (255,))
-    # Sangue perto da ponta.
-    img.putpixel((12, 3), BLOOD[1] + (255,))
-    img.putpixel((13, 2), BLOOD[2] + (255,))
-    # Guarda.
-    for x, y in [(2, 9), (3, 10), (4, 11), (5, 12), (6, 13)]:
-        img.putpixel((x, y), GUARD + (255,))
-    # Cabo.
-    for i in range(3):
-        img.putpixel((3 - i, 12 + i), HILT[i % 2] + (255,))
-        img.putpixel((2 - i, 12 + i), OUTLINE)
-    img.putpixel((0, 15), ENAMEL[0] + (255,))
-    return img
-
-
 def main():
     ITEMS.mkdir(parents=True, exist_ok=True)
     outputs = {
         ITEMS / "serrated_tooth.png": tooth(),
-        ITEMS / "serrated_sword.png": sword(),
     }
     for path, img in outputs.items():
         img.save(path)

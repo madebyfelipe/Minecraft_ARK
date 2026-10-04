@@ -19,7 +19,7 @@ public record Manual(List<Chapter> chapters, List<Sheet> sheets, List<Series> se
     /** O selo de espécie desligada (não nasce): fica fora da DINO FILE. */
     public static final String DISABLED_BADGE = "Desligado";
 
-    public sealed interface Block permits Heading, Paragraph, Bullets, Table, Note {
+    public sealed interface Block permits Heading, Paragraph, Bullets, Table, Note, Hologram {
     }
 
     public record Heading(String text) implements Block {
@@ -36,6 +36,10 @@ public record Manual(List<Chapter> chapters, List<Sheet> sheets, List<Series> se
     }
 
     public record Note(String text) implements Block {
+    }
+
+    /** Os modelos das espécies (ids de entidade) lado a lado, na mesma escala, como no holograma do dossiê. */
+    public record Hologram(List<String> species) implements Block {
     }
 
     public record Page(String id, String title, List<Block> blocks) {

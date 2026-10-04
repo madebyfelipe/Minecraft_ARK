@@ -1,0 +1,17 @@
+id: a-mordida-do-lagarto
+titulo: Ficha de atendimento, mordida de megalania
+origem: Enfermaria do posto sul, caderno do enfermeiro
+
+Paciente: soldado da patrulha do sul, mordido na panturrilha esquerda por uma megalania, em terreno seco, perto do meio-dia.
+
+Relato do paciente: o lagarto veio pelo capim, mordeu uma vez e recuou. Não tentou morder de novo. Passou a seguir a patrulha a uns dez passos, parando de vez em quando para pôr a língua para fora. Os colegas riram, achando que o bicho estava com medo deles.
+
+Evolução: a ferida não fechou. O soldado sangrou o caminho inteiro e chegou pálido, com as pernas pesadas e lento para andar. O curativo comum não segurou, e numa ferida daquele tamanho o sangue já devia ter parado.
+
+Tratamento: carvão num frasco, preparado na mesa química do posto. Ele bebeu, e o sangramento parou pouco depois. O lagarto ficou do lado de fora do portão até escurecer.
+
+Observação da sentinela, no dia seguinte: a mesma megalania mordeu um galimimo e o soltou. O galimimo disparou, foi ficando lento e caiu no capim, dormindo. O lagarto chegou sem pressa e terminou o serviço.
+
+Observação da patrulha da madrugada: à noite esses lagartos se escondem debaixo de moita e dormem pesado. Passaram a poucos passos de um, e ele não se mexeu. Ninguém tentou acordá-lo.
+
+> Do enfermeiro: quem sai para o sul leva um frasco de antídoto na bolsa. Mandei preparar mais seis. Quem for mordido não espera chegar ao posto para beber.

@@ -3760,8 +3760,11 @@ public abstract class PrehistoricCreature extends TamableAnimal {
 
     @Override
     public InteractionResult mobInteract(Player player, InteractionHand hand) {
-        if (player.getItemInHand(hand).getItem() instanceof dev.madebyfelipe.iceagesurvival.item.AnalyzerItem) {
-            return InteractionResult.PASS; // o Analisador escaneia: o clique segue para o item
+        net.minecraft.world.item.Item usedItem = player.getItemInHand(hand).getItem();
+        if (usedItem instanceof dev.madebyfelipe.iceagesurvival.item.AnalyzerItem
+                || usedItem instanceof dev.madebyfelipe.iceagesurvival.item.TitanSerumItem
+                || usedItem instanceof dev.madebyfelipe.iceagesurvival.item.StasisProjectorItem) {
+            return InteractionResult.PASS; // Analisador, soro e projetor agem pelo item: o clique segue para ele
         }
         if (isApex() && !isTame() && !isUnconscious() && duel == null && isTrophyOf(player.getItemInHand(hand))) {
             if (!level().isClientSide) {

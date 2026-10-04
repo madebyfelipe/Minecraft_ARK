@@ -1,0 +1,25 @@
+id: relatorio-de-ferimentos
+titulo: Relatório da enfermaria, ferimentos do mês
+origem: Enfermaria do posto do planalto, terminal, relatório mensal
+
+Duas baixas e sete feridos este mês. Segue o que cada bicho faz, para quem ainda vai sair.
+
+| Ferimento | Causa | O que fazer |
+|---|---|---|
+| Corte que sangra mais a cada mordida | Giganotossauro | Fugir depois da primeira |
+| Ferida que não fecha, passo lento | Megalania | Antídoto da mesa química |
+| Perna lenta, que não pula | Cauda do anquilossauro | Esperar, passa sozinho |
+| Pancada que atravessa o colete | Bico do kelenken | Escudo erguido |
+| Ombro preso, pernas travadas | Patada do smilodon | Procurar água |
+
+### O giganotossauro
+
+A mordida dele é mais fraca que a do rex, e os dentes cortam como lâmina. O corte sangra por baixo da farda e do colete como se não houvesse nada ali, e cada mordida nova piora o sangramento da anterior, até um limite. O soldado Ribas levou uma, foi puxado para trás a tempo e sangrou um bom tempo, mas o corpo dele se recuperou sozinho depois que parou. O cabo que ficou para ajudá-lo levou mais duas e não chegou ao posto.
+
+Com os bichos é igual. Vimos um brontossauro desgarrado, mordido por um deles, seguir sangrando enquanto se afastava.
+
+### O kelenken
+
+A ave bica, dá um passo atrás e bica de novo. O colete ajuda pouco, porque parte da pancada passa direto. Com escudo erguido é outra história: o bico bate no escudo e fica preso por um instante, e a ave para. É a hora de acertar.
+
+> Pedido da enfermaria: escudos para todas as patrulhas da savana e frascos de antídoto para as do sul.

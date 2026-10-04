@@ -1138,7 +1138,7 @@
     },
     {
      "type": "note",
-     "text": "Pode ser amansado como qualquer caçador: primeiro é preciso fazê-lo dormir, depois alimentá-lo com carne crua. Os dentes que deixa, quando cai, viram uma espada que faz sangrar."
+     "text": "Pode ser amansado como qualquer caçador: primeiro é preciso fazê-lo dormir, depois alimentá-lo com carne crua. Os dentes que deixa, quando cai, têm o fio de uma serra."
     }
    ]
   },
@@ -1592,6 +1592,656 @@
        "text": "[registro interrompido]"
       }
      ]
+    },
+    {
+     "id": "patrulha-das-planicies",
+     "title": "Diário de patrulha, planícies do leste",
+     "source": "Posto leste, caderno de patrulha transcrito",
+     "blocks": [
+      {
+       "type": "paragraph",
+       "text": "Dia onze depois do clarão. Saímos em quatro do posto leste para achar o caminho até o posto do rio. Levamos o rádio, dois fuzis e metade dos dardos do baú."
+      },
+      {
+       "type": "paragraph",
+       "text": "No meio da manhã cruzamos com uns cinco galimimos perto de um bosque. Na beira das árvores, atrás deles, andavam três alossauros. Não corriam nem rugiam. Acompanhavam a manada devagar, sempre à mesma distância, e os galimimos seguiam tranquilos, como se estivessem sozinhos no campo."
+      },
+      {
+       "type": "paragraph",
+       "text": "Ficamos deitados no capim olhando. Levou um bom tempo. Quando um dos galimimos se afastou do grupo, os três alossauros saíram do mato juntos, rugindo, e a manada inteira disparou no mesmo instante."
+      },
+      {
+       "type": "paragraph",
+       "text": "O que eles escolheram correu mais. Os alossauros o seguiram por um trecho comprido e depois pararam. Desistiram ali mesmo e só voltaram a se mexer atrás de caça muito mais tarde."
+      },
+      {
+       "type": "paragraph",
+       "text": "À tarde passamos por quatro mamutes adultos, juntos num descampado. Os mesmos alossauros, ou outros parecidos, rondavam a manada de longe e não chegaram perto. Ficaram esperando algum mamute se desgarrar, e nenhum se desgarrou enquanto olhamos."
+      },
+      {
+       "type": "paragraph",
+       "text": "O cabo diz que bando de caçador só encara manada que se defende junta quando consegue separar um. Contra três alossauros, um mamute sozinho não dura."
+      },
+      {
+       "type": "note",
+       "text": "Ordem do cabo para o resto da viagem: em campo aberto ninguém se afasta do grupo, nem para urinar."
+      }
+     ]
+    },
+    {
+     "id": "travessia-do-rio",
+     "title": "Relatório de incidente, a travessia do rio",
+     "source": "Posto do rio, terminal, relatório do soldado",
+     "blocks": [
+      {
+       "type": "paragraph",
+       "text": "Relatório do soldado de segunda classe, escrito a pedido do sargento."
+      },
+      {
+       "type": "paragraph",
+       "text": "Fui buscar água sozinho no fim da tarde, contra a ordem. Reconheço."
+      },
+      {
+       "type": "paragraph",
+       "text": "Na volta senti que alguma coisa vinha atrás de mim. Olhei e não vi nada. Andei mais um pouco e senti de novo. Quando me virei pela segunda vez, um smilodon estava parado no mato, perto. No instante em que o vi, ele arrancou."
+      },
+      {
+       "type": "paragraph",
+       "text": "Nunca vi um bicho correr daquele jeito. A primeira patada me pegou no ombro e me segurou, e por um momento as pernas não obedeceram. Consegui me soltar, larguei o cantil e pulei no rio de roupa e tudo."
+      },
+      {
+       "type": "paragraph",
+       "text": "Ele parou na margem e não pôs uma pata na água. Fiquei com a água pelo peito e ele lá em cima, até que foi embora pelo mato."
+      },
+      {
+       "type": "paragraph",
+       "text": "O sargento disse que foi sorte e que eles são todos assim: odeiam água e não entram nem para terminar uma caçada. Contou que já viu um cair num lago atrás de um cavalo e sair nadando reto para a margem mais perto, se debatendo, sem lembrar mais do cavalo."
+      },
+      {
+       "type": "paragraph",
+       "text": "Uma coisa que não contei ao sargento ontem: rio abaixo, no raso, havia um baryonyx com a água pelas canelas, imóvel, olhando para baixo. De repente enfiou o focinho na água e levantou com um peixe. Não sei se me viu. Saí do rio pelo outro lado, tremendo."
+      },
+      {
+       "type": "note",
+       "text": "Do sargento: cantil não se busca sozinho. E o rio só livra do smilodon; o baryonyx nada melhor que qualquer um de nós."
+      }
+     ]
+    },
+    {
+     "id": "carcaca-do-brontossauro",
+     "title": "A carcaça do brontossauro",
+     "source": "Posto das planícies, terminal, relatório de patrulha",
+     "blocks": [
+      {
+       "type": "paragraph",
+       "text": "Patrulha de três, segunda semana depois do clarão."
+      },
+      {
+       "type": "paragraph",
+       "text": "Seguíamos de longe uma manada de quatro brontossauros que viajava para o sul. Um deles começou a ficar para trás, e a distância entre ele e os outros foi crescendo."
+      },
+      {
+       "type": "paragraph",
+       "text": "Um tiranossauro andava por perto desde a manhã. Enquanto a manada esteve junta, ele não fez nada. Quando o desgarrado ficou sozinho, veio do lado das árvores e o pegou. A briga durou mais do que eu esperava. O brontossauro caiu perto de um córrego e a manada seguiu viagem sem ele."
+      },
+      {
+       "type": "paragraph",
+       "text": "O rex comeu ali mesmo até encher a barriga e ficou por perto. Nesse meio-tempo chegaram dois alossauros, que não estavam à vista quando o brontossauro caiu. Toda vez que chegavam perto da carcaça, o rex os enxotava. Só entraram nela depois que ele foi embora."
+      },
+      {
+       "type": "paragraph",
+       "text": "Mais tarde o mesmo rex passou ao lado de um bando de dodôs e não deu atenção a nenhum."
+      },
+      {
+       "type": "paragraph",
+       "text": "Quando os alossauros terminaram, ainda sobrava muita carne. Carneamos o que deu com machado. Rendeu menos do que um bicho inteiro, mas alimentou o posto por uns dias. Na manhã seguinte, no lugar da carcaça, não havia mais nada."
+      },
+      {
+       "type": "heading",
+       "text": "Para as próximas patrulhas"
+      },
+      {
+       "type": "list",
+       "ordered": false,
+       "items": [
+        "Carcaça grande atrai caçador de muito longe. Carnear depressa, com alguém de vigia.",
+        "Quem é mais forte come primeiro. Os mais fracos esperam a vez a uma boa distância.",
+        "Rex de barriga cheia não caça, mas enxota os outros caçadores que chegam perto da carcaça. A barriga cheia dele dura pouco."
+       ]
+      }
+     ]
+    },
+    {
+     "id": "a-mordida-do-lagarto",
+     "title": "Ficha de atendimento, mordida de megalania",
+     "source": "Enfermaria do posto sul, caderno do enfermeiro",
+     "blocks": [
+      {
+       "type": "paragraph",
+       "text": "Paciente: soldado da patrulha do sul, mordido na panturrilha esquerda por uma megalania, em terreno seco, perto do meio-dia."
+      },
+      {
+       "type": "paragraph",
+       "text": "Relato do paciente: o lagarto veio pelo capim, mordeu uma vez e recuou. Não tentou morder de novo. Passou a seguir a patrulha a uns dez passos, parando de vez em quando para pôr a língua para fora. Os colegas riram, achando que o bicho estava com medo deles."
+      },
+      {
+       "type": "paragraph",
+       "text": "Evolução: a ferida não fechou. O soldado sangrou o caminho inteiro e chegou pálido, com as pernas pesadas e lento para andar. O curativo comum não segurou, e numa ferida daquele tamanho o sangue já devia ter parado."
+      },
+      {
+       "type": "paragraph",
+       "text": "Tratamento: carvão num frasco, preparado na mesa química do posto. Ele bebeu, e o sangramento parou pouco depois. O lagarto ficou do lado de fora do portão até escurecer."
+      },
+      {
+       "type": "paragraph",
+       "text": "Observação da sentinela, no dia seguinte: a mesma megalania mordeu um galimimo e o soltou. O galimimo disparou, foi ficando lento e caiu no capim, dormindo. O lagarto chegou sem pressa e terminou o serviço."
+      },
+      {
+       "type": "paragraph",
+       "text": "Observação da patrulha da madrugada: à noite esses lagartos se escondem debaixo de moita e dormem pesado. Passaram a poucos passos de um, e ele não se mexeu. Ninguém tentou acordá-lo."
+      },
+      {
+       "type": "note",
+       "text": "Do enfermeiro: quem sai para o sul leva um frasco de antídoto na bolsa. Mandei preparar mais seis. Quem for mordido não espera chegar ao posto para beber."
+      }
+     ]
+    },
+    {
+     "id": "guerra-de-bandos",
+     "title": "Raptores e alossauros",
+     "source": "Posto da taiga, terminal, relatório do sargento",
+     "blocks": [
+      {
+       "type": "paragraph",
+       "text": "Ao comando do posto da taiga. Assunto: bandos de caçadores ao norte e ao sul do posto."
+      },
+      {
+       "type": "paragraph",
+       "text": "Há dois bandos de utahraptors no vale do norte, um de três e outro de dois. Nos primeiros dias cada um andou no seu pedaço do vale, sem se cruzar."
+      },
+      {
+       "type": "paragraph",
+       "text": "No quinto dia o bando menor apareceu perto do outro. Estava com fome, pelo jeito, e tinha saído do próprio pedaço rondando atrás de caça. Houve um rugido e os cinco se atracaram de uma vez. Um dos dois do bando menor ficou no chão; o outro fugiu para o mato, e o bando de três não o perseguiu longe."
+      },
+      {
+       "type": "paragraph",
+       "text": "Com os alossauros do sul vimos outra coisa. Dois machos de bandos diferentes se mediram por um tempo, e o maior avançou. O outro primeiro recuou, depois revidou. Brigaram até o menor ficar bem ferido. Então ele largou a briga e saiu correndo, e o maior o deixou ir. Ninguém morreu."
+      },
+      {
+       "type": "paragraph",
+       "text": "Bicho de outra espécie, mais fraco, que entra perto desses bandos é atacado até sair. O elasmotério do posto, solto perto do acampamento, apanhou dos raptores até se afastar. Com o cabo montado nele, o bando não o expulsou."
+      },
+      {
+       "type": "paragraph",
+       "text": "Com bicho mais forte acontece o contrário. Quando o rex desce para o vale, o bando de três sai do caminho dele e só volta bem depois."
+      },
+      {
+       "type": "paragraph",
+       "text": "Recomendações:"
+      },
+      {
+       "type": "list",
+       "ordered": false,
+       "items": [
+        "Patrulhas do norte contornam o vale pelas encostas.",
+        "Animal nosso não fica solto fora do muro.",
+        "Se dois bandos da mesma espécie se encontrarem, saiam de perto."
+       ]
+      }
+     ]
+    },
+    {
+     "id": "caderno-do-cabo",
+     "title": "Caderno do cabo, o tricerátopo",
+     "source": "Posto do vale, caderno pessoal achado no alojamento",
+     "blocks": [
+      {
+       "type": "paragraph",
+       "text": "Primeiro dia. O sargento quer um bicho grande no posto, que carregue peso e assuste os caçadores. Escolheu um tricerátopo da manada que anda ao norte do muro. A ideia foi minha, então o serviço também."
+      },
+      {
+       "type": "paragraph",
+       "text": "Segundo dia. Acertei um dardo num deles do alto do mirante, e a manada inteira veio para cima do muro. Quatro bichos de chifre rondando a pedra. Não abriram nada e, depois de um tempo, se afastaram. O que eu tinha acertado continuava de pé. Precisei de muito mais dardos do que imaginava até ele desabar no capim."
+      },
+      {
+       "type": "paragraph",
+       "text": "Saí pelo portão com o feno, abri a bolsa dele e enchi de fardos. Ele come sozinho, um bocado de cada vez, com uma pausa entre um e outro. O problema é o sono, que vai passando aos poucos. Na metade do feno ele começou a se mexer. Mais um dardo o segurou, mas dardo fere, e bicho ferido enquanto dorme acorda mais fraco e menos manso."
+      },
+      {
+       "type": "paragraph",
+       "text": "Daí em diante usei narcótico: fruta-negra da taiga misturada com carne podre, posta na boca dele. O sono aumenta e não sai sangue."
+      },
+      {
+       "type": "paragraph",
+       "text": "Terceiro dia. Acordou manso e me segue pelo pátio. Tentei montar, já com a sela, e ele não deixou. Ainda não confia em mim. Dou feno de tempos em tempos; quando ainda não é hora, ele recusa."
+      },
+      {
+       "type": "paragraph",
+       "text": "O sargento ficou bravo porque o bicho não obedece a ele. Obedece a quem o derrubou."
+      },
+      {
+       "type": "paragraph",
+       "text": "Nono dia. Montei. O smilodon que vinha seguindo a patrulha do norte havia semanas deixou de chegar perto desde que o tricerátopo passou a ir junto."
+      }
+     ]
+    },
+    {
+     "id": "o-vigia-pequeno",
+     "title": "Bilhete deixado no mirante",
+     "source": "Mirante do posto da mata, papel dobrado junto ao terminal",
+     "blocks": [
+      {
+       "type": "paragraph",
+       "text": "Para quem pegar o turno da noite."
+      },
+      {
+       "type": "paragraph",
+       "text": "O bichinho que fica no caixote ao lado da escada se chama Sentinela. Não chute o caixote. É um ornitholestes, do tamanho de um cachorro, e é o soldado mais útil deste posto."
+      },
+      {
+       "type": "paragraph",
+       "text": "Quando um caçador selvagem chega perto, ele solta um chamado, e eu sei de que lado o bicho vem. Avisa uma vez por caçador; se o mesmo continua rondando, avisa de novo depois de um tempo. Não liga para os nossos animais, nem para dodô, nem para gado. Só para quem caça."
+      },
+      {
+       "type": "paragraph",
+       "text": "O aviso é para mim, que o amansei, e só chega se eu estiver por perto. Por isso durmo na guarita debaixo do mirante e não no alojamento. Se eu gritar um rumo no meio da noite, foi ele quem avisou."
+      },
+      {
+       "type": "paragraph",
+       "text": "Os selvagens da espécie vivem ao contrário de nós. De dia dormem enfiados em moita, folhagem ou neve funda, e ninguém enxerga nenhum. À noite saem atrás de coelho, sapo, galinha e dodô. O nosso, manso, não tem hora de dormir."
+      },
+      {
+       "type": "paragraph",
+       "text": "Eles também comem carne largada no chão, mas só quando não há bicho maior por perto. Testei. Na primeira noite deixei um pedaço de carne no pátio de fora. Chegou um, olhou em volta e comeu. Na segunda havia um smilodon rondando o muro, e a carne ficou lá até de manhã."
+      },
+      {
+       "type": "paragraph",
+       "text": "Amansei o meu com carne de coelho. Levou pouco tempo."
+      },
+      {
+       "type": "note",
+       "text": "Se eu morrer, o Sentinela fica sem a quem avisar. Alguém derrube um selvagem e amanse outro."
+      }
+     ]
+    },
+    {
+     "id": "noite-na-neve",
+     "title": "Diário de patrulha, a noite na neve",
+     "source": "Posto do gelo, caderno de patrulha transcrito",
+     "blocks": [
+      {
+       "type": "paragraph",
+       "text": "Vigésimo dia. A patrulha atrasou na travessia do córrego e a noite nos pegou longe do posto, no meio da planície nevada. Dois de nós tinham caído na água."
+      },
+      {
+       "type": "paragraph",
+       "text": "Escrevo o que aprendemos para que a próxima patrulha não precise aprender do mesmo jeito."
+      },
+      {
+       "type": "list",
+       "ordered": false,
+       "items": [
+        "Água tira o calor de qualquer roupa. Os dois que caíram no córrego saíram de lá tremendo, antes de qualquer um de nós.",
+        "O casaco de pena de dodô dá conta do dia na neve. De noite não basta. Quem tinha roupa de pele aguentou bem mais.",
+        "Capacete de ferro não esquenta nada.",
+        "Qualquer fogo serve. Uma tocha espetada na neve esquentou tanto quanto a fogueira, mas só de perto: a poucos passos da chama já não se sentia nada.",
+        "Um teto faz diferença. Cavamos um buraco no barranco e cobrimos a entrada. Lá dentro o frio diminuiu bastante."
+       ]
+      },
+      {
+       "type": "paragraph",
+       "text": "O que nos salvou foram os elasmotérios. O posto tem dois, e eles vinham conosco carregando os cantis. O corpo daquele bicho é quente como um forno. Quem dormiu encostado num deles tremeu bem menos, e o cabo, montado, passou a noite sentado nas costas do bicho sem reclamar de nada."
+      },
+      {
+       "type": "paragraph",
+       "text": "Tentamos ficar no meio dos dois, um de cada lado, para ver se esquentava mais. Não esquentou. Vale o mais quente que estiver perto, e pronto."
+      },
+      {
+       "type": "paragraph",
+       "text": "O cozinheiro diz que tremer gasta comida. Acordamos famintos, mesmo com a ração da véspera."
+      },
+      {
+       "type": "note",
+       "text": "Pedido ao posto: mais roupa de pele antes do próximo mês. E ninguém atravessa córrego no fim da tarde."
+      }
+     ]
+    },
+    {
+     "id": "radio-o-anquilossauro",
+     "title": "Transcrição de rádio, o anquilossauro",
+     "source": "Rádio do posto da campina, gravação copiada",
+     "blocks": [
+      {
+       "type": "paragraph",
+       "text": "— Posto da campina para patrulha dois. Situação?"
+      },
+      {
+       "type": "paragraph",
+       "text": "— Patrulha dois. Temos um ferido. O soldado quis chegar perto de um anquilossauro por trás, para ver a cauda de perto. A cauda chegou primeiro."
+      },
+      {
+       "type": "paragraph",
+       "text": "— Gravidade?"
+      },
+      {
+       "type": "paragraph",
+       "text": "— Perna quebrada, pelo jeito que ele andava. Ficou um tempo sem conseguir correr nem pular. Já passou, mas ele não quer mais saber de bicho de casco."
+      },
+      {
+       "type": "paragraph",
+       "text": "— E o animal?"
+      },
+      {
+       "type": "paragraph",
+       "text": "— Continua lá, no mesmo lugar. Nem olhou para trás. O sargento diz que eles são assim: não fogem e não investem. Viram a cauda para quem chega e esperam. Pela frente não acertam nada, e quem passa pela frente rápido, colado nele, escapa da cauda."
+      },
+      {
+       "type": "paragraph",
+       "text": "— Copiado. Mais alguma coisa?"
+      },
+      {
+       "type": "paragraph",
+       "text": "— Ontem vimos um rex chegar perto de outro deles. O anquilossauro virou de costas para o rex, devagar, e esperou. O rex veio pelo lado errado, levou a clavada e saiu mancando. Não sei como terminou. Saímos dali."
+      },
+      {
+       "type": "paragraph",
+       "text": "— Entendido."
+      },
+      {
+       "type": "paragraph",
+       "text": "— Hoje cedo dois anquilossauros brigavam no vale, batendo a cauda no flanco um do outro. Dava para ouvir de longe. Brigaram um bom tempo e depois cada um foi para um lado, os dois de pé."
+      },
+      {
+       "type": "paragraph",
+       "text": "— E o ferido?"
+      },
+      {
+       "type": "paragraph",
+       "text": "— Pediu para registrar que o bicho fede. Deixa esterco por onde passa. O cozinheiro quer levar um saco para a horta, diz que a terra agradece."
+      },
+      {
+       "type": "paragraph",
+       "text": "— Autorizado. Tragam o esterco e o ferido. Nessa ordem, se precisar."
+      },
+      {
+       "type": "paragraph",
+       "text": "— Copiado. Fim."
+      }
+     ]
+    },
+    {
+     "id": "relatorio-de-ferimentos",
+     "title": "Relatório da enfermaria, ferimentos do mês",
+     "source": "Enfermaria do posto do planalto, terminal, relatório mensal",
+     "blocks": [
+      {
+       "type": "paragraph",
+       "text": "Duas baixas e sete feridos este mês. Segue o que cada bicho faz, para quem ainda vai sair."
+      },
+      {
+       "type": "table",
+       "columns": [
+        "Ferimento",
+        "Causa",
+        "O que fazer"
+       ],
+       "rows": [
+        [
+         "Corte que sangra mais a cada mordida",
+         "Giganotossauro",
+         "Fugir depois da primeira"
+        ],
+        [
+         "Ferida que não fecha, passo lento",
+         "Megalania",
+         "Antídoto da mesa química"
+        ],
+        [
+         "Perna lenta, que não pula",
+         "Cauda do anquilossauro",
+         "Esperar, passa sozinho"
+        ],
+        [
+         "Pancada que atravessa o colete",
+         "Bico do kelenken",
+         "Escudo erguido"
+        ],
+        [
+         "Ombro preso, pernas travadas",
+         "Patada do smilodon",
+         "Procurar água"
+        ]
+       ]
+      },
+      {
+       "type": "heading",
+       "text": "O giganotossauro"
+      },
+      {
+       "type": "paragraph",
+       "text": "A mordida dele é mais fraca que a do rex, e os dentes cortam como lâmina. O corte sangra por baixo da farda e do colete como se não houvesse nada ali, e cada mordida nova piora o sangramento da anterior, até um limite. O soldado Ribas levou uma, foi puxado para trás a tempo e sangrou um bom tempo, mas o corpo dele se recuperou sozinho depois que parou. O cabo que ficou para ajudá-lo levou mais duas e não chegou ao posto."
+      },
+      {
+       "type": "paragraph",
+       "text": "Com os bichos é igual. Vimos um brontossauro desgarrado, mordido por um deles, seguir sangrando enquanto se afastava."
+      },
+      {
+       "type": "heading",
+       "text": "O kelenken"
+      },
+      {
+       "type": "paragraph",
+       "text": "A ave bica, dá um passo atrás e bica de novo. O colete ajuda pouco, porque parte da pancada passa direto. Com escudo erguido é outra história: o bico bate no escudo e fica preso por um instante, e a ave para. É a hora de acertar."
+      },
+      {
+       "type": "note",
+       "text": "Pedido da enfermaria: escudos para todas as patrulhas da savana e frascos de antídoto para as do sul."
+      }
+     ]
+    },
+    {
+     "id": "criacao-de-dodos",
+     "title": "Os dodôs do pátio",
+     "source": "Posto da colina, terminal, relatório do cozinheiro",
+     "blocks": [
+      {
+       "type": "paragraph",
+       "text": "Ao comando. Relatório do cozinheiro sobre a criação do pátio, já que ninguém mais quis escrever."
+      },
+      {
+       "type": "paragraph",
+       "text": "Temos seis dodôs mansos. Amansar dodô dá menos trabalho que descascar batata: um pouco de sono, um punhado de frutas silvestres, e o bicho é seu."
+      },
+      {
+       "type": "paragraph",
+       "text": "Macho e fêmea, os dois do mesmo dono, cruzam quando deixamos os dois juntos e à vontade no pátio. A fêmea põe um ovo e depois leva um tempo até pôr outro."
+      },
+      {
+       "type": "paragraph",
+       "text": "O ovo largado num canto não choca. Só choca na incubadora, e só com fogo por perto ou lenha queimando dentro dela. Numa noite o fogo apagou e eu achei que tinha perdido o ovo. Não perdi: ele parou onde estava e voltou a chocar quando reacendi."
+      },
+      {
+       "type": "paragraph",
+       "text": "O filhote sai em cima da incubadora, pequeno e já manso, e vai atrás do dono pelo pátio. Cresce depressa. Cada filhote puxa umas coisas do pai e outras da mãe. Às vezes sai um mais forte ou mais rápido que os dois, e esse eu não mando para a panela."
+      },
+      {
+       "type": "paragraph",
+       "text": "O rádio do posto do gelo diz que lá os mamutes não põem ovo. A fêmea fica prenhe e, depois de uma espera, o filhote nasce direto dela."
+      },
+      {
+       "type": "paragraph",
+       "text": "Coisa que não entendo: os caçadores que rondam o posto nunca tocaram nos nossos. Ontem um kelenken passou pelo meio deles, do lado de fora do portão, e foi atrás de um dodô selvagem mais adiante."
+      },
+      {
+       "type": "note",
+       "text": "Do cozinheiro: carne e pena não faltam mais neste posto. Peço lenha para a incubadora e uma tranca melhor no portão do pátio."
+      }
+     ]
+    },
+    {
+     "id": "voo-de-reconhecimento",
+     "title": "Relatório de voo, reconhecimento aéreo",
+     "source": "Posto do penhasco, terminal, relatório do piloto",
+     "blocks": [
+      {
+       "type": "paragraph",
+       "text": "Escrito pelo único piloto que sobrou no vale, que agora pilota um bicho."
+      },
+      {
+       "type": "paragraph",
+       "text": "Primeiro voo de reconhecimento com o pteranodonte. Ele é ágil e responde bem, mas cansa depressa. Subir gasta muito fôlego; descer planando quase nada. Quando o fôlego acaba ele só plana, e não adianta insistir: desce até o chão e só volta a decolar depois de descansar. Para pular de um morro a outro, serve. Para ir de um posto ao outro, não."
+      },
+      {
+       "type": "paragraph",
+       "text": "O quetzalcoatlus é outra máquina. O cabo do posto do rio tem um. Ele decola de um salto, parado, sem correr, mas precisa de céu aberto em cima: debaixo de galho ou de telhado não sai do chão. De dia, sobre terra e sem chuva, entra numa corrente de ar quente e sobe em círculos sem bater as asas. Sobre a água não acha corrente nenhuma. Com ele, o cabo foi e voltou do posto do gelo no mesmo dia, com os alforjes cheios."
+      },
+      {
+       "type": "paragraph",
+       "text": "Do alto vimos um bando de quetzalcoatlus selvagens pousado num campo, andando devagar pelo capim, como cegonhas. Um deles abaixou o bico e engoliu um dodô inteiro. Outros pescavam na beira de um lago sem gelo."
+      },
+      {
+       "type": "paragraph",
+       "text": "Ao entardecer pousaram todos. De noite não levantam voo. O cabo acertou um deles de raspão com um dardo, e o bicho pulou direto para o alto e sumiu no escuro."
+      },
+      {
+       "type": "note",
+       "text": "Do piloto: pteranodonte para olhar o vale perto do posto. Para viagem longa, o quetzal, de preferência com sol."
+      }
+     ]
+    },
+    {
+     "id": "a-cabeca-do-rex",
+     "title": "Diário do sargento, a cabeça",
+     "source": "Posto da savana, caderno do sargento transcrito",
+     "blocks": [
+      {
+       "type": "paragraph",
+       "text": "Gastamos metade da munição do posto para derrubar o tiranossauro do vale vizinho. Dardo não faz efeito nenhum nele. Tentamos com o rifle de dardos antes, e ele nem diminuiu o passo."
+      },
+      {
+       "type": "paragraph",
+       "text": "Trouxemos a cabeça. O técnico queria pendurar no portão. Ainda bem que não pendurou."
+      },
+      {
+       "type": "paragraph",
+       "text": "Semanas depois outro rex se instalou no mesmo vale. Saí com a cabeça do primeiro na mão, porque o técnico jurava que funcionava. O rex veio, parou na minha frente, me encarou e rugiu. Não atacou. Recuei devagar até o portão, e ele não veio atrás."
+      },
+      {
+       "type": "paragraph",
+       "text": "O técnico diz que entregar a cabeça a ele é um desafio. Hoje fiz isso. Ele ficou com a cabeça e rugiu por um tempo, parado. Depois foi para cima dos meus três alossauros e me deixou de lado. Eu tinha mandado que ninguém atirasse, e ninguém atirou: se outra pessoa interfere, o duelo acaba. Se entra um quarto animal na briga, também."
+      },
+      {
+       "type": "paragraph",
+       "text": "Perdi um dos alossauros. Os outros dois e eu seguramos o rex até ele desabar. Ele não morreu. Ficou caído, e quem o amansa agora sou eu, com carne vermelha na bolsa dele, como se faz com qualquer outro."
+      },
+      {
+       "type": "paragraph",
+       "text": "O corpo do alossauro ficou no chão, com o implante. O técnico diz que, com o implante e um diamante na mesa de reviver, ele volta. Vou cobrar."
+      },
+      {
+       "type": "note",
+       "text": "Do técnico, à margem: a cabeça tem de estar na mão. Guardada na mochila, não adianta nada."
+      }
+     ]
+    },
+    {
+     "id": "o-que-derruba-o-que",
+     "title": "Tabela de construção dos postos",
+     "source": "Posto da encosta, terminal, anotação do engenheiro",
+     "blocks": [
+      {
+       "type": "paragraph",
+       "text": "Anotações do engenheiro sobre o que os bichos do vale fazem com uma parede. Copiem para os outros postos antes de levantar mais algum muro de madeira."
+      },
+      {
+       "type": "table",
+       "columns": [
+        "Animal",
+        "O que já vimos derrubar"
+       ],
+       "rows": [
+        [
+         "Tiranossauro, espinossauro, giganotossauro",
+         "Madeira em poucos golpes; tronco de árvore só de esbarrar"
+        ],
+        [
+         "Brontossauro, tricerátopo, mamute, estegossauro",
+         "O mesmo"
+        ],
+        [
+         "Alossauro, baryonyx, elasmotério",
+         "Cerca, porta e parede de madeira, a golpes"
+        ],
+        [
+         "Smilodon, urso-terrível, galimimo, kelenken, anquilossauro",
+         "Folhagem e plantas"
+        ],
+        [
+         "Raptores, ornitholestes, megalania, dodô, pterossauros",
+         "Nada"
+        ]
+       ]
+      },
+      {
+       "type": "paragraph",
+       "text": "Pedra, nenhum deles quebrou até hoje. Por isso o comando mandou erguer os postos em pedra."
+      },
+      {
+       "type": "heading",
+       "text": "Outras observações"
+      },
+      {
+       "type": "list",
+       "ordered": false,
+       "items": [
+        "Bicho só bate na parede quando quer alguma coisa do outro lado. Sem alvo, passa rente a uma cerca de madeira e nem encosta.",
+        "Filhote não quebra madeira, nem dos grandes.",
+        "O muro alto segura até os gigantes. Nenhum sobe nem pula por cima, mesmo onde só há uma fiada de pedra.",
+        "O utahraptor não atravessa folhagem. Mata de copa fechada despista o bando inteiro. O smilodon, ao contrário, abre caminho pelas folhas.",
+        "A armadilha de dentes prende o bicho no lugar por alguns instantes. Os gigantes se soltam antes dos outros. Depois de disparar, precisa ser armada de novo à mão.",
+        "Fosso coberto de folhagem: nós e os nossos animais passamos por cima; qualquer outro bicho afunda e cai."
+       ]
+      },
+      {
+       "type": "note",
+       "text": "Do engenheiro: madeira, só do lado de dentro do muro de pedra."
+      }
+     ]
+    },
+    {
+     "id": "a-manada",
+     "title": "A manada de mamutes",
+     "source": "Posto do gelo, caderno de patrulha transcrito",
+     "blocks": [
+      {
+       "type": "paragraph",
+       "text": "Vigésimo sexto dia, à noite, no alojamento. Ainda estou com as mãos tremendo."
+      },
+      {
+       "type": "paragraph",
+       "text": "O smilodon me pegou na volta do furo norte, em campo aberto, sem rio por perto. Corri sem pensar para a única coisa grande à vista: uma manada de mamutes, cinco adultos, parados a uns cem passos."
+      },
+      {
+       "type": "paragraph",
+       "text": "Achei que eles iam me pisotear. Os cinco se viraram de uma vez para o smilodon, e para mim nem olharam. O da frente avançou bufando e parou no meio do caminho. O gato recuou, deu uma volta larga e sumiu no mato."
+      },
+      {
+       "type": "paragraph",
+       "text": "Fiquei no meio deles até a respiração voltar ao normal. Depois me afastei devagar, agachado. Um mamute me encarou e bufou, e eu entendi o recado."
+      },
+      {
+       "type": "paragraph",
+       "text": "No caminho de volta encontrei uma fêmea de elasmotério com um filhote. O cabo diz que elasmotério sozinho blefa muito antes de investir. Com filhote é outra coisa: quando cheguei perto, ela veio direto, sem parar no meio. Corri para o lado contrário ao filhote, e ela só desistiu quando abri bastante distância."
+      },
+      {
+       "type": "paragraph",
+       "text": "O cabo contou que, no mês passado, um soldado do posto do rio acertou sem querer um filhote de elasmotério com uma flecha. A mãe veio na hora, e ele passou a noite em cima de uma árvore."
+      },
+      {
+       "type": "note",
+       "text": "Para o posto: fugindo de caçador em campo aberto, procurem uma manada de mamutes. E fiquem longe de qualquer filhote."
+      }
+     ]
     }
    ]
   },
@@ -1707,7 +2357,11 @@
       },
       {
        "type": "paragraph",
-       "text": "Protestei. Dentro do campo nada o fere, nem nós, e nenhum exame funciona. Se um dia for preciso acabar com ele, alguém vai ter que derrubar os geradores primeiro, e aí ele acorda. Responderam que isso nunca vai ser necessário."
+       "text": "Protestei. Dentro do campo nada o fere, nem nós, e nenhum exame funciona. Se um dia for preciso acabar com ele, alguém vai ter que desligar o campo no console da câmara primeiro, e aí ele acorda. Responderam que isso nunca vai ser necessário."
+      },
+      {
+       "type": "paragraph",
+       "text": "O console só obedece à conta do operador. O técnico de plantão digita a senha sem esconder o teclado, e eu copiei no verso deste caderno, para o dia em que alguém tiver coragem: usuário operador, senha limiar-017."
       },
       {
        "type": "paragraph",
@@ -1784,7 +2438,7 @@
       },
       {
        "type": "paragraph",
-       "text": "Dentro do campo nada o atinge. Para acabar com ele seria preciso derrubar os geradores e enfrentá-lo acordado, e eu sozinho não faço isso. Os animais que treinei no vale talvez façam, se atacarem juntos e de lados diferentes."
+       "text": "Dentro do campo nada o atinge. Para acabar com ele seria preciso desligar o campo no console da câmara e enfrentá-lo acordado, e eu sozinho não faço isso. O couro dele devolve qualquer golpe comum. Os animais que treinei no vale talvez consigam, se forem os mais fortes que eu conseguir criar e atacarem juntos, de lados diferentes."
       },
       {
        "type": "note",
@@ -1830,6 +2484,13 @@
       {
        "type": "heading",
        "text": "Comparação com o tiranossauro"
+      },
+      {
+       "type": "hologram",
+       "species": [
+        "iceagesurvival:tyrannosaurus",
+        "iceagesurvival:titanovenator"
+       ]
       },
       {
        "type": "table",

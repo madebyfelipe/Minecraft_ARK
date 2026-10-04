@@ -7,6 +7,9 @@
     textures/block/stasis_generator_side.png     gerador: chapa com bobina âmbar acesa
     textures/block/stasis_generator_top.png      gerador: tampa com o anel do campo
     textures/block/containment_core.png          núcleo: placa escura com o cristal do campo no meio
+    textures/block/containment_console_screen.png  console: monitor de fósforo com o prompt
+    textures/block/containment_console_keys.png    console: teclado
+    textures/block/containment_console_panel.png   console: frente do gabinete com luzes e ventilação
 
 Uso: python3 tools/gen_military_blocks.py
 """
@@ -121,6 +124,61 @@ def core(rng):
     return img
 
 
+def console_screen(rng):
+    """A tela ocupa x 2..13, y 4..10 (o rosto do monitor no modelo é 12 × 7)."""
+    img = steel(rng)
+    for x in range(2, 14):
+        for y in range(4, 11):
+            img.putpixel((x, y), SCREEN + (255,))
+    for y, length in ((5, 9), (7, 6), (9, 3)):
+        for x in range(3, 3 + length):
+            img.putpixel((x, y), (PHOSPHOR if rng.random() > 0.2 else PHOSPHOR_DIM) + (255,))
+    img.putpixel((7, 9), PHOSPHOR + (255,))  # cursor
+    return img
+
+
+def console_keys(rng):
+    img = steel(rng)
+    for y in range(4, 13, 3):
+        for x in range(2, 14, 2):
+            img.putpixel((x, y), STEEL_LIGHT + (255,))
+            img.putpixel((x, y + 1), STEEL_DARK + (255,))
+    for x in range(5, 11):
+        img.putpixel((x, 13), STEEL_LIGHT + (255,))  # espaço
+    return img
+
+
+def console_panel(rng):
+    img = steel(rng)
+    for y in range(9, 14, 2):
+        for x in range(3, 13):
+            img.putpixel((x, y), STEEL_DARK + (255,))
+    for x, color in ((3, (90, 230, 120)), (5, AMBER), (7, (200, 60, 50)), (9, FIELD)):
+        img.putpixel((x, 4), color + (255,))
+    for p in ((2, 2), (13, 2), (2, 14), (13, 14)):
+        img.putpixel(p, RIVET + (255,))
+    return img
+
+
+def console_model():
+    """Gabinete, monitor no fundo e teclado na frente, tudo virado para o norte (a frente do bloco)."""
+    side, top = 'iceagesurvival:block/military_terminal_side', 'iceagesurvival:block/military_terminal_top'
+    steel_faces = lambda: {face: {'texture': '#side'} for face in ('north', 'south', 'east', 'west', 'down')}
+    cabinet = {'from': [1, 0, 2], 'to': [15, 9, 15], 'faces': {**steel_faces(), 'up': {'texture': '#top'}}}
+    cabinet['faces']['north'] = {'texture': '#panel'}
+    monitor = {'from': [2, 9, 8], 'to': [14, 16, 14], 'faces': {**steel_faces(), 'up': {'texture': '#top'}}}
+    monitor['faces']['north'] = {'texture': '#screen', 'uv': [2, 4, 14, 11]}
+    keyboard = {'from': [3, 9, 3], 'to': [13, 10, 7], 'faces': {**steel_faces(), 'up': {'texture': '#keys'}}}
+    return {
+        'parent': 'minecraft:block/block',
+        'textures': {'particle': side, 'side': side, 'top': top,
+                     'screen': 'iceagesurvival:block/containment_console_screen',
+                     'keys': 'iceagesurvival:block/containment_console_keys',
+                     'panel': 'iceagesurvival:block/containment_console_panel'},
+        'elements': [cabinet, monitor, keyboard],
+    }
+
+
 def write_json(path, data):
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(data, indent=2) + '\n', encoding='utf-8')
@@ -157,7 +215,16 @@ def main():
     for name in ('stasis_generator', 'containment_core'):
         write_json(ASSETS / f'models/item/{name}.json', {'parent': f'iceagesurvival:block/{name}'})
         write_json(ASSETS / f'blockstates/{name}.json', {'variants': {'': {'model': f'iceagesurvival:block/{name}'}}})
-    print('military_terminal, stasis_generator, containment_core: texturas, blockstates e modelos')
+    for name, painter in (('screen', console_screen), ('keys', console_keys), ('panel', console_panel)):
+        painter(random.Random(f'containment_console_{name}')).save(TEX / f'containment_console_{name}.png')
+    write_json(ASSETS / 'models/block/containment_console.json', console_model())
+    write_json(ASSETS / 'models/item/containment_console.json', {'parent': 'iceagesurvival:block/containment_console'})
+    write_json(ASSETS / 'blockstates/containment_console.json', {'variants': {
+        f'facing={facing}': {'model': 'iceagesurvival:block/containment_console', **({'y': rot} if rot else {})}
+        for facing, rot in (('north', 0), ('east', 90), ('south', 180), ('west', 270))
+    }})
+    print('military_terminal, stasis_generator, containment_core, containment_console: texturas, blockstates e '
+          'modelos')
 
 
 if __name__ == '__main__':
