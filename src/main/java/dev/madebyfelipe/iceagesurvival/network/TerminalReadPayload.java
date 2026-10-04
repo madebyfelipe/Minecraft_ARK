@@ -6,10 +6,10 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent;
 
 /**
- * Servidor → cliente, ao terminar a leitura de um terminal militar: quantos registros o jogador tem agora e se esta
- * leitura destravou um novo ({@code false}: ele já tinha lido este terminal).
+ * Servidor → cliente, ao destravar (ou tentar) um registro: a série, quantos registros dela o jogador tem agora e se
+ * desta vez veio um novo ({@code false}: ele já tinha lido este terminal).
  */
-public record TerminalReadPayload(int records, boolean newRecord) {
+public record TerminalReadPayload(String series, int records, boolean newRecord) {
     private static Consumer<TerminalReadPayload> clientHandler = payload -> { };
 
     public static void setClientHandler(Consumer<TerminalReadPayload> handler) {
@@ -17,12 +17,13 @@ public record TerminalReadPayload(int records, boolean newRecord) {
     }
 
     public static void encode(TerminalReadPayload message, FriendlyByteBuf buf) {
+        buf.writeUtf(message.series);
         buf.writeVarInt(message.records);
         buf.writeBoolean(message.newRecord);
     }
 
     public static TerminalReadPayload decode(FriendlyByteBuf buf) {
-        return new TerminalReadPayload(buf.readVarInt(), buf.readBoolean());
+        return new TerminalReadPayload(buf.readUtf(), buf.readVarInt(), buf.readBoolean());
     }
 
     public static void handle(TerminalReadPayload message, Supplier<NetworkEvent.Context> supplier) {

@@ -272,8 +272,9 @@ public class AnalyzerItem extends Item implements GeoItem {
             return false;
         }
         boolean fresh = terminal.markRead(player.getUUID());
-        int records = fresh ? DinoFileData.unlockRecord(player) : DinoFileData.records(player);
-        ModPayloads.sendToPlayer(player, new TerminalReadPayload(records, fresh));
+        String series = terminal.series();
+        int records = fresh ? DinoFileData.unlockRecord(player, series) : DinoFileData.records(player, series);
+        ModPayloads.sendToPlayer(player, new TerminalReadPayload(series, records, fresh));
         player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
                 fresh ? SoundEvents.PLAYER_LEVELUP : SoundEvents.NOTE_BLOCK_BASS.value(), SoundSource.PLAYERS,
                 0.5F, fresh ? 1.2F : 0.7F);

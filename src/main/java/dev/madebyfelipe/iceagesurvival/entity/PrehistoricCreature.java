@@ -2162,13 +2162,14 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     }
 
     /**
-     * Aplica torpor vindo de um tranquilizante. Criaturas domesticadas são imunes.
+     * Aplica torpor vindo de um tranquilizante. Criaturas domesticadas são imunes, e as invulneráveis também (presas
+     * no campo de êxtase da base, por exemplo).
      *
      * @param source quem aplicou; se este torpor derrubar a criatura, ela passa a ser dessa pessoa para domesticar
      */
     public void addTorpor(double amount, @Nullable Player source) {
         Optional<TamingProfile> profile = tamingProfile();
-        if (level().isClientSide || amount <= 0 || isTame() || profile.isEmpty()) {
+        if (level().isClientSide || amount <= 0 || isTame() || isInvulnerable() || profile.isEmpty()) {
             return;
         }
         boolean wasConscious = !isUnconscious();

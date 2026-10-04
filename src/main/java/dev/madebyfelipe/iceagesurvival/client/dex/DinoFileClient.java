@@ -20,7 +20,7 @@ import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 public final class DinoFileClient {
     private static final Set<String> REGISTERED = new LinkedHashSet<>();
     private static final Map<String, ScanResultPayload> LAST_SCANS = new HashMap<>();
-    private static int records;
+    private static final Map<String, Integer> RECORDS = new HashMap<>();
 
     private DinoFileClient() {
     }
@@ -28,7 +28,8 @@ public final class DinoFileClient {
     public static void receive(DinoFilePayload payload) {
         REGISTERED.clear();
         payload.registered().forEach(species -> REGISTERED.add(species.toString()));
-        records = payload.records();
+        RECORDS.clear();
+        RECORDS.putAll(payload.records());
     }
 
     /**
@@ -36,10 +37,10 @@ public final class DinoFileClient {
      * terminal já foi lido, ou não há mais registros a recuperar.
      */
     public static void receiveTerminal(TerminalReadPayload payload) {
-        records = payload.records();
-        int total = WikiManual.get().records().size();
-        if (payload.newRecord() && records <= total) {
-            AnalyzerScreen.openOnRecord(records - 1);
+        RECORDS.put(payload.series(), payload.records());
+        int total = WikiManual.get().records(payload.series()).size();
+        if (payload.newRecord() && payload.records() <= total) {
+            AnalyzerScreen.openOnRecord(payload.series(), payload.records() - 1);
             return;
         }
         if (Minecraft.getInstance().player != null) {
@@ -48,9 +49,9 @@ public final class DinoFileClient {
         }
     }
 
-    /** Quantos registros militares estão destravados (os primeiros do manual, na ordem). */
-    public static int records() {
-        return records;
+    /** Quantos registros da série estão destravados (os primeiros dela no manual, na ordem). */
+    public static int records(String series) {
+        return RECORDS.getOrDefault(series, 0);
     }
 
     public static void receiveScan(ScanResultPayload payload) {
@@ -63,7 +64,7 @@ public final class DinoFileClient {
     public static void onLoggingOut(ClientPlayerNetworkEvent.LoggingOut event) {
         REGISTERED.clear();
         LAST_SCANS.clear();
-        records = 0;
+        RECORDS.clear();
     }
 
     public static boolean isRegistered(String species) {

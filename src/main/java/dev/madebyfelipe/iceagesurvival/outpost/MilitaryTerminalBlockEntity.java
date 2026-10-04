@@ -11,9 +11,13 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
-/** Quem já leu este terminal: cada pessoa recupera um registro por terminal, uma vez só. */
+/**
+ * Quem já leu este terminal e de que série ele guarda registros ({@code Series} no NBT; postos se faltar): cada pessoa
+ * recupera um registro por terminal, uma vez só.
+ */
 public class MilitaryTerminalBlockEntity extends BlockEntity {
     private final Set<UUID> readers = new HashSet<>();
+    private String series = dev.madebyfelipe.iceagesurvival.core.wiki.Manual.POSTS;
 
     public MilitaryTerminalBlockEntity(BlockPos pos, BlockState state) {
         super(Outposts.MILITARY_TERMINAL_ENTITY.get(), pos, state);
@@ -28,6 +32,15 @@ public class MilitaryTerminalBlockEntity extends BlockEntity {
         return added;
     }
 
+    public String series() {
+        return series;
+    }
+
+    public void setSeries(String series) {
+        this.series = series;
+        setChanged();
+    }
+
     public boolean wasReadBy(UUID reader) {
         return readers.contains(reader);
     }
@@ -36,6 +49,9 @@ public class MilitaryTerminalBlockEntity extends BlockEntity {
     public void load(CompoundTag tag) {
         super.load(tag);
         readers.clear();
+        if (tag.contains("Series")) {
+            series = tag.getString("Series");
+        }
         for (Tag element : tag.getList("Readers", Tag.TAG_INT_ARRAY)) {
             readers.add(NbtUtils.loadUUID(element));
         }
@@ -47,5 +63,6 @@ public class MilitaryTerminalBlockEntity extends BlockEntity {
         ListTag list = new ListTag();
         readers.forEach(id -> list.add(NbtUtils.createUUID(id)));
         tag.put("Readers", list);
+        tag.putString("Series", series);
     }
 }

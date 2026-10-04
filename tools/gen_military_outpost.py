@@ -3,6 +3,7 @@
 
     torre     -> data/iceagesurvival/structures/military_outpost.nbt          (/paste 2erEqlek38JmdkBn5xLG)
     complexo  -> data/iceagesurvival/structures/military_outpost_complex.nbt  (/paste gIS6gHHBNG7BFojwO3Yo)
+    base      -> data/iceagesurvival/structures/military_base.nbt             (/paste OYZKoUYOVRxXrp49GM6b)
 
 Cada build está como veio da API em tools/outpost/<nome>_buildpaste.json: "size" [x, y, z], "blocks" (índice na
 tabela de blocos do BuildPaste 1.11, ou o id em texto quando o bloco é de outro mod), "data" (propriedades do estado,
@@ -15,6 +16,9 @@ O script converte isso num template de estrutura do vanilla e acrescenta o que �
 - complexo: a build inteira; blocos de outros mods trocados por blocos do vanilla e do mod (a bancada de armas vira a
   Bancada de Armeiro, os baús do Lootr viram baús comuns), todos os baús com o saque dos postos, as placas em português
   (as originais citavam outro jogo) e o terminal ao lado do baú do térreo.
+
+- base: o hangar inteiro; no centro do salão, o Núcleo da Contenção, com um Gerador do Campo em cada canto do salão;
+  terminais da série "base" ao lado de oito baús, e todos os baús com o saque da base.
 
 Na torre, o que não é bloco do posto fica fora do template (structure_void): o terreno do pátio fica como está. No
 complexo o ar entra no template, para abrir o terreno no lugar dos prédios.
@@ -32,9 +36,14 @@ ROOT = Path(__file__).resolve().parent.parent
 OUT_DIR = ROOT / 'src/main/resources/data/iceagesurvival/structures'
 DATA_VERSION = 3465  # 1.20.1
 LOOT = 'iceagesurvival:chests/military_outpost'
+BASE_LOOT = 'iceagesurvival:chests/military_base'
 
 # Os índices da tabela de blocos do BuildPaste 1.11 que aparecem nas builds (a tabela fica dentro do jar do mod).
 BUILDPASTE_IDS = {
+    8: 'grass_block', 66: 'lapis_block', 70: 'cut_sandstone', 71: 'note_block', 110: 'gold_block', 111: 'iron_block',
+    112: 'oak_slab', 119: 'sandstone_slab', 122: 'brick_slab', 124: 'nether_brick_slab', 152: 'crafting_table',
+    185: 'glowstone', 187: 'oak_trapdoor', 207: 'glass_pane', 220: 'nether_bricks', 221: 'nether_brick_fence',
+    222: 'nether_brick_stairs', 277: 'red_terracotta', 314: 'light_blue_stained_glass', 463: 'birch_door',
     0: 'air', 1: 'stone', 6: 'andesite', 7: 'polished_andesite', 9: 'dirt', 10: 'coarse_dirt', 12: 'cobblestone',
     14: 'spruce_planks', 18: 'dark_oak_planks', 46: 'stripped_birch_wood', 54: 'acacia_wood', 67: 'dispenser',
     76: 'grass', 81: 'piston', 89: 'gray_wool', 113: 'spruce_slab', 118: 'stone_slab', 121: 'cobblestone_slab',
@@ -264,10 +273,10 @@ class Build:
         return name, props, (self.raw.get('nbt') or {}).get(str(i))
 
 
-def block_entity(name, snbt):
+def block_entity(name, snbt, loot=LOOT):
     """O NBT que vai no template: só o que importa, sem posição, dono nem dados de outros mods."""
     if name == 'minecraft:chest':
-        return {'id': 'minecraft:chest', 'LootTable': LOOT}
+        return {'id': 'minecraft:chest', 'LootTable': loot}
     if snbt is None:
         return None
     tag = parse_snbt(snbt)
@@ -322,6 +331,27 @@ def save(name, size, blocks):
     write_nbt(out, {'DataVersion': DATA_VERSION, 'size': list(size), 'palette': palette, 'blocks': entries,
                     'entities': []})
     print(f'{out.relative_to(ROOT)}: {list(size)}, {len(entries)} blocos, {len(palette)} estados')
+
+
+# As paredes onde um terminal pode encostar (as da build da base).
+WALL_BLOCKS = {'minecraft:stone_bricks', 'minecraft:iron_block', 'minecraft:chiseled_stone_bricks',
+               'minecraft:polished_andesite'}
+SIDES = {'north': (0, -1), 'south': (0, 1), 'west': (-1, 0), 'east': (1, 0)}
+OPPOSITE = {'north': 'south', 'south': 'north', 'west': 'east', 'east': 'west'}
+
+
+def terminal_spot(blocks, near, offsets, taken=()):
+    """Um lugar livre perto de {near}: chão embaixo, ar em cima, uma parede ao lado; o terminal fica de costas para
+    ela. Devolve ((x, y, z), facing) ou None."""
+    solid = lambda p: blocks.get(p, ('minecraft:air',))[0] != 'minecraft:air'
+    for dx, dz in offsets:
+        p = (near[0] + dx, near[1], near[2] + dz)
+        if p in taken or solid(p) or solid((p[0], p[1] + 1, p[2])) or not solid((p[0], p[1] - 1, p[2])):
+            continue
+        walls = [side for side, (sx, sz) in SIDES.items() if solid((p[0] + sx, p[1], p[2] + sz))]
+        if walls:
+            return p, OPPOSITE[walls[0]]
+    return None
 
 
 def tower():
@@ -395,24 +425,67 @@ def complex_outpost():
     # O terminal: perto do baú do térreo, fora da frente dele, no chão, de costas para uma parede.
     chest = (16, 1, 24)
     assert blocks[chest][0] == 'minecraft:chest', blocks[chest]
-    solid = lambda p: blocks.get(p, ('minecraft:air',))[0] != 'minecraft:air'
-    sides = {'north': (0, -1), 'south': (0, 1), 'west': (-1, 0), 'east': (1, 0)}
-    opposite = {'north': 'south', 'south': 'north', 'west': 'east', 'east': 'west'}
-    spot = None
-    for dx, dz in ((-1, -2), (1, -2), (-2, -2), (2, -2), (-1, -3), (1, -3)):
-        p = (chest[0] + dx, 1, chest[2] + dz)
-        if solid(p) or solid((p[0], 2, p[2])) or not solid((p[0], 0, p[2])):
-            continue
-        walls = [side for side, (sx, sz) in sides.items() if solid((p[0] + sx, 1, p[2] + sz))]
-        if walls:
-            spot, facing = p, opposite[walls[0]]
-            break
-    assert spot, 'sem lugar para o terminal perto do baú'
+    found = terminal_spot(blocks, chest, ((-1, -2), (1, -2), (-2, -2), (2, -2), (-1, -3), (1, -3)))
+    assert found, 'sem lugar para o terminal perto do baú'
+    spot, facing = found
     blocks[spot] = ('iceagesurvival:military_terminal', {'facing': facing}, None)
     print(f'complexo: terminal em {spot} virado para {facing}')
     save('military_outpost_complex', (build.sx, height, build.sz), blocks)
 
 
+def base():
+    """O hangar da base com a contenção (veja o docstring do módulo)."""
+    build = Build('base')
+    blocks = {}
+    height = 0
+    for x in range(build.sx):
+        for y in range(build.sy):
+            for z in range(build.sz):
+                name, props, snbt = build.block(x, y, z)
+                if name != 'minecraft:air':
+                    height = max(height, y + 1)
+                blocks[(x, y, z)] = (name, props, block_entity(name, snbt, BASE_LOOT))
+    blocks = {p: b for p, b in blocks.items() if p[1] < height}
+
+    core = (40, 1, 18)
+    generators = [(26, 1, 10), (53, 1, 10), (26, 1, 26), (53, 1, 26)]
+    for pos in [core] + generators:
+        assert blocks[pos][0] == 'minecraft:air', f'{pos} ocupado por {blocks[pos][0]}'
+        assert blocks[(pos[0], 0, pos[2])][0] != 'minecraft:air', f'sem chão em {pos}'
+    blocks[core] = ('iceagesurvival:containment_core', {}, None)
+    for pos in generators:
+        blocks[pos] = ('iceagesurvival:stasis_generator', {}, None)
+
+    # Oito terminais da série "base" no térreo, encostados em paredes, fora do campo e o mais espalhados possível.
+    solid = lambda p: blocks.get(p, ('minecraft:air',))[0] != 'minecraft:air'
+    candidates = []
+    for (x, y, z), (name, _, _) in blocks.items():
+        if y != 1 or name != 'minecraft:air' or solid((x, 2, z)) or not solid((x, 0, z)):
+            continue
+        if (x - core[0]) ** 2 + (z - core[2]) ** 2 < 10 ** 2:
+            continue
+        walls = [side for side, (sx, sz) in SIDES.items()
+                 if blocks.get((x + sx, 1, z + sz), ('minecraft:air',))[0] in WALL_BLOCKS]
+        roofed = sum(solid((x, roof, z)) for roof in range(5, height)) >= 2  # o beiral sozinho não conta
+        if walls and roofed:
+            candidates.append(((x, 1, z), OPPOSITE[walls[0]]))
+    candidates.sort()
+    terminals = [candidates[0][0]]
+    facings = {candidates[0][0]: candidates[0][1]}
+    while len(terminals) < 8:
+        pos, facing = max(candidates, key=lambda c: min((c[0][0] - t[0]) ** 2 + (c[0][2] - t[2]) ** 2
+                                                       for t in terminals))
+        terminals.append(pos)
+        facings[pos] = facing
+    for spot in terminals:
+        blocks[spot] = ('iceagesurvival:military_terminal', {'facing': facings[spot]},
+                        {'id': 'iceagesurvival:military_terminal', 'Series': 'base'})
+    assert len(terminals) == 8, f'só {len(terminals)} terminais couberam'
+    print(f'base: núcleo em {core}, geradores em {generators}, terminais em {terminals}')
+    save('military_base', (build.sx, height, build.sz), blocks)
+
+
 if __name__ == '__main__':
     tower()
     complex_outpost()
+    base()

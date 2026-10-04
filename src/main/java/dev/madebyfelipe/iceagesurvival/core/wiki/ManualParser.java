@@ -43,13 +43,18 @@ public final class ManualParser {
                         blocks(sheet)));
             }
         }
-        List<Manual.Record> records = new ArrayList<>();
-        for (JsonElement element : array(root, "records")) {
-            JsonObject record = element.getAsJsonObject();
-            records.add(new Manual.Record(string(record, "id"), string(record, "title"), string(record, "source"),
-                    blocks(record)));
+        List<Manual.Series> series = new ArrayList<>();
+        for (JsonElement element : array(root, "series")) {
+            JsonObject entry = element.getAsJsonObject();
+            List<Manual.Record> records = new ArrayList<>();
+            for (JsonElement recordElement : array(entry, "records")) {
+                JsonObject record = recordElement.getAsJsonObject();
+                records.add(new Manual.Record(string(record, "id"), string(record, "title"), string(record, "source"),
+                        blocks(record)));
+            }
+            series.add(new Manual.Series(string(entry, "id"), string(entry, "title"), List.copyOf(records)));
         }
-        return new Manual(List.copyOf(chapters), List.copyOf(sheets), List.copyOf(records));
+        return new Manual(List.copyOf(chapters), List.copyOf(sheets), List.copyOf(series));
     }
 
     private static List<Manual.Block> blocks(JsonObject owner) {

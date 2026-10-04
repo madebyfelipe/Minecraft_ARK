@@ -65,6 +65,7 @@ public class AnalyzerScreen extends Screen {
     private static Tab lastTab = Tab.DEX;
     private static String lastSpecies = "";
     private static String lastPage = "";
+    private static String lastSeries = "";
     private static int lastRecord;
     private static final Map<String, LivingEntity> MODELS = new HashMap<>();
     @Nullable
@@ -107,9 +108,10 @@ public class AnalyzerScreen extends Screen {
         Minecraft.getInstance().setScreen(new AnalyzerScreen(Tab.DEX, newEntry));
     }
 
-    /** Leu um terminal com registro novo: abre REGISTROS nele, com o aviso. */
-    static void openOnRecord(int index) {
+    /** Destravou um registro novo: abre REGISTROS nele, com o aviso. */
+    static void openOnRecord(String series, int index) {
         lastTab = Tab.RECORDS;
+        lastSeries = series;
         lastRecord = index;
         Minecraft.getInstance().setScreen(new AnalyzerScreen(Tab.RECORDS, true));
     }
@@ -133,12 +135,35 @@ public class AnalyzerScreen extends Screen {
         return rows;
     }
 
-    private static List<Manual.Record> records() {
-        return WikiManual.get().records();
+    /** Uma linha da lista de REGISTROS: o título de uma série ({@code index} −1) ou um registro dela. */
+    private record RecordRow(Manual.Series series, int index) {
+        boolean header() {
+            return index < 0;
+        }
+
+        boolean unlocked() {
+            return index >= 0 && index < DinoFileClient.records(series.id());
+        }
     }
 
-    private static boolean recordUnlocked(int index) {
-        return index < DinoFileClient.records();
+    private static List<RecordRow> recordRows() {
+        List<RecordRow> rows = new ArrayList<>();
+        for (Manual.Series series : WikiManual.get().series()) {
+            rows.add(new RecordRow(series, -1));
+            for (int index = 0; index < series.records().size(); index++) {
+                rows.add(new RecordRow(series, index));
+            }
+        }
+        return rows;
+    }
+
+    private static int totalRecords() {
+        return WikiManual.get().series().stream().mapToInt(series -> series.records().size()).sum();
+    }
+
+    private static int unlockedRecords() {
+        return WikiManual.get().series().stream()
+                .mapToInt(series -> Math.min(DinoFileClient.records(series.id()), series.records().size())).sum();
     }
 
     private static int registeredCount() {
@@ -219,13 +244,25 @@ public class AnalyzerScreen extends Screen {
         return switch (tab) {
             case DEX -> entries().size();
             case MANUAL -> index().size();
-            case RECORDS -> records().size();
+            case RECORDS -> recordRows().size();
         };
     }
 
     private int selectedRow() {
         if (tab == Tab.RECORDS) {
-            return Math.max(0, Math.min(lastRecord, records().size() - 1));
+            List<RecordRow> rows = recordRows();
+            for (int row = 0; row < rows.size(); row++) {
+                if (!rows.get(row).header() && rows.get(row).series().id().equals(lastSeries)
+                        && rows.get(row).index() == lastRecord) {
+                    return row;
+                }
+            }
+            for (int row = 0; row < rows.size(); row++) {
+                if (!rows.get(row).header()) {
+                    return row;
+                }
+            }
+            return 0;
         }
         if (tab == Tab.DEX) {
             List<Manual.Sheet> entries = entries();
@@ -258,8 +295,10 @@ public class AnalyzerScreen extends Screen {
 
     private void select(int row) {
         if (tab == Tab.RECORDS) {
-            if (row >= 0 && row < records().size()) {
-                lastRecord = row;
+            List<RecordRow> rows = recordRows();
+            if (row >= 0 && row < rows.size() && !rows.get(row).header()) {
+                lastSeries = rows.get(row).series().id();
+                lastRecord = rows.get(row).index();
             }
         } else if (tab == Tab.DEX) {
             List<Manual.Sheet> entries = entries();
@@ -315,6 +354,11 @@ public class AnalyzerScreen extends Screen {
                 while (row >= 0 && row < index.size() && index.get(row).page() == null) {
                     row += step;
                 }
+            } else if (tab == Tab.RECORDS) {
+                List<RecordRow> rows = recordRows();
+                while (row >= 0 && row < rows.size() && rows.get(row).header()) {
+                    row += step;
+                }
             }
             select(row);
             return true;
@@ -363,8 +407,7 @@ public class AnalyzerScreen extends Screen {
         graphics.drawString(font, (TechStyle.blink() ? "▶ " : "  ") + Component.translatable(
                 "iceagesurvival.analyzer.footer").getString(), left + 8, y, TechStyle.ACCENT, false);
         Component count = tab == Tab.RECORDS
-                ? Component.translatable("iceagesurvival.analyzer.recovered",
-                        Math.min(DinoFileClient.records(), records().size()), records().size())
+                ? Component.translatable("iceagesurvival.analyzer.recovered", unlockedRecords(), totalRecords())
                 : Component.translatable("iceagesurvival.analyzer.registered", registeredCount(), entries().size());
         graphics.drawString(font, count, right - 8 - font.width(count), y, TechStyle.AMBER, false);
     }
@@ -688,17 +731,25 @@ public class AnalyzerScreen extends Screen {
     }
 
     private void renderRecordList(GuiGraphics graphics, int mouseX, int mouseY) {
-        List<Manual.Record> records = records();
+        List<RecordRow> rows = recordRows();
         int x = left + 6;
         graphics.drawString(font, Component.translatable("iceagesurvival.analyzer.tab.records").getString()
                 .toUpperCase(Locale.ROOT), x + 1, contentTop, TechStyle.ACCENT, false);
         int listTop = listTop();
-        int rows = visibleRows();
-        renderListFrame(graphics, listTop, rows);
-        for (int index = 0; index < rows && listScroll + index < records.size(); index++) {
-            int row = listScroll + index;
-            int y = listTop + index * ROW;
-            boolean selected = row == selectedRow();
+        int visible = visibleRows();
+        renderListFrame(graphics, listTop, visible);
+        int selectedRow = selectedRow();
+        for (int position = 0; position < visible && listScroll + position < rows.size(); position++) {
+            int row = listScroll + position;
+            RecordRow entry = rows.get(row);
+            int y = listTop + position * ROW;
+            if (entry.header()) {
+                graphics.fill(x, y, x + LIST_WIDTH - 4, y + ROW, TechStyle.METAL_DARK);
+                graphics.drawString(font, ellipsize(entry.series().title().toUpperCase(Locale.ROOT), LIST_WIDTH - 10),
+                        x + 4, y + 2, TechStyle.AMBER, false);
+                continue;
+            }
+            boolean selected = row == selectedRow;
             boolean hovered = mouseX >= x && mouseX < x + LIST_WIDTH && mouseY >= y && mouseY < y + ROW;
             if (selected) {
                 graphics.fill(x, y, x + LIST_WIDTH - 4, y + ROW, SELECTED);
@@ -708,10 +759,10 @@ public class AnalyzerScreen extends Screen {
             } else if (hovered) {
                 graphics.fill(x, y, x + LIST_WIDTH - 4, y + ROW, TechStyle.HOVER);
             }
-            boolean known = recordUnlocked(row);
-            graphics.drawString(font, String.format(Locale.ROOT, "%02d", row + 1), x + 9, y + 2,
+            boolean known = entry.unlocked();
+            graphics.drawString(font, String.format(Locale.ROOT, "%02d", entry.index() + 1), x + 9, y + 2,
                     known ? TechStyle.AMBER : LOCKED, false);
-            String title = known ? records.get(row).title() : "???";
+            String title = known ? entry.series().records().get(entry.index()).title() : "???";
             graphics.drawString(font, ellipsize(title, LIST_WIDTH - 30), x + 24, y + 2,
                     known ? (selected ? TechStyle.TEXT : TechStyle.BRIGHT) : LOCKED, false);
         }
@@ -719,13 +770,14 @@ public class AnalyzerScreen extends Screen {
 
     /** O registro escolhido: número, título, de onde veio e o texto; trancado, só o aviso de como recuperá-lo. */
     private void renderRecord(GuiGraphics graphics) {
-        List<Manual.Record> records = records();
-        if (records.isEmpty()) {
+        List<RecordRow> rows = recordRows();
+        if (rows.isEmpty() || rows.get(selectedRow()).header()) {
             return;
         }
-        int row = selectedRow();
-        Manual.Record record = records.get(row);
-        boolean known = recordUnlocked(row);
+        RecordRow entry = rows.get(selectedRow());
+        int row = entry.index();
+        Manual.Record record = entry.series().records().get(row);
+        boolean known = entry.unlocked();
         int pageLeft = left + 6 + LIST_WIDTH + 8;
         int pageRight = right - 12;
         int width = pageRight - pageLeft;
@@ -745,7 +797,7 @@ public class AnalyzerScreen extends Screen {
                 width - font.width(number) - 6), pageLeft, y, known ? TechStyle.SUBTLE : LOCKED, false);
         graphics.drawString(font, TechStyle.titleText(Component.literal(known ? record.title() : "???")), pageLeft,
                 y + 12, known ? TechStyle.TEXT : LOCKED);
-        if (newEntry && row == lastRecord && Util.getMillis() - openedAt < NEW_ENTRY_MILLIS && TechStyle.blink()) {
+        if (newEntry && row == lastRecord && entry.series().id().equals(lastSeries) && Util.getMillis() - openedAt < NEW_ENTRY_MILLIS && TechStyle.blink()) {
             Component banner = Component.translatable("iceagesurvival.analyzer.new_record");
             int bannerWidth = font.width(banner) + 8;
             graphics.fill(pageRight - bannerWidth, y + 10, pageRight, y + 22, HudShapes.fade(TechStyle.AMBER, 0.85F));

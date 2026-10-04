@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "side": "iceagesurvival:block/stasis_generator_side",
+    "end": "iceagesurvival:block/stasis_generator_top"
+  }
+}

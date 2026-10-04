@@ -323,5 +323,8 @@
   "iceagesurvival.analyzer.record_locked": "NO DATA. Record not recovered yet. Find the military outposts and read their terminals with the analyzer: each terminal holds one record.",
   "iceagesurvival.analyzer.terminal": "Military terminal",
   "iceagesurvival.analyzer.terminal.empty": "No new records on this terminal",
-  "iceagesurvival.analyzer.terminal.already_read": "You already read this terminal"
+  "iceagesurvival.analyzer.terminal.already_read": "You already read this terminal",
+  "block.iceagesurvival.stasis_generator": "Field Generator",
+  "block.iceagesurvival.containment_core": "Containment Core",
+  "block.iceagesurvival.containment_core.released": "The stasis field is down. It is awake."
 }

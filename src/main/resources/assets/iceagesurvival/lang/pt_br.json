@@ -323,5 +323,8 @@
   "iceagesurvival.analyzer.record_locked": "SEM DADOS. Registro ainda não recuperado. Procure os postos militares e leia os terminais com o analisador: cada terminal guarda um registro.",
   "iceagesurvival.analyzer.terminal": "Terminal militar",
   "iceagesurvival.analyzer.terminal.empty": "Nenhum registro novo neste terminal",
-  "iceagesurvival.analyzer.terminal.already_read": "Você já leu este terminal"
+  "iceagesurvival.analyzer.terminal.already_read": "Você já leu este terminal",
+  "block.iceagesurvival.stasis_generator": "Gerador do Campo",
+  "block.iceagesurvival.containment_core": "Núcleo da Contenção",
+  "block.iceagesurvival.containment_core.released": "O campo de êxtase caiu. Ele acordou."
 }

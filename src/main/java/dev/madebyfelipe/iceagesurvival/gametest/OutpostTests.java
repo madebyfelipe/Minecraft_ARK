@@ -2,6 +2,7 @@ package dev.madebyfelipe.iceagesurvival.gametest;
 
 import com.mojang.authlib.GameProfile;
 import dev.madebyfelipe.iceagesurvival.IceAgeSurvival;
+import dev.madebyfelipe.iceagesurvival.core.wiki.Manual;
 import dev.madebyfelipe.iceagesurvival.defense.DefenseBlocks;
 import dev.madebyfelipe.iceagesurvival.item.AnalyzerItem;
 import dev.madebyfelipe.iceagesurvival.network.TerminalReadPayload;
@@ -70,28 +71,28 @@ public class OutpostTests {
             helper.setBlock(two, Outposts.MILITARY_TERMINAL.get());
             helper.assertTrue(helper.getBlockEntity(one) instanceof MilitaryTerminalBlockEntity,
                     "o terminal não tem o bloco-entidade de leitura");
-            helper.assertTrue(DinoFileData.records(first) == 0, "pessoa nova já tem registros: "
-                    + DinoFileData.records(first));
+            helper.assertTrue(DinoFileData.records(first, Manual.POSTS) == 0, "pessoa nova já tem registros: "
+                    + DinoFileData.records(first, Manual.POSTS));
 
             helper.assertTrue(AnalyzerItem.completeTerminal(first, helper.absolutePos(one)),
                     "a primeira leitura do terminal não destravou registro");
-            helper.assertTrue(DinoFileData.records(first) == 1, "depois de um terminal devia ter 1 registro, tem "
-                    + DinoFileData.records(first));
+            helper.assertTrue(DinoFileData.records(first, Manual.POSTS) == 1, "depois de um terminal devia ter 1 registro, tem "
+                    + DinoFileData.records(first, Manual.POSTS));
             helper.assertFalse(AnalyzerItem.completeTerminal(first, helper.absolutePos(one)),
                     "ler de novo o mesmo terminal destravou outro registro");
-            helper.assertTrue(DinoFileData.records(first) == 1, "a releitura mudou a contagem: "
-                    + DinoFileData.records(first));
+            helper.assertTrue(DinoFileData.records(first, Manual.POSTS) == 1, "a releitura mudou a contagem: "
+                    + DinoFileData.records(first, Manual.POSTS));
 
             helper.assertTrue(AnalyzerItem.completeTerminal(first, helper.absolutePos(two)),
                     "um terminal novo não destravou o próximo registro");
-            helper.assertTrue(DinoFileData.records(first) == 2, "depois de dois terminais devia ter 2, tem "
-                    + DinoFileData.records(first));
+            helper.assertTrue(DinoFileData.records(first, Manual.POSTS) == 2, "depois de dois terminais devia ter 2, tem "
+                    + DinoFileData.records(first, Manual.POSTS));
 
             helper.assertTrue(AnalyzerItem.completeTerminal(second, helper.absolutePos(one)),
                     "o terminal já lido por outra pessoa não deu registro à segunda");
-            helper.assertTrue(DinoFileData.records(second) == 1, "a segunda pessoa devia ter 1 registro, tem "
-                    + DinoFileData.records(second));
-            helper.assertTrue(DinoFileData.records(first) == 2, "a leitura de outra pessoa mexeu na contagem da primeira");
+            helper.assertTrue(DinoFileData.records(second, Manual.POSTS) == 1, "a segunda pessoa devia ter 1 registro, tem "
+                    + DinoFileData.records(second, Manual.POSTS));
+            helper.assertTrue(DinoFileData.records(first, Manual.POSTS) == 2, "a leitura de outra pessoa mexeu na contagem da primeira");
 
             helper.assertFalse(AnalyzerItem.completeTerminal(first, helper.absolutePos(new BlockPos(4, 1, 0))),
                     "um bloco que não é terminal destravou registro");
@@ -266,8 +267,8 @@ public class OutpostTests {
 
     @GameTest(template = EMPTY)
     public static void terminalReadPayloadSurvivesEncodeAndDecode(GameTestHelper helper) {
-        for (TerminalReadPayload message : new TerminalReadPayload[] {new TerminalReadPayload(3, true),
-                new TerminalReadPayload(0, false), new TerminalReadPayload(300, false)}) {
+        for (TerminalReadPayload message : new TerminalReadPayload[] {new TerminalReadPayload(Manual.POSTS, 3, true),
+                new TerminalReadPayload(Manual.BASE, 0, false), new TerminalReadPayload(Manual.DOSSIER, 300, false)}) {
             FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
             try {
                 TerminalReadPayload.encode(message, buf);

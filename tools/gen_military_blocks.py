@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
-"""Gera a arte autoral do Terminal Militar dos postos (D51): texturas 16×16, blockstate e modelos.
+"""Gera a arte autoral do Terminal Militar e dos blocos da contenção da base (D52): texturas 16×16, blockstates e modelos.
 
     textures/block/military_terminal_front.png   tela verde-fósforo com linhas de texto e o cursor
     textures/block/military_terminal_side.png    chapa de aço com rebites e a grade de ventilação
     textures/block/military_terminal_top.png     tampa de aço com gelo nas bordas
+    textures/block/stasis_generator_side.png     gerador: chapa com bobina âmbar acesa
+    textures/block/stasis_generator_top.png      gerador: tampa com o anel do campo
+    textures/block/containment_core.png          núcleo: placa escura com o cristal do campo no meio
 
-Uso: python3 tools/gen_military_terminal.py
+Uso: python3 tools/gen_military_blocks.py
 """
 import json
 import random
@@ -75,6 +78,49 @@ def top(rng):
     return img
 
 
+AMBER = (255, 178, 30)
+AMBER_DIM = (150, 96, 20)
+FIELD = (120, 230, 255)
+DARK = (28, 32, 36)
+
+
+def generator_side(rng):
+    img = steel(rng)
+    for y in range(3, 13):
+        for x in range(5, 11):
+            img.putpixel((x, y), (AMBER if (y % 2 == 0) else AMBER_DIM) + (255,))
+    for p in ((2, 2), (13, 2), (2, 13), (13, 13)):
+        img.putpixel(p, RIVET + (255,))
+    return img
+
+
+def generator_top(rng):
+    img = steel(rng)
+    for x in range(16):
+        for y in range(16):
+            r = ((x - 7.5) ** 2 + (y - 7.5) ** 2) ** 0.5
+            if 3.5 <= r <= 5.0:
+                img.putpixel((x, y), FIELD + (255,))
+    return img
+
+
+def core(rng):
+    img = Image.new('RGBA', (16, 16))
+    for x in range(16):
+        for y in range(16):
+            n = rng.randint(-4, 4)
+            img.putpixel((x, y), tuple(max(0, c + n) for c in DARK) + (255,))
+    for x in range(16):
+        for y in range(16):
+            d = abs(x - 7.5) + abs(y - 7.5)
+            if d <= 4:
+                img.putpixel((x, y), (FIELD if d <= 2.5 else (60, 140, 170)) + (255,))
+    for i in range(16):
+        for p in ((i, 0), (i, 15), (0, i), (15, i)):
+            img.putpixel(p, AMBER_DIM + (255,))
+    return img
+
+
 def write_json(path, data):
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(data, indent=2) + '\n', encoding='utf-8')
@@ -97,7 +143,21 @@ def main():
         f'facing={facing}': {'model': 'iceagesurvival:block/military_terminal', **({'y': rot} if rot else {})}
         for facing, rot in (('north', 0), ('east', 90), ('south', 180), ('west', 270))
     }})
-    print('military_terminal: 3 texturas, blockstate e modelos')
+    generator_side(random.Random('stasis_generator_side')).save(TEX / 'stasis_generator_side.png')
+    generator_top(random.Random('stasis_generator_top')).save(TEX / 'stasis_generator_top.png')
+    core(random.Random('containment_core')).save(TEX / 'containment_core.png')
+    write_json(ASSETS / 'models/block/stasis_generator.json', {
+        'parent': 'minecraft:block/cube_column',
+        'textures': {'side': 'iceagesurvival:block/stasis_generator_side',
+                     'end': 'iceagesurvival:block/stasis_generator_top'},
+    })
+    write_json(ASSETS / 'models/block/containment_core.json', {
+        'parent': 'minecraft:block/cube_all', 'textures': {'all': 'iceagesurvival:block/containment_core'},
+    })
+    for name in ('stasis_generator', 'containment_core'):
+        write_json(ASSETS / f'models/item/{name}.json', {'parent': f'iceagesurvival:block/{name}'})
+        write_json(ASSETS / f'blockstates/{name}.json', {'variants': {'': {'model': f'iceagesurvival:block/{name}'}}})
+    print('military_terminal, stasis_generator, containment_core: texturas, blockstates e modelos')
 
 
 if __name__ == '__main__':

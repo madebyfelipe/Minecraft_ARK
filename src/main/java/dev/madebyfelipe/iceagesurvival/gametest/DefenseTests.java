@@ -316,7 +316,8 @@ public class DefenseTests {
     // ---- Portões ----
 
     /** O portão comum é 1 × 2; só o dono abre, as duas partes juntas, e aberto não colide. */
-    @GameTest(template = EMPTY)
+    // Batch próprio: no lote padrão, um T-Rex de um teste vizinho chegava a ocupar o lugar do portão.
+    @GameTest(template = EMPTY, batch = "defense_gate_owner")
     public static void gateOpensOnlyForTheOwner(GameTestHelper helper) {
         Player owner = helper.makeMockSurvivalPlayer();
         Player stranger = helper.makeMockSurvivalPlayer();
