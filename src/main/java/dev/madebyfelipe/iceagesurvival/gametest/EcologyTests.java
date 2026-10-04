@@ -24,6 +24,7 @@ import net.minecraft.tags.BiomeTags;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.gametest.GameTestHolder;
 import net.minecraftforge.gametest.PrefixGameTestTemplate;
 
@@ -117,6 +118,61 @@ public class EcologyTests {
                     name + " não reconhece predadores como ameaça");
         }
         helper.succeed();
+    }
+
+    /**
+     * O bloco {@code player} da cautela vale só contra o jogador: o herbívoro se incomoda com ele de bem mais perto,
+     * e os números gerais (predadores e o resto) seguem os de sempre. Espécie sem o bloco trata o jogador como
+     * qualquer ameaça (o dodô).
+     */
+    @GameTest(template = EMPTY)
+    public static void herbivoresAreGentlerWithThePlayerThanWithPredators(GameTestHelper helper) {
+        var registries = helper.getLevel().registryAccess();
+        for (var herbivore : List.of(ModEntities.ELASMOTHERIUM.get(), ModEntities.STEGOSAURUS.get(),
+                ModEntities.ANKYLOSAURUS.get(), ModEntities.BRONTOSAURUS.get(), ModEntities.TRICERATOPS.get(),
+                ModEntities.MAMMOTH.get())) {
+            String name = EntityType.getKey(herbivore).toString();
+            var wariness = Species.of(registries, herbivore).orElseThrow().behavior().orElseThrow().wariness()
+                    .orElseThrow(() -> new AssertionError(name + " sem cautela"));
+            var general = wariness.tuning(false);
+            var player = wariness.tuning(true);
+            helper.assertTrue(general.equals(wariness.tuning()), name + ": quem não é jogador usa os números gerais");
+            helper.assertTrue(player.alertRadius() <= general.alertRadius() / 2.0,
+                    name + " ainda se incomoda com o jogador a " + player.alertRadius());
+            helper.assertTrue(player.chargeRadius() <= general.chargeRadius() && player.chargeChance() <= 0.02,
+                    name + " investe contra o jogador de mais longe ou com mais frequência que o razoável");
+            helper.assertTrue(wariness.reach() >= general.alertRadius(),
+                    name + ": a varredura precisa cobrir também o raio contra predadores");
+        }
+        var dodo = Species.of(registries, ModEntities.DODO.get()).orElseThrow().behavior().orElseThrow().wariness()
+                .orElseThrow();
+        helper.assertTrue(dodo.tuning(true).equals(dodo.tuning()), "sem o bloco player, o jogador é uma ameaça comum");
+        helper.succeed();
+    }
+
+    /**
+     * O jogador que chega colado num Elasmotério que já o notou leva primeiro o blefe de aviso, sem dano; quem
+     * fica ali leva a investida de verdade depois (o blefe, o intervalo e então o golpe: nunca antes do tick 90).
+     */
+    @GameTest(template = "arena", batch = "ecology_warning", timeoutTicks = 260)
+    public static void aPlayerGettingTooCloseIsWarnedBeforeTheCharge(GameTestHelper helper) {
+        HuntTests.clearStrays(helper);
+        LandCreature elasmo = helper.spawn(ModEntities.ELASMOTHERIUM.get(), 4, 0, 4);
+        // Adulto e sem sorteio ao acaso: filhote por perto investiria sem aviso, e o sorteio raro também.
+        elasmo.setAge(0);
+        elasmo.getRandom().setSeed(7L);
+        ServerPlayer player = PredatorTests.survivalPlayer(helper);
+        // A uns 7 blocos da borda: dentro do alerta (11), fora do raio de investida (2,5): só o encara.
+        player.moveTo(helper.absoluteVec(new Vec3(4.5, 0, 12.5)));
+        float start = player.getHealth();
+        helper.runAtTickTime(30, () -> player.moveTo(helper.absoluteVec(new Vec3(4.5, 0, 7.5))));
+        helper.onEachTick(() -> {
+            if (player.getHealth() < start) {
+                helper.assertTrue(helper.getTick() >= 90,
+                        "investiu de verdade, sem avisar, no tick " + helper.getTick());
+                helper.succeed();
+            }
+        });
     }
 
     @GameTest(template = EMPTY)

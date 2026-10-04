@@ -64,7 +64,15 @@
       "calf_radius": 36,
       "charge_speed": 1.3,
       "knockback": 1.5,
-      "lift": 0.6
+      "lift": 0.6,
+      "player": {
+        "alert_radius": 14,
+        "charge_radius": 2,
+        "bluff_chance": 0.92,
+        "retreat_chance": 0.4,
+        "charge_chance": 0,
+        "calf_radius": 16
+      }
     },
     "ecology": {
       "nervousness": 0.6,

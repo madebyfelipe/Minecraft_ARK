@@ -11,6 +11,11 @@ import java.util.function.DoubleSupplier;
  * Uma chance pequena de investir do nada o torna imprevisível. Diante de algo muito maior que ele,
  * foge. Espécies sem investida ({@code chargeRadius} 0) — o dodô — fogem de tudo.
  *
+ * <p>Contra o jogador a resposta comum é o blefe, não o golpe: quem chega colado pela primeira vez leva
+ * um blefe de aviso, e só a investida de verdade vem depois, se ele ficar ou voltar ({@link Situation#warned}),
+ * além do susto, do filhote e do sorteio raro. Os números do jogador são próprios e bem mais mansos que os
+ * gerais ({@code WarinessProfile.PlayerResponse}); {@link #reactToHunter} segue só com os gerais.
+ *
  * <p>Sem classes do Minecraft (D10).
  */
 public final class ThreatResponse {
@@ -57,9 +62,19 @@ public final class ThreatResponse {
      * @param firstContact  é a primeira vez que o animal nota esta ameaça
      * @param guardingCalf  há filhote da espécie por perto
      * @param sizeRatio     área de colisão da ameaça ÷ a do animal
+     * @param warned        o animal já blefou (ou investiu) contra esta ameaça há pouco: ela foi avisada, e chegar
+     *                      colado de novo é investida de verdade. Só {@link #react} lê.
      */
     public record Situation(double distance, boolean approaching, boolean sneaking, boolean firstContact,
-                            boolean guardingCalf, double sizeRatio, boolean hunted, int predators, double stress) {
+                            boolean guardingCalf, double sizeRatio, boolean hunted, int predators, double stress,
+                            boolean warned) {
+        /** Sem aviso dado antes. */
+        public Situation(double distance, boolean approaching, boolean sneaking, boolean firstContact,
+                         boolean guardingCalf, double sizeRatio, boolean hunted, int predators, double stress) {
+            this(distance, approaching, sneaking, firstContact, guardingCalf, sizeRatio, hunted, predators, stress,
+                    false);
+        }
+
         /** Sem caçada em curso e calmo. */
         public Situation(double distance, boolean approaching, boolean sneaking, boolean firstContact,
                          boolean guardingCalf, double sizeRatio) {
@@ -90,7 +105,8 @@ public final class ThreatResponse {
 
     /**
      * A reação nesta decisão. {@code roll} devolve números uniformes em [0, 1); é chamado só quando
-     * a decisão depende de sorte.
+     * a decisão depende de sorte. É a conta do jogador (e de qualquer ameaça que não seja caçador nem
+     * criatura do mod); {@link #reactToHunter} é a dos predadores.
      */
     public static Reaction react(Situation situation, Tuning tuning, DoubleSupplier roll) {
         double radius = detectionRadius(tuning, situation.sneaking(), situation.guardingCalf(), situation.stress());
@@ -110,9 +126,15 @@ public final class ThreatResponse {
                 && (situation.predators() >= 2 || situation.sizeRatio() >= HUNTED_FLEE_SIZE_RATIO)) {
             return Reaction.FLEE;
         }
-        if (situation.distance() <= tuning.chargeRadius()
-                || situation.firstContact() && situation.distance() <= tuning.chargeRadius() * SURPRISE_MULTIPLIER) {
+        // Notado já colado: sem tempo de avisar, investe.
+        if (situation.firstContact() && situation.distance() <= tuning.chargeRadius() * SURPRISE_MULTIPLIER) {
             return Reaction.CHARGE;
+        }
+        // Colado depois de notar: a primeira vez é aviso (blefe, que pode ser curto se já está em cima); só quem
+        // já foi avisado, ou quem chega perto do filhote, leva a investida de verdade. Sem isto um passo largo do
+        // jogador pulava o blefe da aproximação e caía direto no golpe.
+        if (situation.distance() <= tuning.chargeRadius()) {
+            return situation.warned() || situation.guardingCalf() ? Reaction.CHARGE : Reaction.BLUFF;
         }
         boolean close = situation.distance() <= radius * CONFRONT_FRACTION;
         if (situation.guardingCalf() && close) {
