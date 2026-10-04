@@ -1,0 +1,22 @@
+{
+  "type": "iceagesurvival:bench",
+  "bench": "armory",
+  "ingredients": [
+    {
+      "item": "minecraft:paper",
+      "count": 1
+    },
+    {
+      "item": "minecraft:iron_nugget",
+      "count": 3
+    },
+    {
+      "item": "minecraft:gunpowder",
+      "count": 1
+    }
+  ],
+  "result": {
+    "item": "iceagesurvival:shotgun_shells",
+    "count": 6
+  }
+}

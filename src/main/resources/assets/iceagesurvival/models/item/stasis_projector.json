@@ -1,6 +1,106 @@
 {
-  "parent": "minecraft:item/handheld",
+  "loader": "forge:separate_transforms",
+  "gui_light": "front",
   "textures": {
-    "layer0": "iceagesurvival:item/stasis_projector"
+    "particle": "iceagesurvival:item/stasis_projector"
+  },
+  "base": {
+    "parent": "builtin/entity",
+    "display": {
+      "firstperson_righthand": {
+        "rotation": [
+          0,
+          12,
+          0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "translation": [
+          -2.31,
+          -0.04,
+          -7.0
+        ]
+      },
+      "thirdperson_righthand": {
+        "rotation": [
+          90,
+          0,
+          0
+        ],
+        "scale": [
+          0.55,
+          0.55,
+          0.55
+        ],
+        "translation": [
+          0.0,
+          1.38,
+          0.61
+        ]
+      },
+      "ground": {
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "translation": [
+          0.0,
+          -2.33,
+          -0.09
+        ],
+        "scale": [
+          0.5,
+          0.5,
+          0.5
+        ]
+      },
+      "fixed": {
+        "rotation": [
+          0,
+          -90,
+          0
+        ],
+        "translation": [
+          0.17,
+          -2.29,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "head": {
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "translation": [
+          0.0,
+          12.16,
+          -0.14
+        ],
+        "scale": [
+          0.8,
+          0.8,
+          0.8
+        ]
+      }
+    }
+  },
+  "perspectives": {
+    "gui": {
+      "loader": "forge:item_layers",
+      "textures": {
+        "layer0": "iceagesurvival:item/stasis_projector",
+        "particle": "iceagesurvival:item/stasis_projector"
+      }
+    }
   }
 }

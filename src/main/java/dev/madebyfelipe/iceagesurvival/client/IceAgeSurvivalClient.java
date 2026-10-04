@@ -52,6 +52,10 @@ public class IceAgeSurvivalClient {
         dev.madebyfelipe.iceagesurvival.network.BaseSignalPayload.setClientHandler(BaseSignalHud::receive);
         MinecraftForge.EVENT_BUS.addListener(BaseSignalHud::onLoggingOut);
         dev.madebyfelipe.iceagesurvival.item.SignalReceiverItem.setSignalCheck(BaseSignalHud::hasSignal);
+        dev.madebyfelipe.iceagesurvival.item.StasisProjectorItem.setRechargingCheck(() -> {
+            var player = net.minecraft.client.Minecraft.getInstance().player;
+            return player != null && player.getCooldowns().isOnCooldown(ModItems.STASIS_PROJECTOR.get());
+        });
         dev.madebyfelipe.iceagesurvival.item.AnalyzerItem.setTerminalOpener(
                 dev.madebyfelipe.iceagesurvival.client.dex.AnalyzerScreen::open);
         dev.madebyfelipe.iceagesurvival.item.AnalyzerItem.setScanningCheck(
@@ -59,6 +63,7 @@ public class IceAgeSurvivalClient {
         PrimalStationsClient.init(modEventBus);
         DefensesClient.init(modEventBus);
         WeaponsClient.init(modEventBus);
+        dev.madebyfelipe.iceagesurvival.client.firearm.FirearmsClient.init(modEventBus);
         dev.madebyfelipe.iceagesurvival.client.containment.ContainmentClient.init(modEventBus);
     }
 

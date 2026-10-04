@@ -1,5 +1,14 @@
 package dev.madebyfelipe.iceagesurvival.item;
 
+import dev.madebyfelipe.iceagesurvival.client.item.TitanRewardRenderer;
+import java.util.function.Consumer;
+import net.minecraftforge.client.extensions.common.IClientItemExtensions;
+import software.bernie.geckolib.animatable.GeoItem;
+import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.core.animation.AnimatableManager;
+import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.animation.RawAnimation;
+import software.bernie.geckolib.util.GeckoLibUtil;
 import dev.madebyfelipe.iceagesurvival.IceAgeSurvival;
 import dev.madebyfelipe.iceagesurvival.core.ecology.HuntSpecials;
 import dev.madebyfelipe.iceagesurvival.effect.BleedingEffect;
@@ -43,7 +52,14 @@ import net.minecraftforge.fml.common.Mod;
  * os filhotes não herdam. Números propostos, ajustáveis.
  */
 @Mod.EventBusSubscriber(modid = IceAgeSurvival.MODID)
-public class TitanSerumItem extends Item {
+public class TitanSerumItem extends Item implements GeoItem {
+    /**
+     * Sem id do GeckoLib por pilha (o soro empilha): todas as ampolas dividem a mesma animação, o anel âmbar que corre
+     * pelo sangue em laço.
+     */
+    private static final RawAnimation IDLE = RawAnimation.begin().thenLoop("animation.titan_serum.idle");
+    private final AnimatableInstanceCache animationCache = GeckoLibUtil.createInstanceCache(this);
+
     public static final double ATTACK_BONUS = 0.25;
     public static final double HEALTH_BONUS = 0.25;
     public static final String TAG = IceAgeSurvival.MODID + ".titan_serum";
@@ -52,6 +68,22 @@ public class TitanSerumItem extends Item {
 
     public TitanSerumItem(Properties properties) {
         super(properties);
+    }
+
+    /** O modelo 3D da mão, do chão e da moldura ({@code tools/gen_titan_rewards.py}); na GUI, o ícone plano. */
+    @Override
+    public void initializeClient(Consumer<IClientItemExtensions> consumer) {
+        consumer.accept(TitanRewardRenderer.extensions("titan_serum"));
+    }
+
+    @Override
+    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+        controllers.add(new AnimationController<>(this, "main", 0, state -> state.setAndContinue(IDLE)));
+    }
+
+    @Override
+    public AnimatableInstanceCache getAnimatableInstanceCache() {
+        return animationCache;
     }
 
     /** Se a criatura já tomou o soro. */

@@ -59,6 +59,12 @@ public final class ModPayloads {
                 TerminalScreenPayload::handle);
         registerClientbound(BaseSignalPayload.class, BaseSignalPayload::encode, BaseSignalPayload::decode,
                 BaseSignalPayload::handle);
+        registerServerbound(ReloadRequestPayload.class, ReloadRequestPayload::encode, ReloadRequestPayload::decode,
+                ReloadRequestPayload::handle);
+        registerClientbound(FirearmShotPayload.class, FirearmShotPayload::encode, FirearmShotPayload::decode,
+                FirearmShotPayload::handle);
+        registerClientbound(FirearmReloadPayload.class, FirearmReloadPayload::encode, FirearmReloadPayload::decode,
+                FirearmReloadPayload::handle);
     }
 
     private ModPayloads() {

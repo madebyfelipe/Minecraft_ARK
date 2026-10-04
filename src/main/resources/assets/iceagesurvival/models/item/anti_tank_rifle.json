@@ -1,0 +1,114 @@
+{
+  "loader": "forge:separate_transforms",
+  "gui_light": "side",
+  "textures": {
+    "particle": "iceagesurvival:item/anti_tank_rifle_3d"
+  },
+  "base": {
+    "parent": "builtin/entity",
+    "display": {
+      "firstperson_righthand": {
+        "rotation": [
+          2,
+          10,
+          0
+        ],
+        "translation": [
+          0.24,
+          -2.05,
+          -10.09
+        ],
+        "scale": [
+          0.7,
+          0.7,
+          0.7
+        ]
+      },
+      "thirdperson_righthand": {
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "translation": [
+          0.0,
+          -1.84,
+          -1.17
+        ],
+        "scale": [
+          0.45,
+          0.45,
+          0.45
+        ]
+      },
+      "gui": {
+        "rotation": [
+          90,
+          -60,
+          90
+        ],
+        "translation": [
+          -3.0,
+          -4.0,
+          -0.36
+        ],
+        "scale": [
+          0.4,
+          0.4,
+          0.4
+        ]
+      },
+      "ground": {
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "translation": [
+          -0.32,
+          -2.98,
+          4.03
+        ],
+        "scale": [
+          0.35,
+          0.35,
+          0.35
+        ]
+      },
+      "fixed": {
+        "rotation": [
+          90,
+          -60,
+          90
+        ],
+        "translation": [
+          -3.31,
+          -4.39,
+          -0.4
+        ],
+        "scale": [
+          0.44,
+          0.44,
+          0.44
+        ]
+      },
+      "head": {
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "translation": [
+          -0.72,
+          10.09,
+          9.2
+        ],
+        "scale": [
+          0.8,
+          0.8,
+          0.8
+        ]
+      }
+    }
+  }
+}

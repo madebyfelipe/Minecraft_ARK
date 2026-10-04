@@ -78,6 +78,39 @@ public class CarcassTests {
         });
     }
 
+    /**
+     * A carne segue o porte da criatura (tools/gen_meat_loot.py): a vaca larga 1–3, o T-Rex morto pelo jogador bem
+     * mais (o mínimo da regra é 14), e o Urso-terrível, que antes não largava nada, agora larga carne.
+     */
+    @GameTest(template = EMPTY, batch = "carcass_meat")
+    public static void aBigKillDropsFarMoreMeatThanACow(GameTestHelper helper) {
+        ServerPlayer player = PredatorTests.survivalPlayer(helper);
+        LandCreature rex = helper.spawnWithNoFreeWill(ModEntities.TYRANNOSAURUS.get(), 4, 2, 4);
+        rex.hurt(helper.getLevel().damageSources().playerAttack(player), 100_000.0F);
+        helper.runAfterDelay(3, () -> {
+            int beef = meatAround(helper, rex, Items.BEEF);
+            helper.assertTrue(beef >= 10, "o T-Rex deveria largar bem mais que a vaca (1–3): " + beef);
+            helper.succeed();
+        });
+    }
+
+    @GameTest(template = EMPTY, batch = "carcass_meat")
+    public static void aDirebearKillDropsMeat(GameTestHelper helper) {
+        ServerPlayer player = PredatorTests.survivalPlayer(helper);
+        LandCreature bear = helper.spawnWithNoFreeWill(ModEntities.DIREBEAR.get(), 4, 2, 4);
+        bear.hurt(helper.getLevel().damageSources().playerAttack(player), 100_000.0F);
+        helper.runAfterDelay(3, () -> {
+            int beef = meatAround(helper, bear, Items.BEEF);
+            helper.assertTrue(beef >= 4, "o Urso-terrível deveria largar carne, mais que a vaca: " + beef);
+            helper.succeed();
+        });
+    }
+
+    private static int meatAround(GameTestHelper helper, LandCreature creature, net.minecraft.world.item.Item meat) {
+        return helper.getLevel().getEntitiesOfClass(ItemEntity.class, creature.getBoundingBox().inflate(6.0)).stream()
+                .filter(drop -> drop.getItem().is(meat)).mapToInt(drop -> drop.getItem().getCount()).sum();
+    }
+
     /** Com machado, o jogador carneia a sobra: sai loot e a carcaça acaba. */
     @GameTest(template = EMPTY, batch = "carcass_butcher")
     public static void theAxeButchersTheCarcass(GameTestHelper helper) {

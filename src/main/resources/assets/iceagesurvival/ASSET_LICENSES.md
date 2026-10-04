@@ -32,6 +32,15 @@ Os modelos 3D e as texturas das armas tranquilizantes (`models/item/tranq_rifle.
 e `textures/item/tranq_dart.png`) são autorais, gerados por `tools/gen_weapons.py`; nenhum asset de
 terceiros foi usado.
 
+As armas de fogo no estilo do Dino Crisis 2 (D58) — `geo/item/`, `animations/item/`, `models/item/` e
+`textures/item/` de `handgun`, `shotgun`, `submachine_gun`, `heavy_machine_gun`, `solid_cannon` e `anti_tank_rifle`
+(com os `_3d`/`_3d_glowmask`), e os ícones das munições (`light_rounds`, `shotgun_shells`, `solid_cell`,
+`heavy_rounds`) — são autorais, gerados por `tools/gen_dc2_weapons.py`; só o estilo é inspirado no jogo da Capcom,
+nenhum modelo, textura ou som dele foi usado. Os sons de `sounds/firearm/` são sintetizados por
+`tools/gen_firearm_sounds.py` (ruído filtrado e senoides); a fúria usa o rugido do devastador do Minecraft, por
+referência em `sounds.json`. Os modelos 3D do soro e do projetor de êxtase (`titan_serum`, `stasis_projector`) são
+autorais, de `tools/gen_titan_rewards.py`.
+
 O preset `datapacks/tfc_compat/data/iceagesurvival/worldgen/world_preset/ice_age.json` reproduz a
 estrutura e as camadas de rocha (`rock_layer_settings`) do preset `tfc:overworld` do
 **TerraFirmaCraft** (licença EUPL-1.2), mudando só a temperatura para uma constante fria. Esse

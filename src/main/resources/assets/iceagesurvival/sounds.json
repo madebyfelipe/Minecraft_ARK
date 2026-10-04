@@ -1,0 +1,131 @@
+{
+  "firearm.shot.handgun": {
+    "subtitle": "subtitles.iceagesurvival.firearm.shot",
+    "sounds": [
+      {
+        "name": "iceagesurvival:firearm/shot_handgun"
+      }
+    ]
+  },
+  "firearm.shot.shotgun": {
+    "subtitle": "subtitles.iceagesurvival.firearm.shot",
+    "sounds": [
+      {
+        "name": "iceagesurvival:firearm/shot_shotgun"
+      }
+    ]
+  },
+  "firearm.shot.submachine_gun": {
+    "subtitle": "subtitles.iceagesurvival.firearm.shot",
+    "sounds": [
+      {
+        "name": "iceagesurvival:firearm/shot_submachine_gun"
+      }
+    ]
+  },
+  "firearm.shot.heavy_machine_gun": {
+    "subtitle": "subtitles.iceagesurvival.firearm.shot",
+    "sounds": [
+      {
+        "name": "iceagesurvival:firearm/shot_heavy_machine_gun"
+      }
+    ]
+  },
+  "firearm.shot.anti_tank_rifle": {
+    "subtitle": "subtitles.iceagesurvival.firearm.shot",
+    "sounds": [
+      {
+        "name": "iceagesurvival:firearm/shot_anti_tank_rifle"
+      }
+    ]
+  },
+  "firearm.shot.solid_cannon": {
+    "subtitle": "subtitles.iceagesurvival.firearm.shot.solid_cannon",
+    "sounds": [
+      {
+        "name": "iceagesurvival:firearm/shot_solid_cannon"
+      }
+    ]
+  },
+  "firearm.reload.handgun": {
+    "subtitle": "subtitles.iceagesurvival.firearm.reload",
+    "sounds": [
+      {
+        "name": "iceagesurvival:firearm/reload_handgun"
+      }
+    ]
+  },
+  "firearm.reload.shotgun": {
+    "subtitle": "subtitles.iceagesurvival.firearm.reload",
+    "sounds": [
+      {
+        "name": "iceagesurvival:firearm/reload_shotgun"
+      }
+    ]
+  },
+  "firearm.reload.submachine_gun": {
+    "subtitle": "subtitles.iceagesurvival.firearm.reload",
+    "sounds": [
+      {
+        "name": "iceagesurvival:firearm/reload_submachine_gun"
+      }
+    ]
+  },
+  "firearm.reload.heavy_machine_gun": {
+    "subtitle": "subtitles.iceagesurvival.firearm.reload",
+    "sounds": [
+      {
+        "name": "iceagesurvival:firearm/reload_heavy_machine_gun"
+      }
+    ]
+  },
+  "firearm.reload.solid_cannon": {
+    "subtitle": "subtitles.iceagesurvival.firearm.reload",
+    "sounds": [
+      {
+        "name": "iceagesurvival:firearm/reload_solid_cannon"
+      }
+    ]
+  },
+  "firearm.reload.anti_tank_rifle": {
+    "subtitle": "subtitles.iceagesurvival.firearm.reload",
+    "sounds": [
+      {
+        "name": "iceagesurvival:firearm/reload_anti_tank_rifle"
+      }
+    ]
+  },
+  "firearm.empty": {
+    "subtitle": "subtitles.iceagesurvival.firearm.empty",
+    "sounds": [
+      {
+        "name": "iceagesurvival:firearm/empty"
+      }
+    ]
+  },
+  "firearm.solid_impact": {
+    "subtitle": "subtitles.iceagesurvival.firearm.solid_impact",
+    "sounds": [
+      {
+        "name": "iceagesurvival:firearm/solid_impact"
+      }
+    ]
+  },
+  "firearm.rage": {
+    "subtitle": "subtitles.iceagesurvival.firearm.rage",
+    "sounds": [
+      {
+        "name": "minecraft:mob/ravager/roar1",
+        "pitch": 0.85
+      },
+      {
+        "name": "minecraft:mob/ravager/roar2",
+        "pitch": 0.85
+      },
+      {
+        "name": "minecraft:mob/ravager/roar3",
+        "pitch": 0.85
+      }
+    ]
+  }
+}

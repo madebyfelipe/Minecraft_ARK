@@ -1,0 +1,24 @@
+{
+  "conditions": [
+    {
+      "type": "forge:mod_loaded",
+      "modid": "tfc"
+    }
+  ],
+  "type": "iceagesurvival:bench",
+  "bench": "armory",
+  "ingredients": [
+    {
+      "item": "minecraft:redstone",
+      "count": 4
+    },
+    {
+      "tag": "forge:ingots/wrought_iron",
+      "count": 1
+    }
+  ],
+  "result": {
+    "item": "iceagesurvival:solid_cell",
+    "count": 2
+  }
+}

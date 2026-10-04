@@ -70,7 +70,15 @@
       "calf_radius": 28,
       "charge_speed": 1.6,
       "knockback": 1.4,
-      "lift": 0.5
+      "lift": 0.5,
+      "player": {
+        "alert_radius": 12,
+        "charge_radius": 3,
+        "bluff_chance": 0.82,
+        "retreat_chance": 0.1,
+        "charge_chance": 0.01,
+        "calf_radius": 14
+      }
     },
     "ecology": {
       "nervousness": 0.7,
@@ -108,5 +116,9 @@
     "incubation_seconds": 900,
     "maturation_seconds": 3600,
     "cooldown_seconds": 1800
+  },
+  "firearm": {
+    "dc2_health": 5000,
+    "armored": true
   }
 }

@@ -1,0 +1,114 @@
+{
+  "loader": "forge:separate_transforms",
+  "gui_light": "side",
+  "textures": {
+    "particle": "iceagesurvival:item/solid_cannon_3d"
+  },
+  "base": {
+    "parent": "builtin/entity",
+    "display": {
+      "firstperson_righthand": {
+        "rotation": [
+          2,
+          10,
+          0
+        ],
+        "translation": [
+          -0.31,
+          -0.74,
+          -9.75
+        ],
+        "scale": [
+          0.8,
+          0.8,
+          0.8
+        ]
+      },
+      "thirdperson_righthand": {
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "translation": [
+          0.0,
+          -0.98,
+          -0.9
+        ],
+        "scale": [
+          0.5,
+          0.5,
+          0.5
+        ]
+      },
+      "gui": {
+        "rotation": [
+          90,
+          -70,
+          90
+        ],
+        "translation": [
+          -1.63,
+          -2.81,
+          0.0
+        ],
+        "scale": [
+          0.55,
+          0.55,
+          0.55
+        ]
+      },
+      "ground": {
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "translation": [
+          0.0,
+          -3.44,
+          1.9
+        ],
+        "scale": [
+          0.42,
+          0.42,
+          0.42
+        ]
+      },
+      "fixed": {
+        "rotation": [
+          90,
+          -70,
+          90
+        ],
+        "translation": [
+          -1.79,
+          -3.09,
+          0.0
+        ],
+        "scale": [
+          0.605,
+          0.605,
+          0.605
+        ]
+      },
+      "head": {
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "translation": [
+          0.0,
+          10.97,
+          3.62
+        ],
+        "scale": [
+          0.8,
+          0.8,
+          0.8
+        ]
+      }
+    }
+  }
+}

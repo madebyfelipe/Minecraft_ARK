@@ -12,11 +12,15 @@
 | 7 | Montaria | 🟡 armazenamento por espécie, voo no estilo do Cobblemon, pulo sem barra de carga, montaria sem sela e More Hitboxes implementados; build e GameTests passam, falta conferir controles e hitboxes em jogo; slot de sela no inventário, fôlego de voo por nível e bico que segue o voo (D31); custos de voo por espécie, decolagem por salto e térmicas (D42); voo −40%, mergulho só íngreme e montaria voadora sem dano de queda nem sufocação (D50) |
 | 8 | Reprodução e genética | ✅ 2026-09-30 em testes automáticos (genética em JUnit; acasalamento, gestação, ovo, incubadora, mesa química e estimulante em gametests); falta conferir em jogo |
 | 9 | Worldgen | ✅ 2026-09-30 em teste automático (os biomas possíveis do preset são todos frios); falta criar um mundo e andar por ele |
-| 10 | Endgame: base militar, postos com notas, apex secreto | 🟡 2026-10-04: postos (torre e complexo), base com a contenção, séries de registros e dossiê (D52, D53); Titanovenator como boss (D54), luta que exige mutação, console da contenção, holograma e recompensa nova (D57); falta sentir em jogo |
+| 10 | Endgame: base militar, postos com notas, apex secreto | 🟡 2026-10-04: postos (torre e complexo), base com a contenção, séries de registros e dossiê (D52, D53); Titanovenator como boss (D54), luta que exige mutação, console da contenção, holograma e recompensa nova (D57), com a recompensa em 3D (D58); falta sentir em jogo |
 
 Revisão editorial do Analisador (2026-10-03): manual e fichas de `tools/wiki_lore/` revisados para uma leitura mais natural, preservando a voz do sobrevivente e o conteúdo da lore.
 
 **Analisador permanente** (D56, 2026-10-04): slot próprio no inventário, tecla que traz o aparelho à mão, e mais lore nas NOTAS; falta sentir a tecla em jogo.
+
+**Armas de fogo no estilo do Dino Crisis 2** (D58, 2026-10-04): seis armas com modelos 3D, munição por família,
+tiros para matar do DC2 por espécie e fúria; as leves na bancada, as pesadas no saque militar. Junto, herbívoros mais
+mansos com o jogador (D59) e carne proporcional ao porte (D60). Falta sentir em jogo.
 
 MVP = Etapas 1–4 + versão mínima de 6, 7 e 9 (mundo frio, temperatura básica, montar o Smilodon).
 

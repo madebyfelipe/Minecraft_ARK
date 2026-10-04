@@ -12,6 +12,7 @@ import dev.madebyfelipe.iceagesurvival.species.WarinessProfile;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.UUID;
 import javax.annotation.Nullable;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.LivingEntity;
@@ -27,10 +28,13 @@ import net.minecraft.world.phys.Vec3;
  * <ul>
  *   <li><b>Alerta:</b> para, encara e bufa (som e gesto de ameaça). Avisa a manada.</li>
  *   <li><b>Recuo / fuga:</b> afasta-se andando, ou corre.</li>
- *   <li><b>Blefe:</b> investe e para a poucos blocos, bufando.</li>
+ *   <li><b>Blefe:</b> investe e para a poucos blocos, bufando. É a resposta comum ao jogador que chega perto, e
+ *       é o aviso: quem ignora e fica colado, ou volta a ficar nos próximos {@value #WARNING_TICKS} ticks, leva a
+ *       investida.</li>
  *   <li><b>Investida:</b> corre em linha quase reta (mira de novo a cada {@value #CHARGE_REAIM_TICKS}
  *       ticks, então dá para desviar), acerta com o golpe da espécie e volta a encarar. Às vezes
- *       segue brigando — o imprevisível. Espécies de manada com defesa em grupo chamam a manada.</li>
+ *       segue brigando — o imprevisível; contra o jogador, raramente. Espécies de manada com defesa em
+ *       grupo chamam a manada.</li>
  *   <li><b>Clava</b> ({@code defense: tail_club}, o Anquilossauro): não blefa, não foge e não investe — no lugar
  *       disso gira de costas para a ameaça, e a cauda golpeia quem entra no arco de trás ({@link TailClubStrike}).</li>
  * </ul>
@@ -61,6 +65,14 @@ public class WaryGoal extends Goal {
     private static final int BRACE_TICKS = 60;
     /** Depois de acertar a investida, chance de seguir brigando em vez de voltar a encarar. */
     private static final double KEEP_FIGHTING_CHANCE = 0.35;
+    /**
+     * O mesmo, contra o jogador. Seguir brigando faz dele o alvo da criatura, e sem território (os herbívoros não têm)
+     * o {@code ChaseGoal} só larga o alvo quando ele morre ou some: com {@value #KEEP_FIGHTING_CHANCE} uma investida
+     * em cada três virava perseguição. Quem feriu o animal continua sendo perseguido (o revide é de {@code hurt}).
+     */
+    private static final double KEEP_FIGHTING_VS_PLAYER_CHANCE = 0.1;
+    /** Depois de blefar ou investir contra o jogador, por quanto tempo ele conta como avisado (15 s). */
+    static final int WARNING_TICKS = 300;
     private static final double RETREAT_SPEED = 1.0;
     /** Até onde corre de cada vez, fugindo. */
     private static final int FLEE_DISTANCE = 28;
@@ -77,6 +89,10 @@ public class WaryGoal extends Goal {
     private int scanCooldown;
     private double lastDistance;
     private Vec3 chargeTarget = Vec3.ZERO;
+    /** O jogador que já levou um blefe ou investida, e até quando isso vale como aviso. */
+    @Nullable
+    private UUID warnedPlayer;
+    private long warnedUntil;
 
     public WaryGoal(PrehistoricCreature creature, double calmSpeed) {
         this.creature = creature;
@@ -176,7 +192,7 @@ public class WaryGoal extends Goal {
             switchToBiggerThreat(profile);
         }
         double distance = gap(threat);
-        double radius = detectionRadius(threat, profile, creature.hasCalfNearby(profile.calfRadius()));
+        double radius = detectionRadius(threat, profile, guardingCalf(threat, profile));
         outOfRangeTicks = distance > radius * 1.3 && !creature.isHunted() ? outOfRangeTicks + 1 : 0;
         if (stateTicks % 20 == 0 && distance <= radius) {
             // A ameaça ali estressa: o predador muito, o jogador menos, e menos ainda agachado.
@@ -207,9 +223,10 @@ public class WaryGoal extends Goal {
         decisionCooldown = DECISION_INTERVAL;
         int attackers = Math.max(creature.huntingPack(),
                 threat instanceof PrehistoricCreature hunter ? hunter.fightingGroup() : 1);
-        boolean guardingCalf = creature.hasCalfNearby(profile.calfRadius());
+        boolean guardingCalf = guardingCalf(threat, profile);
         var situation = new ThreatResponse.Situation(distance, approaching, sneaking(threat), firstContact,
-                guardingCalf, creature.sizeRatioOf(threat), creature.isHunted(), attackers, creature.stress());
+                guardingCalf, creature.sizeRatioOf(threat), creature.isHunted(), attackers, creature.stress(),
+                warned(threat));
         int defenders = creature.fightingGroup();
         Reaction reaction;
         if (isHunter(threat)) {
@@ -219,7 +236,7 @@ public class WaryGoal extends Goal {
             reaction = ThreatResponse.reactToIntimidation(situation, defenders, confronter.fightingGroup(),
                     confronter.isAggressive(), committed());
         } else {
-            reaction = ThreatResponse.react(situation, profile.tuning(), creature.getRandom()::nextDouble);
+            reaction = ThreatResponse.react(situation, tuning(threat, profile), creature.getRandom()::nextDouble);
         }
         if (reaction == Reaction.IGNORE) {
             reaction = Reaction.ALERT;
@@ -242,6 +259,10 @@ public class WaryGoal extends Goal {
         stateTicks = 0;
         switch (reaction) {
             case CHARGE, BLUFF -> {
+                if (threat instanceof Player player) {
+                    warnedPlayer = player.getUUID();
+                    warnedUntil = creature.level().getGameTime() + WARNING_TICKS;
+                }
                 creature.setAggressive(true);
                 creature.playAlert();
                 if (tailClub()) {
@@ -342,7 +363,8 @@ public class WaryGoal extends Goal {
         if (creature.getBoundingBox().inflate(0.6).intersects(threat.getBoundingBox())) {
             creature.doHurtTarget(threat);
             creature.alertHerd(threat);
-            if (creature.getRandom().nextDouble() < KEEP_FIGHTING_CHANCE) {
+            double keepFighting = threat instanceof Player ? KEEP_FIGHTING_VS_PLAYER_CHANCE : KEEP_FIGHTING_CHANCE;
+            if (creature.getRandom().nextDouble() < keepFighting) {
                 creature.setTarget(threat);
                 return;
             }
@@ -386,14 +408,12 @@ public class WaryGoal extends Goal {
      */
     @Nullable
     private LivingEntity biggestThreat(WarinessProfile profile) {
-        double reach = Math.max(profile.alertRadius(), profile.calfRadius())
-                * Stress.perceptionMultiplier(creature.stress());
-        boolean calf = creature.hasCalfNearby(profile.calfRadius());
+        double reach = profile.reach() * Stress.perceptionMultiplier(creature.stress());
         List<LivingEntity> inRange = new ArrayList<>();
         double maxDanger = 0.0;
         for (LivingEntity candidate : creature.level().getEntitiesOfClass(LivingEntity.class,
                 creature.getBoundingBox().inflate(reach, 6.0, reach), other -> isThreat(other, profile))) {
-            if (gap(candidate) <= detectionRadius(candidate, profile, calf)) {
+            if (gap(candidate) <= detectionRadius(candidate, profile, guardingCalf(candidate, profile))) {
                 inRange.add(candidate);
                 maxDanger = Math.max(maxDanger, danger(candidate));
             }
@@ -500,6 +520,25 @@ public class WaryGoal extends Goal {
         return creature.getTarget() != null || creature.hungerDrive() != Hunger.Drive.SATED;
     }
 
+    /** Os números que valem contra esta ameaça: o jogador tem os dele (bloco {@code player}), o resto os gerais. */
+    private static ThreatResponse.Tuning tuning(LivingEntity threat, WarinessProfile profile) {
+        return profile.tuning(threat instanceof Player);
+    }
+
+    /** Filhote por perto, no raio de filhote que vale contra esta ameaça (o do jogador é menor). */
+    private boolean guardingCalf(LivingEntity threat, WarinessProfile profile) {
+        return creature.hasCalfNearby(tuning(threat, profile).calfRadius());
+    }
+
+    /**
+     * Se esta ameaça já foi avisada. Só o jogador tem aviso a dar: uma criatura (ou um lobo do vanilla) que chega
+     * colada leva a investida sem blefe, como antes.
+     */
+    private boolean warned(LivingEntity threat) {
+        return !(threat instanceof Player player)
+                || player.getUUID().equals(warnedPlayer) && creature.level().getGameTime() <= warnedUntil;
+    }
+
     /** Distância entre as bordas dos corpos: os raios valem igual para um dodô e para um Brontossauro. */
     private double gap(LivingEntity other) {
         return Math.max(0.0, creature.distanceTo(other) - (creature.getBbWidth() + other.getBbWidth()) / 2.0);
@@ -510,7 +549,7 @@ public class WaryGoal extends Goal {
      * escondida no sub-bosque, à fração da camuflagem.
      */
     private double detectionRadius(LivingEntity threat, WarinessProfile profile, boolean calf) {
-        double radius = ThreatResponse.detectionRadius(profile.tuning(), sneaking(threat), calf, creature.stress());
+        double radius = ThreatResponse.detectionRadius(tuning(threat, profile), sneaking(threat), calf, creature.stress());
         if (threat instanceof PrehistoricCreature stalker && stalker.isStalking()) {
             radius = Perception.stalkerNoticeRadius(radius);
         }

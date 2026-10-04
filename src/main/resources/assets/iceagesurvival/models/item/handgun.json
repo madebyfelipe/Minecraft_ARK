@@ -1,0 +1,114 @@
+{
+  "loader": "forge:separate_transforms",
+  "gui_light": "side",
+  "textures": {
+    "particle": "iceagesurvival:item/handgun_3d"
+  },
+  "base": {
+    "parent": "builtin/entity",
+    "display": {
+      "firstperson_righthand": {
+        "rotation": [
+          0,
+          4,
+          0
+        ],
+        "translation": [
+          -1.47,
+          -1.28,
+          -7.02
+        ],
+        "scale": [
+          1.1,
+          1.1,
+          1.1
+        ]
+      },
+      "thirdperson_righthand": {
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "translation": [
+          0.0,
+          -1.78,
+          1.1
+        ],
+        "scale": [
+          0.5,
+          0.5,
+          0.5
+        ]
+      },
+      "gui": {
+        "rotation": [
+          0,
+          -90,
+          0
+        ],
+        "translation": [
+          -1.96,
+          -1.48,
+          0.0
+        ],
+        "scale": [
+          0.95,
+          0.95,
+          0.95
+        ]
+      },
+      "ground": {
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "translation": [
+          0.0,
+          -2.3,
+          1.03
+        ],
+        "scale": [
+          0.5,
+          0.5,
+          0.5
+        ]
+      },
+      "fixed": {
+        "rotation": [
+          0,
+          -90,
+          0
+        ],
+        "translation": [
+          -2.15,
+          -1.63,
+          0.0
+        ],
+        "scale": [
+          1.045,
+          1.045,
+          1.045
+        ]
+      },
+      "head": {
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "translation": [
+          0.0,
+          12.75,
+          1.65
+        ],
+        "scale": [
+          0.8,
+          0.8,
+          0.8
+        ]
+      }
+    }
+  }
+}
