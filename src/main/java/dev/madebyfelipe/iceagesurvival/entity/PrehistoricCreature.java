@@ -16,6 +16,7 @@ import dev.madebyfelipe.iceagesurvival.core.spawn.DangerZones;
 import dev.madebyfelipe.iceagesurvival.core.spawn.SpeciesSpacing;
 import dev.madebyfelipe.iceagesurvival.world.CreatureLocator;
 import dev.madebyfelipe.iceagesurvival.world.GroupSpacing;
+import dev.madebyfelipe.iceagesurvival.core.stats.BonusPoints;
 import dev.madebyfelipe.iceagesurvival.core.stats.Stat;
 import dev.madebyfelipe.iceagesurvival.core.stats.StatPoints;
 import dev.madebyfelipe.iceagesurvival.core.stats.StatProfile;
@@ -177,6 +178,10 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     private static final float RIVAL_YIELD_HEALTH = 0.5F;
 
     private static final String TAG_STAT_POINTS = "StatPoints";
+    private static final String TAG_BONUS_UNSPENT = "BonusUnspent";
+    private static final String TAG_BONUS_SPENT = "BonusSpent";
+    private static final String TAG_INCUBATOR_BORN = "IncubatorBorn";
+    private static final String TAG_INCUBATOR_GRANTED = "IncubatorGranted";
     private static final String TAG_TORPOR = "Torpor";
     private static final String TAG_UNCONSCIOUS = "Unconscious";
     private static final String TAG_TAMING = "Taming";
@@ -279,6 +284,11 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     /** Mutações por atributo herdadas; com os pontos e o gene, formam o {@link #genome()}. */
     private int[] mutations = new int[Stat.values().length];
     private boolean healthGene;
+    /** Pontos que o dono distribui (os da incubadora); fora do genoma, não são herdados. */
+    private BonusPoints bonusPoints = BonusPoints.NONE;
+    /** Chocou na incubadora: ao terminar de crescer ganha {@link BonusPoints#INCUBATOR_GRANT} pontos. */
+    private boolean incubatorBorn;
+    private boolean incubatorPointsGranted;
     private boolean statsRolled;
     private double torpor;
     private TamingSession tamingSession = new TamingSession();
@@ -1998,8 +2008,46 @@ public abstract class PrehistoricCreature extends TamableAnimal {
 
     // ---- Atributos ----
 
+    /** Pontos em vigor: os do genoma mais os distribuídos pelo dono. O nível sai daqui. */
     public StatPoints statPoints() {
-        return statPoints;
+        return statPoints.plus(bonusPoints.spent());
+    }
+
+    /** Saldo e escolhas dos pontos distribuíveis. Só no servidor. */
+    public BonusPoints bonusPoints() {
+        return bonusPoints;
+    }
+
+    /** Marca o filhote como chocado na incubadora (só os de agora em diante ganham os pontos). */
+    public void markIncubatorBorn() {
+        incubatorBorn = true;
+    }
+
+    /** Põe um ponto distribuível no atributo; falso sem saldo ou se o atributo não recebe pontos. */
+    public boolean spendBonusPoint(Stat stat) {
+        Optional<Species> species = species();
+        if (species.isEmpty() || !bonusPoints.canSpend(stat, species.get().stats().scalableStats())) {
+            return false;
+        }
+        bonusPoints = bonusPoints.spend(stat, species.get().stats().scalableStats());
+        applyStatPoints(species.get());
+        return true;
+    }
+
+    /** O filhote da incubadora ganha os pontos uma única vez, quando termina de crescer. */
+    @Override
+    protected void ageBoundaryReached() {
+        super.ageBoundaryReached();
+        if (level().isClientSide || isBaby() || !incubatorBorn || incubatorPointsGranted) {
+            return;
+        }
+        incubatorPointsGranted = true;
+        bonusPoints = bonusPoints.grant(BonusPoints.INCUBATOR_GRANT);
+        Player owner = getOwnerUUID() == null ? null : level().getPlayerByUUID(getOwnerUUID());
+        if (owner != null) {
+            owner.displayClientMessage(Component.translatable("iceagesurvival.status.bonus_granted", getName(),
+                    BonusPoints.INCUBATOR_GRANT), false);
+        }
     }
 
     /** O que a criatura passa aos filhotes: pontos, mutações e o gene de vida. Só no servidor. */
@@ -2024,7 +2072,7 @@ public abstract class PrehistoricCreature extends TamableAnimal {
 
     /** Torpor necessário para derrubar este indivíduo. */
     public double maxTorpor() {
-        return species().map(species -> species.stats().value(Stat.TORPOR, statPoints)).orElse(0.0);
+        return species().map(species -> species.stats().value(Stat.TORPOR, statPoints())).orElse(0.0);
     }
 
     @Override
@@ -2111,9 +2159,15 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         setHealth(getMaxHealth());
     }
 
-    private void setStatPoints(StatPoints points, Species species) {
-        statPoints = points;
+    private void setStatPoints(StatPoints genetic, Species species) {
+        statPoints = genetic;
         statsRolled = true;
+        applyStatPoints(species);
+    }
+
+    /** Aplica nível e atributos dos pontos em vigor (genoma mais distribuídos). */
+    private void applyStatPoints(Species species) {
+        StatPoints points = statPoints();
         entityData.set(DATA_LEVEL, points.level());
 
         StatProfile profile = species.stats();
@@ -2591,6 +2645,72 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         }
     }
 
+    // ---- Cápsula criogênica ----
+
+    private static final String TAG_FROZEN_GESTATION = "FrozenGestationLeft";
+    private static final String TAG_FROZEN_MATING = "FrozenMatingLeft";
+    private static final String TAG_FROZEN_FEED = "FrozenFeedLeft";
+
+    /** Se o jogador pode guardá-la numa cápsula: o dono, a até o alcance dos comandos; vale desmaiada. */
+    public boolean canBeFrozenBy(Player player) {
+        return isAlive() && isTame() && isOwner(player) && !isCorpse() && !isCarcass()
+                && distanceToSqr(player) <= dev.madebyfelipe.iceagesurvival.command.CreatureCommands.COMMAND_RANGE
+                        * dev.madebyfelipe.iceagesurvival.command.CreatureCommands.COMMAND_RANGE;
+    }
+
+    /**
+     * A criatura inteira para a cápsula, com identidade, inventário e sela. Congelada o tempo não passa: os
+     * relógios absolutos (gestação, acasalamento, alimentação) vão como tempo restante; idade e fome já são
+     * relativas. Desmonta quem estiver nela e solta a guia antes.
+     */
+    public CompoundTag freezeData() {
+        ejectPassengers();
+        stopRiding();
+        dropLeash(true, false);
+        CompoundTag tag = saveWithoutId(new CompoundTag());
+        for (String key : new String[] {TAG_HOME, "Pos", "Motion", "Rotation", "Passengers", "Leash", "FallDistance"}) {
+            tag.remove(key);
+        }
+        long now = level().getGameTime();
+        if (gestationChild != null) {
+            tag.remove(TAG_GESTATION_END);
+            tag.putLong(TAG_FROZEN_GESTATION, Math.max(0L, gestationEnd - now));
+        }
+        tag.remove(TAG_NEXT_MATING);
+        tag.putLong(TAG_FROZEN_MATING, Math.max(0L, nextMatingTime - now));
+        tag.remove(TAG_NEXT_FEED_TIME);
+        tag.putLong(TAG_FROZEN_FEED, Math.max(0L, nextFeedTime - now));
+        return tag;
+    }
+
+    /**
+     * Descongela na posição dada, se o corpo couber ali e a mesma criatura não estiver no mundo. Nada é posto
+     * no mundo se falhar.
+     */
+    @Nullable
+    public static PrehistoricCreature thaw(ServerLevel level, EntityType<?> type, CompoundTag frozen, Vec3 pos) {
+        if (!(type.create(level) instanceof PrehistoricCreature creature)) {
+            return null;
+        }
+        CompoundTag tag = frozen.copy();
+        long now = level.getGameTime();
+        if (tag.contains(TAG_FROZEN_GESTATION)) {
+            tag.putLong(TAG_GESTATION_END, now + tag.getLong(TAG_FROZEN_GESTATION));
+        }
+        tag.putLong(TAG_NEXT_MATING, now + tag.getLong(TAG_FROZEN_MATING));
+        tag.putLong(TAG_NEXT_FEED_TIME, now + tag.getLong(TAG_FROZEN_FEED));
+        tag.remove(TAG_FROZEN_GESTATION);
+        tag.remove(TAG_FROZEN_MATING);
+        tag.remove(TAG_FROZEN_FEED);
+        creature.load(tag);
+        creature.moveTo(pos.x, pos.y, pos.z, level.random.nextFloat() * 360.0F, 0.0F);
+        if (CreatureLocator.findLoaded(level.getServer(), creature.getUUID()) != null
+                || !level.noCollision(creature, creature.getBoundingBox()) || !level.addFreshEntity(creature)) {
+            return null;
+        }
+        return creature;
+    }
+
     /** Os dados que o implante guarda: a criatura inteira, menos o que fica no corpo e o que é do lugar. */
     public CompoundTag implantData() {
         CompoundTag tag = saveWithoutId(new CompoundTag());
@@ -2729,7 +2849,7 @@ public abstract class PrehistoricCreature extends TamableAnimal {
 
     /** Fôlego de voo máximo, em segundos (atributo {@code flight_stamina}; 0 = não voa). */
     public double maxFlightStamina() {
-        return species().map(species -> species.stats().value(Stat.FLIGHT_STAMINA, statPoints)).orElse(0.0);
+        return species().map(species -> species.stats().value(Stat.FLIGHT_STAMINA, statPoints())).orElse(0.0);
     }
 
     /** Fôlego de voo restante, de 0 a 1. */
@@ -3763,8 +3883,9 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         net.minecraft.world.item.Item usedItem = player.getItemInHand(hand).getItem();
         if (usedItem instanceof dev.madebyfelipe.iceagesurvival.item.AnalyzerItem
                 || usedItem instanceof dev.madebyfelipe.iceagesurvival.item.TitanSerumItem
-                || usedItem instanceof dev.madebyfelipe.iceagesurvival.item.StasisProjectorItem) {
-            return InteractionResult.PASS; // Analisador, soro e projetor agem pelo item: o clique segue para ele
+                || usedItem instanceof dev.madebyfelipe.iceagesurvival.item.StasisProjectorItem
+                || usedItem instanceof dev.madebyfelipe.iceagesurvival.item.CryoCapsuleItem) {
+            return InteractionResult.PASS; // Analisador, soro, projetor e cápsula agem pelo item: o clique segue para ele
         }
         if (isApex() && !isTame() && !isUnconscious() && duel == null && isTrophyOf(player.getItemInHand(hand))) {
             if (!level().isClientSide) {
@@ -4065,6 +4186,20 @@ public abstract class PrehistoricCreature extends TamableAnimal {
             }
             compound.put(TAG_STAT_POINTS, points);
         }
+        if (bonusPoints.unspent() > 0 || bonusPoints.spent().total() > 0) {
+            compound.putInt(TAG_BONUS_UNSPENT, bonusPoints.unspent());
+            CompoundTag spent = new CompoundTag();
+            for (Stat stat : Stat.values()) {
+                if (bonusPoints.spent().get(stat) > 0) {
+                    spent.putInt(stat.id(), bonusPoints.spent().get(stat));
+                }
+            }
+            compound.put(TAG_BONUS_SPENT, spent);
+        }
+        if (incubatorBorn) {
+            compound.putBoolean(TAG_INCUBATOR_BORN, true);
+            compound.putBoolean(TAG_INCUBATOR_GRANTED, incubatorPointsGranted);
+        }
         compound.putDouble(TAG_TORPOR, torpor);
         compound.putDouble(TAG_STRESS, stress);
         if (lastMealTime != Long.MIN_VALUE) {
@@ -4151,6 +4286,15 @@ public abstract class PrehistoricCreature extends TamableAnimal {
             gestationEnd = compound.getLong(TAG_GESTATION_END);
             gestationChild = GenomeNbt.read(compound.getCompound(TAG_GESTATION_CHILD));
         }
+        // Antes dos pontos do genoma: o nível e os atributos somam os distribuídos.
+        incubatorBorn = compound.getBoolean(TAG_INCUBATOR_BORN);
+        incubatorPointsGranted = compound.getBoolean(TAG_INCUBATOR_GRANTED);
+        StatPoints bonusSpent = StatPoints.NONE;
+        CompoundTag bonusTag = compound.getCompound(TAG_BONUS_SPENT);
+        for (Stat stat : Stat.values()) {
+            bonusSpent = bonusSpent.with(stat, Math.max(0, bonusTag.getInt(stat.id())));
+        }
+        bonusPoints = new BonusPoints(Math.max(0, compound.getInt(TAG_BONUS_UNSPENT)), bonusSpent);
         if (compound.contains(TAG_STAT_POINTS, Tag.TAG_COMPOUND)) {
             CompoundTag saved = compound.getCompound(TAG_STAT_POINTS);
             StatPoints points = StatPoints.NONE;

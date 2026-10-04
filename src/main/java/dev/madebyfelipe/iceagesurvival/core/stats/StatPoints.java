@@ -61,6 +61,15 @@ public final class StatPoints {
         return new StatPoints(copy);
     }
 
+    /** Soma ponto a ponto. */
+    public StatPoints plus(StatPoints other) {
+        int[] copy = points.clone();
+        for (int i = 0; i < copy.length; i++) {
+            copy[i] += other.points[i];
+        }
+        return new StatPoints(copy);
+    }
+
     public int total() {
         return Arrays.stream(points).sum();
     }

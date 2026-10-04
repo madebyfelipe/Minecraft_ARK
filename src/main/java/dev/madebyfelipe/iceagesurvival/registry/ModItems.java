@@ -204,6 +204,11 @@ public final class ModItems {
     public static final RegistryObject<dev.madebyfelipe.iceagesurvival.item.ImplantItem> IMPLANT = ITEMS.register(
             "implant", () -> new dev.madebyfelipe.iceagesurvival.item.ImplantItem(new Item.Properties()));
 
+    /** Guarda uma criatura domesticada do dono e a solta em outro lugar; reutilizável. */
+    public static final RegistryObject<dev.madebyfelipe.iceagesurvival.item.CryoCapsuleItem> CRYO_CAPSULE =
+            ITEMS.register("cryo_capsule",
+                    () -> new dev.madebyfelipe.iceagesurvival.item.CryoCapsuleItem(new Item.Properties()));
+
     /** Charque: carne com açúcar na estação de preparação. Não estraga e sacia mais que a carne assada. */
     public static final RegistryObject<Item> JERKY = ITEMS.register("jerky", () -> new Item(new Item.Properties()
             .food(new FoodProperties.Builder().nutrition(8).saturationMod(0.9F).meat().build())));
@@ -305,6 +310,7 @@ public final class ModItems {
             event.accept(SERRATED_TOOTH);
             event.accept(TITAN_SERUM);
             event.accept(STASIS_PROJECTOR);
+            event.accept(CRYO_CAPSULE);
         } else if (event.getTabKey() == CreativeModeTabs.NATURAL_BLOCKS) {
             event.accept(BLACK_FRUIT_LEAVES);
             event.accept(BLACK_FRUIT_SAPLING);

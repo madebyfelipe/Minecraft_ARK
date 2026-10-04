@@ -7,6 +7,7 @@ import dev.madebyfelipe.iceagesurvival.core.stats.Stat;
 import dev.madebyfelipe.iceagesurvival.entity.PrehistoricCreature;
 import dev.madebyfelipe.iceagesurvival.network.CreatureStatusPayload;
 import dev.madebyfelipe.iceagesurvival.network.ModPayloads;
+import dev.madebyfelipe.iceagesurvival.network.SpendBonusPointPayload;
 import dev.madebyfelipe.iceagesurvival.network.StatusRequestPayload;
 import dev.madebyfelipe.iceagesurvival.network.ToggleMatingPayload;
 import dev.madebyfelipe.iceagesurvival.network.WhistlePayload;
@@ -32,6 +33,8 @@ public class CreatureStatusScreen extends Screen {
     private static final int PREVIEW_WIDTH = 96;
     private static final int REFRESH_TICKS = 20;
     private static final int ROW_HEIGHT = 11;
+    /** Lado do botão "+" dos pontos distribuíveis, à direita da linha do atributo. */
+    private static final int SPEND_SIZE = 10;
 
     private static final int LABEL = TechStyle.SUBTLE;
     private static final int VALUE = TechStyle.TEXT;
@@ -46,6 +49,7 @@ public class CreatureStatusScreen extends Screen {
     private final PrehistoricCreature creature;
     private CreatureStatusPayload status;
     private final Map<Whistle, Button> buttons = new EnumMap<>(Whistle.class);
+    private final Map<Stat, Button> spendButtons = new EnumMap<>(Stat.class);
     private int ticks;
     private Button mating;
     private int left;
@@ -86,6 +90,7 @@ public class CreatureStatusScreen extends Screen {
         mating = addRenderableWidget(new TechButton(x, y, (WIDTH - 16 - 4 * 2) / 3, 18, matingLabel(),
                 TechStyle.BRIGHT, b -> ModPayloads.sendToServer(new ToggleMatingPayload(creature.getId()))));
         addWhistleRow(y + 22, 4, Whistle.PASSIVE, Whistle.NEUTRAL, Whistle.DEFEND, Whistle.FLEE);
+        addSpendButtons();
         updateButtons();
     }
 
@@ -105,6 +110,27 @@ public class CreatureStatusScreen extends Screen {
         return x;
     }
 
+    /** Um "+" por atributo que recebe pontos, na altura da linha dele em {@link #renderStats}. */
+    private void addSpendButtons() {
+        spendButtons.clear();
+        int x = left + WIDTH - 8 - SPEND_SIZE;
+        int y = top + 27;
+        int[] offsets = {0, ROW_HEIGHT + 2, 2 * ROW_HEIGHT + 2, 3 * ROW_HEIGHT + 2, 4 * ROW_HEIGHT + 4,
+                5 * ROW_HEIGHT + 4};
+        for (Stat stat : Stat.wildScalableStats(true)) {
+            Button button = new TechButton(x, y + offsets[stat.ordinal()] - 1, SPEND_SIZE, SPEND_SIZE,
+                    Component.literal("+"), TechStyle.BRIGHT,
+                    b -> ModPayloads.sendToServer(new SpendBonusPointPayload(creature.getId(), stat)));
+            spendButtons.put(stat, addRenderableWidget(button));
+        }
+    }
+
+    /** Atributos que recebem pontos nesta criatura: o fôlego só de quem voa. */
+    private boolean spendable(Stat stat) {
+        return status.bonusUnspent() > 0
+                && Stat.wildScalableStats(status.baseValue(Stat.FLIGHT_STAMINA) > 0).contains(stat);
+    }
+
     private Component matingLabel() {
         return Component.translatable(creature.isMatingEnabled() ? "iceagesurvival.status.mating_short_on"
                 : "iceagesurvival.status.mating_short_off");
@@ -116,6 +142,7 @@ public class CreatureStatusScreen extends Screen {
             mating.setMessage(matingLabel());
             mating.active = !creature.isBaby() && creature.breedingProfile().isPresent();
         }
+        spendButtons.forEach((stat, button) -> button.visible = spendable(stat));
         buttons.forEach((whistle, button) -> button.active =
                 whistle.movement().map(movement -> movement != creature.movement()).orElse(true)
                         && whistle.stance().map(stance -> stance != creature.stance()).orElse(true));
@@ -266,10 +293,18 @@ public class CreatureStatusScreen extends Screen {
             infoRow(graphics, x, right, y, "iceagesurvival.status.maturation",
                     Component.literal(Math.round(status.maturation() * 100) + "%"));
             TechStyle.bar(graphics, x, y + 9, right - x, 2, status.maturation(), TechStyle.ACCENT);
+        } else if (status.bonusUnspent() > 0) {
+            graphics.drawString(font, Component.translatable("iceagesurvival.status.bonus"), x, y, LABEL);
+            String unspent = String.valueOf(status.bonusUnspent());
+            graphics.drawString(font, unspent, right - font.width(unspent), y, LEVEL);
         }
     }
 
     private void statRow(GuiGraphics graphics, int x, int right, int y, Stat stat, String value) {
+        if (spendable(stat)) {
+            // Abre espaço para o "+".
+            right -= SPEND_SIZE + 2;
+        }
         graphics.drawString(font, Component.translatable("iceagesurvival.stat." + stat.id()), x, y, LABEL);
         int points = status.points(stat);
         String pointsText = points > 0 ? " +" + points : "";

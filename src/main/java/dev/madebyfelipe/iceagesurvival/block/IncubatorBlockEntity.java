@@ -162,6 +162,7 @@ public class IncubatorBlockEntity extends StationBlockEntity {
         if (baby == null) {
             return;
         }
+        baby.markIncubatorBorn();
         setItem(EGG_SLOT, ItemStack.EMPTY);
         level.playSound(null, worldPosition, SoundEvents.TURTLE_EGG_HATCH, SoundSource.BLOCKS, 1.0F, 1.0F);
         setChanged();

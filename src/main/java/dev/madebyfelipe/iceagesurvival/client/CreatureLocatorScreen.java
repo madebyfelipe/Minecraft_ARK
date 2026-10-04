@@ -67,6 +67,7 @@ public class CreatureLocatorScreen extends Screen {
         rows = sorted;
         scroll = Math.max(0, Math.min(scroll, rows.size() - visibleRows));
         clearWidgets();
+        CryoCapsuleScreen.tabs(left + WIDTH, top, false).forEach(this::addRenderableWidget);
         for (int index = 0; index < visibleRows && scroll + index < rows.size(); index++) {
             CreatureLocator.Entry entry = rows.get(scroll + index);
             boolean tracking = entry.creature().equals(CreatureTracker.tracked());
@@ -134,11 +135,13 @@ public class CreatureLocatorScreen extends Screen {
 
     /** Ponto piscando, título, a página e a linha com um brilho correndo por ela. */
     private void drawHeader(GuiGraphics graphics, int right) {
-        TechStyle.header(graphics, font, title, left + 8, top + 8, right - 8, 12);
+        // As abas (Localizar · Cápsulas) ficam no canto direito do cabeçalho.
+        int headerRight = right - 8 - CryoCapsuleScreen.tabsWidth() - 6;
+        TechStyle.header(graphics, font, title, left + 8, top + 8, headerRight, 12);
         if (rows.size() > visibleRows) {
             Component page = Component.literal((scroll + 1) + "–" + Math.min(rows.size(), scroll + visibleRows)
                     + " / " + rows.size());
-            graphics.drawString(font, page, right - 8 - font.width(page), top + 8, RadarHud.SUBTLE);
+            graphics.drawString(font, page, headerRight - font.width(page), top + 8, RadarHud.SUBTLE);
         }
     }
 

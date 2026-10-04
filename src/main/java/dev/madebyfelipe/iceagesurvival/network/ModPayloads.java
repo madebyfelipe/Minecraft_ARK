@@ -9,7 +9,7 @@ import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.simple.SimpleChannel;
 
 public final class ModPayloads {
-    private static final String PROTOCOL_VERSION = "13";
+    private static final String PROTOCOL_VERSION = "14";
     private static int nextMessageId;
 
     public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(
@@ -29,6 +29,10 @@ public final class ModPayloads {
                 AttackOrderPayload::handle);
         registerServerbound(ToggleMatingPayload.class, ToggleMatingPayload::encode, ToggleMatingPayload::decode,
                 ToggleMatingPayload::handle);
+        registerServerbound(SpendBonusPointPayload.class, SpendBonusPointPayload::encode,
+                SpendBonusPointPayload::decode, SpendBonusPointPayload::handle);
+        registerServerbound(CryoCapsulePayload.class, CryoCapsulePayload::encode, CryoCapsulePayload::decode,
+                CryoCapsulePayload::handle);
         registerServerbound(StatusRequestPayload.class, StatusRequestPayload::encode, StatusRequestPayload::decode,
                 StatusRequestPayload::handle);
         registerServerbound(LocateRequestPayload.class, LocateRequestPayload::encode, LocateRequestPayload::decode,

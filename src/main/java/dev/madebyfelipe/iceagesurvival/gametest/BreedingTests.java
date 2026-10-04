@@ -4,6 +4,7 @@ import dev.madebyfelipe.iceagesurvival.IceAgeSurvival;
 import dev.madebyfelipe.iceagesurvival.block.ChemistryBenchBlockEntity;
 import dev.madebyfelipe.iceagesurvival.block.IncubatorBlockEntity;
 import dev.madebyfelipe.iceagesurvival.core.genetics.Genome;
+import dev.madebyfelipe.iceagesurvival.core.stats.BonusPoints;
 import dev.madebyfelipe.iceagesurvival.core.stats.Stat;
 import dev.madebyfelipe.iceagesurvival.core.stats.StatPoints;
 import dev.madebyfelipe.iceagesurvival.entity.LandCreature;
@@ -199,6 +200,48 @@ public class BreedingTests {
         smilodon.mobInteract(player, InteractionHand.MAIN_HAND);
         helper.assertTrue(smilodon.torpor() < before, "torpor não caiu: " + smilodon.torpor());
         helper.assertTrue(player.getItemInHand(InteractionHand.MAIN_HAND).isEmpty(), "estimulante não foi gasto");
+        helper.succeed();
+    }
+
+    @GameTest(template = ARENA, batch = "breeding_11")
+    public static void incubatorBabyGetsTenPointsOnceWhenGrown(GameTestHelper helper) {
+        Player owner = helper.makeMockSurvivalPlayer();
+        Genome genome = Genome.wild(StatPoints.NONE.with(Stat.ATTACK, 4), false);
+        net.minecraft.world.phys.Vec3 pos = helper.absoluteVec(new net.minecraft.world.phys.Vec3(4.5, 1, 4.5));
+        PrehistoricCreature hatched = PrehistoricCreature.spawnOffspring(helper.getLevel(),
+                ModEntities.SMILODON.get(), genome, owner.getUUID(), pos);
+        PrehistoricCreature born = PrehistoricCreature.spawnOffspring(helper.getLevel(),
+                ModEntities.SMILODON.get(), genome, owner.getUUID(), pos);
+        hatched.markIncubatorBorn();
+        hatched.setAge(0);
+        born.setAge(0);
+        helper.assertTrue(hatched.bonusPoints().unspent() == BonusPoints.INCUBATOR_GRANT,
+                "filhote da incubadora adulto sem os pontos: " + hatched.bonusPoints());
+        helper.assertTrue(born.bonusPoints().unspent() == 0, "filhote de parto ganhou pontos");
+
+        int level = hatched.creatureLevel();
+        helper.assertTrue(hatched.spendBonusPoint(Stat.HEALTH) && hatched.spendBonusPoint(Stat.HEALTH)
+                && hatched.spendBonusPoint(Stat.ARMOR), "não aceitou ponto em vida/armadura");
+        helper.assertFalse(hatched.spendBonusPoint(Stat.SPEED), "aceitou ponto em velocidade");
+        helper.assertFalse(hatched.spendBonusPoint(Stat.FLIGHT_STAMINA), "aceitou fôlego em quem não voa");
+        helper.assertTrue(hatched.creatureLevel() == level + 3, "nível não subiu um por ponto");
+        var stats = hatched.species().orElseThrow().stats();
+        helper.assertTrue(Math.abs(hatched.getMaxHealth() - stats.value(Stat.HEALTH, 2)) < 1e-3,
+                "vida máxima não usa os pontos distribuídos");
+        helper.assertTrue(hatched.genome().equals(genome), "pontos distribuídos entraram no genoma");
+
+        PrehistoricCreature loaded = ModEntities.SMILODON.get().create(helper.getLevel());
+        loaded.load(hatched.saveWithoutId(new CompoundTag()));
+        loaded.setUUID(UUID.randomUUID());
+        helper.assertTrue(loaded.bonusPoints().equals(hatched.bonusPoints()) && loaded.creatureLevel() == level + 3,
+                "pontos não persistiram: " + loaded.bonusPoints());
+        loaded.setAge(-100);
+        loaded.setAge(0);
+        helper.assertTrue(loaded.bonusPoints().unspent() == BonusPoints.INCUBATOR_GRANT - 3,
+                "ganhou os pontos de novo: " + loaded.bonusPoints());
+        // Adultos domesticados não ficam no mundo para os testes seguintes.
+        hatched.discard();
+        born.discard();
         helper.succeed();
     }
 }

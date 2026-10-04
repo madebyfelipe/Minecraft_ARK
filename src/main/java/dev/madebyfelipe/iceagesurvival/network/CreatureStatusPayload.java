@@ -19,10 +19,12 @@ import net.minecraftforge.network.NetworkEvent;
  * @param healthGene se carrega o gene de mutação de vida
  * @param gestation  fração da gestação, ou −1 se não estiver prenhe
  * @param maturation fração do crescimento; 1 = adulto
+ * @param bonusUnspent pontos distribuíveis ainda sem atributo (os da incubadora)
  */
 public record CreatureStatusPayload(int creatureId, int[] points, double[] values, double[] baseValues,
                                     float health, double torpor, float affinity, String ownerName,
-                                    int mutations, boolean healthGene, float gestation, float maturation) {
+                                    int mutations, boolean healthGene, float gestation, float maturation,
+                                    int bonusUnspent) {
 
     /** Quem recebe; o cliente registra aqui como abrir ou atualizar a tela. */
     private static java.util.function.Consumer<CreatureStatusPayload> clientHandler = payload -> { };
@@ -45,7 +47,7 @@ public record CreatureStatusPayload(int creatureId, int[] points, double[] value
         return new CreatureStatusPayload(creature.getId(), points, values, baseValues,
                 creature.getHealth(), creature.torpor(), creature.affinity(), ownerName,
                 creature.genome().totalMutations(), creature.genome().healthGene(),
-                creature.gestationProgress(), creature.maturationProgress());
+                creature.gestationProgress(), creature.maturationProgress(), creature.bonusPoints().unspent());
     }
 
     public static CreatureStatusPayload decode(FriendlyByteBuf buf) {
@@ -61,7 +63,7 @@ public record CreatureStatusPayload(int creatureId, int[] points, double[] value
         }
         return new CreatureStatusPayload(id, points, values, baseValues,
                 buf.readFloat(), buf.readDouble(), buf.readFloat(), buf.readUtf(),
-                buf.readVarInt(), buf.readBoolean(), buf.readFloat(), buf.readFloat());
+                buf.readVarInt(), buf.readBoolean(), buf.readFloat(), buf.readFloat(), buf.readVarInt());
     }
 
     public static void encode(CreatureStatusPayload message, FriendlyByteBuf buf) {
@@ -79,6 +81,7 @@ public record CreatureStatusPayload(int creatureId, int[] points, double[] value
         buf.writeBoolean(message.healthGene);
         buf.writeFloat(message.gestation);
         buf.writeFloat(message.maturation);
+        buf.writeVarInt(message.bonusUnspent);
     }
 
     public int points(Stat stat) {
