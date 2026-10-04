@@ -40,3 +40,7 @@ repo/
 !**/src/**/repo/
 __pycache__/
 *.pyc
+
+# Estudos locais derivados dos assets de mods instalados pelo usuário.
+# Nunca entram no repositório ou no jar.
+/art/titanovenator/local/

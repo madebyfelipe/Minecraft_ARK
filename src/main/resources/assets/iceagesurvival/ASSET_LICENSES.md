@@ -1,5 +1,11 @@
 # Procedência dos assets de criatura
 
+O estudo local do **Titanovenator**, solicitado pelo Felipe, usa o Rex do Revival como base de
+alterações graduais. `tools/study_titanovenator.py` lê o mod instalado separadamente e grava
+os derivados somente em `art/titanovenator/local/`, ignorado pelo Git e fora dos recursos do jar.
+Esses derivados não são arte inteiramente original e não devem ser versionados ou distribuídos.
+O script/visualizador versionados não contêm modelos, texturas ou animações do Revival.
+
 Este mod usa modelos, texturas, animações e sons fornecidos em runtime pelo mod
 **Fossils and Archeology: Revival** para algumas espécies. Esses arquivos não são copiados,
 incluídos neste repositório nem empacotados no jar do Ice Age Survival. O mod Revival deve ser

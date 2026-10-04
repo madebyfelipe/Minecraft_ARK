@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="pt-BR">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Titanovenator · estudo sobre o Rex</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f3f1eb;color:#34382e;font:14px system-ui,sans-serif}header{padding:30px 4vw 18px;display:flex;align-items:end;justify-content:space-between;gap:20px}h1{font:500 clamp(30px,4vw,48px) Georgia,serif;margin:0;letter-spacing:-1.5px}.eyebrow{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#6a725c;margin-bottom:8px}.subtitle{color:#73776d;margin:8px 0 0}main{margin:0 3vw}section{position:relative;border:1px solid #d9ddd2;border-radius:18px;overflow:hidden;background:radial-gradient(ellipse at 50% 43%,#fffefa,#e4e7dd);height:65vh;min-height:350px}canvas{width:100%;height:100%;display:block;touch-action:none;cursor:grab}canvas:active{cursor:grabbing}#status{position:absolute;top:18px;left:20px;font-size:12px;color:#626b57;pointer-events:none}.hint{position:absolute;bottom:18px;left:20px;color:#7a806e;font-size:11px;pointer-events:none}.toolbar{display:flex;gap:20px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:20px 2px}.group{display:flex;align-items:center;gap:6px}button,a{border:1px solid #cbd1c1;border-radius:7px;padding:9px 13px;background:#fafaf5;color:#424b37;text-decoration:none;font:inherit;cursor:pointer}button:hover,a:hover{background:#e5eadb}button[aria-pressed=true]{background:#536146;border-color:#536146;color:white}label{display:flex;gap:10px;align-items:center;font-size:12px}input{accent-color:#536146;max-width:140px}footer{border-top:1px solid #d8dccc;padding:20px 0;color:#787d70;display:flex;justify-content:space-between;gap:20px;font-size:12px}.downloads{display:flex;gap:6px;flex-wrap:wrap}.downloads a{font-size:11px;padding:7px 10px}#jawValue{min-width:27px}@media(max-width:600px){header{align-items:start;flex-direction:column}.toolbar{gap:14px}footer{flex-direction:column}section{height:58vh}.hint{max-width:200px}}
+</style>
+<header><div><div class="eyebrow">Ice Age Survival / oficina de criaturas</div><h1>Titanovenator · estudo sobre o Rex</h1><p class="subtitle">Passo 1: volume corporal</p></div><div class="eyebrow">Comparação local · proporções</div></header>
+<main><section><canvas id="view" aria-label="Modelo tridimensional orbitável do Titanovenator"></canvas><div id="status" role="status">Carregando textura e geometria…</div><div class="hint">Arraste para orbitar · role para aproximar<br>Toque: arraste ou use dois dedos para zoom</div></section>
+<div class="toolbar"><div class="group" aria-label="Modelo"><button data-model="original" aria-pressed="false">Rex original</button><button data-model="modified" aria-pressed="true">Passo 1 · volume</button></div><div class="group" aria-label="Câmera"><button data-view="side">Lateral</button><button data-view="front">Frente</button><button data-view="three" aria-pressed="true">3⁄4 · corpo</button><button data-view="head">Cabeça</button></div><div class="group"><button id="material" aria-pressed="true">Textura</button><button id="clay" aria-pressed="false">Argila</button></div><label for="jaw">Mandíbula <input id="jaw" type="range" min="0" max="30" value="0"><output id="jawValue">0°</output></label></div>
+<footer><div>Base: Fossils &amp; Archaeology: Revival · estudo local de proporções.<br>Textura e rig originais; animações preservadas em arquivo, ainda não pré-visualizadas.</div><div class="downloads"><a id="capture" href="#" download="titanovenator-captura.png">↓ Captura PNG</a><a id="modelDownload" href="titanovenator.bbmodel" download>↓ Blockbench</a><a id="geoDownload" href="titanovenator.geo.json" download>↓ Geometria</a><a href="titanovenator.png" download>↓ Textura PNG</a></div></footer></main>
+<script>
+'use strict';
+const SOURCE_ORIGINAL=__GEOMETRY_ORIGINAL__;
+const SOURCE_MODIFIED=__GEOMETRY_MODIFIED__;
+const TEXTURE='__TEXTURE_DATA__';
+const canvas=document.querySelector('#view'),status=document.querySelector('#status');
+function fail(e){status.textContent='Não foi possível abrir a prévia: '+e.message;status.style.color='#a03729';console.error(e)}
+try{start()}catch(e){fail(e)}
+function start(){
+ const gl=canvas.getContext('webgl',{antialias:true,alpha:false,preserveDrawingBuffer:true});if(!gl)throw Error('WebGL indisponível. Abra em um navegador com aceleração gráfica.');
+ canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();fail(Error('Contexto gráfico interrompido. Recarregue a página.'))});
+ const shader=(type,source)=>{const s=gl.createShader(type);gl.shaderSource(s,source);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw Error(gl.getShaderInfoLog(s));return s};
+ const program=gl.createProgram();gl.attachShader(program,shader(gl.VERTEX_SHADER,`attribute vec3 p;attribute vec3 n;attribute vec2 uv;uniform mat4 vp;varying vec3 normal;varying vec2 tex;void main(){gl_Position=vp*vec4(p,1.);normal=n;tex=uv;}`));
+ gl.attachShader(program,shader(gl.FRAGMENT_SHADER,`precision mediump float;varying vec3 normal;varying vec2 tex;uniform sampler2D skin;uniform bool clay;void main(){vec4 t=texture2D(skin,tex);if(t.a<0.2)discard;vec3 base=clay?vec3(.53,.49,.40):t.rgb;vec3 norm=normalize(normal);float light=.56+.38*max(dot(norm,normalize(vec3(-.5,1.,-.7))),0.)+.14*max(dot(norm,normalize(vec3(.6,.4,1.))),0.);gl_FragColor=vec4(base*light,1.);}`));
+ gl.linkProgram(program);if(!gl.getProgramParameter(program,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(program));gl.useProgram(program);
+ const vpLoc=gl.getUniformLocation(program,'vp'),clayLoc=gl.getUniformLocation(program,'clay');
+ const buffer=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buffer);
+ for(const [name,size,offset] of [['p',3,0],['n',3,12],['uv',2,24]]){const loc=gl.getAttribLocation(program,name);gl.enableVertexAttribArray(loc);gl.vertexAttribPointer(loc,size,gl.FLOAT,false,32,offset)}
+ function importModel(source){
+ const geo=source['minecraft:geometry'][0];
+ // Importação Bedrock → espaço interno Blockbench (codec Bedrock v4.12.6).
+ const pivot=p=>[-p[0],p[1],p[2]],rotation=r=>[-r[0],-r[1],r[2]];
+ const bones=geo.bones.map(b=>({...b,pivot:pivot(b.pivot||[0,0,0]),rotation:rotation(b.rotation||[0,0,0]),cubes:(b.cubes||[]).map(c=>({...c,origin:[-(c.origin[0]+c.size[0]),c.origin[1],c.origin[2]],pivot:pivot(c.pivot||[0,0,0]),rotation:rotation(c.rotation||[0,0,0])}))}));
+ const byName=Object.fromEntries(bones.map(b=>[b.name,b]));
+ return {bones,byName,tw:geo.description.texture_width,th:geo.description.texture_height};
+ }
+ const models={original:importModel(SOURCE_ORIGINAL),modified:importModel(SOURCE_MODIFIED)};
+ let selectedModel='modified';
+ const rot=(v,r)=>{let [x,y,z]=v;for(let a=2;a>=0;a--){const c=Math.cos((r[a]||0)*Math.PI/180),s=Math.sin((r[a]||0)*Math.PI/180);if(a===0)[y,z]=[y*c-z*s,y*s+z*c];if(a===1)[x,z]=[x*c+z*s,-x*s+z*c];if(a===2)[x,y]=[x*c-y*s,x*s+y*c]}return[x,y,z]};
+ const around=(v,p,r)=>rot(v.map((a,i)=>a-p[i]),r).map((a,i)=>a+p[i]);
+ let jaw=0,vertexCount=0,radius=145,modelPoints=[],headPoints=[];
+ function mesh(model){const {bones,byName,tw,th}=model;const modelPoints=[],headPoints=[],data=[],bounds=[[Infinity,Infinity,Infinity],[-Infinity,-Infinity,-Infinity]];
+ for(const b of bones)for(const cube of b.cubes||[]){const o=cube.origin,s=cube.size,inflate=cube.inflate||0,x=o[0]-inflate,y=o[1]-inflate,z=o[2]-inflate,X=o[0]+s[0]+inflate,Y=o[1]+s[1]+inflate,Z=o[2]+s[2]+inflate;
+ const faces={north:[[X,Y,z],[x,Y,z],[x,y,z],[X,y,z]],south:[[x,Y,Z],[X,Y,Z],[X,y,Z],[x,y,Z]],east:[[X,Y,Z],[X,Y,z],[X,y,z],[X,y,Z]],west:[[x,Y,z],[x,Y,Z],[x,y,Z],[x,y,z]],up:[[x,Y,z],[X,Y,z],[X,Y,Z],[x,Y,Z]],down:[[x,y,Z],[X,y,Z],[X,y,z],[x,y,z]]};
+ const normals={north:[0,0,-1],south:[0,0,1],east:[1,0,0],west:[-1,0,0],up:[0,1,0],down:[0,-1,0]};
+ for(const [face,points] of Object.entries(faces)){const f=cube.uv[face];if(!f)continue;let n=rot(normals[face],cube.rotation||[0,0,0]);let pts=points.map(p=>around(p,cube.pivot||[0,0,0],cube.rotation||[0,0,0]));let bone=b,isHead=false;const seen=new Set();while(bone){if(seen.has(bone.name))throw Error('Ciclo na hierarquia de ossos');seen.add(bone.name);if(bone.name==='head')isHead=true;const r=[...(bone.rotation||[0,0,0])];if(bone.name==='lowerJaw')r[0]-=jaw;pts=pts.map(p=>around(p,bone.pivot||[0,0,0],r));n=rot(n,r);bone=bone.parent?byName[bone.parent]:null;}
+ let [u,v]=f.uv,[w,h]=f.uv_size;if(face==='up'||face==='down'){u+=w;v+=h;w=-w;h=-h}const uvs=[[u,v],[u+w,v],[u+w,v+h],[u,v+h]];
+ for(const i of [0,1,2,0,2,3]){const p=pts[i];modelPoints.push(p);if(isHead)headPoints.push(p);p.forEach((a,j)=>{bounds[0][j]=Math.min(bounds[0][j],a);bounds[1][j]=Math.max(bounds[1][j],a)});data.push(...p,...n,uvs[i][0]/tw,uvs[i][1]/th)}
+ }}vertexCount=data.length/8;gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(data),gl.DYNAMIC_DRAW);return {bounds,modelPoints,headPoints};}
+ const reference=mesh(models.original),bounds=reference.bounds;modelPoints=reference.modelPoints;headPoints=reference.headPoints;jaw=30;headPoints.push(...mesh(models.original).headPoints);jaw=0;mesh(models.modified);radius=Math.hypot(...bounds[1].map((v,i)=>v-bounds[0][i]))/2;
+ const sub=(a,b)=>a.map((v,i)=>v-b[i]),dot=(a,b)=>a.reduce((s,v,i)=>s+v*b[i],0),cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]],unit=a=>a.map(v=>v/Math.hypot(...a));
+ const mul=(a,b)=>{const m=[];for(let c=0;c<4;c++)for(let r=0;r<4;r++){m[c*4+r]=0;for(let k=0;k<4;k++)m[c*4+r]+=a[k*4+r]*b[c*4+k]}return m};
+ let yaw=-1.05,pitch=.16,zoom=1,clay=false,ready=false,headView=false;
+ function draw(){
+  if(!ready)return;
+  const dpr=Math.min(devicePixelRatio||1,2),w=Math.max(1,Math.round(canvas.clientWidth*dpr)),h=Math.max(1,Math.round(canvas.clientHeight*dpr));
+  if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h}
+  gl.viewport(0,0,w,h);gl.clearColor(243/255,241/255,235/255,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);gl.enable(gl.DEPTH_TEST);
+  const aspect=w/h,z=[Math.cos(pitch)*Math.sin(yaw),Math.sin(pitch),-Math.cos(pitch)*Math.cos(yaw)],x=unit(cross([0,1,0],z)),y=cross(z,x);
+  // Extremos dos vértices já transformados no plano da câmera: a frente estreita
+  // e a cabeça recebem seu próprio enquadramento, com 15% de folga total.
+  const points=headView&&headPoints.length?headPoints:modelPoints,low=[Infinity,Infinity,Infinity],high=[-Infinity,-Infinity,-Infinity];
+  for(const point of points)for(let i=0;i<3;i++){const q=dot([x,y,z][i],point);low[i]=Math.min(low[i],q);high[i]=Math.max(high[i],q)}
+  const mid=low.map((v,i)=>(v+high[i])/2),halfHeight=Math.max((high[1]-low[1])/2,(high[0]-low[0])/2/aspect)*1.15*zoom,halfWidth=halfHeight*aspect;
+  const eye=x.map((v,i)=>v*mid[0]+y[i]*mid[1]+z[i]*(mid[2]+radius*4));
+  const view=[x[0],y[0],z[0],0,x[1],y[1],z[1],0,x[2],y[2],z[2],0,-dot(x,eye),-dot(y,eye),-dot(z,eye),1],near=1,far=radius*10;
+  const proj=[1/halfWidth,0,0,0,0,1/halfHeight,0,0,0,0,-2/(far-near),0,0,0,-(far+near)/(far-near),1];
+  gl.uniformMatrix4fv(vpLoc,false,new Float32Array(mul(proj,view)));gl.uniform1i(clayLoc,clay);gl.drawArrays(gl.TRIANGLES,0,vertexCount);
+ }
+ function updateStatus(){status.textContent=(selectedModel==='original'?'Rex original':'Passo 1 · volume')+' · '+models[selectedModel].bones.length+' ossos'}
+ document.querySelectorAll('[data-model]').forEach(el=>el.onclick=()=>{selectedModel=el.dataset.model;const file=selectedModel==='original'?'rex-original':'titanovenator';document.querySelector('#modelDownload').href=file+'.bbmodel';document.querySelector('#geoDownload').href=file+'.geo.json';mesh(models[selectedModel]);document.querySelectorAll('[data-model]').forEach(b=>b.setAttribute('aria-pressed',b===el));updateStatus();draw()});
+ const img=new Image();img.onerror=()=>fail(Error('Falha ao decodificar a textura incorporada'));img.onload=()=>{try{const texture=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,texture);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,img);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.NEAREST);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.NEAREST);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);ready=true;updateStatus();draw()}catch(e){fail(e)}};img.src=TEXTURE;
+ document.querySelectorAll('[data-view]').forEach(el=>el.onclick=()=>{headView=el.dataset.view==='head';yaw={side:-Math.PI/2,front:0,three:-1.05,head:-1.15}[el.dataset.view];pitch=['front','side'].includes(el.dataset.view)?0:.10;zoom=1;document.querySelectorAll('[data-view]').forEach(b=>b.setAttribute('aria-pressed',b===el));draw()});
+ document.querySelector('#capture').onclick=e=>{if(!ready){e.preventDefault();return}draw();e.currentTarget.href=canvas.toDataURL('image/png')};
+ function material(value){clay=value;document.querySelector('#clay').setAttribute('aria-pressed',value);document.querySelector('#material').setAttribute('aria-pressed',!value);draw()}
+ document.querySelector('#clay').onclick=()=>material(true);document.querySelector('#material').onclick=()=>material(false);
+ document.querySelector('#jaw').oninput=e=>{jaw=Number(e.target.value);document.querySelector('#jawValue').value=jaw+'°';mesh(models[selectedModel]);draw()};
+ const pointers=new Map();let pinch=0;const distance=()=>{const p=[...pointers.values()];return Math.hypot(p[0][0]-p[1][0],p[0][1]-p[1][1])};
+ canvas.onpointerdown=e=>{canvas.setPointerCapture(e.pointerId);pointers.set(e.pointerId,[e.clientX,e.clientY]);if(pointers.size===2)pinch=distance()};canvas.onpointermove=e=>{if(!pointers.has(e.pointerId))return;const old=pointers.get(e.pointerId);pointers.set(e.pointerId,[e.clientX,e.clientY]);if(pointers.size===2){const d=distance();zoom=Math.max(.35,Math.min(3,zoom*pinch/Math.max(1,d)));pinch=d}else{yaw-=(e.clientX-old[0])*.008;pitch=Math.max(-1.3,Math.min(1.3,pitch+(e.clientY-old[1])*.006))}draw()};canvas.onpointerup=canvas.onpointercancel=e=>pointers.delete(e.pointerId);canvas.addEventListener('wheel',e=>{e.preventDefault();zoom=Math.max(.35,Math.min(3,zoom*Math.exp(e.deltaY*.001)));draw()},{passive:false});new ResizeObserver(draw).observe(canvas);
+}
+</script></html>

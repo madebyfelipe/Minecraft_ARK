@@ -732,9 +732,21 @@ O mundo do GameTest é plano e de bioma temperado, então o frio não chega a su
 
 MVP = Etapas 1–4 + versão mínima de 6, 7 e 9 (mundo frio, temperatura básica, montar o Smilodon).
 
+**Estudo visual em revisão:** Titanovenator, sobre o Rex do Revival instalado, conforme pedido do
+Felipe. Primeiro passo de proporções em `art/titanovenator/README.md`; derivados locais ignorados
+pelo Git, sem integração ao jogo. Paleta marrom-oliva/ventre ocre e cerdas discretas escolhidas;
+textura, tecidos moles e animações ficam para as próximas passagens após revisar a base.
+
 ## 24. Decisões técnicas
 
 Ver a tabela em [4](#4-decisões). Registro de mudanças estruturais:
+
+- 2026-10-03 — Estudo do Titanovenator: Felipe descartou o primeiro modelo autoral e pediu
+  alterações graduais sobre o Rex do Fossils and Archeology: Revival. `tools/study_titanovenator.py`
+  lê o jar instalado e gera comparação original/primeiro ajuste de volumes em
+  `art/titanovenator/local/` (ignorado; não distribuído). Hierarquia, pivôs, pose-base e textura
+  originais preservados, animações guardadas separadamente para a etapa posterior. Nenhum recurso
+  derivado entra no jar/repositório. O papel da criatura no jogo continua fora desta etapa.
 
 - 2026-10-01 — Worldgen restaurado ao v1 da Etapa 9: o preset Era do Gelo volta ao relevo
   `minecraft:overworld` e ao mapeamento original de biomas frios, removendo a reformulação de
