@@ -48,7 +48,7 @@ public final class Outposts {
     public static final RegistryObject<StructureType<OutpostStructure>> OUTPOST = STRUCTURE_TYPES.register(
             "military_outpost", () -> () -> OutpostStructure.CODEC);
     public static final RegistryObject<StructurePieceType> OUTPOST_PIECE = PIECE_TYPES.register("military_outpost",
-            () -> (StructurePieceType.ContextlessType) OutpostPiece::new);
+            () -> (StructurePieceType.StructureTemplateType) OutpostPiece::new);
 
     /** A estrutura em JSON ({@code data/iceagesurvival/worldgen/structure/military_outpost.json}). */
     public static final ResourceKey<Structure> OUTPOST_STRUCTURE =

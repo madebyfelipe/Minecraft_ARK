@@ -1,6 +1,6 @@
 id: memorando-equipe-civil
 titulo: Memorando sobre a equipe civil
-origem: Arquivo administrativo, posto oeste
+origem: Arquivo administrativo da base, cópia
 
 Para: chefia de segurança.
 Assunto: manutenção da cobertura.

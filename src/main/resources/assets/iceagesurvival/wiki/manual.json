@@ -33,7 +33,7 @@
      "blocks": [
       {
        "type": "paragraph",
-       "text": "Eu estudava os bichos congelados. Os militares procuravam outra coisa. Pelos registros que fui encontrando nos postos em volta da base, o permafrost guardava um material que eles queriam a qualquer custo: antimatéria, presa no gelo, instável, que não devia existir fora de um laboratório."
+       "text": "Eu estudava os bichos congelados. Os militares procuravam outra coisa. Pelos registros que fui encontrando nos postos espalhados pelo vale, o permafrost guardava um material que eles queriam a qualquer custo: antimatéria, presa no gelo, instável, que não devia existir fora de um laboratório."
       },
       {
        "type": "paragraph",
@@ -65,7 +65,11 @@
      "blocks": [
       {
        "type": "paragraph",
-       "text": "Em volta da base ficam os postos militares, pequenos, de concreto, com o gelo já entrando pelas frestas. Muitos ainda têm terminais funcionando. Alguns guardam registros: ordens, relatórios, conversas entre quem ficou. Aponto o analisador para um terminal e espero a leitura terminar. A cada registro recuperado, descubro um pouco mais."
+       "text": "Os postos não existiam antes do clarão. Pelo que os registros contam, os militares que sobraram saíram para reconhecer o vale nos primeiros dias, e nem todos voltaram. Depois das primeiras mortes, pararam de andar desprotegidos e passaram a erguer postos de controle com o que tinham à mão: a pedra do próprio vale, o ferro e a madeira tirados dos escombros. São torres de vigia com um mirante gradeado no alto, cercadas por um muro de pedra com um portão largo. Estão espalhados pelo vale, longe uns dos outros."
+      },
+      {
+       "type": "paragraph",
+       "text": "Dentro de cada um quase sempre há um terminal funcionando, com cópias dos arquivos da base e o que escreveu quem ficou: ordens, relatórios, conversas. Às vezes há também um baú esquecido, com dardos sedativos e algum rifle. Aponto o analisador para um terminal e espero a leitura terminar. A cada registro recuperado, descubro um pouco mais."
       },
       {
        "type": "paragraph",
@@ -1214,7 +1218,7 @@
   {
    "id": "ordem-de-servico-14",
    "title": "Ordem de serviço nº 14",
-   "source": "Posto de comando leste",
+   "source": "Arquivos da base, cópia no terminal do posto",
    "blocks": [
     {
      "type": "paragraph",
@@ -1224,7 +1228,7 @@
      "type": "list",
      "ordered": false,
      "items": [
-      "Rondas a cada quatro horas entre os postos do perímetro.",
+      "Rondas a cada quatro horas pelo perímetro da base.",
       "Rádio aberto às seis, às doze, às dezoito e à meia-noite.",
       "Nenhum civil desce abaixo do segundo nível, nem acompanhado.",
       "Amostras de gelo seguem para o laboratório de campo, nunca para os níveis de baixo."
@@ -1243,7 +1247,7 @@
   {
    "id": "furo-sete",
    "title": "Relatório de amostragem, furo sete",
-   "source": "Laboratório de campo, posto sul",
+   "source": "Laboratório de campo da base, cópia arquivada",
    "blocks": [
     {
      "type": "paragraph",
@@ -1275,7 +1279,7 @@
   {
    "id": "memorando-equipe-civil",
    "title": "Memorando sobre a equipe civil",
-   "source": "Arquivo administrativo, posto oeste",
+   "source": "Arquivo administrativo da base, cópia",
    "blocks": [
     {
      "type": "paragraph",
@@ -1298,7 +1302,7 @@
   {
    "id": "projeto-limiar",
    "title": "Projeto Limiar, resumo técnico",
-   "source": "Terminal técnico, posto de energia",
+   "source": "Terminal técnico da base, cópia parcial",
    "blocks": [
     {
      "type": "paragraph",
@@ -1342,7 +1346,7 @@
   {
    "id": "inventario-ala-inferior",
    "title": "Inventário de suprimentos",
-   "source": "Depósito do posto de suprimentos oeste",
+   "source": "Doca de carga da base, cópia arquivada",
    "blocks": [
     {
      "type": "paragraph",
@@ -1400,7 +1404,7 @@
   {
    "id": "relatorio-de-avaliacao",
    "title": "Relatório de avaliação do espécime",
-   "source": "Terminal médico, posto norte",
+   "source": "Ala médica da base, cópia arquivada",
    "blocks": [
     {
      "type": "paragraph",
@@ -1427,7 +1431,7 @@
   {
    "id": "diario-de-sentinela",
    "title": "Diário de sentinela",
-   "source": "Torre de vigia, posto norte",
+   "source": "Guarita norte da base, caderno transcrito",
    "blocks": [
     {
      "type": "paragraph",
@@ -1439,11 +1443,11 @@
     },
     {
      "type": "paragraph",
-     "text": "Vinte e duas e catorze. A neve em volta da torre parou de cair. Parou no ar."
+     "text": "Vinte e duas e catorze. A neve em volta da guarita parou de cair. Parou no ar."
     },
     {
      "type": "paragraph",
-     "text": "Vinte e duas e quinze. Um clarão branco saiu do chão da base e atravessou tudo, as paredes, a torre, as minhas mãos. Não fez barulho nenhum."
+     "text": "Vinte e duas e quinze. Um clarão branco saiu do chão da base e atravessou tudo, as paredes, a guarita, as minhas mãos. Não fez barulho nenhum."
     },
     {
      "type": "paragraph",
@@ -1454,19 +1458,19 @@
   {
    "id": "radio-depois-do-clarao",
    "title": "Transcrição de rádio, frequência de emergência",
-   "source": "Posto de rádio sul",
+   "source": "Rádio de campo, gravação copiada",
    "blocks": [
     {
      "type": "paragraph",
-     "text": "— Posto sul chamando qualquer posto. Alguém na escuta?"
+     "text": "— Equipe do furo sul chamando qualquer um. Alguém na escuta?"
     },
     {
      "type": "paragraph",
-     "text": "— Aqui é o norte. Somos dois. A torre ficou de pé."
+     "text": "— Aqui é a guarita norte. Somos dois. A guarita ficou de pé."
     },
     {
      "type": "paragraph",
-     "text": "— O leste não responde desde o clarão. O comando também não."
+     "text": "— O laboratório caiu. O comando não responde desde o clarão."
     },
     {
      "type": "paragraph",
@@ -1500,8 +1504,8 @@
   },
   {
    "id": "ordem-de-selamento",
-   "title": "Ordem de selamento",
-   "source": "Posto de comando leste, gravação automática",
+   "title": "Ordem de selamento e de fortificação",
+   "source": "Gravação automática, copiada para os terminais dos postos",
    "blocks": [
     {
      "type": "paragraph",
@@ -1509,20 +1513,17 @@
     },
     {
      "type": "paragraph",
-     "text": "A base fica selada a partir desta hora. Todas as entradas da superfície serão travadas por dentro e por fora. Os geradores do quinto nível permanecem ligados no mínimo necessário para manter a contenção da ala inferior."
+     "text": "As equipes de reconhecimento voltaram com menos gente do que saíram. Perdemos homens para animais que nenhum de nós sabia nomear, em pleno dia, a poucos passos do fuzil. O vale não é lugar para andar desprotegido."
     },
     {
      "type": "list",
      "ordered": false,
      "items": [
-      "Nenhuma equipe de resgate entra na base.",
-      "Os terminais dos postos continuam ativos para que os registros não se percam.",
-      "O pessoal restante se recolhe aos postos do perímetro e mantém a vigilância."
+      "A base fica selada, travada por dentro e por fora. Nenhuma equipe de resgate entra. Os geradores do quinto nível seguem no mínimo para manter a contenção da ala inferior.",
+      "Cada grupo ergue um posto de controle onde estiver, com o que houver: pedra do vale, ferro e madeira dos escombros. Uma torre com mirante gradeado, um muro em volta, um portão só.",
+      "Os arquivos da base são copiados para o terminal de cada posto, para que não se percam.",
+      "Dardos sedativos são racionados. Um baú por posto, e só para o que passar do muro."
      ]
-    },
-    {
-     "type": "paragraph",
-     "text": "Não vamos abrir aquelas portas para descobrir se a contenção resistiu ao clarão. Se resistiu, ela basta. Se não resistiu, nenhuma porta que a gente abra vai ajudar."
     },
     {
      "type": "note",
@@ -1533,7 +1534,7 @@
   {
    "id": "ultima-transmissao",
    "title": "Última transmissão",
-   "source": "Posto de rádio norte",
+   "source": "Mirante do posto norte",
    "blocks": [
     {
      "type": "paragraph",
@@ -1541,11 +1542,11 @@
     },
     {
      "type": "paragraph",
-     "text": "Faz semanas que a base está selada. Os animais do vale vivem bem. Já não fogem quando passo. O frio aperta, mas dá para viver."
+     "text": "Faz semanas que a base está selada. O muro aguentou todas as noites até agora. Fecho o portão ao pôr do sol e passo a madrugada no mirante, com os últimos dardos do baú ao alcance da mão. Os animais do vale vivem bem e já não fogem quando passo."
     },
     {
      "type": "paragraph",
-     "text": "Nas últimas noites, porém, os sensores da ala inferior mudaram. O batimento ficou mais rápido. Apareceram rachaduras novas no concreto da entrada leste, todas de dentro para fora. Ontem ouvi o mesmo som da noite do teste. Grave. Longo. Vinha de dentro da base, mas a terra tremeu aqui na torre."
+     "text": "Nas últimas noites, porém, os sensores da ala inferior mudaram. O batimento ficou mais rápido. Apareceram rachaduras novas no concreto da entrada leste, todas de dentro para fora. Ontem ouvi o mesmo som da noite do teste. Grave. Longo. Vinha de dentro da base, mas a terra tremeu aqui no mirante."
     },
     {
      "type": "paragraph",

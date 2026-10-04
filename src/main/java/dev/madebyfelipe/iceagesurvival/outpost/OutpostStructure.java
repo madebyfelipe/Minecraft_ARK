@@ -3,7 +3,7 @@ package dev.madebyfelipe.iceagesurvival.outpost;
 import com.mojang.serialization.Codec;
 import java.util.Optional;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.chunk.ChunkGenerator;
@@ -13,9 +13,10 @@ import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructureType;
 
 /**
- * Um posto militar: uma {@link OutpostPiece} só, na superfície. Nasce em terra seca acima do mar e num chão quase
- * plano (os quatro cantos a no máximo {@link #MAX_SLOPE} de diferença); fora disso, aquele ponto do espalhamento fica
- * sem posto.
+ * Um posto militar: uma {@link OutpostPiece} só, na superfície, girada ao acaso. Nasce em terra seca acima do mar e
+ * num chão quase plano (os cantos e o meio a no máximo {@link #MAX_SLOPE} de diferença); fora disso, aquele ponto do
+ * espalhamento fica sem posto. O chão do template vai na altura do ponto mais baixo; a adaptação de terreno do JSON
+ * ({@code beard_box}) completa o que faltar por baixo.
  */
 public class OutpostStructure extends Structure {
     public static final Codec<OutpostStructure> CODEC = simpleCodec(OutpostStructure::new);
@@ -31,9 +32,9 @@ public class OutpostStructure extends Structure {
         LevelHeightAccessor height = context.heightAccessor();
         RandomState state = context.randomState();
         ChunkPos chunk = context.chunkPos();
-        Direction facing = Direction.Plane.HORIZONTAL.getRandomDirection(context.random());
-        int x = chunk.getMinBlockX() + 3;
-        int z = chunk.getMinBlockZ() + 3;
+        Rotation rotation = Rotation.getRandom(context.random());
+        int x = chunk.getMinBlockX();
+        int z = chunk.getMinBlockZ();
         int seaLevel = generator.getSeaLevel();
 
         int lowest = Integer.MAX_VALUE;
@@ -54,7 +55,8 @@ public class OutpostStructure extends Structure {
             return Optional.empty();
         }
         BlockPos origin = new BlockPos(x, lowest, z);
-        return Optional.of(new GenerationStub(origin, builder -> builder.addPiece(new OutpostPiece(origin, facing))));
+        return Optional.of(new GenerationStub(origin, builder -> builder.addPiece(
+                new OutpostPiece(context.structureTemplateManager(), origin, rotation))));
     }
 
     @Override

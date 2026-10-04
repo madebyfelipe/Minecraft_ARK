@@ -2,14 +2,17 @@ package dev.madebyfelipe.iceagesurvival.gametest;
 
 import com.mojang.authlib.GameProfile;
 import dev.madebyfelipe.iceagesurvival.IceAgeSurvival;
+import dev.madebyfelipe.iceagesurvival.defense.DefenseBlocks;
 import dev.madebyfelipe.iceagesurvival.item.AnalyzerItem;
 import dev.madebyfelipe.iceagesurvival.network.TerminalReadPayload;
 import dev.madebyfelipe.iceagesurvival.outpost.MilitaryTerminalBlockEntity;
 import dev.madebyfelipe.iceagesurvival.outpost.OutpostPiece;
 import dev.madebyfelipe.iceagesurvival.outpost.Outposts;
+import dev.madebyfelipe.iceagesurvival.registry.ModItems;
 import dev.madebyfelipe.iceagesurvival.world.DinoFileData;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.embedded.EmbeddedChannel;
+import java.util.List;
 import java.util.UUID;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.BlockPos;
@@ -17,30 +20,41 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.PacketFlow;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.levelgen.structure.StructureSet;
 import net.minecraft.world.level.levelgen.structure.placement.RandomSpreadStructurePlacement;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
+import net.minecraft.world.level.storage.loot.LootParams;
+import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.gametest.GameTestHolder;
 import net.minecraftforge.gametest.PrefixGameTestTemplate;
 
 /**
- * Os postos militares (D51): o terminal destrava o próximo registro uma vez por pessoa e por terminal, o Analisador
- * mira o terminal, a peça do posto monta a sala com o terminal virado para a porta em qualquer orientação, e o posto
- * está no worldgen espalhado pelo mundo. Escritos a partir da especificação.
+ * Os postos militares (D52): o terminal destrava o próximo registro uma vez por pessoa e por terminal, o Analisador
+ * mira o terminal, o template da torre traz terminal, baú com saque, muro e portão grande, o terminal fica de frente
+ * para o portão em qualquer rotação, o baú às vezes tem rifle e dardos, e o posto está no worldgen espalhado pelo
+ * mundo. Escritos a partir da especificação.
  */
 @GameTestHolder(IceAgeSurvival.MODID)
 @PrefixGameTestTemplate(false)
 public class OutpostTests {
+    private static final ResourceLocation LOOT = IceAgeSurvival.id("chests/military_outpost");
     private static final String EMPTY = "empty";
     private static final String ARENA = "arena";
 
@@ -115,32 +129,86 @@ public class OutpostTests {
         helper.succeed();
     }
 
-    @GameTest(template = ARENA)
-    public static void outpostPieceBuildsTheTerminalFacingTheDoorInEveryOrientation(GameTestHelper helper) {
+    @GameTest(template = EMPTY)
+    public static void outpostTemplateHasTheTowerTerminalChestWallAndGate(GameTestHelper helper) {
         ServerLevel level = helper.getLevel();
-        Direction[] facings = {Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST};
-        BlockPos[] origins = {new BlockPos(1, 1, 1), new BlockPos(13, 1, 1), new BlockPos(1, 1, 13),
-                new BlockPos(13, 1, 13)};
-        for (int i = 0; i < facings.length; i++) {
-            OutpostPiece piece = new OutpostPiece(helper.absolutePos(origins[i]), facings[i]);
-            piece.postProcess(level, level.structureManager(), level.getChunkSource().getGenerator(),
-                    level.getRandom(), piece.getBoundingBox(), new ChunkPos(helper.absolutePos(origins[i])),
-                    helper.absolutePos(origins[i]));
-            BlockPos terminal = piece.terminalPos();
-            BlockState state = level.getBlockState(terminal);
-            helper.assertTrue(state.is(Outposts.MILITARY_TERMINAL.get()),
-                    "posto virado para " + facings[i] + " sem terminal em " + terminal + ": " + state);
-            helper.assertTrue(level.getBlockEntity(terminal) instanceof MilitaryTerminalBlockEntity,
-                    "o terminal do posto (" + facings[i] + ") não tem bloco-entidade");
-
-            BlockPos door = piece.doorPos();
-            helper.assertTrue(level.getBlockState(door).isAir() && level.getBlockState(door.above()).isAir(),
-                    "a porta do posto (" + facings[i] + ") não está aberta");
-            Direction screen = state.getValue(HorizontalDirectionalBlock.FACING);
-            BlockPos ahead = terminal.relative(screen, OutpostPiece.SIZE - 2);
-            helper.assertTrue(ahead.getX() == door.getX() && ahead.getZ() == door.getZ(),
-                    "a tela do terminal (" + facings[i] + ") aponta para " + screen + ", não para a porta em " + door);
+        StructureTemplate template = level.getStructureManager().get(OutpostPiece.TEMPLATE).orElse(null);
+        helper.assertTrue(template != null, "falta o template do posto: " + OutpostPiece.TEMPLATE);
+        helper.assertTrue(template.getSize().getX() == OutpostPiece.SIZE && template.getSize().getZ() == OutpostPiece.SIZE,
+                "o posto devia ter " + OutpostPiece.SIZE + " de lado: " + template.getSize());
+        StructurePlaceSettings plain = new StructurePlaceSettings();
+        List<StructureTemplate.StructureBlockInfo> terminals = template.filterBlocks(BlockPos.ZERO, plain,
+                Outposts.MILITARY_TERMINAL.get());
+        helper.assertTrue(terminals.size() == 1, "o posto devia ter 1 terminal, tem " + terminals.size());
+        List<StructureTemplate.StructureBlockInfo> chests = template.filterBlocks(BlockPos.ZERO, plain, Blocks.CHEST);
+        helper.assertTrue(chests.size() == 1, "o posto devia ter 1 baú, tem " + chests.size());
+        CompoundTag chest = chests.get(0).nbt();
+        helper.assertTrue(chest != null && LOOT.toString().equals(chest.getString("LootTable")),
+                "o baú do posto não usa a tabela de saque " + LOOT + ": " + chest);
+        int gate = template.filterBlocks(BlockPos.ZERO, plain, DefenseBlocks.LARGE_STONE_GATE.get()).size();
+        helper.assertTrue(gate == 25, "o portão grande devia ter 25 partes, tem " + gate);
+        List<StructureTemplate.StructureBlockInfo> walls = template.filterBlocks(BlockPos.ZERO, plain,
+                DefenseBlocks.STONE_WALL.get());
+        helper.assertFalse(walls.isEmpty(), "o posto não tem muro de pedra");
+        for (StructureTemplate.StructureBlockInfo wall : walls) {
+            int x = wall.pos().getX();
+            int z = wall.pos().getZ();
+            int last = OutpostPiece.SIZE - 1;
+            helper.assertTrue(x == 0 || z == 0 || x == last || z == last, "muro fora do perímetro em " + wall.pos());
         }
+        helper.succeed();
+    }
+
+    @GameTest(template = EMPTY)
+    public static void outpostTerminalFacesTheGateInEveryRotation(GameTestHelper helper) {
+        ServerLevel level = helper.getLevel();
+        StructureTemplateManager templates = level.getStructureManager();
+        BlockPos origin = helper.absolutePos(BlockPos.ZERO);
+        for (Rotation rotation : Rotation.values()) {
+            OutpostPiece piece = new OutpostPiece(templates, origin, rotation);
+            StructureTemplate template = templates.getOrCreate(OutpostPiece.TEMPLATE);
+            StructurePlaceSettings settings = new StructurePlaceSettings().setRotation(rotation)
+                    .setRotationPivot(new BlockPos(OutpostPiece.SIZE / 2, 0, OutpostPiece.SIZE / 2));
+            StructureTemplate.StructureBlockInfo terminal = template.filterBlocks(origin, settings,
+                    Outposts.MILITARY_TERMINAL.get()).get(0);
+            helper.assertTrue(terminal.pos().equals(piece.terminalPos()),
+                    rotation + ": o terminal está em " + terminal.pos() + ", a peça diz " + piece.terminalPos());
+            Direction facing = terminal.state().getValue(HorizontalDirectionalBlock.FACING);
+            BlockPos gate = piece.gatePos();
+            int along = (gate.getX() - terminal.pos().getX()) * facing.getStepX()
+                    + (gate.getZ() - terminal.pos().getZ()) * facing.getStepZ();
+            helper.assertTrue(along > 0, rotation + ": a tela do terminal aponta para " + facing
+                    + ", de costas para o portão em " + gate);
+            helper.assertTrue(piece.getBoundingBox().isInside(gate) && piece.getBoundingBox().isInside(terminal.pos()),
+                    rotation + ": terminal ou portão fora da caixa da peça " + piece.getBoundingBox());
+        }
+        helper.succeed();
+    }
+
+    @GameTest(template = EMPTY)
+    public static void outpostChestSometimesHasARifleAndDarts(GameTestHelper helper) {
+        ServerLevel level = helper.getLevel();
+        LootTable table = level.getServer().getLootData().getLootTable(LOOT);
+        helper.assertTrue(table != LootTable.EMPTY, "falta a tabela de saque " + LOOT);
+        int rifles = 0;
+        int darts = 0;
+        for (int roll = 0; roll < 400; roll++) {
+            LootParams params = new LootParams.Builder(level).withParameter(LootContextParams.ORIGIN,
+                    Vec3.atCenterOf(helper.absolutePos(BlockPos.ZERO))).create(LootContextParamSets.CHEST);
+            for (ItemStack stack : table.getRandomItems(params)) {
+                if (stack.is(ModItems.TRANQ_RIFLE.get())) {
+                    rifles++;
+                    helper.assertTrue(stack.isDamaged(), "o rifle do posto devia vir gasto");
+                } else if (stack.is(ModItems.TRANQ_DART.get())) {
+                    darts++;
+                    helper.assertTrue(stack.getCount() >= 4 && stack.getCount() <= 12,
+                            "dardos fora de 4 a 12: " + stack.getCount());
+                }
+            }
+        }
+        // 25% e 60% de 400: longe de zero e de tudo.
+        helper.assertTrue(rifles > 50 && rifles < 150, "rifles em 400 baús: " + rifles + " (esperado ~100)");
+        helper.assertTrue(darts > 180 && darts < 300, "dardos em 400 baús: " + darts + " (esperado ~240)");
         helper.succeed();
     }
 

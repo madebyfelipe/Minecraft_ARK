@@ -1,34 +1,154 @@
 {
   "variants": {
-    "facing=north,open=false": {
+    "facing=north,open=false,column=0": {
       "model": "iceagesurvival:block/large_stone_gate"
     },
-    "facing=north,open=true": {
+    "facing=north,open=false,column=1": {
+      "model": "iceagesurvival:block/large_stone_gate"
+    },
+    "facing=north,open=false,column=2": {
+      "model": "iceagesurvival:block/large_stone_gate"
+    },
+    "facing=north,open=false,column=3": {
+      "model": "iceagesurvival:block/large_stone_gate"
+    },
+    "facing=north,open=false,column=4": {
+      "model": "iceagesurvival:block/large_stone_gate"
+    },
+    "facing=north,open=true,column=0": {
+      "model": "iceagesurvival:block/large_stone_gate_open_left"
+    },
+    "facing=north,open=true,column=1": {
+      "model": "iceagesurvival:block/large_stone_gate_open_hidden"
+    },
+    "facing=north,open=true,column=2": {
+      "model": "iceagesurvival:block/large_stone_gate_open_hidden"
+    },
+    "facing=north,open=true,column=3": {
+      "model": "iceagesurvival:block/large_stone_gate_open_hidden"
+    },
+    "facing=north,open=true,column=4": {
+      "model": "iceagesurvival:block/large_stone_gate_open_right"
+    },
+    "facing=east,open=false,column=0": {
       "model": "iceagesurvival:block/large_stone_gate",
       "y": 90
     },
-    "facing=east,open=false": {
+    "facing=east,open=false,column=1": {
       "model": "iceagesurvival:block/large_stone_gate",
       "y": 90
     },
-    "facing=east,open=true": {
+    "facing=east,open=false,column=2": {
+      "model": "iceagesurvival:block/large_stone_gate",
+      "y": 90
+    },
+    "facing=east,open=false,column=3": {
+      "model": "iceagesurvival:block/large_stone_gate",
+      "y": 90
+    },
+    "facing=east,open=false,column=4": {
+      "model": "iceagesurvival:block/large_stone_gate",
+      "y": 90
+    },
+    "facing=east,open=true,column=0": {
+      "model": "iceagesurvival:block/large_stone_gate_open_left",
+      "y": 90
+    },
+    "facing=east,open=true,column=1": {
+      "model": "iceagesurvival:block/large_stone_gate_open_hidden",
+      "y": 90
+    },
+    "facing=east,open=true,column=2": {
+      "model": "iceagesurvival:block/large_stone_gate_open_hidden",
+      "y": 90
+    },
+    "facing=east,open=true,column=3": {
+      "model": "iceagesurvival:block/large_stone_gate_open_hidden",
+      "y": 90
+    },
+    "facing=east,open=true,column=4": {
+      "model": "iceagesurvival:block/large_stone_gate_open_right",
+      "y": 90
+    },
+    "facing=south,open=false,column=0": {
       "model": "iceagesurvival:block/large_stone_gate",
       "y": 180
     },
-    "facing=south,open=false": {
+    "facing=south,open=false,column=1": {
       "model": "iceagesurvival:block/large_stone_gate",
       "y": 180
     },
-    "facing=south,open=true": {
+    "facing=south,open=false,column=2": {
+      "model": "iceagesurvival:block/large_stone_gate",
+      "y": 180
+    },
+    "facing=south,open=false,column=3": {
+      "model": "iceagesurvival:block/large_stone_gate",
+      "y": 180
+    },
+    "facing=south,open=false,column=4": {
+      "model": "iceagesurvival:block/large_stone_gate",
+      "y": 180
+    },
+    "facing=south,open=true,column=0": {
+      "model": "iceagesurvival:block/large_stone_gate_open_left",
+      "y": 180
+    },
+    "facing=south,open=true,column=1": {
+      "model": "iceagesurvival:block/large_stone_gate_open_hidden",
+      "y": 180
+    },
+    "facing=south,open=true,column=2": {
+      "model": "iceagesurvival:block/large_stone_gate_open_hidden",
+      "y": 180
+    },
+    "facing=south,open=true,column=3": {
+      "model": "iceagesurvival:block/large_stone_gate_open_hidden",
+      "y": 180
+    },
+    "facing=south,open=true,column=4": {
+      "model": "iceagesurvival:block/large_stone_gate_open_right",
+      "y": 180
+    },
+    "facing=west,open=false,column=0": {
       "model": "iceagesurvival:block/large_stone_gate",
       "y": 270
     },
-    "facing=west,open=false": {
+    "facing=west,open=false,column=1": {
       "model": "iceagesurvival:block/large_stone_gate",
       "y": 270
     },
-    "facing=west,open=true": {
-      "model": "iceagesurvival:block/large_stone_gate"
+    "facing=west,open=false,column=2": {
+      "model": "iceagesurvival:block/large_stone_gate",
+      "y": 270
+    },
+    "facing=west,open=false,column=3": {
+      "model": "iceagesurvival:block/large_stone_gate",
+      "y": 270
+    },
+    "facing=west,open=false,column=4": {
+      "model": "iceagesurvival:block/large_stone_gate",
+      "y": 270
+    },
+    "facing=west,open=true,column=0": {
+      "model": "iceagesurvival:block/large_stone_gate_open_left",
+      "y": 270
+    },
+    "facing=west,open=true,column=1": {
+      "model": "iceagesurvival:block/large_stone_gate_open_hidden",
+      "y": 270
+    },
+    "facing=west,open=true,column=2": {
+      "model": "iceagesurvival:block/large_stone_gate_open_hidden",
+      "y": 270
+    },
+    "facing=west,open=true,column=3": {
+      "model": "iceagesurvival:block/large_stone_gate_open_hidden",
+      "y": 270
+    },
+    "facing=west,open=true,column=4": {
+      "model": "iceagesurvival:block/large_stone_gate_open_right",
+      "y": 270
     }
   }
 }

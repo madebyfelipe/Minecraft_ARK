@@ -1,6 +1,6 @@
 id: inventario-ala-inferior
 titulo: Inventário de suprimentos
-origem: Depósito do posto de suprimentos oeste
+origem: Doca de carga da base, cópia arquivada
 
 Entrega semanal, conferida na doca de carga.
 

@@ -57,6 +57,11 @@ public class DefenseGateBlock extends BaseEntityBlock implements DefenseBlock {
     /** A fileira de cima colide até 1,5, como o muro: ninguém pula o portão. */
     private static final VoxelShape TOP_X = Block.box(0.0, 0.0, 6.0, 16.0, 24.0, 10.0);
     private static final VoxelShape TOP_Z = Block.box(6.0, 0.0, 0.0, 10.0, 24.0, 16.0);
+    /** A folha aberta, dobrada 90° e encostada numa face do bloco, como uma porta do vanilla aberta. */
+    private static final VoxelShape LEAF_WEST = Block.box(0.0, 0.0, 0.0, 4.0, 16.0, 16.0);
+    private static final VoxelShape LEAF_EAST = Block.box(12.0, 0.0, 0.0, 16.0, 16.0, 16.0);
+    private static final VoxelShape LEAF_NORTH = Block.box(0.0, 0.0, 0.0, 16.0, 16.0, 4.0);
+    private static final VoxelShape LEAF_SOUTH = Block.box(0.0, 0.0, 12.0, 16.0, 16.0, 16.0);
 
     private final boolean wood;
     private final int width;
@@ -253,15 +258,46 @@ public class DefenseGateBlock extends BaseEntityBlock implements DefenseBlock {
         return state.getValue(FACING).getAxis() == Direction.Axis.Z;
     }
 
+    /**
+     * Para que lado fica a folha aberta desta parte: abre como porta dupla, cada folha encostada na face externa da
+     * própria coluna — a coluna 0 na face da esquerda, a última na da direita. No portão comum (uma coluna só), a
+     * folha encosta na esquerda. As colunas do meio do portão grande não têm folha ({@code null}).
+     */
+    @Nullable
+    public Direction openLeafSide(BlockState state) {
+        Direction facing = state.getValue(FACING);
+        int column = state.getValue(COLUMN);
+        if (column == 0) {
+            return facing.getCounterClockWise();
+        }
+        if (column == width - 1) {
+            return right(facing);
+        }
+        return null;
+    }
+
+    private static VoxelShape leaf(Direction side) {
+        return switch (side) {
+            case WEST -> LEAF_WEST;
+            case EAST -> LEAF_EAST;
+            case NORTH -> LEAF_NORTH;
+            default -> LEAF_SOUTH;
+        };
+    }
+
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        // Aberta, a folha gira um quarto de volta no lugar: fica de lado na passagem.
-        return alongX(state) != state.getValue(OPEN) ? PANEL_X : PANEL_Z;
+        if (state.getValue(OPEN)) {
+            Direction side = openLeafSide(state);
+            return side == null ? Shapes.empty() : leaf(side);
+        }
+        return alongX(state) ? PANEL_X : PANEL_Z;
     }
 
     @Override
     public VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         if (state.getValue(OPEN)) {
+            // Aberto, nada colide: nem o vão do meio, nem as folhas encostadas (o vão inteiro fica livre).
             return Shapes.empty();
         }
         boolean top = state.getValue(ROW) == height - 1;

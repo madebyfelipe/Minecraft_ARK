@@ -1,12 +1,12 @@
 id: radio-depois-do-clarao
 titulo: Transcrição de rádio, frequência de emergência
-origem: Posto de rádio sul
+origem: Rádio de campo, gravação copiada
 
-— Posto sul chamando qualquer posto. Alguém na escuta?
+— Equipe do furo sul chamando qualquer um. Alguém na escuta?
 
-— Aqui é o norte. Somos dois. A torre ficou de pé.
+— Aqui é a guarita norte. Somos dois. A guarita ficou de pé.
 
-— O leste não responde desde o clarão. O comando também não.
+— O laboratório caiu. O comando não responde desde o clarão.
 
 — Vimos um rebanho de mamutes passando ao lado de bichos com chifre na cara. Juntos. Comendo do mesmo pasto.
 

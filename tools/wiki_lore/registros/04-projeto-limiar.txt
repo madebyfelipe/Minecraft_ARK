@@ -1,6 +1,6 @@
 id: projeto-limiar
 titulo: Projeto Limiar, resumo técnico
-origem: Terminal técnico, posto de energia
+origem: Terminal técnico da base, cópia parcial
 
 Classificação máxima. Não imprimir.
 

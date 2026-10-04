@@ -1,6 +1,6 @@
 id: relatorio-de-avaliacao
 titulo: Relatório de avaliação do espécime
-origem: Terminal médico, posto norte
+origem: Ala médica da base, cópia arquivada
 
 O espécime não pertence a nenhuma das linhagens catalogadas pela equipe civil. Não foi encontrado congelado como os outros. Também não está claro de onde veio.
 

@@ -1,6 +1,6 @@
 id: furo-sete
 titulo: Relatório de amostragem, furo sete
-origem: Laboratório de campo, posto sul
+origem: Laboratório de campo da base, cópia arquivada
 
 Testemunho retirado a quarenta metros. Gelo limpo nos primeiros trinta; abaixo disso, faixas escuras, finas como fio de cabelo, que não correspondem a nenhum sedimento conhecido.
 

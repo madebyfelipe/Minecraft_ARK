@@ -1,15 +1,14 @@
 id: ordem-de-selamento
-titulo: Ordem de selamento
-origem: Posto de comando leste, gravação automática
+titulo: Ordem de selamento e de fortificação
+origem: Gravação automática, copiada para os terminais dos postos
 
 Ordem do oficial mais graduado ainda em atividade.
 
-A base fica selada a partir desta hora. Todas as entradas da superfície serão travadas por dentro e por fora. Os geradores do quinto nível permanecem ligados no mínimo necessário para manter a contenção da ala inferior.
+As equipes de reconhecimento voltaram com menos gente do que saíram. Perdemos homens para animais que nenhum de nós sabia nomear, em pleno dia, a poucos passos do fuzil. O vale não é lugar para andar desprotegido.
 
-- Nenhuma equipe de resgate entra na base.
-- Os terminais dos postos continuam ativos para que os registros não se percam.
-- O pessoal restante se recolhe aos postos do perímetro e mantém a vigilância.
-
-Não vamos abrir aquelas portas para descobrir se a contenção resistiu ao clarão. Se resistiu, ela basta. Se não resistiu, nenhuma porta que a gente abra vai ajudar.
+- A base fica selada, travada por dentro e por fora. Nenhuma equipe de resgate entra. Os geradores do quinto nível seguem no mínimo para manter a contenção da ala inferior.
+- Cada grupo ergue um posto de controle onde estiver, com o que houver: pedra do vale, ferro e madeira dos escombros. Uma torre com mirante gradeado, um muro em volta, um portão só.
+- Os arquivos da base são copiados para o terminal de cada posto, para que não se percam.
+- Dardos sedativos são racionados. Um baú por posto, e só para o que passar do muro.
 
 > O vale encontrou um equilíbrio sozinho. A única coisa capaz de quebrá-lo está lá embaixo. Que fique lá.

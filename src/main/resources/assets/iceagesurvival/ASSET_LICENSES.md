@@ -68,3 +68,9 @@ caixas de acerto em `data/iceagesurvival/hitboxes/ankylosaurus.json` são do pro
 partir das posições dos ossos do modelo. `textures/item/dung.png` (Esterco) e
 `textures/mob_effect/broken_leg.png` (Perna quebrada) são autorais, desenhadas pixel a pixel por
 `tools/gen_dung.py`.
+
+O **Terminal Militar** (`textures/block/military_terminal_*.png`, blockstate e modelos) é autoral, gerado por
+`tools/gen_military_terminal.py`. O template do **posto militar** (`data/iceagesurvival/structures/military_outpost.nbt`)
+é gerado por `tools/gen_military_outpost.py` a partir da torre de vigia passada pelo Felipe no BuildPaste
+(`/paste 2erEqlek38JmdkBn5xLG`, dados em `tools/outpost/torre_buildpaste.json`), só com blocos do vanilla e do mod;
+o mod BuildPaste não é dependência nem vai no jar.
