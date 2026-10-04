@@ -741,11 +741,13 @@ def display(model, cfg):
 
 
 def item_model(name, display_entries):
+    # 3D em todo contexto, inclusive no inventário: modelo builtin/entity simples. O forge:separate_transforms
+    # exige "perspectives" e, sem ele, o modelo não carregava (cubo roxo e preto).
     return {
-        "loader": "forge:separate_transforms",
+        "parent": "builtin/entity",
         "gui_light": "side",
         "textures": {"particle": f"iceagesurvival:item/{name}_3d"},
-        "base": {"parent": "builtin/entity", "display": display_entries},
+        "display": display_entries,
     }
 
 

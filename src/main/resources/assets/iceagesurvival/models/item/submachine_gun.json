@@ -1,114 +1,111 @@
 {
-  "loader": "forge:separate_transforms",
+  "parent": "builtin/entity",
   "gui_light": "side",
   "textures": {
     "particle": "iceagesurvival:item/submachine_gun_3d"
   },
-  "base": {
-    "parent": "builtin/entity",
-    "display": {
-      "firstperson_righthand": {
-        "rotation": [
-          1,
-          8,
-          0
-        ],
-        "translation": [
-          -1.0,
-          -1.78,
-          -8.69
-        ],
-        "scale": [
-          1.0,
-          1.0,
-          1.0
-        ]
-      },
-      "thirdperson_righthand": {
-        "rotation": [
-          0,
-          0,
-          0
-        ],
-        "translation": [
-          0.0,
-          -1.88,
-          0.2
-        ],
-        "scale": [
-          0.5,
-          0.5,
-          0.5
-        ]
-      },
-      "gui": {
-        "rotation": [
-          0,
-          -90,
-          0
-        ],
-        "translation": [
-          -0.98,
-          -2.0,
-          0.0
-        ],
-        "scale": [
-          0.72,
-          0.72,
-          0.72
-        ]
-      },
-      "ground": {
-        "rotation": [
-          0,
-          0,
-          0
-        ],
-        "translation": [
-          0.0,
-          -3.38,
-          0.68
-        ],
-        "scale": [
-          0.5,
-          0.5,
-          0.5
-        ]
-      },
-      "fixed": {
-        "rotation": [
-          0,
-          -90,
-          0
-        ],
-        "translation": [
-          -1.07,
-          -2.2,
-          0.0
-        ],
-        "scale": [
-          0.792,
-          0.792,
-          0.792
-        ]
-      },
-      "head": {
-        "rotation": [
-          0,
-          0,
-          0
-        ],
-        "translation": [
-          0.0,
-          11.78,
-          1.08
-        ],
-        "scale": [
-          0.8,
-          0.8,
-          0.8
-        ]
-      }
+  "display": {
+    "firstperson_righthand": {
+      "rotation": [
+        1,
+        8,
+        0
+      ],
+      "translation": [
+        -1.0,
+        -1.78,
+        -8.69
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "thirdperson_righthand": {
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "translation": [
+        0.0,
+        -1.88,
+        0.2
+      ],
+      "scale": [
+        0.5,
+        0.5,
+        0.5
+      ]
+    },
+    "gui": {
+      "rotation": [
+        0,
+        -90,
+        0
+      ],
+      "translation": [
+        -0.98,
+        -2.0,
+        0.0
+      ],
+      "scale": [
+        0.72,
+        0.72,
+        0.72
+      ]
+    },
+    "ground": {
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "translation": [
+        0.0,
+        -3.38,
+        0.68
+      ],
+      "scale": [
+        0.5,
+        0.5,
+        0.5
+      ]
+    },
+    "fixed": {
+      "rotation": [
+        0,
+        -90,
+        0
+      ],
+      "translation": [
+        -1.07,
+        -2.2,
+        0.0
+      ],
+      "scale": [
+        0.792,
+        0.792,
+        0.792
+      ]
+    },
+    "head": {
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "translation": [
+        0.0,
+        11.78,
+        1.08
+      ],
+      "scale": [
+        0.8,
+        0.8,
+        0.8
+      ]
     }
   }
 }
