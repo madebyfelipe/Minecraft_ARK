@@ -37,6 +37,8 @@ OUT_DIR = ROOT / 'src/main/resources/data/iceagesurvival/structures'
 DATA_VERSION = 3465  # 1.20.1
 LOOT = 'iceagesurvival:chests/military_outpost'
 BASE_LOOT = 'iceagesurvival:chests/military_base'
+# O baú do térreo do complexo, junto do terminal: o saque dos postos com o Receptor de Sinal garantido.
+COMMAND_LOOT = 'iceagesurvival:chests/military_outpost_command'
 
 # Os índices da tabela de blocos do BuildPaste 1.11 que aparecem nas builds (a tabela fica dentro do jar do mod).
 BUILDPASTE_IDS = {
@@ -425,6 +427,7 @@ def complex_outpost():
     # O terminal: perto do baú do térreo, fora da frente dele, no chão, de costas para uma parede.
     chest = (16, 1, 24)
     assert blocks[chest][0] == 'minecraft:chest', blocks[chest]
+    blocks[chest] = blocks[chest][:2] + (block_entity('minecraft:chest', None, COMMAND_LOOT),)
     found = terminal_spot(blocks, chest, ((-1, -2), (1, -2), (-2, -2), (2, -2), (-1, -3), (1, -3)))
     assert found, 'sem lugar para o terminal perto do baú'
     spot, facing = found

@@ -2,6 +2,10 @@
 
 Ver a tabela em [4](section-04.md). Registro de mudanças estruturais:
 
+- 2026-10-04 — Receptor de Sinal (D55): localizador da base militar achado nos postos (30% por baú; garantido no baú de
+  comando do complexo), radar do canto até o centro do hangar e modelo 3D autoral de rádio de campo. Filtro de
+  GameTests por classe (`-Ptests=`) para iterar sem a suíte inteira.
+
 - 2026-10-04 — Processo compartilhado para o teste do Minecraft, a pedido do Felipe:
   Codex coordena/integra (modelo configurado), Claude trabalho executa (`claude-opus-5-5`);
   estado local em SQLite com reservas atômicas, sem roubo por expiração; painel local

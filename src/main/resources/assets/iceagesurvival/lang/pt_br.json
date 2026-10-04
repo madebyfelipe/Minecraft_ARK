@@ -328,5 +328,9 @@
   "iceagesurvival.analyzer.terminal.already_read": "Você já leu este terminal",
   "block.iceagesurvival.stasis_generator": "Gerador do Campo",
   "block.iceagesurvival.containment_core": "Núcleo da Contenção",
-  "block.iceagesurvival.containment_core.released": "O campo de êxtase caiu. Ele acordou."
+  "block.iceagesurvival.containment_core.released": "O campo de êxtase caiu. Ele acordou.",
+  "item.iceagesurvival.signal_receiver": "Receptor de Sinal",
+  "item.iceagesurvival.signal_receiver.tooltip": "Na mão, capta o sinal de emergência da base militar e aponta para ela.",
+  "iceagesurvival.signal_receiver.title": "Sinal da base",
+  "iceagesurvival.signal_receiver.none": "Sem sinal"
 }

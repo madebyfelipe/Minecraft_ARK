@@ -69,6 +69,8 @@ public class IceAgeSurvival {
         MinecraftForge.EVENT_BUS.addListener(ColdExposure::onPlayerTick);
         MinecraftForge.EVENT_BUS.addListener(dev.madebyfelipe.iceagesurvival.item.AnalyzerItem::onLoggedIn);
         MinecraftForge.EVENT_BUS.addListener(dev.madebyfelipe.iceagesurvival.item.AnalyzerItem::onLoggedOut);
+        MinecraftForge.EVENT_BUS.addListener(dev.madebyfelipe.iceagesurvival.item.SignalReceiverItem::onPlayerTick);
+        MinecraftForge.EVENT_BUS.addListener(dev.madebyfelipe.iceagesurvival.item.SignalReceiverItem::onLoggedOut);
         MinecraftForge.EVENT_BUS.addListener(WildSpawner::onServerTick);
         MinecraftForge.EVENT_BUS.addListener(StarterApexKeeper::onServerTick);
         MinecraftForge.EVENT_BUS.addListener(dev.madebyfelipe.iceagesurvival.compat.tfc.TfcCompat::onLevelLoad);

@@ -117,6 +117,10 @@ public final class ModItems {
     public static final RegistryObject<dev.madebyfelipe.iceagesurvival.item.AnalyzerItem> ANALYZER =
             ITEMS.register("analyzer", () -> new dev.madebyfelipe.iceagesurvival.item.AnalyzerItem(
                     new Item.Properties().stacksTo(1).rarity(net.minecraft.world.item.Rarity.UNCOMMON)));
+    /** Receptor de Sinal: rádio de campo dos postos que aponta para a base militar. Achado nos baús dos postos. */
+    public static final RegistryObject<dev.madebyfelipe.iceagesurvival.item.SignalReceiverItem> SIGNAL_RECEIVER =
+            ITEMS.register("signal_receiver", () -> new dev.madebyfelipe.iceagesurvival.item.SignalReceiverItem(
+                    new Item.Properties().stacksTo(1).rarity(net.minecraft.world.item.Rarity.UNCOMMON)));
     /** Dente serrilhado do Giganotosaurus: o que a carcaça dele deixa, para a espada serrilhada. */
     public static final RegistryObject<Item> SERRATED_TOOTH = ITEMS.register("serrated_tooth",
             () -> new Item(new Item.Properties().rarity(net.minecraft.world.item.Rarity.EPIC)));
@@ -293,6 +297,7 @@ public final class ModItems {
             event.accept(TYRANNOSAURUS_HEAD);
             event.accept(SPINOSAURUS_HEAD);
             event.accept(ANALYZER);
+            event.accept(SIGNAL_RECEIVER);
             event.accept(SERRATED_TOOTH);
             event.accept(SERRATED_SWORD);
         } else if (event.getTabKey() == CreativeModeTabs.NATURAL_BLOCKS) {

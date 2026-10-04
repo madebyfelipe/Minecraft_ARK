@@ -328,5 +328,9 @@
   "iceagesurvival.analyzer.terminal.already_read": "You already read this terminal",
   "block.iceagesurvival.stasis_generator": "Field Generator",
   "block.iceagesurvival.containment_core": "Containment Core",
-  "block.iceagesurvival.containment_core.released": "The stasis field is down. It is awake."
+  "block.iceagesurvival.containment_core.released": "The stasis field is down. It is awake.",
+  "item.iceagesurvival.signal_receiver": "Signal Receiver",
+  "item.iceagesurvival.signal_receiver.tooltip": "Held in hand, picks up the military base's emergency signal and points to it.",
+  "iceagesurvival.signal_receiver.title": "Base signal",
+  "iceagesurvival.signal_receiver.none": "No signal"
 }
