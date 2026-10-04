@@ -134,5 +134,9 @@
   "dung": {
     "interval_seconds": 600,
     "food_per_dung": 60
+  },
+  "firearm": {
+    "dc2_health": 5000,
+    "armored": true
   }
 }

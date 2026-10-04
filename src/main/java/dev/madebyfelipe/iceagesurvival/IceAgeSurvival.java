@@ -54,6 +54,7 @@ public class IceAgeSurvival {
         dev.madebyfelipe.iceagesurvival.primal.PrimalStations.register(modEventBus);
         dev.madebyfelipe.iceagesurvival.defense.Defenses.register(modEventBus);
         dev.madebyfelipe.iceagesurvival.outpost.Outposts.register(modEventBus);
+        dev.madebyfelipe.iceagesurvival.firearm.Firearms.register(modEventBus);
         dev.madebyfelipe.iceagesurvival.compat.ExternalFaunaCleanup.register(modEventBus);
 
         modEventBus.addListener(Species::registerRegistry);

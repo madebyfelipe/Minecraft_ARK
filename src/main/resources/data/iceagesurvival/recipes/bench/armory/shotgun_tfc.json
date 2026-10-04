@@ -1,0 +1,28 @@
+{
+  "conditions": [
+    {
+      "type": "forge:mod_loaded",
+      "modid": "tfc"
+    }
+  ],
+  "type": "iceagesurvival:bench",
+  "bench": "armory",
+  "ingredients": [
+    {
+      "tag": "forge:ingots/wrought_iron",
+      "count": 6
+    },
+    {
+      "tag": "forge:ingots/copper",
+      "count": 3
+    },
+    {
+      "item": "minecraft:gunpowder",
+      "count": 2
+    }
+  ],
+  "result": {
+    "item": "iceagesurvival:shotgun",
+    "count": 1
+  }
+}

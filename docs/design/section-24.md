@@ -2,6 +2,18 @@
 
 Ver a tabela em [4](section-04.md). Registro de mudanças estruturais:
 
+- 2026-10-04 — Armas de fogo no estilo do Dino Crisis 2 (D58), cartão MC-08: núcleo puro em `core/firearms`
+  (tabela do DC2, conversão pela vida base da espécie, fúria; JUnit), bloco `firearm` no JSON de 23 espécies, itens e
+  tiros em `firearm/` (registros próprios, fora dos `Mod*`), cliente em `client/firearm/` (pose, coice, recarga,
+  traçantes, contador, esfera do canhão), dois tipos de dano (`firearm`, `firearm_dc2`), receitas na Bancada de
+  Armaria e saque nos postos e na base. Modelos GeckoLib gerados por `tools/gen_dc2_weapons.py` sobre a biblioteca
+  nova `tools/geckoitem.py`, que reproduz as convenções do GeckoLib 4.7.2 conferidas no bytecode (espelhamento do X,
+  ordem das rotações, UV por face) e renderiza prévias de primeira e terceira pessoa e da GUI sem abrir o jogo. Sons
+  sintetizados por `tools/gen_firearm_sounds.py` (ffmpeg/libvorbis). Recompensa do boss em 3D pela mesma biblioteca
+  (`tools/gen_titan_rewards.py`). Na mesma entrega, por subagentes Sonnet: herbívoros mansos com o jogador (D59) e
+  carne proporcional ao porte (D60). A esfera do canhão usa varredura própria de colisão (a do vanilla só conta quem
+  ela cruza de fora).
+
 - 2026-10-04 — Receptor de Sinal (D55): localizador da base militar achado nos postos (30% por baú; garantido no baú de
   comando do complexo), radar do canto até o centro do hangar e modelo 3D autoral de rádio de campo. Filtro de
   GameTests por classe (`-Ptests=`) para iterar sem a suíte inteira.

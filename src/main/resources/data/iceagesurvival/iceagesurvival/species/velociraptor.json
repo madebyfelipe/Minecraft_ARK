@@ -142,5 +142,8 @@
     "minimum_allies": 1,
     "speed_multiplier": 0.25,
     "attack_multiplier": 0.25
+  },
+  "firearm": {
+    "dc2_health": 800
   }
 }

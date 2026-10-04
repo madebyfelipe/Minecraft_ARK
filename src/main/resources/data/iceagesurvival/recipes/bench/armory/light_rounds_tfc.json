@@ -1,0 +1,28 @@
+{
+  "conditions": [
+    {
+      "type": "forge:mod_loaded",
+      "modid": "tfc"
+    }
+  ],
+  "type": "iceagesurvival:bench",
+  "bench": "armory",
+  "ingredients": [
+    {
+      "tag": "forge:rods/wrought_iron",
+      "count": 1
+    },
+    {
+      "tag": "forge:ingots/copper",
+      "count": 1
+    },
+    {
+      "item": "minecraft:gunpowder",
+      "count": 1
+    }
+  ],
+  "result": {
+    "item": "iceagesurvival:light_rounds",
+    "count": 16
+  }
+}

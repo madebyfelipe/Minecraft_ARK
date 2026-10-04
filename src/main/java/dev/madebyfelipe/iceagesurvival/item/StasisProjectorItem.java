@@ -1,5 +1,15 @@
 package dev.madebyfelipe.iceagesurvival.item;
 
+import dev.madebyfelipe.iceagesurvival.client.item.TitanRewardRenderer;
+import java.util.function.BooleanSupplier;
+import java.util.function.Consumer;
+import net.minecraftforge.client.extensions.common.IClientItemExtensions;
+import software.bernie.geckolib.animatable.GeoItem;
+import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.core.animation.AnimatableManager;
+import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.animation.RawAnimation;
+import software.bernie.geckolib.util.GeckoLibUtil;
 import dev.madebyfelipe.iceagesurvival.IceAgeSurvival;
 import dev.madebyfelipe.iceagesurvival.entity.TitanovenatorBoss;
 import java.util.List;
@@ -40,7 +50,13 @@ import net.minecraftforge.fml.common.Mod;
  * carregar o mundo. Números propostos, ajustáveis.
  */
 @Mod.EventBusSubscriber(modid = IceAgeSurvival.MODID)
-public class StasisProjectorItem extends Item {
+public class StasisProjectorItem extends Item implements GeoItem {
+    private static final RawAnimation READY = RawAnimation.begin().thenLoop("animation.stasis_projector.ready");
+    private static final RawAnimation RECHARGING = RawAnimation.begin().thenLoop("animation.stasis_projector.recharging");
+    /** O cliente registra aqui se o projetor do jogador local está recarregando (o item não toca em classes de cliente). */
+    private static BooleanSupplier rechargingCheck = () -> false;
+    private final AnimatableInstanceCache animationCache = GeckoLibUtil.createInstanceCache(this);
+
     public static final double RANGE = 24.0;
     public static final int FREEZE_TICKS = 200;
     public static final int COOLDOWN_TICKS = 1200;
@@ -51,10 +67,48 @@ public class StasisProjectorItem extends Item {
         super(properties);
     }
 
+    public static void setRechargingCheck(BooleanSupplier check) {
+        rechargingCheck = check;
+    }
+
+    /** O modelo 3D da mão, do chão e da moldura ({@code tools/gen_titan_rewards.py}); na GUI, o ícone plano. */
+    @Override
+    public void initializeClient(Consumer<IClientItemExtensions> consumer) {
+        consumer.accept(TitanRewardRenderer.extensions("stasis_projector"));
+    }
+
+    /** O anel do campo gira e a lente pulsa; recarregando, o anel vai devagar e a lente apaga. O disparo é à parte. */
+    @Override
+    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+        controllers.add(new AnimationController<>(this, "main", 5,
+                state -> state.setAndContinue(rechargingCheck.getAsBoolean() ? RECHARGING : READY))
+                .triggerableAnim("fire", RawAnimation.begin().thenPlay("animation.stasis_projector.fire")));
+    }
+
+    @Override
+    public AnimatableInstanceCache getAnimatableInstanceCache() {
+        return animationCache;
+    }
+
+    @Override
+    public void inventoryTick(ItemStack stack, Level level, Entity entity, int slot, boolean selected) {
+        if (level instanceof ServerLevel server) {
+            GeoItem.getOrAssignId(stack, server);
+        }
+    }
+
+    /** O id gravado no aparelho não deve fazer a mão abaixar e subir de novo. */
+    @Override
+    public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
+        return slotChanged || !oldStack.is(newStack.getItem());
+    }
+
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
         if (level.isClientSide) {
+            // O disparo na hora do clique; se errar, a animação é curta e não incomoda.
+            triggerAnim(player, GeoItem.getId(stack), "main", "fire");
             return InteractionResultHolder.success(stack);
         }
         LivingEntity target = aimed(player);

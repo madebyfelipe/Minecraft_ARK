@@ -160,5 +160,8 @@
     "incubation_seconds": 480,
     "maturation_seconds": 1800,
     "cooldown_seconds": 900
+  },
+  "firearm": {
+    "dc2_health": 1600
   }
 }

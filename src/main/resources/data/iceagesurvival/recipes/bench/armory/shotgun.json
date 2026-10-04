@@ -1,0 +1,22 @@
+{
+  "type": "iceagesurvival:bench",
+  "bench": "armory",
+  "ingredients": [
+    {
+      "item": "minecraft:iron_ingot",
+      "count": 6
+    },
+    {
+      "item": "minecraft:copper_ingot",
+      "count": 3
+    },
+    {
+      "item": "minecraft:gunpowder",
+      "count": 2
+    }
+  ],
+  "result": {
+    "item": "iceagesurvival:shotgun",
+    "count": 1
+  }
+}

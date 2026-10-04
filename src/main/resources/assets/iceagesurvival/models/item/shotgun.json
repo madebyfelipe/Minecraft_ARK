@@ -1,0 +1,114 @@
+{
+  "loader": "forge:separate_transforms",
+  "gui_light": "side",
+  "textures": {
+    "particle": "iceagesurvival:item/shotgun_3d"
+  },
+  "base": {
+    "parent": "builtin/entity",
+    "display": {
+      "firstperson_righthand": {
+        "rotation": [
+          2,
+          10,
+          0
+        ],
+        "translation": [
+          -0.13,
+          -2.27,
+          -9.91
+        ],
+        "scale": [
+          0.85,
+          0.85,
+          0.85
+        ]
+      },
+      "thirdperson_righthand": {
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "translation": [
+          0.0,
+          -1.98,
+          -0.8
+        ],
+        "scale": [
+          0.5,
+          0.5,
+          0.5
+        ]
+      },
+      "gui": {
+        "rotation": [
+          90,
+          -65,
+          90
+        ],
+        "translation": [
+          -1.23,
+          -2.5,
+          0.15
+        ],
+        "scale": [
+          0.62,
+          0.62,
+          0.62
+        ]
+      },
+      "ground": {
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "translation": [
+          0.11,
+          -2.45,
+          1.58
+        ],
+        "scale": [
+          0.45,
+          0.45,
+          0.45
+        ]
+      },
+      "fixed": {
+        "rotation": [
+          90,
+          -65,
+          90
+        ],
+        "translation": [
+          -1.36,
+          -2.75,
+          0.17
+        ],
+        "scale": [
+          0.682,
+          0.682,
+          0.682
+        ]
+      },
+      "head": {
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "translation": [
+          0.2,
+          11.75,
+          2.8
+        ],
+        "scale": [
+          0.8,
+          0.8,
+          0.8
+        ]
+      }
+    }
+  }
+}

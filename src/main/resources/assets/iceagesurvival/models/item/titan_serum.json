@@ -1,6 +1,106 @@
 {
-  "parent": "minecraft:item/generated",
+  "loader": "forge:separate_transforms",
+  "gui_light": "front",
   "textures": {
-    "layer0": "iceagesurvival:item/titan_serum"
+    "particle": "iceagesurvival:item/titan_serum"
+  },
+  "base": {
+    "parent": "builtin/entity",
+    "display": {
+      "firstperson_righthand": {
+        "rotation": [
+          0,
+          0,
+          -12
+        ],
+        "scale": [
+          0.85,
+          0.85,
+          0.85
+        ],
+        "translation": [
+          -3.41,
+          -1.92,
+          -1.48
+        ]
+      },
+      "thirdperson_righthand": {
+        "rotation": [
+          90,
+          0,
+          0
+        ],
+        "scale": [
+          0.55,
+          0.55,
+          0.55
+        ],
+        "translation": [
+          0.0,
+          -1.5,
+          -0.41
+        ]
+      },
+      "ground": {
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "translation": [
+          0.0,
+          -3.63,
+          0.0
+        ],
+        "scale": [
+          0.5,
+          0.5,
+          0.5
+        ]
+      },
+      "fixed": {
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "translation": [
+          0.0,
+          -4.71,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "head": {
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "translation": [
+          0.0,
+          10.23,
+          0.0
+        ],
+        "scale": [
+          0.8,
+          0.8,
+          0.8
+        ]
+      }
+    }
+  },
+  "perspectives": {
+    "gui": {
+      "loader": "forge:item_layers",
+      "textures": {
+        "layer0": "iceagesurvival:item/titan_serum",
+        "particle": "iceagesurvival:item/titan_serum"
+      }
+    }
   }
 }
