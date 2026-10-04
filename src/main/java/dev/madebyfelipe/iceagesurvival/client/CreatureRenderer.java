@@ -35,7 +35,8 @@ public class CreatureRenderer extends GeoEntityRenderer<LandCreature> {
     @Override
     public void render(LandCreature entity, float entityYaw, float partialTick, PoseStack poseStack,
                        MultiBufferSource bufferSource, int packedLight) {
-        float scale = CreatureModelSettings.INSTANCE.scale(typeId);
+        // Como no Revival: a mesma geometria, menor enquanto filhote.
+        float scale = CreatureModelSettings.INSTANCE.scale(typeId) * entity.getAgeScale();
         scaleWidth = scale;
         scaleHeight = scale;
         shadowRadius = entity.getBbWidth() * 0.5F;
@@ -94,6 +95,7 @@ public class CreatureRenderer extends GeoEntityRenderer<LandCreature> {
         public ResourceLocation getTextureResource(LandCreature animatable) {
             return CreatureAppearance.forEntity(typeId(animatable))
                     .map(appearance -> appearance.isLocal() ? TitanovenatorAssets.INSTANCE.texture()
+                            : animatable.hasJuvenileLook() ? appearance.babyTextureResource()
                             : appearance.textureResource())
                     .orElseGet(() -> super.getTextureResource(animatable));
         }

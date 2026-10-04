@@ -162,7 +162,7 @@
   "iceagesurvival.status.mutations_gene": "%s · health gene",
   "iceagesurvival.status.gestation": "Gestation",
   "iceagesurvival.status.maturation": "Growth",
-  "iceagesurvival.status.bonus": "Points to spend",
+  "iceagesurvival.status.bonus": "To spend",
   "iceagesurvival.status.bonus_granted": "%s grew up: %s points to spend in the status screen",
   "generator.iceagesurvival.ice_age": "Ice Age",
   "entity.iceagesurvival.dodo": "Dodo",

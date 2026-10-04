@@ -162,7 +162,7 @@
   "iceagesurvival.status.mutations_gene": "%s · gene de vida",
   "iceagesurvival.status.gestation": "Gestação",
   "iceagesurvival.status.maturation": "Crescimento",
-  "iceagesurvival.status.bonus": "Pontos a distribuir",
+  "iceagesurvival.status.bonus": "A distribuir",
   "iceagesurvival.status.bonus_granted": "%s cresceu: %s pontos para distribuir na tela de status",
   "generator.iceagesurvival.ice_age": "Era do Gelo",
   "entity.iceagesurvival.dodo": "Dodô",

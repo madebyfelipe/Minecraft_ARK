@@ -103,6 +103,31 @@ public class BreedingTests {
         helper.succeed();
     }
 
+    /** MC-13: o filhote cresce sem degraus de 40% a 100%, com a pele de filhote só na primeira metade. */
+    @GameTest(template = ARENA, batch = "breeding_growth")
+    public static void babyGrowsGraduallyWithSyncedGrowth(GameTestHelper helper) {
+        Player owner = helper.makeMockSurvivalPlayer();
+        PrehistoricCreature baby = PrehistoricCreature.spawnOffspring(helper.getLevel(), ModEntities.SMILODON.get(),
+                Genome.wild(StatPoints.NONE, false), owner.getUUID(),
+                helper.absoluteVec(new net.minecraft.world.phys.Vec3(4.5, 1, 4.5)));
+        helper.assertTrue(baby != null && baby.isBaby(), "não nasceu filhote");
+        float adultHeight = ModEntities.SMILODON.get().getHeight();
+        int total = -baby.getAge();
+        helper.assertTrue(baby.growth() < 0.01F && baby.hasJuvenileLook(), "recém-nascido sem cara de filhote");
+        helper.assertTrue(Math.abs(baby.getAgeScale() - 0.4F) < 0.01F, "nasceu com escala " + baby.getAgeScale());
+
+        baby.setAge(-total / 4);
+        helper.assertTrue(Math.abs(baby.growth() - 0.75F) < 0.01F, "crescimento sincronizado " + baby.growth());
+        helper.assertFalse(baby.hasJuvenileLook(), "pele de filhote depois da metade");
+        float height = baby.getBbHeight() / adultHeight;
+        helper.assertTrue(height > 0.8F && height < 0.9F, "altura a 75% do crescimento: " + height);
+
+        baby.setAge(0);
+        helper.assertTrue(!baby.isBaby() && baby.growth() == 1.0F, "não virou adulto");
+        helper.assertTrue(Math.abs(baby.getBbHeight() - adultHeight) < 0.01F, "adulto fora do tamanho");
+        helper.succeed();
+    }
+
     @GameTest(template = ARENA, batch = "breeding_5")
     public static void speedMutationsSpeedTheCreatureUp(GameTestHelper helper) {
         LandCreature plain = helper.spawnWithNoFreeWill(ModEntities.SMILODON.get(), 2, 1, 2);

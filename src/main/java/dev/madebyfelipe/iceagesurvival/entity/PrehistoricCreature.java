@@ -7,6 +7,7 @@ import dev.madebyfelipe.iceagesurvival.core.command.Obedience;
 import dev.madebyfelipe.iceagesurvival.core.command.Stance;
 import dev.madebyfelipe.iceagesurvival.core.genetics.Genetics;
 import dev.madebyfelipe.iceagesurvival.core.genetics.Genome;
+import dev.madebyfelipe.iceagesurvival.core.genetics.Growth;
 import dev.madebyfelipe.iceagesurvival.genetics.GenomeNbt;
 import dev.madebyfelipe.iceagesurvival.item.CreatureEggItem;
 import dev.madebyfelipe.iceagesurvival.species.BreedingProfile;
@@ -88,14 +89,12 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.entity.SpawnGroupData;
-import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
@@ -166,6 +165,9 @@ public abstract class PrehistoricCreature extends TamableAnimal {
      */
     private static final EntityDataAccessor<Byte> DATA_ACTION =
             SynchedEntityData.defineId(PrehistoricCreature.class, EntityDataSerializers.BYTE);
+    /** Fração do crescimento (1 = adulto): o cliente desenha o tamanho e a pele de filhote por ela. */
+    private static final EntityDataAccessor<Float> DATA_GROWTH =
+            SynchedEntityData.defineId(PrehistoricCreature.class, EntityDataSerializers.FLOAT);
     private static final String TAG_STRESS = "Stress";
     private static final String TAG_TICKS_SINCE_MEAL = "TicksSinceMeal";
     /** Intervalo da atualização do estresse (volta ao repouso). */
@@ -235,8 +237,10 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     public static final int MATING_SECONDS = 10;
     /** Distância máxima entre os dois para cruzar. */
     public static final double MATING_RADIUS = 8.0;
-    /** Tamanho do filhote em relação ao adulto (o vanilla usa 0,5). */
-    private static final float BABY_SCALE = 0.4F;
+    /** Duração do crescimento de quem não tem {@code breeding}: a do filhote vanilla. */
+    private static final int DEFAULT_MATURATION_TICKS = 24000;
+    /** Menor avanço do crescimento que vale reenviar ao cliente (0,5%). */
+    private static final float GROWTH_SYNC_STEP = 0.005F;
 
     private static final int TORPOR_UPDATE_INTERVAL_TICKS = 20;
     /** Afinidade inicial de uma domesticação com eficiência de 100%. */
@@ -697,6 +701,7 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         entityData.define(DATA_STRESS, 0.0F);
         entityData.define(DATA_RESTING, false);
         entityData.define(DATA_ACTION, (byte) CreatureAction.NONE.ordinal());
+        entityData.define(DATA_GROWTH, 1.0F);
     }
 
     /** Gesto em curso; {@link CreatureAction#NONE} quando nenhum. Vale no cliente e no servidor. */
@@ -3009,11 +3014,35 @@ public abstract class PrehistoricCreature extends TamableAnimal {
 
     /** Fração do crescimento cumprida, de 0 a 1 (1 = adulto). Só no servidor. */
     public float maturationProgress() {
-        if (!isBaby()) {
-            return 1.0F;
+        int total = breedingProfile().map(profile -> profile.maturationSeconds() * 20).orElse(DEFAULT_MATURATION_TICKS);
+        return Growth.progress(getAge(), total);
+    }
+
+    /** Fração do crescimento sincronizada, nos dois lados; o servidor a reenvia a cada 0,5%. */
+    public float growth() {
+        return entityData.get(DATA_GROWTH);
+    }
+
+    /** A idade sobe um tick por vez pelo {@code setAge} do vanilla: o crescimento visível acompanha. */
+    @Override
+    public void setAge(int age) {
+        super.setAge(age);
+        if (level().isClientSide) {
+            return;
         }
-        int total = breedingProfile().map(BreedingProfile::maturationSeconds).orElse(1) * 20;
-        return Mth.clamp(1.0F + getAge() / (float) total, 0.0F, 1.0F);
+        float progress = maturationProgress();
+        float synced = growth();
+        if (progress != synced && (Math.abs(progress - synced) >= GROWTH_SYNC_STEP || progress >= 1.0F)) {
+            entityData.set(DATA_GROWTH, progress);
+        }
+    }
+
+    @Override
+    public void onSyncedDataUpdated(EntityDataAccessor<?> key) {
+        super.onSyncedDataUpdated(key);
+        if (DATA_GROWTH.equals(key)) {
+            refreshDimensions();
+        }
     }
 
     public Optional<BreedingProfile> breedingProfile() {
@@ -3122,13 +3151,20 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         return baby;
     }
 
+    /** Tamanho em relação ao adulto: o filhote nasce com 40% e cresce sem degraus até 100%. */
     public float getAgeScale() {
-        return isBaby() ? BABY_SCALE : 1.0F;
+        return isBaby() ? Growth.scale(growth()) : 1.0F;
     }
 
+    /** Ainda com a pele de filhote (primeira metade do crescimento, como no Revival). */
+    public boolean hasJuvenileLook() {
+        return isBaby() && Growth.juvenileLook(growth());
+    }
+
+    /** No lugar dos 50% fixos do filhote vanilla: a caixa de colisão cresce junto com o modelo. */
     @Override
-    public EntityDimensions getDimensions(Pose pose) {
-        return super.getDimensions(pose).scale(getAgeScale());
+    public float getScale() {
+        return getAgeScale();
     }
 
     @Override
