@@ -2,6 +2,8 @@ package dev.madebyfelipe.iceagesurvival.gametest;
 
 import com.mojang.authlib.GameProfile;
 import dev.madebyfelipe.iceagesurvival.IceAgeSurvival;
+import net.minecraft.world.phys.AABB;
+import dev.madebyfelipe.iceagesurvival.entity.TitanovenatorBoss;
 import dev.madebyfelipe.iceagesurvival.core.wiki.Manual;
 import dev.madebyfelipe.iceagesurvival.entity.LandCreature;
 import dev.madebyfelipe.iceagesurvival.outpost.ContainmentCoreBlockEntity;
@@ -82,7 +84,8 @@ public class BaseTests {
         helper.succeed();
     }
 
-    @GameTest(template = ARENA, timeoutTicks = 200)
+    // Batch próprio: o núcleo faz nascer o Titanovenator, grande demais para dividir a arena com os vizinhos.
+    @GameTest(template = ARENA, batch = "base_containment", timeoutTicks = 200)
     public static void stasisFieldHoldsACreatureUntilTheLastGeneratorFalls(GameTestHelper helper) {
         BlockPos core = new BlockPos(12, 1, 12);
         BlockPos first = new BlockPos(4, 1, 4);
@@ -101,6 +104,13 @@ public class BaseTests {
             helper.assertTrue(held.torpor() == before, "o tranquilizante agiu dentro do campo");
             ContainmentCoreBlockEntity entity = (ContainmentCoreBlockEntity) helper.getBlockEntity(core);
             helper.assertTrue(entity.generatorCount() == 2, "o núcleo achou " + entity.generatorCount() + " geradores");
+            List<TitanovenatorBoss> bosses = helper.getLevel().getEntitiesOfClass(TitanovenatorBoss.class,
+                    new AABB(helper.absolutePos(core)).inflate(8));
+            helper.assertTrue(bosses.size() == 1, "o núcleo devia fazer nascer um Titanovenator, achei " + bosses.size());
+            TitanovenatorBoss boss = bosses.get(0);
+            helper.assertTrue(helper.absolutePos(core.above()).equals(boss.lair()), "o covil devia ser o núcleo: "
+                    + boss.lair());
+            helper.assertTrue(boss.isNoAi() && boss.isInvulnerable(), "o Titanovenator devia estar preso no campo");
             helper.setBlock(first, Blocks.AIR);
         });
         helper.runAfterDelay(50, () -> {
@@ -112,6 +122,11 @@ public class BaseTests {
             helper.assertTrue(entity.released(), "sem geradores o campo devia cair");
             helper.assertFalse(held.isNoAi() || held.isInvulnerable(), "caído o campo, a criatura devia acordar");
             held.discard();
+            helper.getLevel().getEntitiesOfClass(TitanovenatorBoss.class, new AABB(helper.absolutePos(core)).inflate(32))
+                    .forEach(boss -> {
+                        helper.assertFalse(boss.isNoAi() || boss.isInvulnerable(), "caído o campo, o boss devia acordar");
+                        boss.discard();
+                    });
             helper.succeed();
         });
     }

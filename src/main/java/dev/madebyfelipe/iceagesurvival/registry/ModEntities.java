@@ -3,6 +3,7 @@ package dev.madebyfelipe.iceagesurvival.registry;
 import dev.madebyfelipe.iceagesurvival.IceAgeSurvival;
 import dev.madebyfelipe.iceagesurvival.entity.LandCreature;
 import dev.madebyfelipe.iceagesurvival.entity.PrehistoricCreature;
+import dev.madebyfelipe.iceagesurvival.entity.TitanovenatorBoss;
 import dev.madebyfelipe.iceagesurvival.entity.TestCreature;
 import dev.madebyfelipe.iceagesurvival.entity.TranqArrow;
 import java.util.ArrayList;
@@ -79,6 +80,14 @@ public final class ModEntities {
      */
     public static final RegistryObject<EntityType<LandCreature>> GIGANOTOSAURUS =
             landCreature("giganotosaurus", 3.0F, 4.5F);
+
+    /**
+     * Titanovenator limiarensis, o apex tiranossaurídeo do Projeto Limiar e boss do endgame (dossiê nº 017): 15–17 m,
+     * 13–18 t, 1,6× o Rex — a caixa do Rex (2,7 × 5,4) vezes 1,6 e o modelo na escala 6,8 (4,25 × 1,6). Modelo derivado
+     * do Rex do Revival em runtime; não nasce sozinho, a base militar o chama ({@link TitanovenatorBoss#summon}).
+     */
+    public static final RegistryObject<EntityType<LandCreature>> TITANOVENATOR =
+            landCreature("titanovenator", 4.32F, 8.64F, TitanovenatorBoss::new);
 
     public static final RegistryObject<EntityType<TestCreature>> TEST_CREATURE =
             ENTITY_TYPES.register("test_creature", () -> EntityType.Builder.of(TestCreature::new, MobCategory.CREATURE)

@@ -37,6 +37,9 @@ public class AssetReferenceTests {
                 continue; // modelo de outra fonte (Jurassic Reborn) ou próprio
             }
             CreatureAppearance appearance = found.get();
+            if (appearance.isLocal()) {
+                continue; // modelo derivado em runtime, animações próprias: TitanovenatorTests confere
+            }
             JsonObject animations = json(helper, "fossil", "assets/fossil/animations/entity/" + appearance.model()
                     + ".animation.json").getAsJsonObject("animations");
             for (String name : List.of(appearance.idle(), appearance.walk(), appearance.attack(),

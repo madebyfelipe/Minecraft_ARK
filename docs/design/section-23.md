@@ -18,6 +18,9 @@ Revisão editorial do Analisador (2026-10-03): manual e fichas de `tools/wiki_lo
 
 MVP = Etapas 1–4 + versão mínima de 6, 7 e 9 (mundo frio, temperatura básica, montar o Smilodon).
 
+**Titanovenator** (estudo visual e boss, D54): o estudo local sobre o Rex do Revival (`art/titanovenator/README.md`)
+virou o boss do endgame, com o modelo derivado em runtime; falta sentir em jogo.
+
 
 ## Processo de trabalho (2026-10-04)
 

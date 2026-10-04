@@ -1,6 +1,7 @@
 package dev.madebyfelipe.iceagesurvival.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import dev.madebyfelipe.iceagesurvival.client.titan.TitanovenatorAssets;
 import dev.madebyfelipe.iceagesurvival.entity.CreatureAppearance;
 import dev.madebyfelipe.iceagesurvival.entity.LandCreature;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -73,6 +74,15 @@ public class CreatureRenderer extends GeoEntityRenderer<LandCreature> {
             super(typeId, false);
         }
 
+        /** O modelo do Titanovenator não é um arquivo: é derivado do Rex em runtime. */
+        @Override
+        public software.bernie.geckolib.cache.object.BakedGeoModel getBakedModel(ResourceLocation location) {
+            if (location.equals(TitanovenatorAssets.MODEL_ID)) {
+                return TitanovenatorAssets.INSTANCE.model();
+            }
+            return super.getBakedModel(location);
+        }
+
         @Override
         public ResourceLocation getModelResource(LandCreature animatable) {
             return CreatureAppearance.forEntity(typeId(animatable))
@@ -83,7 +93,8 @@ public class CreatureRenderer extends GeoEntityRenderer<LandCreature> {
         @Override
         public ResourceLocation getTextureResource(LandCreature animatable) {
             return CreatureAppearance.forEntity(typeId(animatable))
-                    .map(CreatureAppearance::textureResource)
+                    .map(appearance -> appearance.isLocal() ? TitanovenatorAssets.INSTANCE.texture()
+                            : appearance.textureResource())
                     .orElseGet(() -> super.getTextureResource(animatable));
         }
 

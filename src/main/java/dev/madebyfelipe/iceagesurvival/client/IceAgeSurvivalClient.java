@@ -91,6 +91,7 @@ public class IceAgeSurvivalClient {
 
     private static void registerReloadListeners(RegisterClientReloadListenersEvent event) {
         event.registerReloadListener(CreatureModelSettings.INSTANCE);
+        event.registerReloadListener(dev.madebyfelipe.iceagesurvival.client.titan.TitanovenatorAssets.INSTANCE);
         event.registerReloadListener(dev.madebyfelipe.iceagesurvival.client.tabula.TabulaModels.INSTANCE);
         event.registerReloadListener(dev.madebyfelipe.iceagesurvival.client.dex.WikiManual.INSTANCE);
     }

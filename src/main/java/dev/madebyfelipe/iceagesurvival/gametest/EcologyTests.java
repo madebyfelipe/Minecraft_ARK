@@ -224,6 +224,12 @@ public class EcologyTests {
             if (creature.get().is(dev.madebyfelipe.iceagesurvival.registry.ModTags.DISABLED)) {
                 continue;
             }
+            if (creature.get() == ModEntities.TITANOVENATOR.get()) {
+                // O boss do endgame não nasce sozinho: a base militar o chama.
+                helper.assertTrue(Species.of(registries, creature.get()).orElseThrow().spawn().isEmpty(),
+                        "o boss virou fauna");
+                continue;
+            }
             SpawnProfile spawn = Species.of(registries, creature.get()).orElseThrow().spawn()
                     .orElseThrow(() -> new AssertionError("sem bloco spawn: " + creature.getId()));
             helper.assertTrue(spawn.weight() > 0, creature.getId() + " com peso zero");

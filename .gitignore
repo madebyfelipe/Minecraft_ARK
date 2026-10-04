@@ -44,5 +44,6 @@ __pycache__/
 # Estado entre sessões no mesmo checkout; nunca incluir credenciais ou logs no Git.
 /.coordination/
 
-# Preservar estudos locais derivados ao alternar a branch do Titanovenator.
+# Estudos locais derivados dos assets de mods instalados pelo usuário.
+# Nunca entram no repositório ou no jar.
 /art/titanovenator/local/

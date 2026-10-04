@@ -1,0 +1,11 @@
+id: titanovenator
+nome: Titanovenator
+selos: Carnívoro, Agressivo, Apex, Desligado
+
+Dossiê nº 017 do Projeto Limiar: Titanovenator limiarensis, o caçador titânico. Um tiranossaurídeo que não deveria existir, a linhagem que o dossiê supõe ter sobrevivido ao fim do Cretáceo e continuado a crescer por dezenas de milhões de anos. Quinze a dezessete metros, de treze a dezoito toneladas. Observação remota apenas; contato direto não autorizado.
+
+Onde ele se instala, a cadeia alimentar se reorganiza: os grandes caçadores abandonam o território, os herbívoros mudam de rota, a floresta fica em silêncio. Não persegue por longe. Aproxima-se coberto pela vegetação, acelera em poucos segundos e transforma a corrida numa colisão. Depois morde fundo, segura e puxa com o pescoço e o corpo inteiro.
+
+Aprende. Quem o enfrentou uma vez e sobreviveu o encontra mais cuidadoso da próxima.
+
+> Não se amansa nem se monta, e não anda solto pelo vale. A fraqueza dele é o próprio tamanho: não passa por espaço estreito, não persegue sem fim e cansa.

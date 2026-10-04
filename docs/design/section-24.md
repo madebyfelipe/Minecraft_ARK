@@ -14,6 +14,44 @@ Ver a tabela em [4](section-04.md). Registro de mudanças estruturais:
   seletiva, reserva, heartbeat e handoff. Leitura inicial de 155.206 para 5.251 bytes
   (96,6% menos texto, não uma medição de tokens).
 
+- 2026-10-04 — Titanovenator vira o boss do endgame (D54): `TitanovenatorBoss` (fases, rugido, investida, pancada de
+  corpo, covil), 1,6× o Rex, modelo e pele derivados do Rex do Revival em runtime (`core/titan`, `client/titan`),
+  animações autorais em `assets/iceagesurvival/animations/entity/` (movidas de `art/`), ovo gerador, loot, ficha
+  "Desligado" na DINO FILE e testes (JUnit de fases, geometria e textura; GameTests do boss). A transformação em Java foi
+  conferida contra o `passo-2.geo.json` do estudo em Python. Falta a base militar chamar o boss e conferir em jogo o
+  modelo, a pele (aproximação da pintura aprovada) e as animações.
+
+- 2026-10-04 — Titanovenator, passo 4 e animações: pedido do Felipe (boss do endgame). Cerdas
+  discretas na nuca/dorso/base da cauda e 5 cicatrizes por decalque, sem mexer nos dentes
+  (`tools/titanovenator_step4.py`). Animações **autorais** versionadas em
+  `art/titanovenator/animations/` (`tools/titanovenator_anim.py`): idle, walk, run (investida),
+  attack (mordida + tração cervical), attack_2, speak (rugido), call, eat, unconscious,
+  variantes `_f2`/`_f3` das três fases e `roar_phase`. Escolhas do Felipe: só rugido e investida
+  como extras de boss; sem pisão nem ferido/mancando. **Premissa minha:** as fases escalam
+  cadência/postura/amplitude, pois ele ainda não disse o que cada fase faz. Conferido por
+  renderização do modelo posado; nada testado no jogo e nenhum código Java/gameplay alterado.
+
+- 2026-10-03 — Titanovenator: a pedido do Felipe, restaurados os olhos verdes originais
+  (pixels da íris/pupila e posição do passo 2), mantendo a pintura carvão/ocre do corpo.
+
+- 2026-10-03 — Titanovenator, passo 3: pintura carvão/ocre dourado conforme fotografia
+  enviada pelo Felipe. Atlas via ImageGen integrado, UVs remapeados sem mudanças geométricas;
+  preservada comparação com a cabeça do passo 2. Derivados somente locais, sem inclusão no jar.
+  Suíte de 388 GameTests: uma falha em `stegosaurusDrivesOffSatedVelociraptor`; sem merge.
+
+- 2026-10-03 — Titanovenator, passo 2 autorizado pelo Felipe: focinho/mandíbula mais largos,
+  bochechas discretas, cristas reduzidas e peças labiais articuladas nos ossos originais.
+  Corpo do passo 1 preservado, 32 ossos/30 cubos, textura original intacta. Comparador com
+  original/passo 1/passo 2 e renderizações locais da cabeça; revisão visual antes de cores e animações.
+  Validação: build e os 388 GameTests passaram; sem integração ao jogo nesta etapa.
+
+- 2026-10-03 — Estudo do Titanovenator: Felipe descartou o primeiro modelo autoral e pediu
+  alterações graduais sobre o Rex do Fossils and Archeology: Revival. `tools/study_titanovenator.py`
+  lê o jar instalado e gera comparação original/primeiro ajuste de volumes em
+  `art/titanovenator/local/` (ignorado; não distribuído). Hierarquia, pivôs, pose-base e textura
+  originais preservados, animações guardadas separadamente para a etapa posterior. Nenhum recurso
+  derivado entra no jar/repositório. O papel da criatura no jogo continua fora desta etapa.
+
 - 2026-10-04 — Base militar e contenção (D53): hangar do Felipe como base única por mundo, Núcleo da Contenção e Geradores do Campo, séries de registros (postos, base, dossiê) no manual e no Analisador, dossiê destravado pela morte do espécime.
 
 - 2026-10-04 — Variante complexo dos postos (D52) e série da base reescrita com o Titanovenator contido no campo de êxtase (`tools/wiki_lore/base/`), mais o dossiê da espécie (`tools/wiki_lore/dossie/`). Notas e dossiê ainda fora do manual.

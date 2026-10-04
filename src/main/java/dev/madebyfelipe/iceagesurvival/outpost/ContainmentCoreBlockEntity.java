@@ -1,6 +1,7 @@
 package dev.madebyfelipe.iceagesurvival.outpost;
 
 import dev.madebyfelipe.iceagesurvival.IceAgeSurvival;
+import dev.madebyfelipe.iceagesurvival.entity.TitanovenatorBoss;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -37,7 +38,7 @@ import net.minecraftforge.registries.ForgeRegistries;
  * O campo de êxtase da base. Na primeira vez que roda, procura os {@link StasisGeneratorBlock geradores} em volta
  * (até {@link #SCAN_RADIUS} na horizontal) e guarda onde estão. Enquanto algum estiver de pé:
  * <ul>
- *   <li>faz nascer o espécime ({@link #SPECIMEN}) no centro, uma vez, se essa espécie já existir no jogo;</li>
+ *   <li>faz nascer o espécime ({@link #SPECIMEN}, o {@link TitanovenatorBoss}) no centro, uma vez, com o covil ali;</li>
  *   <li>congela toda criatura (não jogador) a até {@link #FIELD_RADIUS} do núcleo: sem IA, sem movimento e
  *   invulnerável, marcada com {@link #CONTAINED_TAG};</li>
  *   <li>mostra o campo com partículas.</li>
@@ -51,6 +52,8 @@ public class ContainmentCoreBlockEntity extends BlockEntity {
     public static final String CONTAINED_TAG = "iceagesurvival.contained";
     public static final double FIELD_RADIUS = 6.0;
     static final int SCAN_RADIUS = 24;
+    /** Raio do covil do Titanovenator em volta do núcleo: o salão do hangar. */
+    static final int LAIR_RADIUS = 24;
     static final int SCAN_HEIGHT = 8;
     static final int CHECK_INTERVAL = 10;
 
@@ -119,6 +122,13 @@ public class ContainmentCoreBlockEntity extends BlockEntity {
     }
 
     private void spawnSpecimen(ServerLevel level) {
+        // O Titanovenator nasce preso ao salão da base como covil: solto, caça ali dentro e volta se for atraído longe.
+        TitanovenatorBoss boss = TitanovenatorBoss.summon(level, worldPosition.above(), LAIR_RADIUS);
+        if (boss != null) {
+            specimenSpawned = true;
+            setChanged();
+            return;
+        }
         EntityType<?> type = ForgeRegistries.ENTITY_TYPES.getValue(SPECIMEN);
         if (type == null || !ForgeRegistries.ENTITY_TYPES.containsKey(SPECIMEN)) {
             return;

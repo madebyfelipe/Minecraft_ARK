@@ -1,0 +1,44 @@
+{
+  "stats": {
+    "health": {
+      "base": 1024
+    },
+    "attack": {
+      "base": 42
+    },
+    "speed": {
+      "base": 0.3
+    },
+    "torpor": {
+      "base": 1000
+    },
+    "armor": {
+      "base": 12
+    }
+  },
+  "body": {
+    "knockback_resistance": 1.0,
+    "step_height": 3.4,
+    "breaks": "none"
+  },
+  "behavior": {
+    "aggressive": true,
+    "aggro_radius": 48,
+    "territory_radius": 0,
+    "flee_health_fraction": 0.0,
+    "herd_radius": 0,
+    "ecology": {
+      "rival_radius": 48,
+      "nervousness": 0.0,
+      "carcass_portions": 0
+    }
+  },
+  "sounds": {
+    "ambient": "fossil:tyrannosaurus_ambient",
+    "hurt": "fossil:tyrannosaurus_hurt",
+    "death": "fossil:tyrannosaurus_death",
+    "alert": "fossil:tyrannosaurus_roar",
+    "attack": "minecraft:entity.ravager.attack",
+    "volume": 4.0
+  }
+}
