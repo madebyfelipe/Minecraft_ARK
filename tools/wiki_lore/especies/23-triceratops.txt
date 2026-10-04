@@ -2,10 +2,10 @@ id: triceratops
 nome: Tricerátopo
 selos: Herbívoro, Montável
 
-Três chifres e um escudo de osso, do fim do Cretáceo na América do Norte. Há ossos dele com marcas de dentes de tiranossauro, e alguns com marcas cicatrizadas: ele sobrevivia aos ataques.
+Tem três chifres e um escudo de osso. Viveu no fim do Cretáceo, na América do Norte. Há ossos dele com marcas de dentes de tiranossauro, e alguns com marcas cicatrizadas: ele sobrevivia aos ataques.
 
 Anda em manadas de dois a quatro, que migram e se defendem juntas. É o herbívoro mais corajoso daqui: investe de longe e raramente recua. Desconfia de nós. O tiranossauro o caça mais do que qualquer outra presa.
 
 Derruba paredes de madeira e troncos de árvore só de passar. Vive em planícies, florestas e prados.
 
-> Amansei um com fardo de feno; frutas silvestres, trigo e folhas também servem. Com um tricerátopo manso ao lado, poucos predadores se arriscam. Montado, a mordida colhe troncos e folhagem.
+> Amansei um com fardo de feno; frutas silvestres, trigo e folhas também servem. Com um tricerátopo manso ao lado, poucos predadores se arriscam. Quando vou montado, ele colhe troncos e folhagem com a mordida.

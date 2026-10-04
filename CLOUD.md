@@ -730,11 +730,15 @@ O mundo do GameTest é plano e de bioma temperado, então o frio não chega a su
 | 9 | Worldgen | ✅ 2026-09-30 em teste automático (os biomas possíveis do preset são todos frios); falta criar um mundo e andar por ele |
 | 10 | Endgame: base militar, postos com notas, apex secreto | 🔴 reaberta em 2026-10-03 (D51): a caverna e o boss da D47 saíram; falta desenhar o apex, os postos e o bloco-computador |
 
+Revisão editorial do Analisador (2026-10-03): manual e fichas de `tools/wiki_lore/` revisados para uma leitura mais natural, preservando a voz do sobrevivente e o conteúdo da lore.
+
 MVP = Etapas 1–4 + versão mínima de 6, 7 e 9 (mundo frio, temperatura básica, montar o Smilodon).
 
 ## 24. Decisões técnicas
 
 Ver a tabela em [4](#4-decisões). Registro de mudanças estruturais:
+
+- 2026-10-03 — Revisão editorial de `tools/wiki_lore/`: frases mais claras, correções de concordância e menos repetições no manual e nas fichas, preservando a voz de diário de campo. Conteúdo do Analisador regenerado por `tools/gen_wiki.py`.
 
 - 2026-10-01 — Worldgen restaurado ao v1 da Etapa 9: o preset Era do Gelo volta ao relevo
   `minecraft:overworld` e ao mapeamento original de biomas frios, removendo a reformulação de

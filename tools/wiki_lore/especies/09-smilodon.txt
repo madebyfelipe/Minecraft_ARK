@@ -2,7 +2,7 @@ id: smilodon
 nome: Smilodon
 selos: Carnívoro, Montável, Agressivo
 
-O tigre-dentes-de-sabre das Américas, da última era do gelo. Não é o mais pesado dos felinos, mas tem as patas dianteiras mais fortes que qualquer felino vivo: agarra, derruba e só então usa os caninos.
+O tigre-dentes-de-sabre das Américas, da última era do gelo. Não é o mais pesado dos felinos, mas tem as patas dianteiras mais fortes que as de qualquer felino vivo: agarra, derruba e só então usa os caninos.
 
 Caça sozinho, por emboscada. Fica escondido, e no bote dá uma arrancada que nada aqui alcança; o primeiro golpe agarra e segura a presa. O fôlego, porém, é curto. Prefere elasmotérios, cavalos, lhamas, cabras, vacas e burros; gente também, se estiver com fome.
 

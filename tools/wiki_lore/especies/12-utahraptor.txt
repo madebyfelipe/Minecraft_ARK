@@ -2,9 +2,9 @@ id: utahraptor
 nome: Utahraptor
 selos: Carnívoro, Montável, Agressivo
 
-O maior dos raptores, de seis ou sete metros, do começo do Cretáceo, no que hoje é Utah. Encontraram vários deles presos juntos na mesma armadilha de areia, o que já sugeria caça em grupo. Aqui, é certeza.
+O maior dos raptores, com seis ou sete metros de comprimento. Viveu no começo do Cretáceo, no que hoje é Utah. Encontraram vários deles presos juntos na mesma armadilha de areia, o que já sugeria caça em grupo. Aqui, é certeza.
 
-Caça em bandos de dois ou três, e juntos ficam muito mais rápidos e fortes do que separados. No bote, salta sobre a presa de longe. Prefere galimimos, e infelizmente prefere gente a gado.
+Caça em bandos de dois ou três. Juntos, esses raptores ficam muito mais rápidos e fortes do que separados. No bote, salta sobre a presa de longe. Prefere galimimos e, infelizmente para nós, escolhe gente antes de gado.
 
 Vive em taigas, florestas e terras áridas.
 
