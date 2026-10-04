@@ -32,7 +32,8 @@ def matrix(pivot,angles):
     return m
 
 
-def scene(path,jaw=0):
+def scene(path,jaw=0,pose=None):
+    """pose: osso -> (rotação, posição) no formato do arquivo de animação, somados ao repouso."""
     model=json.loads(path.read_text())
     texture=np.asarray(Image.open(io.BytesIO(base64.b64decode(model['textures'][0]['source'].split(',')[1]))).convert('RGBA'))
     elements={c['uuid']:c for c in model['elements']}; faces=[]; head=[]
@@ -41,7 +42,16 @@ def scene(path,jaw=0):
             if isinstance(item,dict):
                 r=item.get('rotation',[0,0,0])[:]
                 if item['name']=='lowerJaw':r[0]-=jaw
+                shift=np.zeros(3);zoom=np.ones(3)
+                if pose and item['name'] in pose:
+                    dr,dp,ds=pose[item['name']]
+                    r=[r[0]-dr[0],r[1]-dr[1],r[2]+dr[2]];shift=np.array([0,dp[1],0]);zoom=np.array(ds)
                 transform=parent@matrix(item.get('origin',[0,0,0]),r)
+                transform[:3,3]+=shift
+                if (zoom!=1).any():
+                    o=np.asarray(item.get('origin',[0,0,0]));S=np.diag(zoom)
+                    scale=np.eye(4);scale[:3,:3]=S;scale[:3,3]=o-S@o
+                    transform=transform@scale
                 walk(item.get('children',[]),transform,is_head or item['name']=='head')
                 continue
             c=elements[item]; x,y,z=c['from']; X,Y,Z=c['to']

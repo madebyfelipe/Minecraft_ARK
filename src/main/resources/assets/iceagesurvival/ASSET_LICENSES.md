@@ -5,6 +5,8 @@ alterações graduais. `tools/study_titanovenator.py` lê o mod instalado separa
 os derivados somente em `art/titanovenator/local/`, ignorado pelo Git e fora dos recursos do jar.
 Esses derivados não são arte inteiramente original e não devem ser versionados ou distribuídos.
 O script/visualizador versionados não contêm modelos, texturas ou animações do Revival.
+As animações do Titanovenator (`art/titanovenator/animations/`) são autorais, escritas por
+`tools/titanovenator_anim.py`; só reutilizam os nomes dos ossos do rig de base.
 
 Este mod usa modelos, texturas, animações e sons fornecidos em runtime pelo mod
 **Fossils and Archeology: Revival** para algumas espécies. Esses arquivos não são copiados,

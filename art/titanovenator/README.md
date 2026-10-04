@@ -1,6 +1,6 @@
 # Titanovenator — estudo incremental sobre o Rex
 
-Estado: **Passo 3 (textura), aguardando revisão visual do Felipe**. O primeiro modelo gerado
+Estado: **Passo 4 (cerdas, cicatrizes) e animações, aguardando revisão do Felipe**. O primeiro modelo gerado
 do zero foi rejeitado e descartado. A direção atual parte do Tyrannosaurus do
 Fossils and Archeology: Revival instalado localmente, por pedido explícito do Felipe.
 
@@ -10,6 +10,9 @@ Fossils and Archeology: Revival instalado localmente, por pedido explícito do F
 python3 tools/study_titanovenator.py
 python3 tools/apply_titanovenator_texture.py art/titanovenator/local/passo-3-atlas.png
 python3 tools/restore_titanovenator_eyes.py  # requer Pillow
+python3 tools/titanovenator_step4.py         # cerdas e cicatrizes (Pillow)
+python3 tools/titanovenator_anim.py          # animações autorais (stdlib)
+python3 tools/render_titanovenator_anim.py walk run attack  # folhas de quadros (NumPy + Pillow)
 python3 tools/titanovenator_preview.py
 ```
 
@@ -34,6 +37,53 @@ O arquivo de animações original fica separado em `local/rex-original.animation
 `local/passo-1.bbmodel` preserva o estágio aprovado. As imagens comparativas são
 geradas dos mesmos arquivos pelo comando `python3 tools/render_titanovenator.py`
 (requer NumPy e Pillow): `local/passo-2-cabeca.png` e `local/passo-2-mandibula.png`.
+
+## Passo 4 — cerdas e cicatrizes
+
+Feito sobre o passo 3, sem tocar nos volumes existentes nem nos dentes (decisão do Felipe).
+`tools/titanovenator_step4.py` guarda `passo-3.geo.json`/`passo-3.png` na primeira execução e
+sempre reconstrói a partir deles.
+
+- **Cerdas (dossiê §17):** 23 cubos finos e escuros em fileira no pescoço, no dorso e na base
+  da cauda, presos aos ossos que já existem (acompanham respiração e animação). Curtas, com
+  altura e inclinação variando: estrutura filamentosa localizada, não uma crista de espetos.
+- **Cicatrizes (§17, §38):** 5 decalques de 0,08 de espessura, pintados numa área livre do atlas
+  local: garras no flanco e na cauda, perfurações de mordida no pescoço e no peito, corte no
+  focinho. Só a face de fora leva a pintura. Os dentes não foram alterados.
+
+## Animações (autorais)
+
+`tools/titanovenator_anim.py` escreve `animations/titanovenator.animation.json`, **versionado**:
+nenhum quadro vem do Revival; o arquivo só nomeia os ossos do rig e soma ângulos ao repouso.
+Prefixo `animation.titanovenator.`; o gerador confere os nomes dos ossos contra o geo local.
+
+| Animação | O que faz (dossiê) |
+|---|---|
+| `idle` | respiração por sacos aéreos, olhar em volta, alívio de peso entre os pés |
+| `walk` | marcha bípede lenta, cauda de contrapeso, cabeça e pescoço desfazem o balanço do tronco |
+| `run` | a investida (§11): tronco inclinado, pescoço estendido, cauda erguida, braços recolhidos |
+| `attack` | mordida (§7): recuo → bote → mordida → ancoragem → tração cervical → recuperação |
+| `attack_2` | pancada de corpo: ombro e quadril giram, cauda varre |
+| `speak` | rugido de ameaça (§16): inspira, cabeça sobe, expiração curta com a garganta tremendo |
+| `call` | chamado territorial grave, boca meio aberta |
+| `eat` | arranca em rasgadas e engole, braços seguram a carcaça |
+| `unconscious` | nocaute/doma/descanso: deitado de barriga, respiração lenta |
+
+**Fases do boss.** Felipe definiu 3 fases, mas não o que cada uma faz. Premissa de trabalho:
+a fase escala cadência, postura e amplitude. `idle`, `walk`, `run`, `attack`, `attack_2` e
+`speak` têm variantes `_f2` e `_f3` (cabeça mais baixa, passada mais rápida, cauda mais ampla;
+na fase 3 a boca fica entreaberta, ofegante). `roar_phase` é o rugido longo da troca de
+fase. A tabela `PHASES` no topo do script é o único lugar a mudar se as fases forem outras.
+
+Fora do escopo por decisão do Felipe: pisão/tremor e ferido/mancando.
+
+**Conferência:** as folhas de `render_titanovenator_anim.py` rasterizam o modelo posado em
+`local/anim/`. Foram vistas a caminhada, a investida, a mordida, o rugido, o nocaute, o comer e
+a pancada de corpo. **Não foi testado no jogo:** falta ligar o modelo à `CreatureAppearance`
+(nomes `idle/walk/attack/unconscious/run` já batem com o que o `LandCreature` usa; `speak`,
+`attack_2`, `eat` e `call` são os gestos que ele já dispara) e as fases/`roar_phase` ainda
+precisam de código no boss. O sentido dos ângulos segue a convenção do geo e foi validado só
+no renderizador do estudo, não no GeckoLib.
 
 ## Passo 3 — textura conforme referência
 
@@ -93,8 +143,8 @@ e [Cube/updateUV](https://github.com/JannisX11/blockbench/blob/v4.12.6/js/outlin
 ## Próximas passagens, depois da revisão da base
 
 - Revisar a pintura carvão/ocre dourado do passo 3 conforme a referência enviada.
-- Incluir poucas cerdas na nuca/dorso.
-- Conferir as animações originais sobre as novas proporções e adaptar os movimentos.
+- Revisar cerdas, cicatrizes e as animações no jogo.
+- Definir o que cada uma das 3 fases faz e ligar as variantes `_f2`/`_f3` ao boss.
 - Só então decidir escala e integração. O papel do Titanovenator no gameplay não foi definido aqui.
 
 ## Procedência e distribuição

@@ -736,11 +736,21 @@ MVP = Etapas 1–4 + versão mínima de 6, 7 e 9 (mundo frio, temperatura básic
 Felipe. Passo 3 da textura em `art/titanovenator/README.md`, mantendo o corpo do passo 1 aprovado;
 derivados locais ignorados
 pelo Git, sem integração ao jogo. Referência nova: carvão e ocre dourado com manchas;
-textura em revisão, cerdas discretas e animações pendentes.
+passo 4 (cerdas e cicatrizes) e animações autorais prontos para revisão; falta ligar ao jogo.
 
 ## 24. Decisões técnicas
 
 Ver a tabela em [4](#4-decisões). Registro de mudanças estruturais:
+
+- 2026-10-04 — Titanovenator, passo 4 e animações: pedido do Felipe (boss do endgame). Cerdas
+  discretas na nuca/dorso/base da cauda e 5 cicatrizes por decalque, sem mexer nos dentes
+  (`tools/titanovenator_step4.py`). Animações **autorais** versionadas em
+  `art/titanovenator/animations/` (`tools/titanovenator_anim.py`): idle, walk, run (investida),
+  attack (mordida + tração cervical), attack_2, speak (rugido), call, eat, unconscious,
+  variantes `_f2`/`_f3` das três fases e `roar_phase`. Escolhas do Felipe: só rugido e investida
+  como extras de boss; sem pisão nem ferido/mancando. **Premissa minha:** as fases escalam
+  cadência/postura/amplitude, pois ele ainda não disse o que cada fase faz. Conferido por
+  renderização do modelo posado; nada testado no jogo e nenhum código Java/gameplay alterado.
 
 - 2026-10-03 — Titanovenator: a pedido do Felipe, restaurados os olhos verdes originais
   (pixels da íris/pupila e posição do passo 2), mantendo a pintura carvão/ocre do corpo.
