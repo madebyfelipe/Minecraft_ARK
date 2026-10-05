@@ -68,6 +68,7 @@ public class FirearmTests {
     @GameTest(template = EMPTY, batch = "firearms")
     public static void theHandgunTakesHalfOfALevelOneRaptor(GameTestHelper helper) {
         LandCreature raptor = helper.spawnWithNoFreeWill(ModEntities.VELOCIRAPTOR.get(), 2, 2, 2);
+        raptor.setCreatureLevel(1); // nível 1: a calibração do DC2, sem o fator de nível
         Player player = shooter(helper, new Vec3(0.5, 2, 0.5));
         float dealt = shot(helper, player, raptor, Firearm.HANDGUN, 4.0);
         helper.assertTrue(Math.abs(dealt - 8.0F) < EPSILON, "a pistola deveria tirar 8 do raptor: " + dealt);
@@ -80,11 +81,12 @@ public class FirearmTests {
     public static void theAllosaurusHideHoldsTheHandgunButNotTheAntiTankRifle(GameTestHelper helper) {
         HuntTests.clearStrays(helper);
         LandCreature allosaurus = helper.spawnWithNoFreeWill(ModEntities.ALLOSAURUS.get(), 12, 1, 12);
+        allosaurus.setCreatureLevel(1);
         Player player = shooter(helper, new Vec3(3.5, 1, 12.5));
         float handgun = shot(helper, player, allosaurus, Firearm.HANDGUN, 9.0);
         float antiTank = shot(helper, player, allosaurus, Firearm.ANTI_TANK_RIFLE, 9.0);
-        helper.assertTrue(Math.abs(handgun - 400 * 0.2F * 160 / 5000) < EPSILON, "pistola no couro: " + handgun);
-        helper.assertTrue(Math.abs(antiTank - 1600F * 160 / 5000) < EPSILON, "antitanque no Alossauro: " + antiTank);
+        helper.assertTrue(Math.abs(handgun - 400 * 0.2F * 170 / 5000) < EPSILON, "pistola no couro: " + handgun);
+        helper.assertTrue(Math.abs(antiTank - 1600F * 170 / 5000) < EPSILON, "antitanque no Alossauro: " + antiTank);
         allosaurus.discard();
         helper.succeed();
     }
@@ -182,6 +184,7 @@ public class FirearmTests {
     public static void hitscanShotsHitBigMultipartCreatures(GameTestHelper helper) {
         HuntTests.clearStrays(helper);
         LandCreature brontosaurus = helper.spawnWithNoFreeWill(ModEntities.BRONTOSAURUS.get(), 15, 1, 12);
+        brontosaurus.setCreatureLevel(1);
         Player player = shooter(helper, new Vec3(3.5, 1, 12.5));
         ItemStack stack = armed(player, Firearm.ANTI_TANK_RIFLE, brontosaurus);
         float before = brontosaurus.getHealth();
@@ -237,6 +240,7 @@ public class FirearmTests {
     public static void theSolidCannonSphereFliesAndBursts(GameTestHelper helper) {
         HuntTests.clearStrays(helper);
         LandCreature brontosaurus = helper.spawnWithNoFreeWill(ModEntities.BRONTOSAURUS.get(), 15, 1, 12);
+        brontosaurus.setCreatureLevel(1);
         Player player = shooter(helper, new Vec3(3.5, 1, 12.5));
         ItemStack stack = armed(player, Firearm.SOLID_CANNON, brontosaurus);
         float before = brontosaurus.getHealth();

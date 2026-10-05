@@ -1,6 +1,8 @@
 package dev.madebyfelipe.iceagesurvival.client;
 
 import dev.madebyfelipe.iceagesurvival.core.locator.RadarMath;
+import dev.madebyfelipe.iceagesurvival.network.CallCreaturePayload;
+import dev.madebyfelipe.iceagesurvival.network.ModPayloads;
 import dev.madebyfelipe.iceagesurvival.world.CreatureLocator;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -15,13 +17,18 @@ import net.minecraft.network.chat.Component;
  * no estilo do radar ({@link RadarHud}). Cada linha tem uma bússola pequena apontando para a
  * criatura em relação ao olhar, nome, nível, distância, diferença de altura e coordenadas. "Localizar"
  * liga o radar e faz a criatura brilhar se estiver carregada; na mesma linha, "Parar" desliga.
+ * "Chamar" traz a criatura para o lado do jogador ({@link dev.madebyfelipe.iceagesurvival.world.CreatureCall}), só
+ * da mesma dimensão.
  */
 public class CreatureLocatorScreen extends Screen {
-    private static final int WIDTH = 284;
+    private static final int WIDTH = 330;
     private static final int ROW_HEIGHT = 26;
     private static final int HEADER = 28;
     private static final int FOOTER = 8;
-    private static final int BUTTON_WIDTH = 62;
+    private static final int BUTTON_WIDTH = 52;
+    private static final int BUTTON_GAP = 4;
+    /** Os dois botões da linha (Chamar e Localizar) lado a lado. */
+    private static final int BUTTONS_WIDTH = 2 * BUTTON_WIDTH + BUTTON_GAP;
     private static final int BUTTON_HEIGHT = 16;
     /** Raio da bússola de cada linha. */
     private static final float DIAL = 9.0F;
@@ -72,7 +79,17 @@ public class CreatureLocatorScreen extends Screen {
             CreatureLocator.Entry entry = rows.get(scroll + index);
             boolean tracking = entry.creature().equals(CreatureTracker.tracked());
             int y = top + HEADER + index * ROW_HEIGHT + (ROW_HEIGHT - BUTTON_HEIGHT) / 2;
-            addRenderableWidget(new TechButton(left + WIDTH - 6 - SCROLLBAR - BUTTON_WIDTH, y, BUTTON_WIDTH, BUTTON_HEIGHT,
+            int buttonsLeft = left + WIDTH - 6 - SCROLLBAR - BUTTONS_WIDTH;
+            TechButton call = new TechButton(buttonsLeft, y, BUTTON_WIDTH, BUTTON_HEIGHT,
+                    Component.translatable("iceagesurvival.locator.call"), RadarHud.BRIGHT,
+                    button -> {
+                        ModPayloads.sendToServer(new CallCreaturePayload(entry.creature()));
+                        onClose();
+                    });
+            // Chamar só traz da mesma dimensão.
+            call.active = minecraft.player != null && entry.dimension().equals(minecraft.player.level().dimension());
+            addRenderableWidget(call);
+            addRenderableWidget(new TechButton(buttonsLeft + BUTTON_WIDTH + BUTTON_GAP, y, BUTTON_WIDTH, BUTTON_HEIGHT,
                     Component.translatable(tracking ? "iceagesurvival.locator.stop" : "iceagesurvival.locator.locate"),
                     tracking ? RadarHud.TARGET : RadarHud.BRIGHT,
                     button -> {
@@ -110,7 +127,7 @@ public class CreatureLocatorScreen extends Screen {
             graphics.drawCenteredString(font, Component.translatable("iceagesurvival.locator.empty"),
                     left + WIDTH / 2, top + HEADER + 8, RadarHud.SUBTLE);
         }
-        int textRight = right - 12 - SCROLLBAR - BUTTON_WIDTH;
+        int textRight = right - 12 - SCROLLBAR - BUTTONS_WIDTH;
         for (int index = 0; index < visibleRows && scroll + index < rows.size(); index++) {
             CreatureLocator.Entry entry = rows.get(scroll + index);
             int y = top + HEADER + index * ROW_HEIGHT;
@@ -135,7 +152,7 @@ public class CreatureLocatorScreen extends Screen {
 
     /** Ponto piscando, título, a página e a linha com um brilho correndo por ela. */
     private void drawHeader(GuiGraphics graphics, int right) {
-        // As abas (Localizar · Cápsulas) ficam no canto direito do cabeçalho.
+        // As abas (Localizar · Criogenia) ficam no canto direito do cabeçalho.
         int headerRight = right - 8 - CryoCapsuleScreen.tabsWidth() - 6;
         TechStyle.header(graphics, font, title, left + 8, top + 8, headerRight, 12);
         if (rows.size() > visibleRows) {

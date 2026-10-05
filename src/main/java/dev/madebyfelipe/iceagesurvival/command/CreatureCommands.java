@@ -4,12 +4,14 @@ import dev.madebyfelipe.iceagesurvival.core.command.Whistle;
 import dev.madebyfelipe.iceagesurvival.entity.PrehistoricCreature;
 import java.util.List;
 import javax.annotation.Nullable;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.OwnableEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.Vec3;
 
 /**
  * Validação e execução, no servidor, dos comandos que um jogador dá às suas criaturas.
@@ -92,6 +94,37 @@ public final class CreatureCommands {
         player.displayClientMessage(creatures.isEmpty()
                 ? Component.translatable("iceagesurvival.command.attack.none")
                 : Component.translatable("iceagesurvival.command.attack", obeyed, creatures.size(), target.getName()), true);
+        return obeyed;
+    }
+
+    /**
+     * Locomover: todas as criaturas do jogador ao alcance andam até o bloco mirado e ficam lá. Cada uma sorteia a
+     * obediência, como no ataque; a que está sendo montada não sai do lugar.
+     *
+     * @return quantas criaturas obedeceram
+     */
+    public static int orderMove(Player player, BlockPos destination) {
+        if (Vec3.atBottomCenterOf(destination).distanceToSqr(player.position()) > TARGET_RANGE * TARGET_RANGE
+                || !player.level().isLoaded(destination)) {
+            return 0;
+        }
+        List<PrehistoricCreature> creatures = player.level().getEntitiesOfClass(
+                PrehistoricCreature.class,
+                player.getBoundingBox().inflate(COMMAND_RANGE),
+                creature -> canCommand(player, creature) && creature.getControllingPassenger() == null);
+        int obeyed = 0;
+        for (PrehistoricCreature creature : creatures) {
+            if (creature.rollObedience()) {
+                creature.setTarget(null);
+                creature.orderMoveTo(destination);
+                obeyed++;
+            }
+        }
+        player.level().playSound(null, player.getX(), player.getEyeY(), player.getZ(),
+                SoundEvents.NOTE_BLOCK_FLUTE.value(), SoundSource.PLAYERS, 1.0F, 1.1F);
+        player.displayClientMessage(creatures.isEmpty()
+                ? Component.translatable("iceagesurvival.command.move.none")
+                : Component.translatable("iceagesurvival.command.move", obeyed, creatures.size()), true);
         return obeyed;
     }
 

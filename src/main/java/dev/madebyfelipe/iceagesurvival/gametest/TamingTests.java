@@ -71,7 +71,7 @@ public class TamingTests {
     public static void torporDecaysUntilCreatureWakes(GameTestHelper helper) {
         TestCreature creature = spawn(helper);
         creature.addTorpor(creature.maxTorpor());
-        creature.setTorpor(1.5);
+        creature.setTorpor(0.1); // o piso de 5 min deixa o decaimento lento; perto de zero, acorda logo
         helper.assertTrue(creature.isUnconscious(), "acordou antes do torpor zerar");
         helper.succeedWhen(() -> helper.assertTrue(!creature.isUnconscious() && creature.torpor() == 0, "ainda inconsciente"));
     }

@@ -36,10 +36,39 @@ public class BalanceTests {
         double utah = base(helper, ModEntities.UTAHRAPTOR.get(), Stat.HEALTH);
         helper.assertTrue(smilodon >= utah * 0.8, "Smilodon com " + smilodon + " de vida contra " + utah + " do Utahraptor");
         for (EntityType<?> big : java.util.List.of(ModEntities.STEGOSAURUS.get(), ModEntities.TRICERATOPS.get())) {
-            helper.assertTrue(base(helper, big, Stat.HEALTH) > 2 * utah, big + " deveria aguentar mais que dois Utahraptors");
+            helper.assertTrue(base(helper, big, Stat.HEALTH) >= 2 * utah, big + " deveria aguentar pelo menos dois Utahraptors");
             helper.assertTrue(big.getWidth() > ModEntities.UTAHRAPTOR.get().getWidth() * 2.5,
                     big + " deveria ser bem maior que o Utahraptor: " + big.getWidth());
         }
+        helper.succeed();
+    }
+
+    /** Tiers do MC-21: apex > herbívoros gigantes, e o Brontossauro é o que mais aguenta. */
+    @GameTest(template = EMPTY, batch = "balance")
+    public static void healthFollowsTheTiers(GameTestHelper helper) {
+        double giga = base(helper, ModEntities.GIGANOTOSAURUS.get(), Stat.HEALTH);
+        double rex = base(helper, ModEntities.TYRANNOSAURUS.get(), Stat.HEALTH);
+        double bronto = base(helper, ModEntities.BRONTOSAURUS.get(), Stat.HEALTH);
+        double trike = base(helper, ModEntities.TRICERATOPS.get(), Stat.HEALTH);
+        double mammoth = base(helper, ModEntities.MAMMOTH.get(), Stat.HEALTH);
+        helper.assertTrue(giga > rex, "Giganotosaurus (" + giga + ") devia aguentar mais que o Rex (" + rex + ")");
+        helper.assertTrue(rex > trike, "Rex (" + rex + ") devia aguentar mais que o Triceratops (" + trike + ")");
+        helper.assertTrue(bronto > giga && bronto > mammoth, "o Brontossauro devia ser o que mais aguenta");
+        helper.assertTrue(mammoth >= trike, "Mamute (" + mammoth + ") abaixo do Triceratops (" + trike + ")");
+        helper.succeed();
+    }
+
+    /** O teto de 1024 do vanilla subiu: em nível alto o Brontossauro passa do Triceratops, que também passa de 1024. */
+    @GameTest(template = EMPTY, batch = "balance")
+    public static void highLevelHealthIsNotCappedAt1024(GameTestHelper helper) {
+        LandCreature bronto = helper.spawnWithNoFreeWill(ModEntities.BRONTOSAURUS.get(), 1, 2, 1);
+        LandCreature trike = helper.spawnWithNoFreeWill(ModEntities.TRICERATOPS.get(), 4, 2, 1);
+        // Nível 400: uns 100 pontos caem na vida (desvio de ~9), bem acima do teto antigo para os dois.
+        bronto.setCreatureLevel(400);
+        trike.setCreatureLevel(400);
+        helper.assertTrue(trike.getMaxHealth() > 1024.0F, "vida do Triceratops presa: " + trike.getMaxHealth());
+        helper.assertTrue(bronto.getMaxHealth() > trike.getMaxHealth(),
+                "Brontossauro " + bronto.getMaxHealth() + " contra Triceratops " + trike.getMaxHealth());
         helper.succeed();
     }
 

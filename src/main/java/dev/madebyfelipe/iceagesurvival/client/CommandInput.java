@@ -7,17 +7,20 @@ import dev.madebyfelipe.iceagesurvival.network.AttackOrderPayload;
 import dev.madebyfelipe.iceagesurvival.network.FlightInputPayload;
 import dev.madebyfelipe.iceagesurvival.network.MountAttackPayload;
 import dev.madebyfelipe.iceagesurvival.network.ModPayloads;
+import dev.madebyfelipe.iceagesurvival.network.MoveOrderPayload;
 import dev.madebyfelipe.iceagesurvival.network.WhistlePayload;
 import java.util.EnumMap;
 import java.util.Map;
 import javax.annotation.Nullable;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
+import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
@@ -42,6 +45,8 @@ public final class CommandInput {
             Whistle.FLEE, whistleKey(Whistle.FLEE, GLFW.GLFW_KEY_UNKNOWN)));
     private static final KeyMapping ORDER_ATTACK =
             new KeyMapping("key.iceagesurvival.order_attack", GLFW.GLFW_KEY_G, CATEGORY);
+    private static final KeyMapping ORDER_MOVE =
+            new KeyMapping("key.iceagesurvival.order_move", GLFW.GLFW_KEY_B, CATEGORY);
     private static final KeyMapping STATUS =
             new KeyMapping("key.iceagesurvival.status", GLFW.GLFW_KEY_V, CATEGORY);
     private static final KeyMapping LOCATE =
@@ -63,6 +68,7 @@ public final class CommandInput {
     public static void registerKeys(RegisterKeyMappingsEvent event) {
         WHISTLES.values().forEach(event::register);
         event.register(ORDER_ATTACK);
+        event.register(ORDER_MOVE);
         event.register(STATUS);
         event.register(LOCATE);
     }
@@ -127,6 +133,14 @@ public final class CommandInput {
         while (ORDER_ATTACK.consumeClick()) {
             if (aimed != null) {
                 ModPayloads.sendToServer(new AttackOrderPayload(aimed.getId()));
+            }
+        }
+        while (ORDER_MOVE.consumeClick()) {
+            // Locomover: o bloco mirado, até o alcance das ordens de ataque; o destino é o espaço em cima dele.
+            HitResult hit = minecraft.player.pick(CreatureCommands.TARGET_RANGE, 1.0F, false);
+            if (hit instanceof BlockHitResult block && hit.getType() == HitResult.Type.BLOCK) {
+                ModPayloads.sendToServer(new MoveOrderPayload(block.getDirection() == Direction.DOWN
+                        ? block.getBlockPos().below() : block.getBlockPos().above()));
             }
         }
     }

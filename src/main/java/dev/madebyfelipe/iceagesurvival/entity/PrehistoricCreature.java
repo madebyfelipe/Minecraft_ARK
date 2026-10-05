@@ -318,6 +318,9 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     /** Centro do território: onde a criatura entrou no mundo pela primeira vez. */
     @Nullable
     private BlockPos homePos;
+    /** Destino da ordem de locomover; não é salvo (ao recarregar, a criatura fica onde estiver). */
+    @Nullable
+    private BlockPos moveOrder;
     /**
      * Bando desta criatura selvagem. Quem nasce junto (geração do terreno, reposição, família) sai no
      * mesmo bando; a sem bando (mundo antigo, ovo, comando) é adotada pelo bando da espécie mais perto
@@ -3500,9 +3503,29 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     public void setMovement(Movement movement) {
         entityData.set(DATA_MOVEMENT, (byte) movement.ordinal());
         setOrderedToSit(movement == Movement.STAY);
+        moveOrder = null;
         if (movement == Movement.STAY) {
             getNavigation().stop();
         }
+    }
+
+    /**
+     * Ordem de locomover: vai até {@code pos} e fica lá (movimento Ficar). Quem cumpre é o
+     * {@link dev.madebyfelipe.iceagesurvival.entity.ai.OrderGoals.Stay}; qualquer outra ordem de movimento cancela.
+     */
+    public void orderMoveTo(BlockPos pos) {
+        setMovement(Movement.STAY);
+        moveOrder = pos.immutable();
+    }
+
+    /** Para onde a ordem de locomover manda a criatura; {@code null} quando não há ordem ou ela já chegou. */
+    @Nullable
+    public BlockPos moveOrder() {
+        return moveOrder;
+    }
+
+    public void clearMoveOrder() {
+        moveOrder = null;
     }
 
     public void setStance(Stance stance) {
