@@ -39,6 +39,7 @@ public class IceAgeSurvivalClient {
         MinecraftForge.EVENT_BUS.addListener(AnalyzerSlotClient::onScreenRender);
         MinecraftForge.EVENT_BUS.addListener(AnalyzerSlotClient::onMouseClick);
         MinecraftForge.EVENT_BUS.addListener(FrozenHearts::onGuiOverlay);
+        MinecraftForge.EVENT_BUS.addListener(OwnerHearts::onRenderLevel);
         CreatureStatusPayload.setClientHandler(CreatureStatusScreen::receive);
         CreatureLocationsPayload.setClientHandler(CreatureTracker::receive);
         MinecraftForge.EVENT_BUS.addListener(CreatureTracker::onClientTick);
