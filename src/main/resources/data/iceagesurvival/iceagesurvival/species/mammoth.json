@@ -1,11 +1,11 @@
 {
   "stats": {
     "health": {
-      "base": 90,
+      "base": 260,
       "per_point": 0.08
     },
     "attack": {
-      "base": 10,
+      "base": 20,
       "per_point": 0.04
     },
     "speed": {

@@ -1,7 +1,7 @@
 {
   "stats": {
     "health": {
-      "base": 240,
+      "base": 260,
       "per_point": 0.08
     },
     "attack": {

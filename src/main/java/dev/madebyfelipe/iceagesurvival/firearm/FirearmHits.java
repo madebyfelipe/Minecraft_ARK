@@ -70,7 +70,7 @@ public final class FirearmHits {
                               double distance, Vec3 from) {
         Optional<FirearmProfile> profile = profile(target);
         Ballistics.Target ballistic = profile.map(p -> new Ballistics.Target(baseHealth(target), p.dc2Health(),
-                p.armored())).orElseGet(Ballistics.Target::generic);
+                p.armored(), target.getMaxHealth())).orElseGet(Ballistics.Target::generic);
         long now = level.getGameTime();
         Rage rage = target instanceof PrehistoricCreature ? RAGES.computeIfAbsent(target, t -> new Rage()) : null;
         boolean enraged = rage != null && rage.enraged(now);

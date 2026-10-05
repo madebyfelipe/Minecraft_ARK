@@ -1,53 +1,65 @@
 package dev.madebyfelipe.iceagesurvival.network;
 
+import dev.madebyfelipe.iceagesurvival.cryo.CryoStorage;
 import dev.madebyfelipe.iceagesurvival.entity.PrehistoricCreature;
-import dev.madebyfelipe.iceagesurvival.item.CryoCapsuleItem;
+import java.util.UUID;
 import java.util.function.Supplier;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.network.NetworkEvent;
 
 /**
- * Cliente → servidor: pela aba "Cápsulas" do menu da tecla O, guardar uma criatura por perto na primeira cápsula
- * vazia do inventário ({@code store}, {@code target} = id da entidade) ou soltar à frente do jogador a criatura da
- * cápsula num espaço do inventário ({@code target} = espaço). O servidor confere tudo de novo; repetir o pedido não
- * duplica nada, porque a cápsula já mudou.
+ * Cliente → servidor, pela aba "Criogenia" do menu da tecla O: pedir a lista das criaturas congeladas ({@code LIST}),
+ * guardar uma criatura própria por perto ({@code STORE}, {@code entity} = id da entidade) ou soltar à frente do
+ * jogador uma criatura congelada ({@code RELEASE}, {@code entry} = id da entrada). A resposta é sempre a lista nova
+ * ({@link CryoListPayload}). O servidor confere tudo de novo; repetir o pedido não duplica nada, porque a criatura
+ * ou a entrada já mudou.
  */
-public record CryoCapsulePayload(boolean store, int target) {
+public record CryoCapsulePayload(Action action, int entity, UUID entry) {
+    private static final UUID NONE = new UUID(0L, 0L);
+
+    public enum Action {
+        LIST, STORE, RELEASE
+    }
+
+    public static CryoCapsulePayload list() {
+        return new CryoCapsulePayload(Action.LIST, -1, NONE);
+    }
+
+    public static CryoCapsulePayload store(int entity) {
+        return new CryoCapsulePayload(Action.STORE, entity, NONE);
+    }
+
+    public static CryoCapsulePayload release(UUID entry) {
+        return new CryoCapsulePayload(Action.RELEASE, -1, entry);
+    }
 
     public static void encode(CryoCapsulePayload message, FriendlyByteBuf buf) {
-        buf.writeBoolean(message.store);
-        buf.writeVarInt(message.target);
+        buf.writeEnum(message.action);
+        buf.writeVarInt(message.entity);
+        buf.writeUUID(message.entry);
     }
 
     public static CryoCapsulePayload decode(FriendlyByteBuf buf) {
-        return new CryoCapsulePayload(buf.readBoolean(), buf.readVarInt());
+        return new CryoCapsulePayload(buf.readEnum(Action.class), buf.readVarInt(), buf.readUUID());
     }
 
     public static void handle(CryoCapsulePayload message, Supplier<NetworkEvent.Context> supplier) {
         NetworkEvent.Context context = supplier.get();
         context.enqueueWork(() -> {
             ServerPlayer player = context.getSender();
-            if (player == null || player.isSpectator()) {
+            if (player == null) {
                 return;
             }
-            Inventory inventory = player.getInventory();
-            if (message.store()) {
-                if (player.level().getEntity(message.target()) instanceof PrehistoricCreature creature) {
-                    for (int slot = 0; slot < inventory.getContainerSize(); slot++) {
-                        if (CryoCapsuleItem.isEmptyCapsule(inventory.getItem(slot))) {
-                            CryoCapsuleItem.freeze(player, inventory.getItem(slot), creature);
-                            break;
-                        }
-                    }
+            if (!player.isSpectator()) {
+                if (message.action() == Action.STORE
+                        && player.level().getEntity(message.entity()) instanceof PrehistoricCreature creature) {
+                    CryoStorage.freeze(player, creature);
+                } else if (message.action() == Action.RELEASE) {
+                    CryoStorage.releaseInFront(player, message.entry());
                 }
-            } else if (message.target() >= 0 && message.target() < inventory.getContainerSize()) {
-                ItemStack capsule = inventory.getItem(message.target());
-                CryoCapsuleItem.releaseInFront(player.serverLevel(), player, capsule);
             }
-            inventory.setChanged();
+            CryoStorage.sync(player);
         });
         context.setPacketHandled(true);
     }

@@ -2386,7 +2386,8 @@ public abstract class PrehistoricCreature extends TamableAnimal {
             CreatureLocator.update(this);
         }
         if (torpor > 0) {
-            double decayPerSecond = tamingProfile().map(TamingProfile::torporDecayPerSecond).orElse(0.0);
+            double decayPerSecond = TamingRules.torporDecayPerSecond(
+                    tamingProfile().map(TamingProfile::torporDecayPerSecond).orElse(0.0), maxTorpor());
             setTorpor(torpor - decayPerSecond * TORPOR_UPDATE_INTERVAL_TICKS / 20.0);
         }
         if (isUnconscious() && !isTame()) {

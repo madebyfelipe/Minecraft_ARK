@@ -42,6 +42,7 @@ public class IceAgeSurvival {
     public IceAgeSurvival() {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
         ModContainer modContainer = ModLoadingContext.get().getActiveContainer();
+        dev.madebyfelipe.iceagesurvival.entity.HealthCap.raise();
         ModAttachments.ATTACHMENT_TYPES.register(modEventBus);
         ModBlocks.BLOCKS.register(modEventBus);
         ModBlockEntities.BLOCK_ENTITIES.register(modEventBus);
@@ -70,6 +71,7 @@ public class IceAgeSurvival {
         MinecraftForge.EVENT_BUS.addListener(ColdExposure::onPlayerTick);
         MinecraftForge.EVENT_BUS.addListener(dev.madebyfelipe.iceagesurvival.item.AnalyzerItem::onLoggedIn);
         MinecraftForge.EVENT_BUS.addListener(dev.madebyfelipe.iceagesurvival.item.AnalyzerItem::onLoggedOut);
+        MinecraftForge.EVENT_BUS.addListener(dev.madebyfelipe.iceagesurvival.item.CryoCapsuleItem::onLoggedIn);
         MinecraftForge.EVENT_BUS.addListener(dev.madebyfelipe.iceagesurvival.item.AnalyzerSlot::onPlayerTick);
         MinecraftForge.EVENT_BUS.addListener(dev.madebyfelipe.iceagesurvival.item.AnalyzerSlot::onDeath);
         MinecraftForge.EVENT_BUS.addListener(dev.madebyfelipe.iceagesurvival.item.AnalyzerSlot::onDrops);

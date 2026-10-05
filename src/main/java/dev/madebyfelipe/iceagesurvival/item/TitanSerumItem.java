@@ -45,7 +45,7 @@ import net.minecraftforge.fml.common.Mod;
 /**
  * Soro do Titanovenator: o sangue dele, que o corpo larga ao morrer. Clicado numa criatura domesticada da própria
  * pessoa (acordada, uma vez por criatura), dá para sempre {@link #ATTACK_BONUS} de ataque e {@link #HEALTH_BONUS} de
- * vida a mais (multiplicando o total; a vida continua presa ao teto de 1024 do vanilla) e a mordida que sangra: cada
+ * vida a mais (multiplicando o total; a vida continua presa ao teto de {@link dev.madebyfelipe.iceagesurvival.entity.HealthCap}) e a mordida que sangra: cada
  * golpe corpo a corpo dela soma um nível de sangramento, até três, como a do Giganotosaurus.
  *
  * <p>Não é genético: vem em modificadores de atributo (salvos com a criatura) e numa marca, nunca nos pontos, então

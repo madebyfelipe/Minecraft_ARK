@@ -2,26 +2,26 @@ package dev.madebyfelipe.iceagesurvival.client;
 
 import dev.madebyfelipe.iceagesurvival.command.CreatureCommands;
 import dev.madebyfelipe.iceagesurvival.entity.PrehistoricCreature;
-import dev.madebyfelipe.iceagesurvival.item.CryoCapsuleItem;
 import dev.madebyfelipe.iceagesurvival.network.CryoCapsulePayload;
+import dev.madebyfelipe.iceagesurvival.network.CryoListPayload;
 import dev.madebyfelipe.iceagesurvival.network.ModPayloads;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
+import java.util.UUID;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.item.ItemStack;
 
 /**
- * Aba "Cápsulas" do menu da tecla O: as cápsulas criogênicas cheias do inventário, com "Soltar" (à frente do
- * jogador), e as criaturas do jogador por perto, com "Guardar" (na primeira cápsula vazia). O servidor decide;
- * a tela só lê o inventário e as entidades que o cliente já conhece.
+ * Aba "Criogenia" do menu da tecla O: as criaturas congeladas do jogador (a lista vem do servidor), com "Soltar"
+ * (à frente do jogador), e as criaturas do jogador por perto, com "Guardar". O servidor decide e responde com a
+ * lista nova; a tela só mostra o que ele mandou e as entidades que o cliente já conhece.
  */
 public class CryoCapsuleScreen extends Screen {
     private static final int WIDTH = 284;
@@ -30,16 +30,27 @@ public class CryoCapsuleScreen extends Screen {
     private static final int FOOTER = 8;
     private static final int BUTTON_WIDTH = 62;
     private static final int BUTTON_HEIGHT = 16;
+    private static final int SCROLLBAR = 4;
     private static final int TAB_WIDTH = 54;
     private static final int TAB_HEIGHT = 12;
     private static final int REFRESH_TICKS = 10;
 
-    /** Uma linha: cápsula cheia (espaço do inventário) ou criatura por perto (id da entidade). */
-    private record Row(boolean capsule, int target, String name, int level, Component detail) {
+    /** A última lista das criaturas congeladas que o servidor mandou. */
+    private static List<CryoListPayload.Row> frozen = List.of();
+
+    static {
+        CryoListPayload.setClientHandler(CryoCapsuleScreen::receive);
+    }
+
+    /**
+     * Uma linha: criatura congelada ({@code entry} = id da entrada) ou criatura por perto ({@code entity} = id da
+     * entidade).
+     */
+    private record Row(boolean stored, UUID entry, int entity, String name, int level, Component detail) {
     }
 
     private List<Row> rows = List.of();
-    private int emptyCapsules;
+    private boolean waiting = true;
     private int scroll;
     private int left;
     private int top;
@@ -71,36 +82,46 @@ public class CryoCapsuleScreen extends Screen {
         return 2 * TAB_WIDTH + 4;
     }
 
+    /** Chegou a lista do servidor: guarda e, se a tela está aberta, redesenha. */
+    private static void receive(CryoListPayload payload) {
+        frozen = List.copyOf(payload.rows());
+        if (Minecraft.getInstance().screen instanceof CryoCapsuleScreen screen) {
+            screen.waiting = false;
+            screen.rows = screen.collect();
+            screen.rebuild();
+        }
+    }
+
     @Override
     protected void init() {
         visibleRows = Math.max(1, Math.min(8, (height - 40 - HEADER - FOOTER) / ROW_HEIGHT));
         left = (width - WIDTH) / 2;
         top = (height - (HEADER + visibleRows * ROW_HEIGHT + FOOTER)) / 2;
+        if (waiting) {
+            ModPayloads.sendToServer(CryoCapsulePayload.list());
+        }
         rows = collect();
         rebuild();
     }
 
-    /** O que mostrar agora: as cápsulas cheias primeiro, depois as criaturas da mais perto à mais longe. */
+    /** Pede ao servidor e espera a lista nova antes de aceitar outro clique. */
+    private void send(CryoCapsulePayload payload) {
+        waiting = true;
+        ModPayloads.sendToServer(payload);
+        rebuild();
+    }
+
+    /** O que mostrar agora: as congeladas primeiro, depois as criaturas da mais perto à mais longe. */
     private List<Row> collect() {
         Minecraft minecraft = Minecraft.getInstance();
         LocalPlayer player = minecraft.player;
         List<Row> result = new ArrayList<>();
-        emptyCapsules = 0;
         if (player == null || minecraft.level == null) {
             return result;
         }
-        Inventory inventory = player.getInventory();
-        for (int slot = 0; slot < inventory.getContainerSize(); slot++) {
-            ItemStack stack = inventory.getItem(slot);
-            if (CryoCapsuleItem.isEmptyCapsule(stack)) {
-                emptyCapsules++;
-            } else if (CryoCapsuleItem.holdsCreature(stack)) {
-                Component species = CryoCapsuleItem.creatureType(stack)
-                        .<Component>map(type -> Component.translatable("entity." + type.getNamespace() + "." + type.getPath()))
-                        .orElse(Component.literal("?"));
-                result.add(new Row(true, slot, CryoCapsuleItem.creatureName(stack), CryoCapsuleItem.creatureLevel(stack),
-                        species));
-            }
+        for (CryoListPayload.Row row : frozen) {
+            Component species = Component.translatable("entity." + row.type().getNamespace() + "." + row.type().getPath());
+            result.add(new Row(true, row.entry(), -1, row.name(), row.level(), species));
         }
         double range = CreatureCommands.COMMAND_RANGE;
         minecraft.level.getEntitiesOfClass(PrehistoricCreature.class, player.getBoundingBox().inflate(range),
@@ -109,7 +130,7 @@ public class CryoCapsuleScreen extends Screen {
                                 && creature.distanceToSqr(player) <= range * range)
                 .stream()
                 .sorted(Comparator.comparingDouble(creature -> creature.distanceToSqr(player)))
-                .forEach(creature -> result.add(new Row(false, creature.getId(), creature.getName().getString(),
+                .forEach(creature -> result.add(new Row(false, null, creature.getId(), creature.getName().getString(),
                         creature.creatureLevel(), Component.literal(String.format(Locale.ROOT, "%.0f m",
                                 creature.distanceTo(player))))));
         return result;
@@ -123,11 +144,12 @@ public class CryoCapsuleScreen extends Screen {
         for (int index = 0; index < visibleRows && scroll + index < rows.size(); index++) {
             Row row = rows.get(scroll + index);
             int y = top + HEADER + index * ROW_HEIGHT + (ROW_HEIGHT - BUTTON_HEIGHT) / 2;
-            Button button = new TechButton(left + WIDTH - 8 - BUTTON_WIDTH, y, BUTTON_WIDTH, BUTTON_HEIGHT,
-                    Component.translatable(row.capsule() ? "iceagesurvival.cryo.release" : "iceagesurvival.cryo.store"),
-                    row.capsule() ? RadarHud.TARGET : RadarHud.BRIGHT,
-                    b -> ModPayloads.sendToServer(new CryoCapsulePayload(!row.capsule(), row.target())));
-            button.active = row.capsule() || emptyCapsules > 0;
+            Button button = new TechButton(left + WIDTH - 6 - SCROLLBAR - BUTTON_WIDTH, y, BUTTON_WIDTH, BUTTON_HEIGHT,
+                    Component.translatable(row.stored() ? "iceagesurvival.cryo.release" : "iceagesurvival.cryo.store"),
+                    row.stored() ? RadarHud.TARGET : RadarHud.BRIGHT,
+                    b -> send(row.stored() ? CryoCapsulePayload.release(row.entry())
+                            : CryoCapsulePayload.store(row.entity())));
+            button.active = !waiting;
             addRenderableWidget(button);
         }
     }
@@ -137,14 +159,12 @@ public class CryoCapsuleScreen extends Screen {
         if (++ticks % REFRESH_TICKS != 0) {
             return;
         }
-        int emptyBefore = emptyCapsules;
         List<Row> next = collect();
         // Só refaz os botões quando muda o que está listado; a distância muda sozinha no desenho.
-        if (emptyBefore != emptyCapsules || !sameTargets(next, rows)) {
-            rows = next;
+        boolean changed = !sameTargets(next, rows);
+        rows = next;
+        if (changed) {
             rebuild();
-        } else {
-            rows = next;
         }
     }
 
@@ -153,7 +173,8 @@ public class CryoCapsuleScreen extends Screen {
             return false;
         }
         for (int i = 0; i < a.size(); i++) {
-            if (a.get(i).capsule() != b.get(i).capsule() || a.get(i).target() != b.get(i).target()) {
+            if (a.get(i).stored() != b.get(i).stored() || a.get(i).entity() != b.get(i).entity()
+                    || !Objects.equals(a.get(i).entry(), b.get(i).entry())) {
                 return false;
             }
         }
@@ -188,21 +209,21 @@ public class CryoCapsuleScreen extends Screen {
         TechStyle.frame(graphics, left, top, right, bottom);
         int headerRight = right - 8 - tabsWidth() - 6;
         TechStyle.header(graphics, font, title, left + 8, top + 8, headerRight, 12);
-        Component empty = Component.translatable("iceagesurvival.cryo.empty_count", emptyCapsules);
-        graphics.drawString(font, empty, headerRight - font.width(empty), top + 8, RadarHud.SUBTLE);
+        Component count = Component.translatable("iceagesurvival.cryo.stored_count", frozen.size());
+        graphics.drawString(font, count, headerRight - font.width(count), top + 8, RadarHud.SUBTLE);
 
         if (rows.isEmpty()) {
-            graphics.drawCenteredString(font, Component.translatable("iceagesurvival.cryo.none"),
-                    left + WIDTH / 2, top + HEADER + 8, RadarHud.SUBTLE);
+            graphics.drawCenteredString(font, Component.translatable(waiting ? "iceagesurvival.cryo.loading"
+                    : "iceagesurvival.cryo.none"), left + WIDTH / 2, top + HEADER + 8, RadarHud.SUBTLE);
         }
-        int textRight = right - 14 - BUTTON_WIDTH;
+        int textRight = right - 12 - SCROLLBAR - BUTTON_WIDTH;
         for (int index = 0; index < visibleRows && scroll + index < rows.size(); index++) {
             Row row = rows.get(scroll + index);
             int y = top + HEADER + index * ROW_HEIGHT;
             if (mouseX >= left && mouseX < right && mouseY >= y && mouseY < y + ROW_HEIGHT) {
                 graphics.fill(left + 1, y, right - 1, y + ROW_HEIGHT, TechStyle.HOVER);
             }
-            if (row.capsule()) {
+            if (row.stored()) {
                 graphics.fill(left + 1, y + 2, left + 3, y + ROW_HEIGHT - 2, RadarHud.ACCENT);
             }
             int x = left + 10;
@@ -210,14 +231,27 @@ public class CryoCapsuleScreen extends Screen {
             String name = font.plainSubstrByWidth(row.name(), textRight - x - font.width(level) - 6);
             graphics.drawString(font, name, x, y + 3, RadarHud.TEXT);
             graphics.drawString(font, level, x + font.width(name) + 6, y + 3, RadarHud.TARGET);
-            Component detail = row.capsule() ? row.detail()
+            Component detail = row.stored() ? row.detail()
                     : Component.translatable("iceagesurvival.cryo.nearby").append(" · ").append(row.detail());
             graphics.drawString(font, detail, x, y + 12, RadarHud.SUBTLE);
             if (index > 0) {
                 graphics.fill(left + 10, y, right - 8, y + 1, HudShapes.fade(RadarHud.ACCENT, 0.15F));
             }
         }
+        if (rows.size() > visibleRows) {
+            renderScrollbar(graphics, right);
+        }
         super.render(graphics, mouseX, mouseY, partialTick);
+    }
+
+    private void renderScrollbar(GuiGraphics graphics, int right) {
+        int trackTop = top + HEADER;
+        int trackHeight = visibleRows * ROW_HEIGHT;
+        int x = right - 3 - SCROLLBAR / 2;
+        graphics.fill(x, trackTop, x + 2, trackTop + trackHeight, HudShapes.fade(RadarHud.ACCENT, 0.2F));
+        int thumb = Math.max(8, trackHeight * visibleRows / rows.size());
+        int thumbTop = trackTop + (trackHeight - thumb) * scroll / Math.max(1, rows.size() - visibleRows);
+        graphics.fill(x, thumbTop, x + 2, thumbTop + thumb, RadarHud.BRIGHT);
     }
 
     @Override

@@ -56,7 +56,7 @@ public class TitanRewardTests {
         helper.assertTrue(Math.abs(smilodon.getAttributeValue(Attributes.ATTACK_DAMAGE)
                 - attack * (1 + TitanSerumItem.ATTACK_BONUS)) < 0.01, "ataque: " + attack + " → "
                 + smilodon.getAttributeValue(Attributes.ATTACK_DAMAGE));
-        double expectedHealth = Math.min(1024.0, health * (1 + TitanSerumItem.HEALTH_BONUS));
+        double expectedHealth = Math.min(dev.madebyfelipe.iceagesurvival.entity.HealthCap.MAX, health * (1 + TitanSerumItem.HEALTH_BONUS));
         helper.assertTrue(Math.abs(smilodon.getMaxHealth() - expectedHealth) < 0.01,
                 "vida máxima: " + health + " → " + smilodon.getMaxHealth());
         helper.assertTrue(smilodon.getHealth() == smilodon.getMaxHealth(), "a vida não encheu: " + smilodon.getHealth());

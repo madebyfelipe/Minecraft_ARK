@@ -5,7 +5,7 @@
       "per_point": 0.08
     },
     "attack": {
-      "base": 18,
+      "base": 20,
       "per_point": 0.04
     },
     "speed": {

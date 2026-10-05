@@ -83,9 +83,21 @@ class BallisticsTest {
 
     @Test
     void strongerIndividualsTakeMoreShots() {
-        Target raptor = new Target(16, 800, false);
+        Target raptor = new Target(16, 800, false, 16 * 1.6);
         // Um raptor de nível alto com 60% a mais de vida aguenta mais que os 2 tiros de pistola do nível 1.
         assertTrue(shots(Firearm.HANDGUN, FAR, raptor, 16 * 1.6) > 2);
+    }
+
+    @Test
+    void levelGrowsShotsByTheSquareRootOfHealth() {
+        // Raptor com 4× a vida base: o tiro dobra, e ele aguenta o dobro dos tiros do nível 1 (4), não o quádruplo.
+        Target strong = new Target(16, 800, false, 64);
+        assertEquals(2.0, strong.levelFactor(), 1e-9);
+        assertEquals(4, shots(Firearm.HANDGUN, FAR, strong, 64));
+        // Dodô de nível alto (34 de vida, base 8): três tiros de pistola em vez de cinco.
+        assertEquals(3, shots(Firearm.HANDGUN, FAR, new Target(8, 400, false, 34), 34));
+        // Vida abaixo da base (filhote) não enfraquece o tiro.
+        assertEquals(1.0, new Target(16, 800, false, 8).levelFactor(), 1e-9);
     }
 
     @Test
