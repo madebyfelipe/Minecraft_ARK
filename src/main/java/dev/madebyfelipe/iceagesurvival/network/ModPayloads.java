@@ -71,6 +71,7 @@ public final class ModPayloads {
                 MoveOrderPayload::handle);
         registerServerbound(CallCreaturePayload.class, CallCreaturePayload::encode, CallCreaturePayload::decode,
                 CallCreaturePayload::handle);
+        registerServerbound(DisownPayload.class, DisownPayload::encode, DisownPayload::decode, DisownPayload::handle);
     }
 
     private ModPayloads() {

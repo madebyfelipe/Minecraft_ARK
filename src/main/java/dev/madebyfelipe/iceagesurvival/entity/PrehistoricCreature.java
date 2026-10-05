@@ -172,6 +172,8 @@ public abstract class PrehistoricCreature extends TamableAnimal {
     private static final EntityDataAccessor<String> DATA_OWNER_TEAM =
             SynchedEntityData.defineId(PrehistoricCreature.class, EntityDataSerializers.STRING);
     private static final String TAG_OWNER_NAME = "OwnerName";
+    /** Deserdada (MC-18): continua mansa sem dono; o vanilla só restaura o "domesticada" quando há dono. */
+    private static final String TAG_ABANDONED = "Abandoned";
     private static final String TAG_LEADER = "Leader";
     private static final String TAG_STRESS = "Stress";
     private static final String TAG_TICKS_SINCE_MEAL = "TicksSinceMeal";
@@ -3416,6 +3418,57 @@ public abstract class PrehistoricCreature extends TamableAnimal {
 
     // ---- Comandos ----
 
+    /**
+     * Deserdada pelo dono (MC-18): mansa e sem dono. Não ataca (postura passiva), não segue ninguém e qualquer pessoa a
+     * reivindica com um clique.
+     */
+    public boolean isAbandoned() {
+        return isTame() && getOwnerUUID() == null;
+    }
+
+    /**
+     * O dono abre mão da criatura: sela e inventário caem no chão ao lado dela, quem estiver montado desce e ela fica
+     * sem dono, mansa. Só o dono de verdade (não alguém do time). Só no servidor.
+     *
+     * @return se deserdou
+     */
+    public boolean disown(Player player) {
+        if (level().isClientSide || !isOwner(player) || isCorpse()) {
+            return false;
+        }
+        ejectPassengers();
+        if (isSaddled()) {
+            setSaddled(false);
+            spawnAtLocation(new ItemStack(SADDLE_ITEM));
+        }
+        Containers.dropContents(level(), this, inventory);
+        inventory.clearContent();
+        setOwnerUUID(null);
+        ownerName = "";
+        leaderUUID = null;
+        entityData.set(DATA_OWNER_TEAM, "");
+        setTarget(null);
+        setStance(Stance.PASSIVE);
+        setMovement(Movement.FOLLOW);
+        setMatingEnabled(false);
+        CreatureLocator.forget(this);
+        playSound(SoundEvents.ITEM_PICKUP, 0.8F, 0.6F);
+        return true;
+    }
+
+    /** Alguém reivindica a criatura deserdada: vira o dono, com as ordens padrão. Só no servidor. */
+    public boolean claim(Player player) {
+        if (level().isClientSide || !isAbandoned() || isCorpse()) {
+            return false;
+        }
+        tame(player);
+        setStance(DEFAULT_STANCE);
+        setMovement(DEFAULT_MOVEMENT);
+        CreatureLocator.update(this);
+        player.displayClientMessage(Component.translatable("iceagesurvival.disown.claimed", getName()), true);
+        return true;
+    }
+
     /** Se o jogador é o dono. Compara pelo UUID, então vale mesmo com o dono fora do mundo. */
     public boolean isOwner(Player player) {
         return isTame() && player.getUUID().equals(getOwnerUUID());
@@ -4045,6 +4098,12 @@ public abstract class PrehistoricCreature extends TamableAnimal {
             }
             return InteractionResult.sidedSuccess(level().isClientSide);
         }
+        if (isAbandoned() && !isUnconscious()) {
+            if (!level().isClientSide) {
+                claim(player);
+            }
+            return InteractionResult.sidedSuccess(level().isClientSide);
+        }
         ItemStack held = player.getItemInHand(hand);
         if (held.is(ModItems.STIMULANT.get()) && torpor > 0) {
             if (!level().isClientSide) {
@@ -4364,6 +4423,9 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         if (!ownerName.isEmpty()) {
             compound.putString(TAG_OWNER_NAME, ownerName);
         }
+        if (isAbandoned()) {
+            compound.putBoolean(TAG_ABANDONED, true);
+        }
         if (leaderUUID != null) {
             compound.putUUID(TAG_LEADER, leaderUUID);
         }
@@ -4466,6 +4528,9 @@ public abstract class PrehistoricCreature extends TamableAnimal {
         tamerUUID = compound.hasUUID(TAG_TAMER) ? compound.getUUID(TAG_TAMER) : null;
         entityData.set(DATA_SADDLED, compound.getBoolean(TAG_SADDLED));
         ownerName = compound.getString(TAG_OWNER_NAME);
+        if (compound.getBoolean(TAG_ABANDONED) && getOwnerUUID() == null) {
+            setTame(true);
+        }
         leaderUUID = compound.hasUUID(TAG_LEADER) ? compound.getUUID(TAG_LEADER) : null;
         Movement movement = Movement.byId(compound.getString(TAG_MOVEMENT), DEFAULT_MOVEMENT);
         Stance stance = Stance.byId(compound.getString(TAG_STANCE), DEFAULT_STANCE);

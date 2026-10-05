@@ -6,6 +6,7 @@ import dev.madebyfelipe.iceagesurvival.core.command.Whistle;
 import dev.madebyfelipe.iceagesurvival.core.stats.Stat;
 import dev.madebyfelipe.iceagesurvival.entity.PrehistoricCreature;
 import dev.madebyfelipe.iceagesurvival.network.CreatureStatusPayload;
+import dev.madebyfelipe.iceagesurvival.network.DisownPayload;
 import dev.madebyfelipe.iceagesurvival.network.ModPayloads;
 import dev.madebyfelipe.iceagesurvival.network.SpendBonusPointPayload;
 import dev.madebyfelipe.iceagesurvival.network.StatusRequestPayload;
@@ -35,6 +36,8 @@ public class CreatureStatusScreen extends Screen {
     private static final int ROW_HEIGHT = 11;
     /** Lado do botão "+" dos pontos distribuíveis, à direita da linha do atributo. */
     private static final int SPEND_SIZE = 10;
+    /** Tempo para confirmar o deserdar com o segundo clique. */
+    private static final int DISOWN_CONFIRM_TICKS = 20 * 5;
 
     private static final int LABEL = TechStyle.SUBTLE;
     private static final int VALUE = TechStyle.TEXT;
@@ -52,6 +55,9 @@ public class CreatureStatusScreen extends Screen {
     private final Map<Stat, Button> spendButtons = new EnumMap<>(Stat.class);
     private int ticks;
     private Button mating;
+    private Button disown;
+    /** Ticks restantes para o segundo clique confirmar o deserdar; 0 sem pedido. */
+    private int disownConfirm;
     private int left;
     private int top;
 
@@ -85,10 +91,20 @@ public class CreatureStatusScreen extends Screen {
         top = (height - HEIGHT) / 2;
         buttons.clear();
         int y = top + HEIGHT - 46;
-        // Primeira fileira: seguir, parar e o acasalamento, num terço cada.
-        int x = addWhistleRow(y, 3, Whistle.FOLLOW, Whistle.STAY);
-        mating = addRenderableWidget(new TechButton(x, y, (WIDTH - 16 - 4 * 2) / 3, 18, matingLabel(),
+        // Primeira fileira: seguir, parar, o acasalamento e deserdar (só o dono), num quarto cada.
+        int x = addWhistleRow(y, 4, Whistle.FOLLOW, Whistle.STAY);
+        int quarter = (WIDTH - 16 - 4 * 3) / 4;
+        mating = addRenderableWidget(new TechButton(x, y, quarter, 18, matingLabel(),
                 TechStyle.BRIGHT, b -> ModPayloads.sendToServer(new ToggleMatingPayload(creature.getId()))));
+        disown = addRenderableWidget(new TechButton(x + quarter + 4, y, quarter, 18, disownLabel(),
+                TechStyle.AMBER, b -> {
+                    if (disownConfirm > 0) {
+                        ModPayloads.sendToServer(new DisownPayload(creature.getId()));
+                        onClose();
+                    } else {
+                        disownConfirm = DISOWN_CONFIRM_TICKS;
+                    }
+                }));
         addWhistleRow(y + 22, 4, Whistle.PASSIVE, Whistle.NEUTRAL, Whistle.DEFEND, Whistle.FLEE);
         addSpendButtons();
         updateButtons();
@@ -136,11 +152,19 @@ public class CreatureStatusScreen extends Screen {
                 : "iceagesurvival.status.mating_short_off");
     }
 
+    private Component disownLabel() {
+        return Component.translatable(disownConfirm > 0 ? "iceagesurvival.disown.confirm" : "iceagesurvival.disown");
+    }
+
     /** O botão da ordem em vigor fica desligado e aceso, como uma aba selecionada. */
     private void updateButtons() {
         if (mating != null) {
             mating.setMessage(matingLabel());
             mating.active = !creature.isBaby() && creature.breedingProfile().isPresent();
+        }
+        if (disown != null) {
+            disown.visible = minecraft != null && minecraft.player != null && creature.isOwnedBy(minecraft.player);
+            disown.setMessage(disownLabel());
         }
         spendButtons.forEach((stat, button) -> button.visible = spendable(stat));
         buttons.forEach((whistle, button) -> button.active =
@@ -153,6 +177,9 @@ public class CreatureStatusScreen extends Screen {
         if (!creature.isAlive() || creature.isRemoved()) {
             onClose();
             return;
+        }
+        if (disownConfirm > 0) {
+            disownConfirm--;
         }
         updateButtons();
         if (++ticks % REFRESH_TICKS == 0) {
